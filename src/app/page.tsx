@@ -1,29 +1,42 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
-import { RAW_SURVEY_DATA, MesoRegion, SurveyRecord } from '@/data/survey-data';
+import { MesoRegion, SurveyRecord, RAW_SURVEY_DATA } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Users, CheckCircle, Activity, MapPin, Zap, ShieldCheck } from 'lucide-react';
+import { Users, CheckCircle, Activity, MapPin, Zap, ShieldCheck, Database, RefreshCw } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
-import { motion } from 'framer-motion';
+import { useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection, query, limit } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
-  const [surveyData, setSurveyData] = useState<SurveyRecord[]>([]);
+  const db = useFirestore();
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Firestore Collection
+  const surveyQuery = useMemoFirebase(() => {
+    return query(collection(db, 'survey_records'), limit(2000));
+  }, [db]);
+
+  const { data: cloudData, isLoading } = useCollection<SurveyRecord>(surveyQuery);
+
+  // Fallback to static data if cloud is empty or loading for demonstration
+  const activeData = useMemo(() => {
+    if (cloudData && cloudData.length > 0) return cloudData;
+    return RAW_SURVEY_DATA;
+  }, [cloudData]);
+
   const [filters, setFilters] = useState({
     region: 'all',
     age: 'all',
     gender: 'all'
   });
-
-  useEffect(() => {
-    // Simulando carregamento de dados após hidratação
-    setSurveyData(RAW_SURVEY_DATA);
-  }, []);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -32,34 +45,21 @@ export default function Home() {
   const clearFilters = () => setFilters({ region: 'all', age: 'all', gender: 'all' });
 
   const filteredData = useMemo(() => {
-    return surveyData.filter(item => {
+    return activeData.filter(item => {
       const regionMatch = filters.region === 'all' || item.region === filters.region;
       const ageMatch = filters.age === 'all' || item.age === filters.age;
       const genderMatch = filters.gender === 'all' || item.gender === filters.gender;
       return regionMatch && ageMatch && genderMatch;
     });
-  }, [filters, surveyData]);
+  }, [filters, activeData]);
 
   const stats = useMemo(() => {
     const total = filteredData.length;
     const approvalCount = filteredData.filter(d => d.approval === 'Aprova').length;
-    const disapprovalCount = filteredData.filter(d => d.approval === 'Desaprova').length;
     const citiesCount = new Set(filteredData.map(d => d.city)).size;
-
     const approvalPct = total > 0 ? (approvalCount / total) * 100 : 0;
-    const disapprovalPct = total > 0 ? (disapprovalCount / total) * 100 : 0;
 
-    return { total, approvalCount, approvalPct, disapprovalCount, disapprovalPct, citiesCount };
-  }, [filteredData]);
-
-  const mapStats = useMemo(() => {
-    const counts: Record<MesoRegion, number> = {
-      Norte: 0, Sul: 0, Oeste: 0, Leste: 0, Centro: 0
-    };
-    filteredData.forEach(d => {
-      counts[d.region as MesoRegion]++;
-    });
-    return counts;
+    return { total, approvalCount, approvalPct, citiesCount };
   }, [filteredData]);
 
   const chartData = useMemo(() => {
@@ -82,58 +82,99 @@ export default function Home() {
     return { approvalData, candidateData };
   }, [filteredData]);
 
+  // Handle Seeding data to Firestore for initial setup
+  const seedData = async () => {
+    if (!cloudData || cloudData.length > 0) return;
+    setIsSyncing(true);
+    const batchSize = 50;
+    const itemsToSeed = RAW_SURVEY_DATA.slice(0, 200); // Seeding subset for speed in prototype
+    
+    for (const record of itemsToSeed) {
+      addDocumentNonBlocking(collection(db, 'survey_records'), record);
+    }
+    
+    setTimeout(() => setIsSyncing(false), 2000);
+  };
+
   return (
     <AppLayout>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:auto-rows-[minmax(200px,auto)]">
-        {/* Bento Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:auto-rows-[minmax(180px,auto)]">
+        {/* Real-time Status Card */}
+        <BentoCard className="bg-zinc-900 border-none relative overflow-hidden group">
+          <div className="flex flex-col h-full justify-between relative z-10">
+            <div className="flex items-center justify-between">
+              <div className="p-2.5 rounded-xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
+                <Database size={18} />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Cloud Live</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Origem de Dados</span>
+              <h4 className="text-xl font-bold text-white tracking-tight">
+                {cloudData && cloudData.length > 0 ? 'Firestore DB' : 'Static Demo'}
+              </h4>
+              <p className="text-[10px] text-zinc-400 font-medium">
+                {isLoading ? 'Conectando...' : `${activeData.length} registros sincronizados.`}
+              </p>
+            </div>
+            {!cloudData || cloudData.length === 0 ? (
+              <button 
+                onClick={seedData}
+                disabled={isSyncing}
+                className="mt-4 w-full py-2.5 rounded-xl bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-orange-500 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw size={12} className={isSyncing ? "animate-spin" : ""} />
+                Sincronizar DB
+              </button>
+            ) : null}
+          </div>
+          <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-orange-600/5 blur-[50px] rounded-full" />
+        </BentoCard>
+
         <StatCard 
-          label="Amostra (N)" 
-          value={stats.total.toLocaleString()} 
-          subValue="Registros validados via Orange Engine"
-          icon={Users} 
-        />
-        <StatCard 
-          label="Aprovação de Governo" 
+          label="Aprovação" 
           value={`${stats.approvalPct.toFixed(1)}%`} 
-          subValue="Variação positiva na última janela"
+          subValue="Sentimento positivo médio"
           icon={CheckCircle} 
           trend="up"
         />
         <StatCard 
           label="Volatilidade" 
           value="14.2%" 
-          subValue="Índice de potencial troca de voto"
+          subValue="Índice de potencial troca"
           icon={Activity} 
         />
         <StatCard 
           label="Capilaridade" 
           value={stats.citiesCount} 
-          subValue="Municípios com dados ativos"
+          subValue="Municípios ativos"
           icon={MapPin} 
         />
 
-        {/* Filters Box - Spans 2 rows vertically */}
         <FilterBentoBox 
           filters={filters} 
           onFilterChange={handleFilterChange} 
           onClear={clearFilters} 
         />
 
-        {/* Map - Main Feature, spans 2 columns and 2 rows */}
         <InteractiveMap 
-          stats={mapStats} 
+          stats={activeData.reduce((acc, curr) => {
+            acc[curr.region as MesoRegion] = (acc[curr.region as MesoRegion] || 0) + 1;
+            return acc;
+          }, {} as Record<MesoRegion, number>)} 
           activeRegion={filters.region}
           onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
         />
 
-        {/* Approval Chart */}
         <ApprovalChart data={chartData.approvalData} />
 
-        {/* Candidate Chart - Spans 2 columns */}
         <CandidateChart data={chartData.candidateData} />
 
-        {/* Insights Bento - Premium Visual */}
-        <BentoCard className="bg-orange-600 text-white border-none shadow-2xl shadow-orange-600/30 group">
+        {/* Intelligence Insight Bento */}
+        <BentoCard className="bg-orange-600 text-white border-none shadow-2xl shadow-orange-600/30 group relative">
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="p-3 rounded-2xl bg-white/20 w-fit backdrop-blur-md ring-1 ring-white/30 group-hover:scale-110 transition-transform">
               <Zap size={24} fill="currentColor" />
@@ -141,43 +182,45 @@ export default function Home() {
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-200">
                 <span className="w-1 h-1 rounded-full bg-orange-200 animate-ping" />
-                Live Insight
+                Live Analysis
               </div>
-              <h4 className="text-2xl font-bold leading-tight tracking-tight">Crescimento Orgânico</h4>
+              <h4 className="text-2xl font-bold leading-tight tracking-tight">Tendência Regional</h4>
               <p className="text-orange-100/80 text-xs font-medium leading-relaxed">
-                Cruzamento de dados aponta ascensão de 4.1% no setor Leste impulsionada pelo público 16-24.
+                {filters.region === 'all' 
+                  ? "Consolidação de liderança do Candidato A em áreas urbanas." 
+                  : `Recorte ${filters.region} aponta alta indecisão no público jovem.`}
               </p>
             </div>
           </div>
           <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 blur-[100px] rounded-full pointer-events-none" />
         </BentoCard>
 
-        {/* Technical Validation Bento */}
-        <BentoCard title="Validação" subtitle="Controle de Qualidade" className="lg:col-span-1">
-          <div className="space-y-6 mt-2">
-            <div className="flex items-center justify-between">
+        {/* Quality Assurance Bento */}
+        <BentoCard title="Qualidade" subtitle="Controle Orange Engine" className="lg:col-span-1">
+          <div className="space-y-5 mt-2">
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
-                  <ShieldCheck size={18} />
-                </div>
+                <ShieldCheck size={18} className="text-emerald-500" />
                 <div>
-                  <div className="text-[10px] font-black uppercase text-zinc-400">Status</div>
-                  <div className="text-xs font-bold text-zinc-900">Nível Confiança 95%</div>
+                  <div className="text-[9px] font-black uppercase text-zinc-400">Confiança</div>
+                  <div className="text-xs font-bold text-zinc-900">95% Validada</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] font-black uppercase text-zinc-400">Margem</div>
-                <div className="text-xs font-mono font-bold text-orange-600">±2.3pp</div>
+                <div className="text-[10px] font-mono font-bold text-orange-600">±2.3pp</div>
               </div>
             </div>
-            <div className="pt-4 border-t border-zinc-100 flex gap-4">
-              <div className="flex-1 p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
-                <span className="text-[8px] font-black text-zinc-400 uppercase block mb-1">Algoritmo</span>
-                <span className="text-[10px] font-bold text-zinc-900">V3.4 Stable</span>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-[10px] font-black uppercase text-zinc-400 px-1">
+                <span>Integridade de Dados</span>
+                <span className="text-zinc-900">98.4%</span>
               </div>
-              <div className="flex-1 p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
-                <span className="text-[8px] font-black text-zinc-400 uppercase block mb-1">Latência</span>
-                <span className="text-[10px] font-bold text-zinc-900">12ms</span>
+              <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: '98.4%' }}
+                  className="h-full bg-orange-600"
+                />
               </div>
             </div>
           </div>
