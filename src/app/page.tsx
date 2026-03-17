@@ -20,9 +20,18 @@ export default function Home() {
   const auth = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [currentDate, setCurrentDate] = useState<string>('');
 
   useEffect(() => {
     setMounted(true);
+    // Define a data atual no formato brasileiro ao montar o componente
+    const now = new Date();
+    const formatted = now.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    setCurrentDate(formatted);
   }, []);
 
   useEffect(() => {
@@ -133,14 +142,19 @@ export default function Home() {
               </p>
             </div>
             {!cloudData || cloudData.length === 0 ? (
-              <button 
-                onClick={seedData}
-                disabled={isSyncing || !user}
-                className="mt-6 w-full py-4 rounded-2xl premium-gradient text-white text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 hover:shadow-orange-600/40"
-              >
-                <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
-                Inicializar DB
-              </button>
+              <div className="mt-6 space-y-3">
+                <button 
+                  onClick={seedData}
+                  disabled={isSyncing || !user}
+                  className="w-full py-4 rounded-2xl premium-gradient text-white text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 hover:shadow-orange-600/40"
+                >
+                  <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
+                  Sincronizar
+                </button>
+                <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest text-center">
+                  última sincronização - {currentDate || '--/--/----'}
+                </p>
+              </div>
             ) : null}
           </div>
           <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full" />
