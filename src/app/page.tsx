@@ -1,10 +1,9 @@
-
 "use client";
 
 import React, { useMemo, useState } from 'react';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { BottomNav } from '@/components/layout/bottom-nav';
-import { RAW_SURVEY_DATA, MesoRegion, SurveyRecord } from '@/data/survey-data';
+import { RAW_SURVEY_DATA, MesoRegion } from '@/data/survey-data';
 import { StatItem } from '@/components/dashboard/stat-item';
 import { Users, CheckCircle, XCircle, MapPin, Search } from 'lucide-react';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
@@ -12,6 +11,7 @@ import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { FilterEngine } from '@/components/filters/filter-engine';
 import { MaranhaoMap } from '@/components/dashboard/maranhao-map';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const [filters, setFilters] = useState({
