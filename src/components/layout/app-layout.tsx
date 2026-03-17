@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { LayoutDashboard, BarChart3, Users, Settings, Search, Bell, Menu } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, Settings, Search, Bell, Menu, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -11,96 +11,104 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative">
-      {/* Premium Background Pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+    <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative">
+      {/* Ambiente Imersivo: Grid de Engenharia e Degradê Radial */}
+      <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.8),transparent)] pointer-events-none z-0" />
 
-      {/* Top Header - Solid Premium Style */}
-      <header className="h-24 bg-white border-b border-zinc-200/80 flex items-center justify-between px-12 sticky top-0 z-50 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
-        <div className="flex items-center gap-12">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl premium-gradient flex items-center justify-center text-white font-black text-2xl shadow-[0_4px_12px_rgba(234,88,12,0.3)] relative group overflow-hidden border border-orange-400/20">
-              <span className="relative z-10 drop-shadow-md">F</span>
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent group-hover:opacity-50 transition-opacity" />
+      {/* Header: Luxo Sólido com Micro-profundidade */}
+      <header className="h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center gap-16">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl premium-gradient flex items-center justify-center text-white font-black text-3xl shadow-xl relative group overflow-hidden border border-orange-400/30">
+              <span className="relative z-10 drop-shadow-2xl">F</span>
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="flex flex-col">
-              <div className="font-black text-xl tracking-tighter leading-none text-zinc-900">FOCCO</div>
-              <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] mt-0.5">Analytics</div>
+              <div className="font-black text-2xl tracking-tighter leading-none text-zinc-950">FOCCO</div>
+              <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em] mt-1">Intelligence</div>
             </div>
           </div>
           
-          <nav className="hidden lg:flex items-center gap-2">
+          <nav className="hidden lg:flex items-center gap-3">
             <NavItem icon={LayoutDashboard} label="Dashboard" active />
-            <NavItem icon={BarChart3} label="Relatórios" />
-            <NavItem icon={Users} label="Amostras" />
-            <NavItem icon={Settings} label="Config" />
+            <NavItem icon={BarChart3} label="Analytics" />
+            <NavItem icon={Users} label="Demographics" />
+            <NavItem icon={Settings} label="System" />
           </nav>
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="hidden xl:flex items-center bg-zinc-100 rounded-2xl px-5 py-2.5 gap-3 text-zinc-400 border border-zinc-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-orange-500/10 transition-all shadow-inner">
-            <Search size={18} />
+        <div className="flex items-center gap-8">
+          <div className="hidden xl:flex items-center inner-relief rounded-[1.25rem] px-6 py-3 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-64 group">
+            <Search size={18} className="group-focus-within:text-orange-600 transition-colors" />
             <input 
               type="text" 
-              placeholder="Pesquisar..." 
-              className="bg-transparent border-none outline-none text-sm font-bold text-zinc-900 placeholder:text-zinc-400 w-40"
+              placeholder="Deep Search..." 
+              className="bg-transparent border-none outline-none text-sm font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
             />
           </div>
-          <button className="p-3 rounded-2xl bg-white border border-zinc-200 text-zinc-400 hover:text-orange-600 hover:border-orange-200 transition-all active:scale-95 shadow-sm">
-            <Bell size={20} />
+          <button className="p-3.5 rounded-2xl bg-white border border-zinc-200 text-zinc-400 hover:text-orange-600 hover:border-orange-300 transition-all hover:scale-110 shadow-sm active:scale-95">
+            <Bell size={22} />
           </button>
-          <div className="w-11 h-11 rounded-2xl border-2 border-white shadow-md overflow-hidden ring-1 ring-zinc-200 cursor-pointer hover:scale-105 transition-transform">
-            <img src="https://picsum.photos/seed/user/100/100" alt="Avatar" className="w-full h-full object-cover" />
+          <div className="w-12 h-12 rounded-2xl border-4 border-white shadow-xl overflow-hidden ring-1 ring-zinc-200 cursor-pointer hover:scale-110 transition-transform active:scale-95">
+            <img src="https://picsum.photos/seed/user-lxs/100/100" alt="Avatar" className="w-full h-full object-cover" />
           </div>
-          <button className="lg:hidden p-3 rounded-2xl bg-zinc-900 text-white shadow-lg">
-            <Menu size={20} />
+          <button className="lg:hidden p-3.5 rounded-2xl bg-zinc-950 text-white shadow-xl">
+            <Menu size={22} />
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-[1700px] mx-auto p-12 lg:p-16 relative z-10">
+      {/* Main Content: Bento Grid Structure */}
+      <main className="max-w-[1800px] mx-auto p-12 lg:p-20 relative z-10">
         <motion.div 
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          className="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-8"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-10"
         >
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-[11px] font-black text-orange-600 uppercase tracking-[0.3em]">
-              <div className="flex gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-600 shadow-[0_0_8px_rgba(234,88,12,0.4)]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-200" />
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 text-[12px] font-black text-orange-600 uppercase tracking-[0.4em]">
+              <div className="flex gap-2">
+                <span className="w-2 h-2 rounded-full premium-gradient shadow-[0_0_10px_rgba(234,88,12,0.5)]" />
+                <span className="w-2 h-2 rounded-full bg-zinc-300" />
+                <span className="w-2 h-2 rounded-full bg-zinc-200" />
               </div>
-              Live Intelligence MA-2024
+              Real-time Intelligence Node • 2024
             </div>
-            <h1 className="text-5xl font-black tracking-tighter text-zinc-950 leading-tight">Resultados Consolidados</h1>
-            <p className="text-zinc-500 font-medium text-lg max-w-2xl">Estratificação avançada e análise preditiva de comportamento eleitoral em alta fidelidade.</p>
+            <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Consolidated Analytics</h1>
+            <p className="text-zinc-500 font-medium text-xl max-w-3xl leading-relaxed">
+              Estratificação de alta precisão e processamento geospacial em tempo real para inteligência estratégica.
+            </p>
           </div>
           
-          <div className="flex items-center gap-5">
-            <div className="px-8 py-5 rounded-3xl bg-white border border-zinc-200 shadow-sm flex flex-col items-center min-w-[140px] relative overflow-hidden group">
-              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 relative z-10">Amostra</span>
-              <span className="text-3xl font-mono font-bold text-zinc-900 relative z-10">1.817</span>
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-50" />
+          <div className="flex items-center gap-6">
+            <div className="px-10 py-6 rounded-[2rem] bg-white border border-zinc-200 shadow-lg flex flex-col items-center min-w-[160px] hover-lift">
+              <span className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-2">Sample Size</span>
+              <span className="text-4xl font-mono font-bold text-zinc-950">1.817</span>
             </div>
-            <div className="px-8 py-5 rounded-3xl premium-gradient text-white shadow-[0_10px_25px_rgba(234,88,12,0.25)] flex flex-col items-center min-w-[140px] border border-orange-400/20 group hover:scale-105 transition-transform">
-              <span className="text-[10px] font-black text-orange-100 uppercase tracking-widest mb-1 drop-shadow-sm">Confiança</span>
-              <span className="text-3xl font-mono font-bold drop-shadow-md">95.0%</span>
+            <div className="px-10 py-6 rounded-[2rem] premium-gradient text-white shadow-2xl flex flex-col items-center min-w-[160px] border border-orange-400/30 hover-lift group">
+              <span className="text-[11px] font-black text-orange-100 uppercase tracking-[0.3em] mb-2 drop-shadow-sm">Confidence</span>
+              <span className="text-4xl font-mono font-bold drop-shadow-xl">95.0%</span>
             </div>
           </div>
         </motion.div>
         
         {children}
 
-        <footer className="mt-24 pt-12 border-t border-zinc-200 flex flex-col md:flex-row items-center justify-between gap-6 pb-12">
-          <div className="text-[11px] font-black text-zinc-400 uppercase tracking-widest">
-            © 2024 FOCCO ANALYTICS • PRO EDITION V3.5
+        <footer className="mt-32 pt-16 border-t border-zinc-200 flex flex-col md:flex-row items-center justify-between gap-8 pb-16">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl inner-relief flex items-center justify-center text-zinc-400">
+              <Cpu size={18} />
+            </div>
+            <div className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.3em]">
+              © 2024 FOCCO ANALYTICS • PRO EDITION V3.5-LXS
+            </div>
           </div>
-          <div className="flex gap-8 text-[11px] font-black text-zinc-400 uppercase tracking-widest">
-            <a href="#" className="hover:text-orange-600 transition-colors">Termos de Uso</a>
-            <a href="#" className="hover:text-orange-600 transition-colors">Privacidade</a>
-            <a href="#" className="hover:text-orange-600 transition-colors">Suporte Técnico</a>
+          <div className="flex gap-10 text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em]">
+            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Protocols</a>
+            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Encryption</a>
+            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Advanced Support</a>
           </div>
         </footer>
       </main>
@@ -110,17 +118,17 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
 const NavItem = ({ icon: Icon, label, active }: { icon: any, label: string, active?: boolean }) => (
   <button className={cn(
-    "flex items-center gap-2.5 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all relative group",
+    "flex items-center gap-3.5 px-7 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all relative group",
     active 
-      ? "text-orange-600 bg-orange-50/50 border border-orange-100/50 shadow-sm" 
-      : "text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100"
+      ? "text-orange-600 bg-orange-50/60 border border-orange-100/50 shadow-sm" 
+      : "text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100"
   )}>
-    <Icon size={16} strokeWidth={2.5} className={cn(active ? "text-orange-600" : "text-zinc-400")} />
+    <Icon size={18} strokeWidth={active ? 3 : 2.5} className={cn(active ? "text-orange-600" : "text-zinc-400 group-hover:text-zinc-950")} />
     {label}
     {active && (
       <motion.div 
-        layoutId="nav-active"
-        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-orange-600"
+        layoutId="nav-active-lxs"
+        className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full premium-gradient shadow-[0_0_8px_rgba(234,88,12,0.6)]"
       />
     )}
   </button>

@@ -14,33 +14,44 @@ interface BentoCardProps {
 export const BentoCard = ({ children, className, title, subtitle }: BentoCardProps) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ 
-        y: -6, 
-        transition: { duration: 0.3, ease: "easeOut" } 
+        y: -10,
+        scale: 1.01,
+        transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } 
       }}
-      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
-        "bg-white rounded-[2.5rem] p-8 flex flex-col gap-4 overflow-hidden relative border border-zinc-200/60",
-        "shadow-[0_8px_30px_rgba(0,0,0,0.04),0_4px_10px_rgba(0,0,0,0.02)]",
+        "bg-white rounded-[2.5rem] p-8 flex flex-col gap-4 overflow-hidden relative",
+        "border border-zinc-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.01)]",
         "before:absolute before:inset-0 before:rounded-[2.5rem] before:ring-1 before:ring-inset before:ring-white before:pointer-events-none before:z-20",
         className
       )}
     >
+      {/* Header do Card com Tipografia Elegante */}
       {(title || subtitle) && (
-        <div className="space-y-1 mb-2 relative z-10">
-          {title && <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">{title}</h3>}
-          {subtitle && <p className="text-xl font-bold text-zinc-900 tracking-tight">{subtitle}</p>}
+        <div className="space-y-1.5 mb-2 relative z-10">
+          {title && (
+            <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+              <span className="w-1 h-3 premium-gradient rounded-full" />
+              {title}
+            </h3>
+          )}
+          {subtitle && <p className="text-2xl font-bold text-zinc-950 tracking-tight">{subtitle}</p>}
         </div>
       )}
+      
       <div className="flex-1 relative z-10">
         {children}
       </div>
       
-      {/* Subtle bottom bevel for 3D feel */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-100/50 border-t border-zinc-200/20" />
+      {/* Chanfro Inferior para Sensação 3D de Materialidade Sólida */}
+      <div className="absolute bottom-0 left-0 right-0 h-[6px] bg-zinc-100/60 border-t border-zinc-200/30 z-0" />
+      
+      {/* Sombra de Contato Interna */}
+      <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] z-0" />
     </motion.div>
   );
 };

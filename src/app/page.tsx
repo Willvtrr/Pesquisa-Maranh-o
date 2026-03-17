@@ -8,7 +8,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { CheckCircle, Activity, MapPin, Zap, ShieldCheck, Database, RefreshCw } from 'lucide-react';
+import { CheckCircle, Activity, MapPin, Zap, ShieldCheck, Database, RefreshCw, Cpu } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, useUser, useAuth, initiateAnonymousSignIn } from '@/firebase';
 import { collection, query, limit, doc } from 'firebase/firestore';
@@ -98,79 +98,77 @@ export default function Home() {
     return { approvalData, candidateData };
   }, [filteredData]);
 
-  // Handle Seeding data to Firestore for initial setup
   const seedData = async () => {
     if (!user || (cloudData && cloudData.length > 0)) return;
     setIsSyncing(true);
     const itemsToSeed = RAW_SURVEY_DATA.slice(0, 200); 
     
     for (const record of itemsToSeed) {
-      // Use setDocumentNonBlocking with a stable ID to satisfy integrity rules
       const docRef = doc(db, 'survey_records', String(record.id));
       setDocumentNonBlocking(docRef, record, { merge: true });
     }
     
-    // Artificial delay for UX
     setTimeout(() => setIsSyncing(false), 2000);
   };
 
   return (
     <AppLayout>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:auto-rows-[minmax(180px,auto)]">
-        {/* Real-time Status Card */}
-        <BentoCard className="bg-zinc-900 border-none relative overflow-hidden group">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:auto-rows-[minmax(200px,auto)]">
+        {/* Real-time Status Card - Luxury 3D Version */}
+        <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl">
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
-              <div className="p-2.5 rounded-xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
-                <Database size={18} />
+              <div className="p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30 shadow-[inset_0_2px_10px_rgba(249,115,22,0.1)] group-hover:premium-gradient group-hover:text-white transition-all">
+                <Database size={20} />
               </div>
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${user ? 'bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`} />
-                <span className={`text-[10px] font-black uppercase tracking-widest ${user ? 'text-emerald-500' : 'text-amber-500'}`}>
-                  {user ? 'Cloud Live' : 'Connecting...'}
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+                <span className={`w-2 h-2 rounded-full ${user ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                <span className={`text-[9px] font-black uppercase tracking-widest ${user ? 'text-emerald-500' : 'text-amber-500'}`}>
+                  {user ? 'Cloud Live' : 'Connecting'}
                 </span>
               </div>
             </div>
-            <div className="space-y-1">
-              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Origem de Dados</span>
-              <h4 className="text-xl font-bold text-white tracking-tight">
-                {cloudData && cloudData.length > 0 ? 'Firestore DB' : 'Static Demo'}
+            <div className="space-y-2 mt-4">
+              <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Data Backbone</span>
+              <h4 className="text-2xl font-bold text-white tracking-tight">
+                {cloudData && cloudData.length > 0 ? 'Firestore Pro' : 'Local Sandbox'}
               </h4>
-              <p className="text-[10px] text-zinc-400 font-medium">
-                {isLoading ? 'Sincronizando...' : `${activeData.length} registros ativos.`}
+              <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wide">
+                {isLoading ? 'Syncing...' : `${activeData.length} records processing.`}
               </p>
             </div>
             {!cloudData || cloudData.length === 0 ? (
               <button 
                 onClick={seedData}
                 disabled={isSyncing || !user}
-                className="mt-4 w-full py-2.5 rounded-xl bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-orange-500 transition-colors disabled:opacity-50"
+                className="mt-6 w-full py-4 rounded-2xl premium-gradient text-white text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 hover:shadow-orange-600/40"
               >
-                <RefreshCw size={12} className={isSyncing ? "animate-spin" : ""} />
-                Sincronizar DB
+                <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
+                Initialize DB
               </button>
             ) : null}
           </div>
-          <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-orange-600/5 blur-[50px] rounded-full" />
+          {/* Luz de Fundo Imersiva */}
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full" />
         </BentoCard>
 
         <StatCard 
-          label="Aprovação" 
+          label="Approval Rate" 
           value={`${stats.approvalPct.toFixed(1)}%`} 
-          subValue="Sentimento positivo médio"
+          subValue="Positive Sentiment"
           icon={CheckCircle} 
           trend="up"
         />
         <StatCard 
-          label="Volatilidade" 
+          label="Volatility" 
           value="14.2%" 
-          subValue="Índice de potencial troca"
+          subValue="Potential Shift Index"
           icon={Activity} 
         />
         <StatCard 
-          label="Capilaridade" 
+          label="Geo-Capillarity" 
           value={stats.citiesCount} 
-          subValue="Municípios ativos"
+          subValue="Active Municipalities"
           icon={MapPin} 
         />
 
@@ -193,55 +191,64 @@ export default function Home() {
 
         <CandidateChart data={chartData.candidateData} />
 
-        {/* Intelligence Insight Bento */}
-        <BentoCard className="bg-orange-600 text-white border-none shadow-2xl shadow-orange-600/30 group relative">
+        {/* Intelligence Insight Bento - Sophisticated Edition */}
+        <BentoCard className="bg-orange-600 text-white border-none shadow-2xl shadow-orange-600/30 relative">
           <div className="flex flex-col h-full justify-between relative z-10">
-            <div className="p-3 rounded-2xl bg-white/20 w-fit backdrop-blur-md ring-1 ring-white/30 group-hover:scale-110 transition-transform">
-              <Zap size={24} fill="currentColor" />
+            <div className="p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md ring-1 ring-white/30 shadow-lg">
+              <Zap size={28} fill="currentColor" />
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-200">
-                <span className="w-1 h-1 rounded-full bg-orange-200 animate-ping" />
-                Live Analysis
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-orange-200">
+                <span className="w-2 h-2 rounded-full bg-orange-200 animate-pulse shadow-[0_0_8px_white]" />
+                Predictive Analysis
               </div>
-              <h4 className="text-2xl font-bold leading-tight tracking-tight">Tendência Regional</h4>
-              <p className="text-orange-100/80 text-xs font-medium leading-relaxed">
+              <h4 className="text-3xl font-bold leading-tight tracking-tight">Regional Pulse</h4>
+              <p className="text-orange-50/90 text-sm font-medium leading-relaxed">
                 {filters.region === 'all' 
-                  ? "Consolidação de liderança do Candidato A em áreas urbanas." 
-                  : `Recorte ${filters.region} aponta alta indecisão no público jovem.`}
+                  ? "Consolidação estratégica identificada no cinturão metropolitano." 
+                  : `O recorte em ${filters.region} demonstra resistência no eleitorado sênior.`}
               </p>
             </div>
           </div>
-          <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute top-[-30%] right-[-20%] w-72 h-72 bg-white/10 blur-[120px] rounded-full pointer-events-none" />
         </BentoCard>
 
-        {/* Quality Assurance Bento */}
-        <BentoCard title="Qualidade" subtitle="Controle Orange Engine" className="lg:col-span-1">
-          <div className="space-y-5 mt-2">
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
-              <div className="flex items-center gap-3">
-                <ShieldCheck size={18} className="text-emerald-500" />
+        {/* Quality Assurance Bento - Technical Precision */}
+        <BentoCard title="Integrity" subtitle="Orange Engine Core" className="lg:col-span-1">
+          <div className="space-y-6 mt-4">
+            <div className="flex items-center justify-between p-4 rounded-2xl inner-relief">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 rounded-xl premium-gradient text-white">
+                  <ShieldCheck size={20} />
+                </div>
                 <div>
-                  <div className="text-[9px] font-black uppercase text-zinc-400">Confiança</div>
-                  <div className="text-xs font-bold text-zinc-900">95% Validada</div>
+                  <div className="text-[10px] font-black uppercase text-zinc-400 tracking-wider">Confidence</div>
+                  <div className="text-sm font-bold text-zinc-950">95.0% Certified</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] font-mono font-bold text-orange-600">±2.3pp</div>
+                <div className="text-[11px] font-mono font-bold text-orange-600">±2.3pp</div>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between text-[10px] font-black uppercase text-zinc-400 px-1">
-                <span>Integridade de Dados</span>
-                <span className="text-zinc-900">98.4%</span>
+            
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between text-[10px] font-black uppercase text-zinc-500 px-1 tracking-widest">
+                <span>Data Fidelity</span>
+                <span className="text-zinc-950 font-mono">98.4%</span>
               </div>
-              <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+              <div className="h-2.5 w-full inner-relief rounded-full overflow-hidden p-[2px]">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: '98.4%' }}
-                  className="h-full bg-orange-600"
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full premium-gradient rounded-full shadow-[0_0_10px_rgba(234,88,12,0.3)]"
                 />
               </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+              <Cpu size={14} className="animate-pulse" />
+              Processing: v3.5-LXS
             </div>
           </div>
         </BentoCard>
