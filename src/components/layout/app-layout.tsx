@@ -87,7 +87,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   </div>
                 ))}
               </div>
-              Nó de Inteligência em Tempo Real • 2024
+              Monitoramento em tempo real • 2026
             </div>
             <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Análises Consolidadas</h1>
             <p className="text-zinc-500 font-medium text-xl max-w-3xl leading-relaxed">
@@ -115,7 +115,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <Cpu size={18} />
             </div>
             <div className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.3em]">
-              © 2024 FOCCO ANALYTICS • EDIÇÃO PRO V3.5-LXS
+              © 2026 FOCCO ANALYTICS • EDIÇÃO PRO V3.5-LXS
             </div>
           </div>
           <div className="flex gap-10 text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em]">
