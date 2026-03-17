@@ -13,11 +13,9 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative">
-      {/* Ambiente Imersivo: Grid de Engenharia e Degradê Radial */}
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.8),transparent)] pointer-events-none z-0" />
 
-      {/* Header: Luxo Sólido com Micro-profundidade */}
       <header className="h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-16">
           <div className="flex items-center gap-5">
@@ -32,10 +30,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
           
           <nav className="hidden lg:flex items-center gap-3">
-            <NavItem icon={LayoutDashboard} label="Dashboard" active />
-            <NavItem icon={BarChart3} label="Analytics" />
-            <NavItem icon={Users} label="Demographics" />
-            <NavItem icon={Settings} label="System" />
+            <NavItem icon={LayoutDashboard} label="Painel" active />
+            <NavItem icon={BarChart3} label="Análises" />
+            <NavItem icon={Users} label="Demografia" />
+            <NavItem icon={Settings} label="Sistema" />
           </nav>
         </div>
 
@@ -44,7 +42,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <Search size={18} className="group-focus-within:text-orange-600 transition-colors" />
             <input 
               type="text" 
-              placeholder="Deep Search..." 
+              placeholder="Busca Profunda..." 
               className="bg-transparent border-none outline-none text-sm font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
             />
           </div>
@@ -60,7 +58,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </header>
 
-      {/* Main Content: Bento Grid Structure */}
       <main className="max-w-[1800px] mx-auto p-12 lg:p-20 relative z-10">
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
@@ -75,9 +72,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 <span className="w-2 h-2 rounded-full bg-zinc-300" />
                 <span className="w-2 h-2 rounded-full bg-zinc-200" />
               </div>
-              Real-time Intelligence Node • 2024
+              Nó de Inteligência em Tempo Real • 2024
             </div>
-            <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Consolidated Analytics</h1>
+            <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Análises Consolidadas</h1>
             <p className="text-zinc-500 font-medium text-xl max-w-3xl leading-relaxed">
               Estratificação de alta precisão e processamento geospacial em tempo real para inteligência estratégica.
             </p>
@@ -85,11 +82,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           
           <div className="flex items-center gap-6">
             <div className="px-10 py-6 rounded-[2rem] bg-white border border-zinc-200 shadow-lg flex flex-col items-center min-w-[160px] hover-lift">
-              <span className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-2">Sample Size</span>
+              <span className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-2">Amostragem</span>
               <span className="text-4xl font-mono font-bold text-zinc-950">1.817</span>
             </div>
             <div className="px-10 py-6 rounded-[2rem] premium-gradient text-white shadow-2xl flex flex-col items-center min-w-[160px] border border-orange-400/30 hover-lift group">
-              <span className="text-[11px] font-black text-orange-100 uppercase tracking-[0.3em] mb-2 drop-shadow-sm">Confidence</span>
+              <span className="text-[11px] font-black text-orange-100 uppercase tracking-[0.3em] mb-2 drop-shadow-sm">Confiança</span>
               <span className="text-4xl font-mono font-bold drop-shadow-xl">95.0%</span>
             </div>
           </div>
@@ -103,13 +100,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <Cpu size={18} />
             </div>
             <div className="text-[12px] font-black text-zinc-400 uppercase tracking-[0.3em]">
-              © 2024 FOCCO ANALYTICS • PRO EDITION V3.5-LXS
+              © 2024 FOCCO ANALYTICS • EDIÇÃO PRO V3.5-LXS
             </div>
           </div>
           <div className="flex gap-10 text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em]">
-            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Protocols</a>
-            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Encryption</a>
-            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Advanced Support</a>
+            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Protocolos</a>
+            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Criptografia</a>
+            <a href="#" className="hover:text-orange-600 transition-colors border-b border-transparent hover:border-orange-600/30 pb-1">Suporte Avançado</a>
           </div>
         </footer>
       </main>

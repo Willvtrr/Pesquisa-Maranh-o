@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter, JetBrains_Mono } from 'next/font/google';
@@ -9,7 +8,7 @@ const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' }
 
 export const metadata: Metadata = {
   title: 'Focco Analytics | Inteligência de Dados',
-  description: 'Dashboard premium de análise de resultados de pesquisas.',
+  description: 'Painel executivo de alta performance para análise de dados estratégicos e pesquisas de opinião.',
 };
 
 export default function RootLayout({

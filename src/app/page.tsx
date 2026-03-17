@@ -21,19 +21,16 @@ export default function Home() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Defer rendering of dynamic/random data until after hydration
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Automatically sign in anonymously to satisfy security rules
   useEffect(() => {
     if (mounted && !user) {
       initiateAnonymousSignIn(auth);
     }
   }, [mounted, user, auth]);
 
-  // Firestore Collection - Only query if user is authenticated
   const surveyQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(collection(db, 'survey_records'), limit(2000));
@@ -41,7 +38,6 @@ export default function Home() {
 
   const { data: cloudData, isLoading } = useCollection<SurveyRecord>(surveyQuery);
 
-  // Fallback to static data if cloud is empty or loading for demonstration
   const activeData = useMemo(() => {
     if (!mounted) return [];
     if (cloudData && cloudData.length > 0) return cloudData;
@@ -114,7 +110,6 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:auto-rows-[minmax(200px,auto)]">
-        {/* Real-time Status Card - Luxury 3D Version */}
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl">
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
@@ -124,17 +119,17 @@ export default function Home() {
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
                 <span className={`w-2 h-2 rounded-full ${user ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
                 <span className={`text-[9px] font-black uppercase tracking-widest ${user ? 'text-emerald-500' : 'text-amber-500'}`}>
-                  {user ? 'Cloud Live' : 'Connecting'}
+                  {user ? 'Nuvem Ativa' : 'Conectando'}
                 </span>
               </div>
             </div>
             <div className="space-y-2 mt-4">
-              <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Data Backbone</span>
+              <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Infraestrutura de Dados</span>
               <h4 className="text-2xl font-bold text-white tracking-tight">
-                {cloudData && cloudData.length > 0 ? 'Firestore Pro' : 'Local Sandbox'}
+                {cloudData && cloudData.length > 0 ? 'Firestore Pro' : 'Sandbox Local'}
               </h4>
               <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wide">
-                {isLoading ? 'Syncing...' : `${activeData.length} records processing.`}
+                {isLoading ? 'Sincronizando...' : `${activeData.length} registros processados.`}
               </p>
             </div>
             {!cloudData || cloudData.length === 0 ? (
@@ -144,31 +139,30 @@ export default function Home() {
                 className="mt-6 w-full py-4 rounded-2xl premium-gradient text-white text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 hover:shadow-orange-600/40"
               >
                 <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
-                Initialize DB
+                Inicializar DB
               </button>
             ) : null}
           </div>
-          {/* Luz de Fundo Imersiva */}
           <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full" />
         </BentoCard>
 
         <StatCard 
-          label="Approval Rate" 
+          label="Taxa de Aprovação" 
           value={`${stats.approvalPct.toFixed(1)}%`} 
-          subValue="Positive Sentiment"
+          subValue="Sentimento Positivo"
           icon={CheckCircle} 
           trend="up"
         />
         <StatCard 
-          label="Volatility" 
+          label="Volatilidade" 
           value="14.2%" 
-          subValue="Potential Shift Index"
+          subValue="Índice de Oscilação"
           icon={Activity} 
         />
         <StatCard 
-          label="Geo-Capillarity" 
+          label="Capilaridade Geo" 
           value={stats.citiesCount} 
-          subValue="Active Municipalities"
+          subValue="Municípios Ativos"
           icon={MapPin} 
         />
 
@@ -191,7 +185,6 @@ export default function Home() {
 
         <CandidateChart data={chartData.candidateData} />
 
-        {/* Intelligence Insight Bento - Sophisticated Edition */}
         <BentoCard className="bg-orange-600 text-white border-none shadow-2xl shadow-orange-600/30 relative">
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md ring-1 ring-white/30 shadow-lg">
@@ -200,9 +193,9 @@ export default function Home() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-orange-200">
                 <span className="w-2 h-2 rounded-full bg-orange-200 animate-pulse shadow-[0_0_8px_white]" />
-                Predictive Analysis
+                Análise Preditiva
               </div>
-              <h4 className="text-3xl font-bold leading-tight tracking-tight">Regional Pulse</h4>
+              <h4 className="text-3xl font-bold leading-tight tracking-tight">Pulso Regional</h4>
               <p className="text-orange-50/90 text-sm font-medium leading-relaxed">
                 {filters.region === 'all' 
                   ? "Consolidação estratégica identificada no cinturão metropolitano." 
@@ -213,8 +206,7 @@ export default function Home() {
           <div className="absolute top-[-30%] right-[-20%] w-72 h-72 bg-white/10 blur-[120px] rounded-full pointer-events-none" />
         </BentoCard>
 
-        {/* Quality Assurance Bento - Technical Precision */}
-        <BentoCard title="Integrity" subtitle="Orange Engine Core" className="lg:col-span-1">
+        <BentoCard title="Integridade" subtitle="Núcleo Orange Engine" className="lg:col-span-1">
           <div className="space-y-6 mt-4">
             <div className="flex items-center justify-between p-4 rounded-2xl inner-relief">
               <div className="flex items-center gap-4">
@@ -222,8 +214,8 @@ export default function Home() {
                   <ShieldCheck size={20} />
                 </div>
                 <div>
-                  <div className="text-[10px] font-black uppercase text-zinc-400 tracking-wider">Confidence</div>
-                  <div className="text-sm font-bold text-zinc-950">95.0% Certified</div>
+                  <div className="text-[10px] font-black uppercase text-zinc-400 tracking-wider">Confiança</div>
+                  <div className="text-sm font-bold text-zinc-950">95.0% Certificado</div>
                 </div>
               </div>
               <div className="text-right">
@@ -233,7 +225,7 @@ export default function Home() {
             
             <div className="flex flex-col gap-3">
               <div className="flex justify-between text-[10px] font-black uppercase text-zinc-500 px-1 tracking-widest">
-                <span>Data Fidelity</span>
+                <span>Fidelidade de Dados</span>
                 <span className="text-zinc-950 font-mono">98.4%</span>
               </div>
               <div className="h-2.5 w-full inner-relief rounded-full overflow-hidden p-[2px]">
@@ -248,7 +240,7 @@ export default function Home() {
 
             <div className="flex items-center gap-3 pt-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
               <Cpu size={14} className="animate-pulse" />
-              Processing: v3.5-LXS
+              Processamento: v3.5-LXS
             </div>
           </div>
         </BentoCard>

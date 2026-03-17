@@ -32,13 +32,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       subtitle="Densidade de Dados" 
       className="lg:col-span-2 lg:row-span-2 relative group"
     >
-      {/* Badge de Status: Acento Metálico */}
       <div className="absolute top-8 right-8 flex items-center gap-3 px-6 py-2.5 rounded-2xl bg-white border border-zinc-200 shadow-sm z-20">
         <span className="relative flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 premium-gradient"></span>
         </span>
-        <span className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.2em]">Signal: Active</span>
+        <span className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.2em]">Sinal: Ativo</span>
       </div>
 
       <div className="relative flex-1 flex items-center justify-center min-h-[400px] mt-8">
@@ -82,7 +81,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-5 premium-gradient rounded-full" />
-                  <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em]">Region Node</span>
+                  <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em]">Nó Regional</span>
                 </div>
                 <div className="p-2 rounded-xl inner-relief">
                   <ArrowUpRight size={16} className="text-orange-600" />
@@ -101,14 +100,13 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[9px] font-black text-zinc-400 uppercase block tracking-widest">Relatividade</span>
+                    <span className="text-[9px] font-black text-zinc-400 uppercase block tracking-widest">Share</span>
                     <span className="text-xl font-bold text-orange-600 font-mono">
                       {totalSamples > 0 ? ((stats[currentRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
                     </span>
                   </div>
                 </div>
                 
-                {/* Barra de Progresso em Relevo */}
                 <div className="h-2.5 w-full inner-relief rounded-full overflow-hidden p-[2px]">
                   <motion.div 
                     initial={{ width: 0 }}
