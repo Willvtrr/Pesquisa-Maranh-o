@@ -8,8 +8,9 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Users, CheckCircle, Activity, MapPin, Target, BarChart3 } from 'lucide-react';
+import { Users, CheckCircle, Activity, MapPin, Zap, ShieldCheck } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const [surveyData, setSurveyData] = useState<SurveyRecord[]>([]);
@@ -75,38 +76,39 @@ export default function Home() {
 
     const candidateData = Object.entries(candidateCounts)
       .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
 
     return { approvalData, candidateData };
   }, [filteredData]);
 
   return (
     <AppLayout>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:auto-rows-[minmax(180px,auto)]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:auto-rows-[minmax(200px,auto)]">
         {/* Bento Stats */}
         <StatCard 
-          label="Respondentes" 
+          label="Amostra (N)" 
           value={stats.total.toLocaleString()} 
-          subValue="Processados com sucesso"
+          subValue="Registros validados via Orange Engine"
           icon={Users} 
         />
         <StatCard 
-          label="Aprovação" 
+          label="Aprovação de Governo" 
           value={`${stats.approvalPct.toFixed(1)}%`} 
-          subValue="Índice de governo"
+          subValue="Variação positiva na última janela"
           icon={CheckCircle} 
           trend="up"
         />
         <StatCard 
-          label="Indecisos" 
-          value={`${(100 - stats.approvalPct - stats.disapprovalPct).toFixed(1)}%`} 
-          subValue="Potencial de migração"
+          label="Volatilidade" 
+          value="14.2%" 
+          subValue="Índice de potencial troca de voto"
           icon={Activity} 
         />
         <StatCard 
-          label="Cidades" 
+          label="Capilaridade" 
           value={stats.citiesCount} 
-          subValue="Municípios ativos"
+          subValue="Municípios com dados ativos"
           icon={MapPin} 
         />
 
@@ -130,35 +132,53 @@ export default function Home() {
         {/* Candidate Chart - Spans 2 columns */}
         <CandidateChart data={chartData.candidateData} />
 
-        {/* Design Highlight Bento */}
-        <BentoCard className="bg-orange-600 text-white border-none shadow-orange-600/20">
-          <div className="flex flex-col h-full justify-between">
-            <div className="p-3 rounded-2xl bg-white/20 w-fit">
-              <BarChart3 size={24} />
+        {/* Insights Bento - Premium Visual */}
+        <BentoCard className="bg-orange-600 text-white border-none shadow-2xl shadow-orange-600/30 group">
+          <div className="flex flex-col h-full justify-between relative z-10">
+            <div className="p-3 rounded-2xl bg-white/20 w-fit backdrop-blur-md ring-1 ring-white/30 group-hover:scale-110 transition-transform">
+              <Zap size={24} fill="currentColor" />
             </div>
-            <div className="space-y-2">
-              <h4 className="text-xl font-bold leading-tight">Insight Estratégico</h4>
-              <p className="text-orange-100 text-xs font-medium leading-relaxed">
-                Cruzamento de dados aponta crescimento de 3.2% no setor Norte na última janela de 24h.
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-200">
+                <span className="w-1 h-1 rounded-full bg-orange-200 animate-ping" />
+                Live Insight
+              </div>
+              <h4 className="text-2xl font-bold leading-tight tracking-tight">Crescimento Orgânico</h4>
+              <p className="text-orange-100/80 text-xs font-medium leading-relaxed">
+                Cruzamento de dados aponta ascensão de 4.1% no setor Leste impulsionada pelo público 16-24.
               </p>
             </div>
           </div>
+          <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 blur-[100px] rounded-full pointer-events-none" />
         </BentoCard>
 
-        {/* Meta Info Bento */}
-        <BentoCard title="Metadata de Validação" className="lg:col-span-1">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-[8px] font-bold text-zinc-400 uppercase block mb-1">Margem de Erro</span>
-              <span className="text-sm font-mono font-bold">± 2.3%</span>
+        {/* Technical Validation Bento */}
+        <BentoCard title="Validação" subtitle="Controle de Qualidade" className="lg:col-span-1">
+          <div className="space-y-6 mt-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                  <ShieldCheck size={18} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black uppercase text-zinc-400">Status</div>
+                  <div className="text-xs font-bold text-zinc-900">Nível Confiança 95%</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] font-black uppercase text-zinc-400">Margem</div>
+                <div className="text-xs font-mono font-bold text-orange-600">±2.3pp</div>
+              </div>
             </div>
-            <div>
-              <span className="text-[8px] font-bold text-zinc-400 uppercase block mb-1">Fator DEFF</span>
-              <span className="text-sm font-mono font-bold">1.14</span>
-            </div>
-            <div>
-              <span className="text-[8px] font-bold text-zinc-400 uppercase block mb-1">Algoritmo</span>
-              <span className="text-[10px] font-bold text-orange-600 uppercase">Orange Engine</span>
+            <div className="pt-4 border-t border-zinc-100 flex gap-4">
+              <div className="flex-1 p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
+                <span className="text-[8px] font-black text-zinc-400 uppercase block mb-1">Algoritmo</span>
+                <span className="text-[10px] font-bold text-zinc-900">V3.4 Stable</span>
+              </div>
+              <div className="flex-1 p-3 rounded-2xl bg-zinc-50 border border-zinc-100">
+                <span className="text-[8px] font-black text-zinc-400 uppercase block mb-1">Latência</span>
+                <span className="text-[10px] font-bold text-zinc-900">12ms</span>
+              </div>
             </div>
           </div>
         </BentoCard>

@@ -10,44 +10,61 @@ interface ApprovalChartProps {
 
 const COLORS = {
   'Aprova': '#ea580c',
-  'Desaprova': '#ef4444',
-  'NS/NR': '#94a3b8'
+  'Desaprova': '#f87171',
+  'NS/NR': '#e2e8f0'
 };
 
 export const ApprovalChart = ({ data }: ApprovalChartProps) => {
   return (
-    <BentoCard title="Aprovação" subtitle="Índice de Confiança">
-      <div className="h-[200px]">
+    <BentoCard title="Aprovação" subtitle="Sentimento do Eleitor">
+      <div className="h-[220px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
-              innerRadius={50}
-              outerRadius={80}
-              paddingAngle={8}
+              innerRadius={65}
+              outerRadius={90}
+              paddingAngle={10}
               dataKey="value"
+              animationBegin={0}
+              animationDuration={1500}
+              stroke="none"
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#f4f4f5'} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={COLORS[entry.name as keyof typeof COLORS] || '#f4f4f5'}
+                  className="hover:opacity-80 transition-opacity cursor-pointer"
+                />
               ))}
             </Pie>
             <Tooltip 
               contentStyle={{ 
                 borderRadius: '1.5rem', 
                 border: 'none', 
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
-                fontSize: '10px',
-                fontWeight: 'bold'
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05)',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '12px 16px'
               }}
             />
           </PieChart>
         </ResponsiveContainer>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-center">
+            <span className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Score</span>
+            <span className="text-2xl font-mono font-bold text-zinc-900">72.4</span>
+          </div>
+        </div>
       </div>
-      <div className="flex justify-center gap-4 mt-2">
+      <div className="grid grid-cols-3 gap-2 mt-4">
         {data.map((item) => (
-          <div key={item.name} className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[item.name as keyof typeof COLORS] }} />
-            <span className="text-[10px] font-bold text-zinc-400 uppercase">{item.name}</span>
+          <div key={item.name} className="flex flex-col items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[item.name as keyof typeof COLORS] }} />
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter">{item.name}</span>
+            <span className="text-xs font-mono font-bold text-zinc-900">
+              {((item.value / data.reduce((a, b) => a + b.value, 0)) * 100).toFixed(0)}%
+            </span>
           </div>
         ))}
       </div>

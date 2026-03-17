@@ -1,21 +1,21 @@
 "use client";
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { BentoCard } from './bento-card';
 
 interface CandidateChartProps {
   data: { name: string; value: number }[];
 }
 
-const COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5'];
+const COLORS = ['#ea580c', '#fb923c', '#fdba74', '#fed7aa', '#cbd5e1', '#e2e8f0'];
 
 export const CandidateChart = ({ data }: CandidateChartProps) => {
   return (
     <BentoCard title="Intenção de Voto" subtitle="Resultados Espontâneos" className="lg:col-span-2">
-      <div className="h-[250px] mt-4">
+      <div className="h-[280px] mt-6">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ left: -20, right: 20 }}>
+          <BarChart data={data} layout="vertical" margin={{ left: 10, right: 30, top: 0, bottom: 0 }}>
             <XAxis type="number" hide />
             <YAxis 
               dataKey="name" 
@@ -23,18 +23,24 @@ export const CandidateChart = ({ data }: CandidateChartProps) => {
               width={100} 
               axisLine={false} 
               tickLine={false}
-              tick={{ fill: '#71717a', fontSize: 10, fontWeight: 700 }}
+              tick={{ fill: '#71717a', fontSize: 10, fontWeight: 800 }}
             />
             <Tooltip 
-              cursor={{ fill: '#f8fafc' }}
+              cursor={{ fill: 'rgba(244, 244, 245, 0.6)' }}
               contentStyle={{ 
                 borderRadius: '1.5rem', 
                 border: 'none', 
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
-                fontSize: '10px'
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.05)',
+                fontSize: '11px',
+                padding: '12px 16px'
               }}
             />
-            <Bar dataKey="value" radius={[0, 12, 12, 0]} barSize={24}>
+            <Bar 
+              dataKey="value" 
+              radius={[0, 20, 20, 0]} 
+              barSize={32}
+              animationDuration={2000}
+            >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
