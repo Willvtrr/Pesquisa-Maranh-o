@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -24,16 +23,16 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   ];
 
   return (
-    <div className="glass-card p-6 h-[500px] relative overflow-hidden flex flex-col interactive-ring">
+    <div className="glass-card p-6 h-[500px] relative overflow-hidden flex flex-col interactive-ring bg-white">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-2">
-          <MapPin size={14} className="text-indigo-500" />
+        <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+          <MapPin size={14} className="text-orange-600" />
           Geolocalização / Mesorregiões
         </h3>
         {activeRegion !== 'all' && (
           <button 
             onClick={() => onRegionSelect(null)}
-            className="text-[10px] font-mono text-zinc-500 hover:text-white underline underline-offset-4"
+            className="text-[10px] font-mono text-zinc-400 hover:text-orange-600 underline underline-offset-4"
           >
             LIMPAR FOCO
           </button>
@@ -50,16 +49,13 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             <motion.path
               key={region.id}
               d={region.path}
-              fill={activeRegion === region.id ? "#6366f1" : hoveredRegion === region.id ? "#3f3f46" : "#18181b"}
-              stroke="#27272a"
+              fill={activeRegion === region.id ? "#ea580c" : hoveredRegion === region.id ? "#ffedd5" : "#f4f4f5"}
+              stroke="#e4e4e7"
               strokeWidth="0.5"
               whileHover={{ scale: 1.02, strokeWidth: 1 }}
               onMouseEnter={() => setHoveredRegion(region.id)}
               onClick={() => onRegionSelect(region.id)}
               className="cursor-pointer transition-all duration-300"
-              style={{
-                filter: activeRegion === region.id ? 'drop-shadow(0 0 8px rgba(99,102,241,0.4))' : 'none'
-              }}
             />
           ))}
         </svg>
@@ -70,18 +66,18 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="absolute right-0 top-0 w-48 p-4 glass-card bg-zinc-950/90 border-zinc-700/50"
+              className="absolute right-0 top-0 w-48 p-4 bg-white border border-zinc-200 rounded-xl shadow-lg"
             >
-              <div className="text-[10px] font-mono text-indigo-400 uppercase mb-1">DADOS REGIONAIS</div>
-              <div className="text-sm font-bold mb-3">{(hoveredRegion || activeRegion)} Maranhense</div>
+              <div className="text-[10px] font-mono text-orange-600 font-bold uppercase mb-1">DADOS REGIONAIS</div>
+              <div className="text-sm font-bold mb-3 text-zinc-900">{(hoveredRegion || activeRegion)} Maranhense</div>
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-[10px] font-mono">
-                  <span className="text-zinc-500">AMOSTRA</span>
-                  <span className="text-zinc-50">{stats[hoveredRegion || activeRegion as MesoRegion] || 0}</span>
+                  <span className="text-zinc-400">AMOSTRA</span>
+                  <span className="text-zinc-900 font-bold">{stats[hoveredRegion || activeRegion as MesoRegion] || 0}</span>
                 </div>
                 <div className="flex justify-between items-center text-[10px] font-mono">
-                  <span className="text-zinc-500">REPRESENTAÇÃO</span>
-                  <span className="text-zinc-50">
+                  <span className="text-zinc-400">REPRESENTAÇÃO</span>
+                  <span className="text-orange-600 font-bold">
                     {((stats[hoveredRegion || activeRegion as MesoRegion] / 1817) * 100).toFixed(1)}%
                   </span>
                 </div>
@@ -93,12 +89,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
       <div className="mt-4 flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
-          <span className="text-[10px] font-mono text-zinc-500">SELECIONADO</span>
+          <div className="w-2 h-2 rounded-full bg-orange-600" />
+          <span className="text-[10px] font-mono text-zinc-400">SELECIONADO</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-zinc-800" />
-          <span className="text-[10px] font-mono text-zinc-500">INDISPONÍVEL</span>
+          <div className="w-2 h-2 rounded-full bg-zinc-200" />
+          <span className="text-[10px] font-mono text-zinc-400">BASE</span>
         </div>
       </div>
     </div>

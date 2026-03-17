@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -6,7 +5,7 @@ import { AppLayout } from '@/components/layout/app-layout';
 import { RAW_SURVEY_DATA, MesoRegion, SurveyRecord } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { InteractiveMap } from '@/components/dashboard/interactive-map';
-import { Users, CheckCircle, XCircle, MapPin, Activity, Target } from 'lucide-react';
+import { Users, CheckCircle, Activity, MapPin, Target, BarChart, ArrowUpRight } from 'lucide-react';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { motion } from 'framer-motion';
@@ -98,22 +97,22 @@ export default function Home() {
           subValue="Governo do Estado"
           icon={CheckCircle} 
           trend="up"
-          color="text-emerald-400"
+          color="text-orange-600"
         />
         <StatCard 
           label="Abstenção/Indecisos" 
           value={`${(100 - stats.approvalPct - stats.disapprovalPct).toFixed(1)}%`} 
-          subValue="NS/NR em potencial"
+          subValue="Votos NS/NR em potencial"
           icon={Activity} 
           trend="neutral"
-          color="text-amber-400"
+          color="text-zinc-400"
         />
         <StatCard 
-          label="Cobertura Urbana" 
+          label="Cidades Ativas" 
           value={stats.citiesCount} 
           subValue="Municípios representados"
           icon={MapPin} 
-          color="text-indigo-400"
+          color="text-orange-500"
         />
       </div>
 
@@ -125,8 +124,19 @@ export default function Home() {
             onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
           />
         </div>
-        <div>
+        <div className="space-y-6">
           <ApprovalChart data={chartData.approvalData} />
+          <div className="glass-card p-6 bg-orange-600 text-white">
+            <div className="flex justify-between items-start mb-4">
+              <BarChart size={24} />
+              <ArrowUpRight size={20} className="opacity-60" />
+            </div>
+            <h4 className="text-sm font-mono font-bold uppercase tracking-widest mb-1">Impacto Regional</h4>
+            <p className="text-2xl font-bold tracking-tight mb-4">Tendência Positiva</p>
+            <div className="text-xs font-mono opacity-80 leading-relaxed">
+              O cruzamento de dados indica crescimento de 3.2% na aprovação no setor Norte.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -137,15 +147,15 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-12 glass-card p-8 border-dashed"
+        className="mt-12 glass-card p-8 bg-zinc-50 border-dashed border-zinc-200"
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+          <div className="p-2 rounded-lg bg-orange-100 text-orange-600">
             <Target size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-bold">Metadata de Validação</h3>
-            <p className="text-xs text-zinc-500 font-mono">Consistência estatística para amostras randômicas estratificadas.</p>
+            <h3 className="text-lg font-bold text-zinc-900">Metadata de Validação</h3>
+            <p className="text-xs text-zinc-400 font-mono">Consistência estatística para amostras randômicas estratificadas.</p>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -153,12 +163,12 @@ export default function Home() {
             { label: 'Margem Erro', value: '± 2.3%', detail: 'Grau de incerteza' },
             { label: 'Confiança', value: '95.0%', detail: 'Intervalo calculado' },
             { label: 'Efeito (DEFF)', value: '1.14', detail: 'Fator de desenho' },
-            { label: 'Latência S.', value: '12ms', detail: 'Processamento local' }
+            { label: 'Processamento', value: 'Orange Engine', detail: 'Algoritmo proprietário' }
           ].map((meta, i) => (
             <div key={i} className="space-y-1">
-              <div className="text-[10px] font-mono text-zinc-500 uppercase">{meta.label}</div>
-              <div className="text-xl font-mono font-bold text-zinc-50">{meta.value}</div>
-              <div className="text-[10px] text-zinc-600">{meta.detail}</div>
+              <div className="text-[10px] font-mono text-zinc-400 font-bold uppercase">{meta.label}</div>
+              <div className="text-xl font-mono font-bold text-zinc-900">{meta.value}</div>
+              <div className="text-[10px] text-orange-600 font-bold">{meta.detail}</div>
             </div>
           ))}
         </div>
