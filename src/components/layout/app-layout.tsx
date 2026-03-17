@@ -67,10 +67,25 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         >
           <div className="space-y-4">
             <div className="flex items-center gap-4 text-[12px] font-black text-orange-600 uppercase tracking-[0.4em]">
-              <div className="flex gap-2">
-                <span className="w-2 h-2 rounded-full premium-gradient shadow-[0_0_10px_rgba(234,88,12,0.5)]" />
-                <span className="w-2 h-2 rounded-full bg-zinc-300" />
-                <span className="w-2 h-2 rounded-full bg-zinc-200" />
+              <div className="flex gap-2.5 items-center">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="relative w-2 h-2">
+                    <motion.div
+                      animate={{ 
+                        opacity: [0, 1, 0],
+                        scale: [0.8, 1.2, 0.8]
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity, 
+                        delay: i * 0.4,
+                        ease: "easeInOut"
+                      }}
+                      className="absolute inset-0 rounded-full premium-gradient shadow-[0_0_10px_rgba(234,88,12,0.5)]"
+                    />
+                    <div className="w-full h-full rounded-full bg-zinc-200 opacity-40" />
+                  </div>
+                ))}
               </div>
               Nó de Inteligência em Tempo Real • 2024
             </div>
