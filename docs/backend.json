@@ -1,0 +1,118 @@
+{
+  "entities": {
+    "SurveyRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SurveyRecord",
+      "type": "object",
+      "description": "Represents a single record of survey response data from the 'Maranhão Insights' research. This data is expected to be embedded directly into the client-side application as JavaScript arrays for efficient filtering and visualization, as no external database calls are utilized for this feature.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SurveyRecord entity."
+        },
+        "gender": {
+          "type": "string",
+          "description": "Demographic attribute indicating the gender of the respondent (e.g., 'Masculino', 'Feminino', 'Outro', 'Prefiro não dizer')."
+        },
+        "ageGroup": {
+          "type": "string",
+          "description": "Demographic attribute indicating the age group of the respondent (e.g., '18-24', '25-34', '35-44', '45-54', '55-64', '65+')."
+        },
+        "educationLevel": {
+          "type": "string",
+          "description": "Demographic attribute indicating the highest level of education attained by the respondent (e.g., 'Ensino Fundamental', 'Ensino Médio', 'Ensino Superior', 'Pós-graduação')."
+        },
+        "incomeBracket": {
+          "type": "string",
+          "description": "Demographic attribute indicating the income bracket of the respondent (e.g., 'Até 1 SM', '1-3 SM', '3-5 SM', 'Mais de 5 SM', where SM refers to Salário Mínimo - Minimum Wage)."
+        },
+        "mesoregion": {
+          "type": "string",
+          "description": "Geospatial attribute indicating the mesoregion within Maranhão where the respondent resides. Used for geographical filtering and exploration."
+        },
+        "city": {
+          "type": "string",
+          "description": "Geospatial attribute indicating the city within Maranhão where the respondent resides. Used for geographical filtering and exploration."
+        },
+        "generalApprovalStatus": {
+          "type": "string",
+          "description": "Response attribute indicating the respondent's overall general approval status (e.g., 'Aprovado', 'Desaprovado', 'Neutro', 'Não Respondido'). This maps to specific semantic colors for immediate UI interpretation."
+        },
+        "candidateAFavorabilityScore": {
+          "type": "number",
+          "description": "Response attribute indicating the respondent's favorability score for 'Candidate A' (e.g., 0-100). This data point is used for data visualizations with a harmonious pastel color palette."
+        },
+        "candidateBFavorabilityScore": {
+          "type": "number",
+          "description": "Response attribute indicating the respondent's favorability score for 'Candidate B' (e.g., 0-100). This data point is used for data visualizations with a harmonious pastel color palette."
+        },
+        "satisfactionWithPublicServices": {
+          "type": "string",
+          "description": "Response attribute indicating the respondent's satisfaction level with local public services (e.g., 'Muito Satisfeito', 'Satisfeito', 'Indiferente', 'Insatisfeito', 'Muito Insatisfeito')."
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the survey record was submitted or recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "gender",
+        "ageGroup",
+        "educationLevel",
+        "incomeBracket",
+        "mesoregion",
+        "city",
+        "generalApprovalStatus",
+        "candidateAFavorabilityScore",
+        "candidateBFavorabilityScore",
+        "satisfactionWithPublicServices",
+        "submittedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/survey_records/{surveyRecordId}",
+        "definition": {
+          "entityName": "SurveyRecord",
+          "schema": {
+            "$ref": "#/backend/entities/SurveyRecord"
+          },
+          "description": "A top-level collection storing individual survey response records. These records are intended to be globally readable (e.g., by all authenticated users) and serve as the master data source that the client may fetch and embed. The security posture is uniform across all documents in this collection, supporting simple read rules and efficient list operations. Includes all fields defined in the SurveyRecord schema.",
+          "params": [
+            {
+              "name": "surveyRecordId",
+              "description": "The unique identifier for a specific survey record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "roles_admin",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "A top-level collection used for Database Access Control (DBAC) to designate users with administrative roles. The mere existence of a document with a user's ID in this collection grants them administrative privileges (e.g., write access to `/survey_records`). This collection enables authorization independence for administrative actions by relying solely on 'request.auth.uid' existence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who holds an administrative role."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The core of the application revolves around the 'SurveyRecord' entity, representing individual survey responses. Given the explicit requirement that these records are 'embutidos diretamente como arrays JavaScript para filtragem e agregação eficiente no lado do cliente, sem chamadas a bancos de dados externos,' the primary purpose of storing this data in Firestore is as a master data source, accessible for initial loading by the client or for an administrative user to upload and manage. \n\nTo meet this, the `SurveyRecord` entities will be stored in a top-level collection `/survey_records`. All documents within this collection share the same security posture: they are globally readable by the application (either public or authenticated users, depending on the final security decision, but consistently across all records). This approach adheres to the **Structural Segregation** mandate, as there's no mixing of data with different access needs.\n\n**Authorization Independence:** This structure inherently achieves Authorization Independence for client-side reads of the `SurveyRecord` data. Since all `SurveyRecord` documents are designed to be universally accessible (e.g., read by all authenticated users), there are no hierarchical authorization dependencies. A document's readability is determined by a simple, global rule applied to the entire collection, not by attributes of a parent document or other documents. Therefore, no denormalization of authorization context is required within the `SurveyRecord` itself for client consumption.\n\n**QAPs (Rules are not Filters):** This design strongly supports QAPs. Because all documents in the `/survey_records` collection have the same read requirements, a Firestore Security Rule can simply `allow read` for authenticated users (or all users) on the `/survey_records/{surveyRecordId}` path. This means clients can perform `list` operations on the entire collection, and the security rules will permit it without needing to filter results based on individual document permissions. The structure itself ensures that any `list` operation will only return data that the user is authorized to see, as *all* data in that collection is authorized.\n\nFor the administrative function of 'uploading' the survey data, a separate collection `/roles_admin/{userId}` is introduced. This collection follows the **DBAC** principle, using 'Existence over Content' to grant administrative write access to the `/survey_records` collection. An admin's UID existing as a document in `/roles_admin` is sufficient to grant them write privileges, keeping authorization roles explicitly stored in the database and independent of custom claims. This cleanly separates administrative access from the public consumption of the survey data, simplifying rules and enhancing debuggability."
+  }
+}

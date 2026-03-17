@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY
+     * This ruleset implements a role-based access control model for the 'Maranhão Insights' application.
+     * It prioritizes a clear separation between administrative data management and public/authenticated
+     * data consumption. In this prototyping phase, rules focus on strict authorization (who can access)
+     * while maintaining flexibility regarding the specific fields of the data records.
+     *
+     * DATA STRUCTURE
+     * - /survey_records/{id}: Central repository for survey response data.
+     * - /roles_admin/{userId}: A Database Access Control (DBAC) collection where the existence 
+     *   of a user's UID as a document ID grants administrative privileges.
+     *
+     * KEY SECURITY DECISIONS
+     * - Authentication: All data access requires a verified identity (isSignedIn).
+     * - Admin Privileges: Write access to the master survey data is strictly restricted to users
+     *   verified against the /roles_admin collection.
+     * - Data Integrity: Relational consistency is enforced by ensuring the internal 'id' of a
+     *   SurveyRecord matches its document path and remains immutable.
+     * - Read Access: Survey records are listable by any authenticated user to support the
+     *   application's client-side aggregation and filtering requirements.
+     */
+
+    // --- Global Helper Functions ---
+
+    /**
+     * @description Checks if the request is made by a signed-in user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user has administrative privileges by 
+     * verifying their existence in the 'roles_admin' collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    // The `isOwner` function was identified as unused and has been removed as it's not
+    // part of the current access control model which relies on `isSignedIn` and `isAdmin`.
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Rules for the SurveyRecord collection, representing master survey data.
+     * @path /survey_records/{surveyRecordId}
+     * @allow get, list: If the user is signed in (supports client-side analysis).
+     * @allow create, update, delete: If the user is a verified administrator.
+     * @deny write: If the user is not in the roles_admin collection.
+     * @principle Role-based access control and relational integrity validation.
+     */
+    match /survey_records/{surveyRecordId} {
+      allow get, list: if isSignedIn();
+      
+      allow create: if isAdmin() && request.resource.data.id == surveyRecordId;
+      
+      allow update: if isAdmin() && resource != null && request.resource.data.id == resource.data.id;
+      
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Rules for the admin roles collection used for access control.
+     * @path /roles_admin/{userId}
+     * @allow get: Any signed-in user can check their own admin status.
+     * @allow list: Only existing admins can list the directory of administrators.
+     * @deny create, update, delete: Role management is restricted to server-side/console operations.
+     * @principle Database Access Control (DBAC) using existence-over-content.
+     */
+    match /roles_admin/{userId} {
+      // Users can check if a document exists for them to confirm their own role
+      allow get: if isSignedIn();
+      
+      // Only admins should be able to see the full list of other admins
+      allow list: if isAdmin();
+      
+      // Prototyping Safety: Prevent clients from self-elevating to admin status.
+      // Admin documents must be created manually in the Firebase Console or via Admin SDK.
+      allow create, update, delete: if false;
+    }
+
+    // Default deny for any paths not explicitly matched
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
