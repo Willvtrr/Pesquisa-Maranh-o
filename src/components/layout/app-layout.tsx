@@ -126,11 +126,5 @@ const NavItem = ({ icon: Icon, label, active }: { icon: any, label: string, acti
   )}>
     <Icon size={18} strokeWidth={active ? 3 : 2.5} className={cn(active ? "text-orange-600" : "text-zinc-400 group-hover:text-zinc-950")} />
     {label}
-    {active && (
-      <motion.div 
-        layoutId="nav-active-lxs"
-        className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full premium-gradient shadow-[0_0_8px_rgba(234,88,12,0.6)]"
-      />
-    )}
   </button>
 );
