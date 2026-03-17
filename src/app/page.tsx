@@ -9,15 +9,16 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Users, CheckCircle, Activity, MapPin, Zap, ShieldCheck, Database, RefreshCw } from 'lucide-react';
+import { CheckCircle, Activity, MapPin, Zap, ShieldCheck, Database, RefreshCw } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
-import { useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking, useUser, useAuth, initiateAnonymousSignIn } from '@/firebase';
 import { collection, query, limit } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const db = useFirestore();
+  const { user } = useUser();
+  const auth = useAuth();
   const [isSyncing, setIsSyncing] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -26,15 +27,22 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  // Firestore Collection
+  // Automatically sign in anonymously to satisfy security rules
+  useEffect(() => {
+    if (mounted && !user) {
+      initiateAnonymousSignIn(auth);
+    }
+  }, [mounted, user, auth]);
+
+  // Firestore Collection - Only query if user is authenticated
   const surveyQuery = useMemoFirebase(() => {
+    if (!user) return null;
     return query(collection(db, 'survey_records'), limit(2000));
-  }, [db]);
+  }, [db, user]);
 
   const { data: cloudData, isLoading } = useCollection<SurveyRecord>(surveyQuery);
 
   // Fallback to static data if cloud is empty or loading for demonstration
-  // We use an empty array on server-side to prevent hydration mismatch from random RAW_SURVEY_DATA
   const activeData = useMemo(() => {
     if (!mounted) return [];
     if (cloudData && cloudData.length > 0) return cloudData;
@@ -93,9 +101,9 @@ export default function Home() {
 
   // Handle Seeding data to Firestore for initial setup
   const seedData = async () => {
-    if (!cloudData || cloudData.length > 0) return;
+    if (!user || (cloudData && cloudData.length > 0)) return;
     setIsSyncing(true);
-    const itemsToSeed = RAW_SURVEY_DATA.slice(0, 200); // Seeding subset for speed in prototype
+    const itemsToSeed = RAW_SURVEY_DATA.slice(0, 200); 
     
     for (const record of itemsToSeed) {
       addDocumentNonBlocking(collection(db, 'survey_records'), record);
@@ -115,8 +123,10 @@ export default function Home() {
                 <Database size={18} />
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Cloud Live</span>
+                <span className={`w-2 h-2 rounded-full ${user ? 'bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-amber-500'}`} />
+                <span className={`text-[10px] font-black uppercase tracking-widest ${user ? 'text-emerald-500' : 'text-amber-500'}`}>
+                  {user ? 'Cloud Live' : 'Connecting...'}
+                </span>
               </div>
             </div>
             <div className="space-y-1">
@@ -125,13 +135,13 @@ export default function Home() {
                 {cloudData && cloudData.length > 0 ? 'Firestore DB' : 'Static Demo'}
               </h4>
               <p className="text-[10px] text-zinc-400 font-medium">
-                {isLoading ? 'Conectando...' : `${activeData.length} registros sincronizados.`}
+                {isLoading ? 'Sincronizando...' : `${activeData.length} registros ativos.`}
               </p>
             </div>
             {!cloudData || cloudData.length === 0 ? (
               <button 
                 onClick={seedData}
-                disabled={isSyncing}
+                disabled={isSyncing || !user}
                 className="mt-4 w-full py-2.5 rounded-xl bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-orange-500 transition-colors disabled:opacity-50"
               >
                 <RefreshCw size={12} className={isSyncing ? "animate-spin" : ""} />
