@@ -18,9 +18,9 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ 
-        y: -14,
-        scale: 1.015,
-        transition: { duration: 0.25, ease: "circOut" } 
+        y: -12,
+        scale: 1.02,
+        transition: { duration: 0.15, ease: "circOut" } 
       }}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
