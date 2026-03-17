@@ -1,10 +1,9 @@
-
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Info, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { BentoCard } from './bento-card';
 
 interface InteractiveMapProps {
@@ -33,18 +32,18 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       subtitle="Densidade por Mesorregião" 
       className="lg:col-span-2 lg:row-span-2 relative group"
     >
-      <div className="absolute top-8 right-8 flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/50 backdrop-blur-md border border-zinc-100 z-20">
-        <span className="relative flex h-2 w-2">
+      <div className="absolute top-8 right-8 flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white border border-zinc-200 shadow-md z-20">
+        <span className="relative flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></span>
         </span>
-        <span className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">Atividade Live</span>
+        <span className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.15em]">Sinal Ativo</span>
       </div>
 
       <div className="relative flex-1 flex items-center justify-center min-h-[380px] mt-6">
         <svg 
           viewBox="0 0 120 150" 
-          className="w-full h-full max-h-[420px] drop-shadow-[0_20px_50px_rgba(0,0,0,0.08)]"
+          className="w-full h-full max-h-[420px] drop-shadow-[0_25px_40px_rgba(0,0,0,0.06)]"
           onMouseLeave={() => setHoveredRegion(null)}
         >
           {regions.map((region) => (
@@ -55,7 +54,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               animate={{ 
                 opacity: 1, 
                 scale: 1,
-                fill: activeRegion === region.id ? "#ea580c" : hoveredRegion === region.id ? "#fff7ed" : "#f8fafc",
+                fill: activeRegion === region.id ? "#ea580c" : hoveredRegion === region.id ? "#f4f4f5" : "#fdfdfd",
                 stroke: activeRegion === region.id ? "#c2410c" : "#e4e4e7"
               }}
               strokeWidth="0.8"
@@ -74,42 +73,42 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         <AnimatePresence>
           {currentRegion && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 10 }}
-              className="absolute right-0 bottom-0 p-8 glass-card border border-white/60 min-w-[240px] z-30"
+              initial={{ opacity: 0, scale: 0.9, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.9, x: 20 }}
+              className="absolute right-0 bottom-4 p-8 bg-white border border-zinc-200 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] min-w-[260px] z-30"
             >
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-4 bg-orange-600 rounded-full" />
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-4 premium-gradient rounded-full" />
                   <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">Regional ID</span>
                 </div>
-                <ArrowUpRight size={14} className="text-zinc-300" />
+                <ArrowUpRight size={16} className="text-zinc-300" />
               </div>
               
               <div className="text-2xl font-bold text-zinc-950 leading-tight mb-2">{currentRegion}</div>
-              <p className="text-[11px] text-zinc-400 font-medium mb-6 uppercase tracking-widest">Maranhão, Brasil</p>
+              <p className="text-[11px] text-zinc-400 font-bold mb-8 uppercase tracking-widest">Maranhão • BR</p>
               
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <div className="flex justify-between items-end">
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <span className="text-[9px] font-black text-zinc-400 uppercase block tracking-tighter">Amostragem</span>
-                    <span className="text-3xl font-mono font-bold text-zinc-900 leading-none">
+                    <span className="text-4xl font-mono font-bold text-zinc-900 leading-none tracking-tighter">
                       {stats[currentRegion as MesoRegion] || 0}
                     </span>
                   </div>
                   <div className="text-right">
                     <span className="text-[9px] font-black text-zinc-400 uppercase block tracking-tighter">Share</span>
-                    <span className="text-sm font-bold text-orange-600">
+                    <span className="text-lg font-bold text-orange-600">
                       {totalSamples > 0 ? ((stats[currentRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
                     </span>
                   </div>
                 </div>
-                <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden shadow-inner border border-zinc-200/50">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${(stats[currentRegion as MesoRegion] / totalSamples) * 100}%` }}
-                    className="h-full bg-gradient-to-r from-orange-600 to-orange-400"
+                    className="h-full premium-gradient shadow-[0_0_8px_rgba(234,88,12,0.3)]"
                   />
                 </div>
               </div>

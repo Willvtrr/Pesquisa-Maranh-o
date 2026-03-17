@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 240 10% 98%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -23,7 +23,7 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 24.6 95% 53.1%;
-    --radius: 0.5rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -34,16 +34,25 @@
   body {
     @apply bg-zinc-50 text-zinc-900 antialiased selection:bg-orange-500/20;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background: radial-gradient(circle at top left, #f4f4f5 0%, #ffffff 100%);
   }
 }
 
 @layer components {
-  .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/40 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.04)];
+  .bento-3d {
+    @apply bg-white border border-zinc-200/50 rounded-[2rem] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.04),0_20px_25px_-5px_rgba(0,0,0,0.02)] ring-1 ring-white;
   }
   
-  .inner-glow {
-    @apply ring-1 ring-inset ring-white/60;
+  .inner-relief {
+    @apply shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)];
+  }
+
+  .material-matte {
+    @apply bg-gradient-to-br from-zinc-100 to-zinc-200 border-zinc-300/50 shadow-inner;
+  }
+
+  .premium-gradient {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
   }
 
   .tech-mono {
