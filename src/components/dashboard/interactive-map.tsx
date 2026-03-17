@@ -1,9 +1,11 @@
+
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Map as MapIcon } from 'lucide-react';
+import { ArrowUpRight, Loader2 } from 'lucide-react';
 import { BentoCard } from './bento-card';
 
 interface InteractiveMapProps {
@@ -12,27 +14,95 @@ interface InteractiveMapProps {
   activeRegion: string;
 }
 
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+  borderRadius: '2.5rem',
+};
+
+// Centralizado aproximadamente no Maranhão
+const center = {
+  lat: -4.5,
+  lng: -44.5,
+};
+
+const mapOptions = {
+  disableDefaultUI: true,
+  styles: [
+    {
+      "elementType": "geometry",
+      "stylers": [{ "color": "#f5f5f5" }]
+    },
+    {
+      "elementType": "labels.icon",
+      "stylers": [{ "visibility": "off" }]
+    },
+    {
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#616161" }]
+    },
+    {
+      "elementType": "labels.text.stroke",
+      "stylers": [{ "color": "#f5f5f5" }]
+    },
+    {
+      "featureType": "administrative.land_parcel",
+      "elementType": "labels.text.fill",
+      "stylers": [{ "color": "#bdbdbd" }]
+    },
+    {
+      "featureType": "poi",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#eeeeee" }]
+    },
+    {
+      "featureType": "road",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#ffffff" }]
+    },
+    {
+      "featureType": "water",
+      "elementType": "geometry",
+      "stylers": [{ "color": "#e9e9e9" }]
+    }
+  ],
+};
+
+const regionMarkers: { id: MesoRegion; position: { lat: number; lng: number }; label: string }[] = [
+  { id: 'Norte', label: 'Norte Maranhense', position: { lat: -2.53, lng: -44.30 } },
+  { id: 'Oeste', label: 'Oeste Maranhense', position: { lat: -5.52, lng: -47.47 } },
+  { id: 'Centro', label: 'Centro Maranhense', position: { lat: -5.29, lng: -44.49 } },
+  { id: 'Leste', label: 'Leste Maranhense', position: { lat: -4.86, lng: -43.35 } },
+  { id: 'Sul', label: 'Sul Maranhense', position: { lat: -7.53, lng: -46.03 } },
+];
+
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
   const [hoveredRegion, setHoveredRegion] = useState<MesoRegion | null>(null);
+  
+  // Nota: Para produção, substitua pela sua chave de API real ou use variáveis de ambiente.
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "", 
+  });
 
-  const regions: { id: MesoRegion; path: string; label: string }[] = [
-    { id: 'Norte', label: 'Norte Maranhense', path: "M50,10 L90,10 L90,40 L60,50 Z" },
-    { id: 'Oeste', label: 'Oeste Maranhense', path: "M10,40 L50,40 L60,80 L20,90 Z" },
-    { id: 'Centro', label: 'Centro Maranhense', path: "M50,40 L80,45 L70,70 L55,75 Z" },
-    { id: 'Leste', label: 'Leste Maranhense', path: "M80,45 L100,50 L95,85 L70,80 Z" },
-    { id: 'Sul', label: 'Sul Maranhense', path: "M20,90 L60,80 L70,120 L30,130 Z" },
-  ];
+  const totalSamples = useMemo(() => 
+    Object.values(stats).reduce((a, b) => a + b, 0), 
+  [stats]);
 
   const currentRegion = hoveredRegion || (activeRegion !== 'all' ? activeRegion : null);
-  const totalSamples = Object.values(stats).reduce((a, b) => a + b, 0);
+
+  const onMarkerClick = useCallback((regionId: MesoRegion) => {
+    onRegionSelect(regionId);
+  }, [onRegionSelect]);
 
   return (
     <BentoCard 
       title="Geolocalização" 
       subtitle="Densidade de Dados" 
-      className="lg:col-span-2 lg:row-span-2 relative group"
+      className="lg:col-span-2 lg:row-span-2 relative group p-0 overflow-hidden"
     >
-      <div className="absolute top-8 right-8 flex items-center gap-3 px-6 py-2.5 rounded-2xl bg-white border border-zinc-200 shadow-sm z-20">
+      {/* Overlay de Status: Sinal Ativo */}
+      <div className="absolute top-8 right-8 flex items-center gap-3 px-6 py-2.5 rounded-2xl bg-white/90 backdrop-blur-md border border-zinc-200 shadow-xl z-20">
         <span className="relative flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 premium-gradient"></span>
@@ -40,43 +110,48 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         <span className="text-[10px] font-black text-zinc-900 uppercase tracking-[0.2em]">Sinal: Ativo</span>
       </div>
 
-      <div className="relative flex-1 flex items-center justify-center min-h-[400px] mt-8">
-        <svg 
-          viewBox="0 0 120 150" 
-          className="w-full h-full max-h-[450px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.08)]"
-          onMouseLeave={() => setHoveredRegion(null)}
-        >
-          {regions.map((region) => (
-            <motion.path
-              key={region.id}
-              d={region.path}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1,
-                fill: activeRegion === region.id ? "#ea580c" : hoveredRegion === region.id ? "#f8fafc" : "#ffffff",
-                stroke: activeRegion === region.id ? "#c2410c" : "#e2e8f0"
-              }}
-              strokeWidth="0.8"
-              whileHover={{ 
-                scale: 1.03, 
-                strokeWidth: 1.5,
-                transition: { duration: 0.2 } 
-              }}
-              onMouseEnter={() => setHoveredRegion(region.id)}
-              onClick={() => onRegionSelect(region.id)}
-              className="cursor-pointer transition-all duration-300"
-            />
-          ))}
-        </svg>
+      <div className="w-full h-full min-h-[500px] relative">
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={center}
+            zoom={6}
+            options={mapOptions}
+          >
+            {regionMarkers.map((marker) => (
+              <Marker
+                key={marker.id}
+                position={marker.position}
+                onClick={() => onMarkerClick(marker.id)}
+                onMouseOver={() => setHoveredRegion(marker.id)}
+                onMouseOut={() => setHoveredRegion(null)}
+                icon={{
+                  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
+                  fillColor: activeRegion === marker.id ? "#ea580c" : "#71717a",
+                  fillOpacity: 1,
+                  strokeColor: "#ffffff",
+                  strokeWeight: 2,
+                  scale: 1.5,
+                  anchor: new google.maps.Point(12, 24),
+                }}
+              />
+            ))}
+          </GoogleMap>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-4">
+            <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
+            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Iniciando Engine de Mapas...</p>
+          </div>
+        )}
 
+        {/* Info Card Flutuante */}
         <AnimatePresence>
           {currentRegion && (
             <motion.div
               initial={{ opacity: 0, x: 40, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 40, scale: 0.95 }}
-              className="absolute right-0 bottom-4 p-8 bg-white border border-zinc-200/80 rounded-[2.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.12)] min-w-[280px] z-30"
+              className="absolute right-8 bottom-8 p-8 bg-white/95 backdrop-blur-xl border border-zinc-200/80 rounded-[2.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.15)] min-w-[300px] z-30"
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
