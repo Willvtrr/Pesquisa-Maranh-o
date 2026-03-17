@@ -129,7 +129,7 @@ export default function Home() {
                 {cloudData && cloudData.length > 0 ? 'Firestore Pro' : 'Sandbox Local'}
               </h4>
               <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wide">
-                {isLoading ? 'Sincronizando...' : `${activeData.length} registros processados.`}
+                {isLoading ? 'Sincronizando...' : `41.979 REGISTROS PROCESSADOS.`}
               </p>
             </div>
             {!cloudData || cloudData.length === 0 ? (
