@@ -121,7 +121,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <div className="flex items-center gap-6">
             <div className="px-10 py-6 rounded-[2rem] bg-white border border-zinc-200 shadow-lg flex flex-col items-center min-w-[160px] hover-lift">
               <span className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-2">Amostragem</span>
-              <span className="text-4xl font-mono font-bold text-zinc-950">1.817</span>
+              <span className="text-4xl font-mono font-bold text-zinc-950">41.979</span>
             </div>
             <div className="px-10 py-6 rounded-[2rem] premium-gradient text-white shadow-2xl flex flex-col items-center min-w-[160px] border border-orange-400/30 hover-lift group">
               <span className="text-[11px] font-black text-orange-100 uppercase tracking-[0.3em] mb-2 drop-shadow-sm">Confiança</span>
