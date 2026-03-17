@@ -34,26 +34,24 @@
   body {
     @apply bg-zinc-50 text-zinc-900 antialiased selection:bg-orange-500/20;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    /* Ambiente Imersivo: Degradê radial profundo */
-    background: radial-gradient(circle at 0% 0%, #f4f4f5 0%, #ffffff 50%, #f4f4f5 100%);
+    background: radial-gradient(circle at 50% 0%, #fcfcfc 0%, #f4f4f5 100%);
   }
 }
 
 @layer components {
-  /* Materialidade Sólida: Sombras 3D e bordas técnicas */
+  /* Materialidade Sólida: Sombras 3D ultra-definidas */
   .bento-3d {
     @apply bg-white border border-zinc-200/60 rounded-[2.5rem] ring-1 ring-white/50;
     box-shadow: 
-      0 1px 2px rgba(0,0,0,0.02),
-      0 4px 6px rgba(0,0,0,0.02),
-      0 12px 24px -4px rgba(0,0,0,0.03),
-      0 24px 48px -8px rgba(0,0,0,0.03);
+      0 2px 4px rgba(0,0,0,0.01),
+      0 12px 24px rgba(0,0,0,0.02),
+      0 32px 64px -16px rgba(0,0,0,0.03);
   }
   
-  /* Efeito de relevo interno (encaixe) */
+  /* Efeito de relevo interno técnico */
   .inner-relief {
-    @apply bg-zinc-50/50 border border-zinc-200/40;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+    @apply bg-zinc-50/80 border border-zinc-200/40;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
   }
 
   /* Material Fosco Premium */
@@ -61,21 +59,23 @@
     @apply bg-gradient-to-br from-zinc-50 to-zinc-100 border-zinc-200 shadow-inner;
   }
 
-  /* Acento Metálico: Orange Bronze Premium */
+  /* Acento Metálico: High-Performance Bronze */
   .premium-gradient {
     background: linear-gradient(145deg, #f97316 0%, #ea580c 45%, #c2410c 100%);
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+    box-shadow: 
+      0 8px 20px -4px rgba(234, 88, 12, 0.3), 
+      inset 0 1px 0 rgba(255,255,255,0.25);
   }
 
-  /* Micro-interação de Profundidade */
+  /* Salto 3D Dinâmico */
   .hover-lift {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-all duration-200 ease-out;
   }
   .hover-lift:hover {
-    transform: translateY(-8px) scale(1.005);
+    transform: translateY(-12px) scale(1.02);
     box-shadow: 
-      0 20px 40px -10px rgba(0,0,0,0.08),
-      0 15px 25px -5px rgba(0,0,0,0.04);
+      0 40px 80px -20px rgba(0,0,0,0.12),
+      0 20px 40px -10px rgba(0,0,0,0.06);
   }
 
   .tech-mono {

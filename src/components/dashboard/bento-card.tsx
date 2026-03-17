@@ -18,15 +18,16 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ 
-        y: -10,
-        scale: 1.01,
-        transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } 
+        y: -14,
+        scale: 1.015,
+        transition: { duration: 0.25, ease: "circOut" } 
       }}
-      transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
         "bg-white rounded-[2.5rem] p-8 flex flex-col gap-4 overflow-hidden relative",
-        "border border-zinc-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.03),0_1px_3px_rgba(0,0,0,0.01)]",
+        "border border-zinc-200/80 bento-3d",
         "before:absolute before:inset-0 before:rounded-[2.5rem] before:ring-1 before:ring-inset before:ring-white before:pointer-events-none before:z-20",
+        "group transition-shadow duration-300 hover:shadow-[0_45px_90px_-20px_rgba(0,0,0,0.12),0_20px_40px_-10px_rgba(0,0,0,0.06)]",
         className
       )}
     >
@@ -48,7 +49,7 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
       </div>
       
       {/* Chanfro Inferior para Sensação 3D de Materialidade Sólida */}
-      <div className="absolute bottom-0 left-0 right-0 h-[6px] bg-zinc-100/60 border-t border-zinc-200/30 z-0" />
+      <div className="absolute bottom-0 left-0 right-0 h-[8px] bg-zinc-100/60 border-t border-zinc-200/30 z-0" />
       
       {/* Sombra de Contato Interna */}
       <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] z-0" />
