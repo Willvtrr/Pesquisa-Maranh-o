@@ -10,6 +10,22 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+const MaranhaoFlag = () => (
+  <svg width="54" height="36" viewBox="0 0 27 18" className="rounded-md shadow-md ring-1 ring-zinc-200/50">
+    <rect width="27" height="2" y="0" fill="#E20613" />
+    <rect width="27" height="2" y="2" fill="#FFFFFF" />
+    <rect width="27" height="2" y="4" fill="#000000" />
+    <rect width="27" height="2" y="6" fill="#E20613" />
+    <rect width="27" height="2" y="8" fill="#FFFFFF" />
+    <rect width="27" height="2" y="10" fill="#000000" />
+    <rect width="27" height="2" y="12" fill="#E20613" />
+    <rect width="27" height="2" y="14" fill="#FFFFFF" />
+    <rect width="27" height="2" y="16" fill="#000000" />
+    <rect width="11" height="8" fill="#004185" />
+    <path d="M5.5 1.5l.7 2h2.1l-1.7 1.2.7 2.1-1.8-1.3-1.8 1.3.7-2.1-1.7-1.2h2.1z" fill="#fff" />
+  </svg>
+);
+
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative">
@@ -89,7 +105,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               </div>
               Monitoramento em tempo real • 2026
             </div>
-            <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Análises Consolidadas</h1>
+            
+            <div className="flex items-center gap-8">
+              <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Análises Consolidadas</h1>
+              <div className="mt-2">
+                <MaranhaoFlag />
+              </div>
+            </div>
+            
             <p className="text-zinc-500 font-medium text-xl max-w-3xl leading-relaxed">
               Estratificação de alta precisão e processamento geospacial em tempo real para inteligência estratégica.
             </p>
