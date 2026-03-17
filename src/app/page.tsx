@@ -14,10 +14,17 @@ import { BentoCard } from '@/components/dashboard/bento-card';
 import { useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection, query, limit } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const db = useFirestore();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Defer rendering of dynamic/random data until after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Firestore Collection
   const surveyQuery = useMemoFirebase(() => {
@@ -27,10 +34,12 @@ export default function Home() {
   const { data: cloudData, isLoading } = useCollection<SurveyRecord>(surveyQuery);
 
   // Fallback to static data if cloud is empty or loading for demonstration
+  // We use an empty array on server-side to prevent hydration mismatch from random RAW_SURVEY_DATA
   const activeData = useMemo(() => {
+    if (!mounted) return [];
     if (cloudData && cloudData.length > 0) return cloudData;
     return RAW_SURVEY_DATA;
-  }, [cloudData]);
+  }, [cloudData, mounted]);
 
   const [filters, setFilters] = useState({
     region: 'all',
@@ -86,7 +95,6 @@ export default function Home() {
   const seedData = async () => {
     if (!cloudData || cloudData.length > 0) return;
     setIsSyncing(true);
-    const batchSize = 50;
     const itemsToSeed = RAW_SURVEY_DATA.slice(0, 200); // Seeding subset for speed in prototype
     
     for (const record of itemsToSeed) {
