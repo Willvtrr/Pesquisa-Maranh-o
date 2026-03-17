@@ -10,19 +10,19 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 24.6 95% 53.1%;
+    --primary: 25 95% 45%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 24.6 95% 53.1%;
+    --accent: 25 95% 45%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 24.6 95% 53.1%;
+    --ring: 25 95% 45%;
     --radius: 1.5rem;
   }
 }
@@ -60,9 +60,9 @@
     @apply bg-gradient-to-br from-zinc-50 to-zinc-100 border-zinc-200 shadow-inner;
   }
 
-  /* Acento Metálico: High-Performance Bronze */
+  /* Acento Metálico: High-Performance Orange Bronze */
   .premium-gradient {
-    background: linear-gradient(145deg, #f97316 0%, #ea580c 45%, #c2410c 100%);
+    background: linear-gradient(145deg, #fb923c 0%, #ea580c 45%, #7c2d12 100%);
     box-shadow: 
       0 8px 20px -4px rgba(234, 88, 12, 0.3), 
       inset 0 1px 0 rgba(255,255,255,0.25);
