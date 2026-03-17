@@ -107,7 +107,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
             
             <div className="flex items-center gap-8">
-              <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Análises Consolidadas</h1>
+              <h1 className="text-6xl font-black tracking-tighter text-zinc-950 leading-tight">Mapeamento de votos no Maranhão</h1>
               <div className="mt-2">
                 <MaranhaoFlag />
               </div>
