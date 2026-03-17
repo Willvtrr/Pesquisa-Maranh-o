@@ -114,7 +114,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
             
             <p className="text-zinc-500 font-medium text-xl max-w-3xl leading-relaxed">
-              Estratificação de alta precisão e processamento geospacial em tempo real para inteligência estratégica.
+              Estratificação de alta precisão e processamento geospacial em tempo real para inteligência de campanha
             </p>
           </div>
           
