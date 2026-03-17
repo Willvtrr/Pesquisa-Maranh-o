@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin } from 'lucide-react';
+import { BentoCard } from './bento-card';
 
 interface InteractiveMapProps {
   onRegionSelect: (region: MesoRegion | null) => void;
@@ -23,26 +24,15 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   ];
 
   return (
-    <div className="glass-card p-6 h-[500px] relative overflow-hidden flex flex-col interactive-ring bg-white">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-          <MapPin size={14} className="text-orange-600" />
-          Geolocalização / Mesorregiões
-        </h3>
-        {activeRegion !== 'all' && (
-          <button 
-            onClick={() => onRegionSelect(null)}
-            className="text-[10px] font-mono text-zinc-400 hover:text-orange-600 underline underline-offset-4"
-          >
-            LIMPAR FOCO
-          </button>
-        )}
-      </div>
-      
-      <div className="flex-1 relative flex items-center justify-center">
+    <BentoCard 
+      title="Geolocalização" 
+      subtitle="Distribuição por Mesorregiões" 
+      className="lg:col-span-2 lg:row-span-2"
+    >
+      <div className="relative flex-1 flex items-center justify-center min-h-[300px]">
         <svg 
           viewBox="0 0 120 150" 
-          className="w-full h-full max-h-[380px]"
+          className="w-full h-full max-h-[350px]"
           onMouseLeave={() => setHoveredRegion(null)}
         >
           {regions.map((region) => (
@@ -50,9 +40,9 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               key={region.id}
               d={region.path}
               fill={activeRegion === region.id ? "#ea580c" : hoveredRegion === region.id ? "#ffedd5" : "#f4f4f5"}
-              stroke="#e4e4e7"
-              strokeWidth="0.5"
-              whileHover={{ scale: 1.02, strokeWidth: 1 }}
+              stroke={activeRegion === region.id ? "#c2410c" : "#e4e4e7"}
+              strokeWidth="1"
+              whileHover={{ scale: 1.02 }}
               onMouseEnter={() => setHoveredRegion(region.id)}
               onClick={() => onRegionSelect(region.id)}
               className="cursor-pointer transition-all duration-300"
@@ -63,40 +53,23 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         <AnimatePresence>
           {(hoveredRegion || (activeRegion !== 'all' && activeRegion)) && (
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="absolute right-0 top-0 w-48 p-4 bg-white border border-zinc-200 rounded-xl shadow-lg"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="absolute right-0 top-0 p-4 bg-white/80 backdrop-blur-md border border-zinc-100 rounded-3xl shadow-xl pointer-events-none"
             >
-              <div className="text-[10px] font-mono text-orange-600 font-bold uppercase mb-1">DADOS REGIONAIS</div>
-              <div className="text-sm font-bold mb-3 text-zinc-900">{(hoveredRegion || activeRegion)} Maranhense</div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-[10px] font-mono">
-                  <span className="text-zinc-400">AMOSTRA</span>
+              <div className="text-[10px] font-bold text-orange-600 uppercase mb-1">DADOS DA REGIÃO</div>
+              <div className="text-sm font-bold text-zinc-900">{(hoveredRegion || activeRegion)}</div>
+              <div className="mt-2 space-y-1">
+                <div className="flex justify-between gap-4 text-[10px] font-mono">
+                  <span className="text-zinc-400 uppercase">N</span>
                   <span className="text-zinc-900 font-bold">{stats[hoveredRegion || activeRegion as MesoRegion] || 0}</span>
-                </div>
-                <div className="flex justify-between items-center text-[10px] font-mono">
-                  <span className="text-zinc-400">REPRESENTAÇÃO</span>
-                  <span className="text-orange-600 font-bold">
-                    {((stats[hoveredRegion || activeRegion as MesoRegion] / 1817) * 100).toFixed(1)}%
-                  </span>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      <div className="mt-4 flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-orange-600" />
-          <span className="text-[10px] font-mono text-zinc-400">SELECIONADO</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-zinc-200" />
-          <span className="text-[10px] font-mono text-zinc-400">BASE</span>
-        </div>
-      </div>
-    </div>
+    </BentoCard>
   );
 };

@@ -1,47 +1,56 @@
-
 "use client";
 
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { NeomorphicCard } from '../ui/neomorphic-card';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { BentoCard } from './bento-card';
 
 interface ApprovalChartProps {
   data: { name: string; value: number }[];
 }
 
 const COLORS = {
-  'Aprova': '#16A34A',
-  'Desaprova': '#DC2626',
-  'NS/NR': '#9CA3AF'
+  'Aprova': '#ea580c',
+  'Desaprova': '#ef4444',
+  'NS/NR': '#94a3b8'
 };
 
 export const ApprovalChart = ({ data }: ApprovalChartProps) => {
   return (
-    <NeomorphicCard className="h-[400px] flex flex-col">
-      <h3 className="text-lg font-bold mb-4 font-headline text-primary">Índice de Aprovação</h3>
-      <div className="flex-1 w-full">
+    <BentoCard title="Aprovação" subtitle="Índice de Confiança">
+      <div className="h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
-              innerRadius={60}
-              outerRadius={100}
-              paddingAngle={5}
+              innerRadius={50}
+              outerRadius={80}
+              paddingAngle={8}
               dataKey="value"
-              animationBegin={0}
-              animationDuration={1500}
             >
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#0095A8'} />
+                <Cell key={`cell-${index}`} fill={COLORS[entry.name as keyof typeof COLORS] || '#f4f4f5'} />
               ))}
             </Pie>
             <Tooltip 
-              contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+              contentStyle={{ 
+                borderRadius: '1.5rem', 
+                border: 'none', 
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+                fontSize: '10px',
+                fontWeight: 'bold'
+              }}
             />
-            <Legend verticalAlign="bottom" height={36} />
           </PieChart>
         </ResponsiveContainer>
       </div>
-    </NeomorphicCard>
+      <div className="flex justify-center gap-4 mt-2">
+        {data.map((item) => (
+          <div key={item.name} className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[item.name as keyof typeof COLORS] }} />
+            <span className="text-[10px] font-bold text-zinc-400 uppercase">{item.name}</span>
+          </div>
+        ))}
+      </div>
+    </BentoCard>
   );
 };

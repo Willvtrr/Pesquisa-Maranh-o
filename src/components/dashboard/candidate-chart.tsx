@@ -1,28 +1,21 @@
-
 "use client";
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { NeomorphicCard } from '../ui/neomorphic-card';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BentoCard } from './bento-card';
 
 interface CandidateChartProps {
   data: { name: string; value: number }[];
 }
 
-const PASTEL_COLORS = [
-  '#A8D8EA', '#AA96DA', '#FCBAD3', '#FFFFD2', 
-  '#B2E2F2', '#E2F0CB', '#FCE38A', '#95E1D3', 
-  '#FFD3B6', '#FFAAA5'
-];
+const COLORS = ['#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5'];
 
 export const CandidateChart = ({ data }: CandidateChartProps) => {
   return (
-    <NeomorphicCard className="h-[400px] flex flex-col">
-      <h3 className="text-lg font-bold mb-4 font-headline text-primary">Intenção de Voto</h3>
-      <div className="flex-1 w-full">
+    <BentoCard title="Intenção de Voto" subtitle="Resultados Espontâneos" className="lg:col-span-2">
+      <div className="h-[250px] mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E0E5EC" />
+          <BarChart data={data} layout="vertical" margin={{ left: -20, right: 20 }}>
             <XAxis type="number" hide />
             <YAxis 
               dataKey="name" 
@@ -30,20 +23,25 @@ export const CandidateChart = ({ data }: CandidateChartProps) => {
               width={100} 
               axisLine={false} 
               tickLine={false}
-              tick={{ fill: '#1B3A5C', fontSize: 12, fontWeight: 500 }}
+              tick={{ fill: '#71717a', fontSize: 10, fontWeight: 700 }}
             />
             <Tooltip 
-              cursor={{ fill: 'rgba(27, 58, 92, 0.05)' }}
-              contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+              cursor={{ fill: '#f8fafc' }}
+              contentStyle={{ 
+                borderRadius: '1.5rem', 
+                border: 'none', 
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05)',
+                fontSize: '10px'
+              }}
             />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1500}>
+            <Bar dataKey="value" radius={[0, 12, 12, 0]} barSize={24}>
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={PASTEL_COLORS[index % PASTEL_COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </NeomorphicCard>
+    </BentoCard>
   );
 };
