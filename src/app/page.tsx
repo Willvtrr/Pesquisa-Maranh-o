@@ -11,8 +11,8 @@ import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { CheckCircle, Activity, MapPin, Zap, ShieldCheck, Database, RefreshCw } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
-import { useCollection, useFirestore, useMemoFirebase, addDocumentNonBlocking, useUser, useAuth, initiateAnonymousSignIn } from '@/firebase';
-import { collection, query, limit } from 'firebase/firestore';
+import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, useUser, useAuth, initiateAnonymousSignIn } from '@/firebase';
+import { collection, query, limit, doc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -106,9 +106,12 @@ export default function Home() {
     const itemsToSeed = RAW_SURVEY_DATA.slice(0, 200); 
     
     for (const record of itemsToSeed) {
-      addDocumentNonBlocking(collection(db, 'survey_records'), record);
+      // Use setDocumentNonBlocking with a stable ID to satisfy integrity rules
+      const docRef = doc(db, 'survey_records', String(record.id));
+      setDocumentNonBlocking(docRef, record, { merge: true });
     }
     
+    // Artificial delay for UX
     setTimeout(() => setIsSyncing(false), 2000);
   };
 
