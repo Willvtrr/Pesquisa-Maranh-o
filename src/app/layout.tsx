@@ -1,10 +1,14 @@
 
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-  title: 'Maranhão Insights | BI Governamental',
-  description: 'Plataforma premium de análise de dados e pesquisa de opinião do Maranhão.',
+  title: 'Focco Analytics | Inteligência de Dados',
+  description: 'Dashboard premium de análise de resultados de pesquisas.',
 };
 
 export default function RootLayout({
@@ -13,13 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased bg-background text-foreground">{children}</body>
+    <html lang="pt-BR" className={`${inter.variable} ${jetbrains.variable}`}>
+      <body className="font-sans min-h-screen">
+        {children}
+      </body>
     </html>
   );
 }
