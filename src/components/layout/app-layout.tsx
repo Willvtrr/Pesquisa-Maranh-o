@@ -4,6 +4,7 @@ import React from 'react';
 import { LayoutDashboard, BarChart3, Users, Settings, Search, Bell, Menu, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -20,14 +21,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-16">
           <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-2xl premium-gradient flex items-center justify-center text-white font-black text-3xl shadow-xl relative group overflow-hidden border border-orange-400/30">
-              <span className="relative z-10 drop-shadow-2xl">F</span>
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <div className="flex flex-col">
-              <div className="font-black text-2xl tracking-tighter leading-none text-zinc-950">FOCCO</div>
-              <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em] mt-1">Intelligence</div>
-            </div>
+            <Image 
+              src="/LOGOTIPO 1 - VARIAÇÃO 3.svg"
+              alt="Focco Intelligence"
+              width={180}
+              height={56}
+              priority
+              className="h-14 w-auto object-contain cursor-pointer hover:scale-105 transition-transform duration-150"
+            />
           </div>
           
           <nav className="hidden lg:flex items-center gap-3">
