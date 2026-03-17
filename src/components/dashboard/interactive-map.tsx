@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Loader2, MapPin, AlertTriangle } from 'lucide-react';
 import { BentoCard } from './bento-card';
 
 interface InteractiveMapProps {
@@ -79,10 +79,11 @@ const regionMarkers: { id: MesoRegion; position: { lat: number; lng: number }; l
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
   const [hoveredRegion, setHoveredRegion] = useState<MesoRegion | null>(null);
   
-  // Nota: Para produção, substitua pela sua chave de API real ou use variáveis de ambiente.
-  const { isLoaded } = useJsApiLoader({
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "", 
+    googleMapsApiKey: apiKey || "", 
   });
 
   const totalSamples = useMemo(() => 
@@ -95,13 +96,44 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
     onRegionSelect(regionId);
   }, [onRegionSelect]);
 
+  if (!apiKey) {
+    return (
+      <BentoCard title="Geolocalização" subtitle="Engine de Mapas" className="lg:col-span-2 lg:row-span-2">
+        <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-4">
+          <div className="p-5 rounded-3xl bg-zinc-50 border border-zinc-100 shadow-inner">
+            <MapPin className="w-10 h-10 text-zinc-300" />
+          </div>
+          <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Configuração Necessária</p>
+          <p className="text-sm font-medium text-zinc-500 max-w-xs">
+            Habilite a API do Google Maps para visualizar a densidade geospacial em tempo real.
+          </p>
+        </div>
+      </BentoCard>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <BentoCard title="Geolocalização" subtitle="Engine de Mapas" className="lg:col-span-2 lg:row-span-2">
+        <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-4">
+          <div className="p-5 rounded-3xl bg-amber-50 border border-amber-100 shadow-inner">
+            <AlertTriangle className="w-10 h-10 text-amber-500" />
+          </div>
+          <p className="text-[10px] font-black uppercase text-amber-600 tracking-[0.2em]">Erro de Conectividade</p>
+          <p className="text-sm font-medium text-zinc-500 max-w-xs">
+            A API do Google Maps não pôde ser carregada. Verifique as configurações de domínio e faturamento no console.
+          </p>
+        </div>
+      </BentoCard>
+    );
+  }
+
   return (
     <BentoCard 
       title="Geolocalização" 
       subtitle="Densidade de Dados" 
       className="lg:col-span-2 lg:row-span-2 relative group p-0 overflow-hidden"
     >
-      {/* Overlay de Status: Sinal Ativo */}
       <div className="absolute top-8 right-8 flex items-center gap-3 px-6 py-2.5 rounded-2xl bg-white/90 backdrop-blur-md border border-zinc-200 shadow-xl z-20">
         <span className="relative flex h-2.5 w-2.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -144,7 +176,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
           </div>
         )}
 
-        {/* Info Card Flutuante */}
         <AnimatePresence>
           {currentRegion && (
             <motion.div
