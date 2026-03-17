@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { BottomNav } from '@/components/layout/bottom-nav';
-import { RAW_SURVEY_DATA, MesoRegion } from '@/data/survey-data';
+import { RAW_SURVEY_DATA, MesoRegion, SurveyRecord } from '@/data/survey-data';
 import { StatItem } from '@/components/dashboard/stat-item';
 import { Users, CheckCircle, XCircle, MapPin, Search } from 'lucide-react';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
@@ -14,11 +14,17 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
+  const [surveyData, setSurveyData] = useState<SurveyRecord[]>([]);
   const [filters, setFilters] = useState({
     region: 'all',
     age: 'all',
     gender: 'all'
   });
+
+  // Defer data loading to client side to avoid hydration mismatch
+  useEffect(() => {
+    setSurveyData(RAW_SURVEY_DATA);
+  }, []);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -27,13 +33,13 @@ export default function Home() {
   const clearFilters = () => setFilters({ region: 'all', age: 'all', gender: 'all' });
 
   const filteredData = useMemo(() => {
-    return RAW_SURVEY_DATA.filter(item => {
+    return surveyData.filter(item => {
       const regionMatch = filters.region === 'all' || item.region === filters.region;
       const ageMatch = filters.age === 'all' || item.age === filters.age;
       const genderMatch = filters.gender === 'all' || item.gender === filters.gender;
       return regionMatch && ageMatch && genderMatch;
     });
-  }, [filters]);
+  }, [filters, surveyData]);
 
   const stats = useMemo(() => {
     const total = filteredData.length;
@@ -208,7 +214,7 @@ export default function Home() {
             </table>
           </div>
           <button className="w-full mt-6 py-4 rounded-2xl bg-white/40 text-accent font-bold text-xs uppercase tracking-widest hover:bg-white/60 transition-all">
-            Ver Todos os 1.817 Registros
+            Ver Todos os {surveyData.length} Registros
           </button>
         </motion.div>
       </main>
