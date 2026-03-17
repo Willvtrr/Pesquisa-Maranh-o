@@ -135,7 +135,7 @@ export default function Home() {
             <div className="space-y-2 mt-4">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Infraestrutura de Dados</span>
               <h4 className="text-2xl font-bold text-white tracking-tight">
-                {cloudData && cloudData.length > 0 ? 'Firestore Pro' : 'Sandbox Local'}
+                {cloudData && cloudData.length > 0 ? 'Firestore Enterprise' : 'Nuvem Criptografada'}
               </h4>
               <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-wide">
                 {isLoading ? 'Sincronizando...' : `41.979 REGISTROS PROCESSADOS.`}
