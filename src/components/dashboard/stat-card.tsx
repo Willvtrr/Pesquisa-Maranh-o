@@ -20,8 +20,8 @@ export const StatCard = ({ label, value, subValue, icon: Icon, trend, className 
     <BentoCard className={cn("group transition-all duration-700", className)}>
       <div className="flex flex-col h-full justify-between relative z-10">
         <div className="flex items-center justify-between mb-8">
-          {/* Container do Ícone: Relevo Técnico e Acento Metálico */}
-          <div className="p-4 rounded-2xl inner-relief text-zinc-600 group-hover:premium-gradient group-hover:text-white group-hover:border-transparent transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+          {/* Container do Ícone: Relevo Técnico e Acento Metálico - Rotação Removida */}
+          <div className="p-4 rounded-2xl inner-relief text-zinc-600 group-hover:premium-gradient group-hover:text-white group-hover:border-transparent transition-all duration-500 group-hover:scale-110">
             <Icon size={24} strokeWidth={2.5} />
           </div>
           
