@@ -3,16 +3,16 @@
   "entities": {
     "SurveyResponse": {
       "title": "SurveyResponse",
-      "description": "Individual survey response record for high-volume analysis.",
+      "description": "Registro individual de resposta de pesquisa para análise de alto volume.",
       "type": "object",
       "properties": {
-        "city": { "type": "string" },
-        "region": { "type": "string" },
-        "gender": { "type": "string" },
-        "age": { "type": "string" },
-        "approval_gov": { "type": "string" },
-        "vote_president": { "type": "string" },
-        "problem_grave": { "type": "string" }
+        "Cidade:": { "type": "string" },
+        "Mesorregião": { "type": "string" },
+        "Gênero": { "type": "string" },
+        "Faixa Etária": { "type": "string" },
+        "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?": { "type": "string" },
+        "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)": { "type": "string" },
+        "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)": { "type": "string" }
       }
     }
   },
@@ -21,8 +21,8 @@
   },
   "firestore": {
     "surveyResponses/{responseId}": {
-      "schema": "#/entities/SurveyResponse",
-      "description": "Collection for all survey records (100k+ lines)."
+      "schema": "#/backend/entities/SurveyResponse",
+      "description": "Coleção de todos os registros de pesquisa (mais de 100 mil linhas)."
     }
   }
 }

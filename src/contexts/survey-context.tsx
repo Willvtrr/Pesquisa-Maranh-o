@@ -27,7 +27,7 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    // Carrega os dados do JSON inicial (ou do Firestore futuramente)
+    // Carrega dados iniciais do JSON para evitar quebra do build
     if (Array.isArray(rawData)) {
       setData(rawData);
     }
