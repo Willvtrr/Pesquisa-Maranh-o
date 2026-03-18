@@ -18,29 +18,28 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ 
-        y: -12,
-        scale: 1.02,
+        y: -8,
+        scale: 1.01,
         transition: { duration: 0.15, ease: "circOut" } 
       }}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
-        "bg-white rounded-[2.5rem] p-8 flex flex-col gap-4 overflow-hidden relative",
+        "bg-white rounded-3xl p-6 lg:p-8 flex flex-col gap-4 overflow-hidden relative",
         "border border-zinc-200/80 bento-3d",
-        "before:absolute before:inset-0 before:rounded-[2.5rem] before:ring-1 before:ring-inset before:ring-white before:pointer-events-none before:z-20",
-        "group transition-shadow duration-300 hover:shadow-[0_45px_90px_-20px_rgba(0,0,0,0.12),0_20px_40px_-10px_rgba(0,0,0,0.06)]",
+        "before:absolute before:inset-0 before:rounded-3xl before:ring-1 before:ring-inset before:ring-white before:pointer-events-none before:z-20",
+        "group transition-shadow duration-300",
         className
       )}
     >
-      {/* Header do Card com Tipografia Elegante */}
       {(title || subtitle) && (
-        <div className="space-y-1.5 mb-2 relative z-10">
+        <div className="space-y-1 mb-2 relative z-10">
           {title && (
-            <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <h3 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
               <span className="w-1 h-3 premium-gradient rounded-full" />
               {title}
             </h3>
           )}
-          {subtitle && <p className="text-2xl font-bold text-zinc-950 tracking-tight">{subtitle}</p>}
+          {subtitle && <p className="text-xl lg:text-2xl font-bold text-zinc-950 tracking-tight">{subtitle}</p>}
         </div>
       )}
       
@@ -48,11 +47,8 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
         {children}
       </div>
       
-      {/* Chanfro Inferior para Sensação 3D de Materialidade Sólida */}
-      <div className="absolute bottom-0 left-0 right-0 h-[8px] bg-zinc-100/60 border-t border-zinc-200/30 z-0" />
-      
-      {/* Sombra de Contato Interna */}
-      <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] z-0" />
+      <div className="absolute bottom-0 left-0 right-0 h-[6px] bg-zinc-100/60 border-t border-zinc-200/30 z-0" />
+      <div className="absolute inset-0 pointer-events-none rounded-3xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.01)] z-0" />
     </motion.div>
   );
 };
