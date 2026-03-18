@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,7 +42,7 @@ const regionMarkers: { id: MesoRegion; position: { lat: number; lng: number }; l
 ];
 
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
-  const [hoveredRegion, setHoveredRegion] = useState<MesoRegion | null>(null);
+  const [hoveredRegion] = useState<MesoRegion | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -64,7 +64,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             {loadError ? 'Erro na API' : 'Configuração Necessária'}
           </p>
           <p className="text-xs font-medium text-zinc-500 max-w-[200px]">
-            {loadError ? 'A API do Google Maps não pôde ser carregada.' : 'Habilite a API do Google Maps para visualização geospacial.'}
+            {loadError ? 'A API do Google Maps não pôde ser carregada.' : 'Atualização em breve do mapa'}
           </p>
         </div>
       </BentoCard>
