@@ -35,7 +35,6 @@ export default function ImportPage() {
   const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Estados de Importação / Limpeza
   const [isImporting, setIsImporting] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -44,11 +43,8 @@ export default function ImportPage() {
   const [status, setStatus] = useState<'idle' | 'parsing' | 'processing' | 'success' | 'error' | 'clearing'>('idle');
   const [exactDbCount, setExactDbCount] = useState<number | null>(null);
 
-  // Estados de Visualização (Paginação)
   const [pageSize] = useState(50);
-  const [currentPage, setCurrentPage] = useState(1);
 
-  // Função para buscar contagem exata no servidor
   const refreshExactCount = async () => {
     if (!db) return;
     try {
@@ -60,7 +56,6 @@ export default function ImportPage() {
     }
   };
 
-  // Busca contagem inicial e após sucesso/limpeza
   useEffect(() => {
     refreshExactCount();
   }, [db]);
@@ -71,12 +66,11 @@ export default function ImportPage() {
     }
   }, [status]);
 
-  // Consulta para Auditoria
   const responsesQuery = useMemoFirebase(() => {
     return query(
       collection(db, 'surveyResponses'),
       orderBy('importedAt', 'desc'),
-      limit(pageSize) // Mostra apenas a primeira página na auditoria rápida
+      limit(pageSize)
     );
   }, [db, pageSize]);
 
@@ -95,13 +89,13 @@ export default function ImportPage() {
     }
   }, [user, auth]);
 
-  // Função para limpar o banco (Batch Delete)
   const handleClearDatabase = async () => {
     if (!db) return;
     try {
       setIsClearing(true);
       setStatus('clearing');
       setProgress(0);
+      setProcessedCount(0);
       
       let deletedCount = 0;
       const initialCount = exactDbCount || 0;
@@ -117,7 +111,17 @@ export default function ImportPage() {
           batch.delete(doc.ref);
         });
 
-        await batch.commit();
+        try {
+          await batch.commit();
+        } catch (serverError: any) {
+          const permissionError = new FirestorePermissionError({
+            path: 'surveyResponses/delete_batch',
+            operation: 'delete',
+          });
+          errorEmitter.emit('permission-error', permissionError);
+          throw serverError;
+        }
+
         deletedCount += snapshot.size;
         
         if (initialCount > 0) {
@@ -125,8 +129,7 @@ export default function ImportPage() {
         }
         setProcessedCount(deletedCount);
         
-        // Pequena pausa para evitar sobrecarga
-        await sleep(100);
+        await sleep(150);
       }
 
       setStatus('idle');
@@ -136,6 +139,7 @@ export default function ImportPage() {
         description: "Todos os registros foram removidos com sucesso.",
       });
     } catch (error: any) {
+      setStatus('error');
       console.error(error);
       toast({
         variant: "destructive",
@@ -145,7 +149,6 @@ export default function ImportPage() {
     } finally {
       setIsClearing(false);
       setProgress(0);
-      setProcessedCount(0);
     }
   };
 
@@ -178,7 +181,6 @@ export default function ImportPage() {
           const chunk = data.slice(i, i + batchSize);
           
           chunk.forEach((item, index) => {
-            // ID fixo baseado no índice para evitar duplicação se rodar o mesmo arquivo
             const docId = `survey_row_${i + index}`;
             const docRef = doc(responsesRef, docId);
             batch.set(docRef, {
@@ -222,7 +224,6 @@ export default function ImportPage() {
       }
     };
     reader.readAsText(file);
-    // Limpa o input para permitir subir o mesmo arquivo se necessário
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -230,7 +231,6 @@ export default function ImportPage() {
     <AppLayout>
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Card de Upload */}
           <BentoCard title="Infraestrutura de Dados" subtitle="Carga Massiva" className="lg:col-span-2">
             <div className="space-y-8 mt-4">
               <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
@@ -335,7 +335,6 @@ export default function ImportPage() {
             </div>
           </BentoCard>
 
-          {/* Card de Status do Banco */}
           <BentoCard title="Status do Banco" subtitle="Monitoramento Real">
             <div className="flex flex-col h-full justify-between py-4">
               <div className="space-y-6">
@@ -367,7 +366,6 @@ export default function ImportPage() {
           </BentoCard>
         </div>
 
-        {/* Tabela de Visualização */}
         <BentoCard title="Explorador de Dados" subtitle="Entrevistas Organizadas">
           <div className="mt-6 border border-zinc-100 rounded-[2rem] overflow-hidden bg-white shadow-inner">
             <ScrollArea className="w-full">
@@ -399,7 +397,7 @@ export default function ImportPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      recentResponses?.map((row, idx) => (
+                      recentResponses?.map((row) => (
                         <TableRow key={row.id} className="hover:bg-zinc-50/50 transition-colors">
                           {dynamicColumns.map((col) => (
                             <TableCell key={`${row.id}-${col}`} className="text-xs font-medium text-zinc-600 px-4 py-3 border-r border-zinc-50 last:border-none">

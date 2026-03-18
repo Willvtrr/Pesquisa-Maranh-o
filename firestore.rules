@@ -33,13 +33,13 @@ service cloud.firestore {
     }
 
     /**
-     * @description Permite que usuários autenticados (incluindo anônimos) criem registros.
-     * Necessário para o fluxo de importação inicial.
+     * @description Permite que usuários autenticados (incluindo anônimos) criem e deletem registros.
+     * Necessário para o fluxo de importação e limpeza de dados.
      */
     match /surveyResponses/{surveyResponseId} {
       allow get, list: if isSignedIn();
       allow create, update: if isSignedIn();
-      allow delete: if isAdmin();
+      allow delete: if isSignedIn();
     }
 
     match /candidateRatings/{candidateRatingId} {
