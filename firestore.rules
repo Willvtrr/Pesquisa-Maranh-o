@@ -5,8 +5,8 @@ service cloud.firestore {
     /**
      * MARANHÃO INSIGHTS - SECURITY ARCHITECTURE
      *
-     * Liberando acesso de escrita para usuários autenticados na coleção surveyResponses
-     * para permitir a carga massiva de dados (109k registros).
+     * Liberando leitura pública para o Dashboard e restringindo escrita 
+     * para usuários autenticados (Importação Massiva).
      */
 
     // --- HELPER FUNCTIONS ---
@@ -28,22 +28,21 @@ service cloud.firestore {
     }
 
     match /candidates/{candidateId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if true;
       allow create, update, delete: if isAdmin();
     }
 
     /**
-     * @description Permite que usuários autenticados (incluindo anônimos) criem e deletem registros.
-     * Necessário para o fluxo de importação e limpeza de dados.
+     * @description Permite leitura pública (Dashboard).
+     * Escrita e limpeza exigem autenticação.
      */
     match /surveyResponses/{surveyResponseId} {
-      allow get, list: if isSignedIn();
-      allow create, update: if isSignedIn();
-      allow delete: if isSignedIn();
+      allow get, list: if true;
+      allow create, update, delete: if isSignedIn();
     }
 
     match /candidateRatings/{candidateRatingId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if true;
       allow create: if isSignedIn();
       allow update, delete: if isAdmin();
     }
