@@ -77,12 +77,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       subtitle="Densidade Real" 
       className="lg:col-span-2 lg:row-span-2 relative p-0 overflow-hidden min-h-[400px] lg:min-h-0"
     >
-      <div className="absolute top-4 right-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 backdrop-blur-md border border-zinc-200 shadow-lg z-20">
-        <span className="relative flex h-2 w-2">
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white/90 backdrop-blur-md border border-zinc-200 shadow-lg z-20">
+        <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 premium-gradient"></span>
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 premium-gradient"></span>
         </span>
-        <span className="text-[9px] font-black text-zinc-950 uppercase tracking-widest">Ativo</span>
+        <span className="text-[8px] sm:text-[9px] font-black text-zinc-950 uppercase tracking-widest">Ativo</span>
       </div>
 
       <div className="w-full h-full relative">
@@ -104,16 +104,16 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
                   fillOpacity: 1,
                   strokeColor: "#ffffff",
                   strokeWeight: 2,
-                  scale: 1.2,
+                  scale: 1.1,
                   anchor: new google.maps.Point(12, 24),
                 }}
               />
             ))}
           </GoogleMap>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-4">
-            <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
-            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Carregando Mapa...</p>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-3 sm:gap-4">
+            <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600 animate-spin" />
+            <p className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest">Carregando Mapa...</p>
           </div>
         )}
 
@@ -123,33 +123,33 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute left-4 right-4 bottom-4 lg:left-auto lg:right-6 lg:bottom-6 p-6 lg:p-8 bg-white/95 backdrop-blur-xl border border-zinc-200 rounded-3xl shadow-2xl lg:min-w-[280px] z-30"
+              className="absolute left-3 right-3 bottom-3 sm:left-4 sm:right-4 sm:bottom-4 lg:left-auto lg:right-6 lg:bottom-6 p-5 sm:p-6 lg:p-8 bg-white/95 backdrop-blur-xl border border-zinc-200 rounded-2xl sm:rounded-3xl shadow-2xl lg:min-w-[280px] z-30"
             >
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-4 premium-gradient rounded-full" />
-                  <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">{currentRegion}</span>
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="w-0.5 h-3 sm:w-1 sm:h-4 premium-gradient rounded-full" />
+                  <span className="text-[8px] sm:text-[9px] font-black text-orange-600 uppercase tracking-widest">{currentRegion}</span>
                 </div>
-                <ArrowUpRight size={14} className="text-orange-600" />
+                <ArrowUpRight size={12} className="sm:size-[14px] text-orange-600" />
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="flex justify-between items-end">
-                  <div className="space-y-1">
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Amostras</span>
-                    <span className="text-3xl font-mono font-bold text-zinc-950 leading-none">
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <span className="text-[7px] sm:text-[8px] font-black text-zinc-400 uppercase tracking-widest">Amostras</span>
+                    <span className="text-2xl sm:text-3xl font-mono font-bold text-zinc-950 leading-none">
                       {stats[currentRegion as MesoRegion] || 0}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Share</span>
-                    <span className="text-lg font-bold text-orange-600 font-mono">
+                    <span className="text-[7px] sm:text-[8px] font-black text-zinc-400 uppercase tracking-widest">Share</span>
+                    <span className="text-base sm:text-lg font-bold text-orange-600 font-mono">
                       {totalSamples > 0 ? ((stats[currentRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
                     </span>
                   </div>
                 </div>
                 
-                <div className="h-2 w-full inner-relief rounded-full overflow-hidden p-[1.5px]">
+                <div className="h-1.5 sm:h-2 w-full inner-relief rounded-full overflow-hidden p-[1px] sm:p-[1.5px]">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${(stats[currentRegion as MesoRegion] / totalSamples) * 100}%` }}

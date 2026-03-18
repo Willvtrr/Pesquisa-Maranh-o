@@ -117,46 +117,46 @@ export default function Home() {
 
   return (
     <AppLayout>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8">
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
-              <div className="p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
-                <Database size={20} />
+              <div className="p-2.5 sm:p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
+                <Database size={18} className="sm:size-5" />
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
-                <span className={`w-2 h-2 rounded-full ${user ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+                <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${user ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-zinc-400">
                   {user ? 'Cloud Ativa' : 'Offline'}
                 </span>
               </div>
             </div>
-            <div className="space-y-2 mt-6">
-              <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Infraestrutura</span>
-              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">
+            <div className="space-y-1.5 sm:space-y-2 mt-4 sm:mt-6">
+              <span className="text-[8px] sm:text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Infraestrutura</span>
+              <h4 className="text-lg sm:text-xl lg:text-2xl font-bold text-white tracking-tight">
                 {cloudData && cloudData.length > 0 ? 'Enterprise' : 'Nuvem Segura'}
               </h4>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide">
+              <p className="text-[9px] sm:text-[10px] text-zinc-500 font-bold uppercase tracking-wide">
                 41.979 REGISTROS PROCESSADOS
               </p>
             </div>
             {!cloudData || cloudData.length === 0 ? (
-              <div className="mt-8 space-y-3">
+              <div className="mt-6 sm:mt-8 space-y-3">
                 <button 
                   onClick={seedData}
                   disabled={isSyncing || !user}
-                  className="w-full py-4 rounded-2xl premium-gradient text-white text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                  className="w-full py-3.5 sm:py-4 rounded-2xl premium-gradient text-white text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 sm:gap-3 active:scale-95 disabled:opacity-50"
                 >
                   <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
                   Sincronizar
                 </button>
-                <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest text-center">
+                <p className="text-[8px] sm:text-[9px] text-zinc-600 font-bold uppercase tracking-widest text-center">
                   v-atual: {currentDate || '--/--/----'}
                 </p>
               </div>
             ) : null}
           </div>
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full" />
+          <div className="absolute -bottom-16 -right-16 w-32 h-32 sm:w-48 sm:h-48 bg-orange-600/10 blur-[60px] rounded-full" />
         </BentoCard>
 
         <StatCard 
@@ -199,16 +199,16 @@ export default function Home() {
 
         <BentoCard className="bg-orange-600 text-white border-none shadow-xl relative p-6 lg:p-8">
           <div className="flex flex-col h-full justify-between relative z-10">
-            <div className="p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md">
-              <Zap size={24} fill="currentColor" />
+            <div className="p-3 sm:p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md">
+              <Zap size={20} className="sm:size-6" fill="currentColor" />
             </div>
-            <div className="space-y-3 mt-6">
-              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-orange-200">
-                <span className="w-2 h-2 rounded-full bg-orange-200 animate-pulse" />
+            <div className="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
+              <div className="flex items-center gap-2 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-orange-200">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-200 animate-pulse" />
                 Pulso Preditivo
               </div>
-              <h4 className="text-2xl font-bold tracking-tight">Resumo de Campo</h4>
-              <p className="text-orange-50/90 text-sm leading-relaxed">
+              <h4 className="text-xl sm:text-2xl font-bold tracking-tight">Resumo de Campo</h4>
+              <p className="text-orange-50/90 text-xs sm:text-sm leading-relaxed">
                 {filters.region === 'all' 
                   ? "Tendência de estabilidade nas capitais regionais." 
                   : `Região ${filters.region} apresenta engajamento acima da média.`}
@@ -218,25 +218,25 @@ export default function Home() {
         </BentoCard>
 
         <BentoCard title="Integridade" subtitle="Orange Engine" className="p-6 lg:p-8">
-          <div className="space-y-6 mt-2">
-            <div className="flex items-center justify-between p-4 rounded-2xl inner-relief">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl premium-gradient text-white">
-                  <ShieldCheck size={18} />
+          <div className="space-y-4 sm:space-y-6 mt-1 sm:mt-2">
+            <div className="flex items-center justify-between p-3 sm:p-4 rounded-2xl inner-relief">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="p-2 sm:p-2.5 rounded-xl premium-gradient text-white">
+                  <ShieldCheck size={16} className="sm:size-[18px]" />
                 </div>
                 <div>
-                  <div className="text-[9px] font-black uppercase text-zinc-400">Confiança</div>
-                  <div className="text-sm font-bold text-zinc-950">95.0% Certificado</div>
+                  <div className="text-[8px] sm:text-[9px] font-black uppercase text-zinc-400">Confiança</div>
+                  <div className="text-xs sm:text-sm font-bold text-zinc-950">95.0% Certificado</div>
                 </div>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex justify-between text-[9px] font-black uppercase text-zinc-500">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex justify-between text-[8px] sm:text-[9px] font-black uppercase text-zinc-500">
                 <span>Fidelidade de Dados</span>
                 <span className="text-zinc-950 font-mono">98.4%</span>
               </div>
-              <div className="h-2 w-full inner-relief rounded-full overflow-hidden p-[2px]">
+              <div className="h-1.5 sm:h-2 w-full inner-relief rounded-full overflow-hidden p-[1.5px] sm:p-[2px]">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: '98.4%' }}
@@ -245,8 +245,8 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[9px] font-black text-zinc-400 uppercase">
-              <Cpu size={12} className="animate-pulse" />
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[8px] sm:text-[9px] font-black text-zinc-400 uppercase">
+              <Cpu size={10} className="sm:size-3 animate-pulse" />
               v3.5-LXS Enterprise
             </div>
           </div>
