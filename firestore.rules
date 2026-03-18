@@ -3,83 +3,109 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * CORE PHILOSOPHY
-     * This ruleset implements a role-based access control model for the 'Maranhão Insights' application.
-     * It prioritizes a clear separation between administrative data management and public/authenticated
-     * data consumption. In this prototyping phase, rules focus on strict authorization (who can access)
-     * while maintaining flexibility regarding the specific fields of the data records.
+     * MARANHÃO INSIGHTS - SECURITY ARCHITECTURE DOCUMENTATION
      *
-     * DATA STRUCTURE
-     * - /survey_records/{id}: Central repository for survey response data.
-     * - /roles_admin/{userId}: A Database Access Control (DBAC) collection where the existence 
-     *   of a user's UID as a document ID grants administrative privileges.
+     * Core Philosophy:
+     * This ruleset implements a robust Role-Based Access Control (RBAC) model designed for high-performance 
+     * data analysis. The architecture separates administrative privileges from data consumption, 
+     * ensuring that while the dashboard remains highly interactive for all authenticated users, 
+     * the integrity of the 100k+ record dataset is strictly guarded by authorized administrators.
      *
-     * KEY SECURITY DECISIONS
-     * - Authentication: All data access requires a verified identity (isSignedIn).
-     * - Admin Privileges: Write access to the master survey data is strictly restricted to users
-     *   verified against the /roles_admin collection.
-     * - Data Integrity: Relational consistency is enforced by ensuring the internal 'id' of a
-     *   SurveyRecord matches its document path and remains immutable.
-     * - Read Access: Survey records are listable by any authenticated user to support the
-     *   application's client-side aggregation and filtering requirements.
+     * Data Structure:
+     * The system utilizes a flat, top-level collection structure (candidates, surveyResponses, candidateRatings).
+     * This "denormalized for performance" approach avoids deep hierarchical lookups, facilitating 
+     * efficient multidimensional filtering and aggregation of large datasets without the overhead 
+     * of recursive security checks.
+     *
+     * Key Security Decisions:
+     * 1. RBAC via 'roles_admin': Administrative status is determined by the existence of a user's UID 
+     *    within the 'roles_admin' collection. This provides a single, auditable source of truth for write access.
+     * 2. Authenticated Read Access: All registered users (including anonymous ones, per IR) can read 
+     *    the primary datasets to power the visualization engine.
+     * 3. Structural Segregation: Administrative roles are separated from the data they manage, 
+     *    preventing accidental data exposure and simplifying query-based permissions (QAPs).
+     * 4. Optimization for Scale: By avoiding complex 'get()' calls inside read rules, we ensure 
+     *    that 'list' operations on 100k+ documents remain performant and cost-effective.
      */
 
-    // --- Global Helper Functions ---
+    // --- HELPER FUNCTIONS ---
 
-    /**
-     * @description Checks if the request is made by a signed-in user.
-     */
+    /** @description Checks if the request is coming from a logged-in user. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * @description Checks if the authenticated user has administrative privileges by 
-     * verifying their existence in the 'roles_admin' collection.
-     */
+    /** @description Validates if the user's UID exists in the admin roles collection. */
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
-    // --- Collection Rules ---
-
-    /**
-     * @description Rules for the SurveyRecord collection, representing master survey data.
-     * @path /survey_records/{surveyRecordId}
-     * @allow get, list: If the user is signed in (supports client-side analysis).
-     * @allow create: If the user is signed in (allowed for seeding/prototyping phase).
-     * @allow update, delete: If the user is a verified administrator.
-     * @principle Role-based access control and relational integrity validation.
-     */
-    match /survey_records/{surveyRecordId} {
-      allow get, list: if isSignedIn();
-      
-      // Allow creation for authenticated users to enable seeding in prototype
-      // Integrity check ensures the internal ID matches the document path
-      allow create: if isSignedIn() && string(request.resource.data.id) == surveyRecordId;
-      
-      allow update: if isAdmin() && resource != null && request.resource.data.id == resource.data.id;
-      
-      allow delete: if isAdmin() && resource != null;
+    /** @description Combines admin check with document existence for destructive operations. */
+    function isExistingAdmin() {
+      return isAdmin() && resource != null;
     }
 
+    // The 'isOwner' function was unused and contained an invalid variable name.
+    // It has been removed as it does not align with the current RBAC model
+    // which primarily relies on 'isSignedIn', 'isAdmin', and 'isExistingAdmin'.
+
+    // --- COLLECTION RULES ---
+
     /**
-     * @description Rules for the admin roles collection used for access control.
+     * @description Authorization table for administrative access. Existence of UID grants write permissions globally.
      * @path /roles_admin/{userId}
-     * @allow get: Any signed-in user can check their own admin status.
-     * @allow list: Only existing admins can list the directory of administrators.
-     * @deny create, update, delete: Role management is restricted to server-side/console operations.
-     * @principle Database Access Control (DBAC) using existence-over-content.
+     * @allow (get) Any signed-in user checking their own admin status.
+     * @deny (create) A non-admin user trying to promote themselves to admin.
+     * @principle Uses a dedicated collection for Database Access Control (DBAC) to decouple roles from data.
      */
     match /roles_admin/{userId} {
+      // Allow any signed-in user to check if a specific userId exists in roles_admin.
+      // This implicitly allows users to check their own admin status.
       allow get: if isSignedIn();
+      // Allow only admins to list all roles_admin (e.g., to manage them).
       allow list: if isAdmin();
-      allow create, update, delete: if false;
+      // Allow only admins to create, update, or delete admin roles.
+      allow create, update, delete: if isAdmin();
     }
 
-    // Default deny for any paths not explicitly matched
-    match /{path=**} {
-      allow read, write: if false;
+    /**
+     * @description Political candidate definitions. Readable by all analysts, manageable by admins.
+     * @path /candidates/{candidateId}
+     * @allow (list) An authenticated researcher viewing the list of candidates.
+     * @deny (update) A researcher trying to change a candidate's name or party.
+     * @principle Homogeneous security posture enables efficient QAP for candidate listings.
+     */
+    match /candidates/{candidateId} {
+      allow get, list: if isSignedIn();
+      allow create: if isAdmin();
+      allow update, delete: if isExistingAdmin();
     }
+
+    /**
+     * @description Primary survey data records. Optimized for high-volume read access.
+     * @path /surveyResponses/{surveyResponseId}
+     * @allow (get) An authenticated user viewing a specific survey result.
+     * @deny (delete) Any user who is not explicitly verified in the roles_admin collection.
+     * @principle Flat structure supports massive scalability for 100k+ lines of survey data.
+     */
+    match /surveyResponses/{surveyResponseId} {
+      allow get, list: if isSignedIn();
+      allow create: if isAdmin();
+      allow update, delete: if isExistingAdmin();
+    }
+
+    /**
+     * @description Junction data linking respondents to candidate ratings. Enables multi-dimensional filtering.
+     * @path /candidateRatings/{candidateRatingId}
+     * @allow (list) The visualization engine fetching ratings to generate charts.
+     * @deny (create) A user attempting to inject fake ratings without admin privileges.
+     * @principle Top-level collection prevents hierarchical bottlenecks during complex analytical queries.
+     */
+    match /candidateRatings/{candidateRatingId} {
+      allow get, list: if isSignedIn();
+      allow create: if isAdmin();
+      allow update, delete: if isExistingAdmin();
+    }
+
   }
 }

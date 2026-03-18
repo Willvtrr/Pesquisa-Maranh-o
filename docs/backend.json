@@ -1,74 +1,108 @@
 {
   "entities": {
-    "SurveyRecord": {
+    "Candidate": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "SurveyRecord",
+      "title": "Candidate",
       "type": "object",
-      "description": "Represents a single record of survey response data from the 'Maranhão Insights' research. This data is expected to be embedded directly into the client-side application as JavaScript arrays for efficient filtering and visualization, as no external database calls are utilized for this feature.",
+      "description": "Represents a political candidate relevant to the survey data, whose performance or approval might be tracked.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the SurveyRecord entity."
+          "description": "Unique identifier for the Candidate entity."
         },
-        "gender": {
+        "name": {
           "type": "string",
-          "description": "Demographic attribute indicating the gender of the respondent (e.g., 'Masculino', 'Feminino', 'Outro', 'Prefiro não dizer')."
+          "description": "Full name of the political candidate."
         },
-        "ageGroup": {
+        "party": {
           "type": "string",
-          "description": "Demographic attribute indicating the age group of the respondent (e.g., '18-24', '25-34', '35-44', '45-54', '55-64', '65+')."
-        },
-        "educationLevel": {
-          "type": "string",
-          "description": "Demographic attribute indicating the highest level of education attained by the respondent (e.g., 'Ensino Fundamental', 'Ensino Médio', 'Ensino Superior', 'Pós-graduação')."
-        },
-        "incomeBracket": {
-          "type": "string",
-          "description": "Demographic attribute indicating the income bracket of the respondent (e.g., 'Até 1 SM', '1-3 SM', '3-5 SM', 'Mais de 5 SM', where SM refers to Salário Mínimo - Minimum Wage)."
-        },
-        "mesoregion": {
-          "type": "string",
-          "description": "Geospatial attribute indicating the mesoregion within Maranhão where the respondent resides. Used for geographical filtering and exploration."
-        },
-        "city": {
-          "type": "string",
-          "description": "Geospatial attribute indicating the city within Maranhão where the respondent resides. Used for geographical filtering and exploration."
-        },
-        "generalApprovalStatus": {
-          "type": "string",
-          "description": "Response attribute indicating the respondent's overall general approval status (e.g., 'Aprovado', 'Desaprovado', 'Neutro', 'Não Respondido'). This maps to specific semantic colors for immediate UI interpretation."
-        },
-        "candidateAFavorabilityScore": {
-          "type": "number",
-          "description": "Response attribute indicating the respondent's favorability score for 'Candidate A' (e.g., 0-100). This data point is used for data visualizations with a harmonious pastel color palette."
-        },
-        "candidateBFavorabilityScore": {
-          "type": "number",
-          "description": "Response attribute indicating the respondent's favorability score for 'Candidate B' (e.g., 0-100). This data point is used for data visualizations with a harmonious pastel color palette."
-        },
-        "satisfactionWithPublicServices": {
-          "type": "string",
-          "description": "Response attribute indicating the respondent's satisfaction level with local public services (e.g., 'Muito Satisfeito', 'Satisfeito', 'Indiferente', 'Insatisfeito', 'Muito Insatisfeito')."
-        },
-        "submittedAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the survey record was submitted or recorded.",
-          "format": "date-time"
+          "description": "Political party or affiliation of the candidate."
         }
       },
       "required": [
         "id",
+        "name"
+      ]
+    },
+    "SurveyResponse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SurveyResponse",
+      "type": "object",
+      "description": "Represents a single completed survey record, capturing respondent demographics and general opinions. This entity consolidates individual survey answers and demographic data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SurveyResponse entity."
+        },
+        "recordedAt": {
+          "type": "string",
+          "description": "Timestamp when the survey response was recorded.",
+          "format": "date-time"
+        },
+        "age": {
+          "type": "number",
+          "description": "Age of the respondent."
+        },
+        "gender": {
+          "type": "string",
+          "description": "Gender of the respondent (e.g., 'Masculino', 'Feminino', 'Não Binário', 'Prefiro não informar')."
+        },
+        "city": {
+          "type": "string",
+          "description": "City where the respondent resides, used for geospatial filtering."
+        },
+        "mesoregion": {
+          "type": "string",
+          "description": "Mesorregião where the respondent resides, used for geospatial filtering."
+        },
+        "overallApprovalIndex": {
+          "type": "number",
+          "description": "A general approval index or score from the survey, representing an overall sentiment or rating (e.g., for the current administration or general direction)."
+        }
+      },
+      "required": [
+        "id",
+        "recordedAt",
+        "age",
         "gender",
-        "ageGroup",
-        "educationLevel",
-        "incomeBracket",
-        "mesoregion",
         "city",
-        "generalApprovalStatus",
-        "candidateAFavorabilityScore",
-        "candidateBFavorabilityScore",
-        "satisfactionWithPublicServices",
-        "submittedAt"
+        "mesoregion",
+        "overallApprovalIndex"
+      ]
+    },
+    "CandidateRating": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CandidateRating",
+      "type": "object",
+      "description": "Records a specific rating or opinion given by a respondent for a particular candidate within a survey. This entity supports 'dados dos candidatos em gráficos' by linking responses to specific candidates.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CandidateRating entity."
+        },
+        "surveyResponseId": {
+          "type": "string",
+          "description": "Reference to the SurveyResponse entity this rating belongs to. (Relationship: SurveyResponse 1:N CandidateRating)"
+        },
+        "candidateId": {
+          "type": "string",
+          "description": "Reference to the Candidate entity being rated. (Relationship: Candidate 1:N CandidateRating)"
+        },
+        "ratingValue": {
+          "type": "number",
+          "description": "The numerical value of the rating given by the respondent for this candidate (e.g., a score from 1 to 5, or a percentage)."
+        },
+        "ratingType": {
+          "type": "string",
+          "description": "Describes the type of rating (e.g., 'Approval Rating', 'Vote Intention', 'Favorability', 'Disapproval'). This allows for different kinds of candidate-specific metrics."
+        }
+      },
+      "required": [
+        "id",
+        "surveyResponseId",
+        "candidateId",
+        "ratingValue",
+        "ratingType"
       ]
     }
   },
@@ -81,38 +115,64 @@
   "firestore": {
     "structure": [
       {
-        "path": "/survey_records/{surveyRecordId}",
+        "path": "roles_admin/{userId}",
         "definition": {
-          "entityName": "SurveyRecord",
+          "entityName": "user",
           "schema": {
-            "$ref": "#/backend/entities/SurveyRecord"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "A top-level collection storing individual survey response records. These records are intended to be globally readable (e.g., by all authenticated users) and serve as the master data source that the client may fetch and embed. The security posture is uniform across all documents in this collection, supporting simple read rules and efficient list operations. Includes all fields defined in the SurveyRecord schema.",
+          "description": "A collection used to store UIDs of users who have administrative roles. The existence of a document at `/roles_admin/{uid}` signifies that `uid` has admin privileges. Used for DBAC (Database Access Control) and enables authorization independence for write operations. No specific fields are denormalized here; the UID itself serves as the authorization token."
+        }
+      },
+      {
+        "path": "candidates/{candidateId}",
+        "definition": {
+          "entityName": "Candidate",
+          "schema": {
+            "$ref": "#/backend/entities/Candidate"
+          },
+          "description": "Stores information about political candidates. All documents in this collection share the same security posture (read for authenticated users, write for admins), ensuring QAP compliance. No denormalization for authorization is needed as access is global to the collection.",
           "params": [
             {
-              "name": "surveyRecordId",
-              "description": "The unique identifier for a specific survey record."
+              "name": "candidateId",
+              "description": "Unique identifier for a specific candidate."
             }
           ]
         }
       },
       {
-        "path": "/roles_admin/{userId}",
+        "path": "surveyResponses/{surveyResponseId}",
         "definition": {
-          "entityName": "roles_admin",
+          "entityName": "SurveyResponse",
           "schema": {
-            "$ref": "#/backend/entities/User"
+            "$ref": "#/backend/entities/SurveyResponse"
           },
-          "description": "A top-level collection used for Database Access Control (DBAC) to designate users with administrative roles. The mere existence of a document with a user's ID in this collection grants them administrative privileges (e.g., write access to `/survey_records`). This collection enables authorization independence for administrative actions by relying solely on 'request.auth.uid' existence.",
+          "description": "Stores individual survey responses, including demographic data and overall approval indices. All documents maintain a homogeneous security posture (read for authenticated users, write for admins) to facilitate secure `list` operations (QAPs). No denormalization for authorization is needed.",
           "params": [
             {
-              "name": "userId",
-              "description": "The unique identifier of the user who holds an administrative role."
+              "name": "surveyResponseId",
+              "description": "Unique identifier for a specific survey response."
+            }
+          ]
+        }
+      },
+      {
+        "path": "candidateRatings/{candidateRatingId}",
+        "definition": {
+          "entityName": "CandidateRating",
+          "schema": {
+            "$ref": "#/backend/entities/CandidateRating"
+          },
+          "description": "Records specific ratings given by a respondent for a particular candidate. This is a top-level collection to enable flexible querying and aggregation across all candidates and surveys, enhancing performance for 'Motor de Filtro Multidimensional' and avoiding hierarchical authorization dependencies. Includes `surveyResponseId` and `candidateId` for linking. All documents share the same security posture (read for authenticated users, write for admins).",
+          "params": [
+            {
+              "name": "candidateRatingId",
+              "description": "Unique identifier for a specific candidate rating."
             }
           ]
         }
       }
     ],
-    "reasoning": "The core of the application revolves around the 'SurveyRecord' entity, representing individual survey responses. Given the explicit requirement that these records are 'embutidos diretamente como arrays JavaScript para filtragem e agregação eficiente no lado do cliente, sem chamadas a bancos de dados externos,' the primary purpose of storing this data in Firestore is as a master data source, accessible for initial loading by the client or for an administrative user to upload and manage. \n\nTo meet this, the `SurveyRecord` entities will be stored in a top-level collection `/survey_records`. All documents within this collection share the same security posture: they are globally readable by the application (either public or authenticated users, depending on the final security decision, but consistently across all records). This approach adheres to the **Structural Segregation** mandate, as there's no mixing of data with different access needs.\n\n**Authorization Independence:** This structure inherently achieves Authorization Independence for client-side reads of the `SurveyRecord` data. Since all `SurveyRecord` documents are designed to be universally accessible (e.g., read by all authenticated users), there are no hierarchical authorization dependencies. A document's readability is determined by a simple, global rule applied to the entire collection, not by attributes of a parent document or other documents. Therefore, no denormalization of authorization context is required within the `SurveyRecord` itself for client consumption.\n\n**QAPs (Rules are not Filters):** This design strongly supports QAPs. Because all documents in the `/survey_records` collection have the same read requirements, a Firestore Security Rule can simply `allow read` for authenticated users (or all users) on the `/survey_records/{surveyRecordId}` path. This means clients can perform `list` operations on the entire collection, and the security rules will permit it without needing to filter results based on individual document permissions. The structure itself ensures that any `list` operation will only return data that the user is authorized to see, as *all* data in that collection is authorized.\n\nFor the administrative function of 'uploading' the survey data, a separate collection `/roles_admin/{userId}` is introduced. This collection follows the **DBAC** principle, using 'Existence over Content' to grant administrative write access to the `/survey_records` collection. An admin's UID existing as a document in `/roles_admin` is sufficient to grant them write privileges, keeping authorization roles explicitly stored in the database and independent of custom claims. This cleanly separates administrative access from the public consumption of the survey data, simplifying rules and enhancing debuggability."
+    "reasoning": "The Firestore data structure is designed to support the Maranhão Insights application, prioritizing security, scalability, and debuggability, especially for handling large datasets as indicated by the user's problem statement regarding '100 mil linhas'.\n\n**Authorization Independence (CRITICAL):** Authorization is primarily managed through two mechanisms: first, by granting read access to authenticated users for all primary data collections (`candidates`, `surveyResponses`, `candidateRatings`), eliminating the need for hierarchical authorization dependencies. This means no `get()` calls in security rules will be required to determine read access. Second, write access is controlled via a dedicated 'roles_admin' collection. An administrator's write privilege is determined by the *existence* of their UID in `/roles_admin/{userId}`, ensuring atomic rule evaluation without cross-document reads for authorization. This design makes authorization rules simple, robust, and easy to debug.\n\n**QAPs (Secure List Operations):** Each primary collection (`candidates`, `surveyResponses`, `candidateRatings`) adheres to the 'Structural Segregation' principle, meaning all documents within a given collection share the same security posture (e.g., read-only for authenticated users, write for admins). This homogeneity is crucial for enabling Query as a Permission (QAP). When a user performs a `list` operation (a query), the security rules can be applied uniformly to all potential results. For instance, any authenticated user attempting to query `surveyResponses` will automatically have permission to read all matching documents returned by Firestore, as all documents in that collection are readable by authenticated users. This avoids the need for security rules to act as data filters, which is inefficient and insecure. The `roles_admin` collection, serving as a lookup for admin UIDs, also provides a predictable security boundary, with read access for authenticated users (to check their own role) and write access restricted to existing admins.\n\n**Scalability for 100k+ Records:** The use of top-level collections for `candidates`, `surveyResponses`, and `candidateRatings` provides a highly scalable structure. Each document is independent, facilitating efficient reads and writes, and is well-suited for the large number of records mentioned. The flat `candidateRatings` collection, rather than a subcollection of `surveyResponses`, is chosen to optimize for queries that need to aggregate or filter candidate ratings across many surveys, which aligns with the app's 'Motor de Filtro Multidimensional' and 'dados dos candidatos em gráficos' features. This structure allows for flexible indexing and querying across the entire dataset without being constrained by subcollection hierarchies for analytical purposes. For client-side processing, a subset or aggregated view of this data could be pre-loaded or synced."
   }
 }
