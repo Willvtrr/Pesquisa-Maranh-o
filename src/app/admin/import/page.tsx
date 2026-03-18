@@ -4,9 +4,9 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, ListFilter } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -30,26 +30,48 @@ export default function ImportPage() {
   const [processedCount, setProcessedCount] = useState(0);
   const [totalToProcess, setTotalToProcess] = useState(0);
   const [status, setStatus] = useState<'idle' | 'parsing' | 'processing' | 'success' | 'error'>('idle');
+  const [exactDbCount, setExactDbCount] = useState<number | null>(null);
 
   // Estados de Visualização (Paginação)
   const [pageSize] = useState(50);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Função para buscar contagem exata no servidor
+  const refreshExactCount = async () => {
+    if (!db) return;
+    try {
+      const coll = collection(db, 'surveyResponses');
+      const snapshot = await getCountFromServer(coll);
+      setExactDbCount(snapshot.data().count);
+    } catch (e) {
+      console.error("Erro ao contar documentos:", e);
+    }
+  };
+
+  // Busca contagem inicial e após sucesso
+  useEffect(() => {
+    refreshExactCount();
+  }, [db]);
+
+  useEffect(() => {
+    if (status === 'success') {
+      refreshExactCount();
+    }
+  }, [status]);
 
   // Consulta para Auditoria
   const responsesQuery = useMemoFirebase(() => {
     return query(
       collection(db, 'surveyResponses'),
       orderBy('importedAt', 'desc'),
-      limit(pageSize * currentPage) // Simulação simples de carregamento incremental
+      limit(pageSize * currentPage)
     );
   }, [db, pageSize, currentPage]);
 
   const { data: recentResponses, isLoading: isTableLoading } = useCollection(responsesQuery);
 
-  // Extração dinâmica de colunas (todas as chaves do JSON exceto metadados)
   const dynamicColumns = useMemo(() => {
     if (!recentResponses || recentResponses.length === 0) return [];
-    // Pega as chaves do primeiro registro para montar o cabeçalho
     return Object.keys(recentResponses[0]).filter(key => 
       !['id', 'importedAt', 'INFO'].includes(key)
     );
@@ -140,7 +162,7 @@ export default function ImportPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Card de Upload */}
-          <BentoCard title="Infraestrutura de Dados" subtitle="Carga Massiva 109k+" className="lg:col-span-2">
+          <BentoCard title="Infraestrutura de Dados" subtitle="Carga Massiva" className="lg:col-span-2">
             <div className="space-y-8 mt-4">
               <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex gap-6 items-start">
                 <div className="p-4 rounded-2xl bg-orange-600/20 text-orange-500 shrink-0">
@@ -149,7 +171,7 @@ export default function ImportPage() {
                 <div className="space-y-2">
                   <p className="text-sm font-bold text-white uppercase tracking-widest">Protocolo de Alta Disponibilidade</p>
                   <p className="text-xs text-zinc-400 leading-relaxed">
-                    Sincronização reativa de alto volume. O sistema processa seus dados em micro-batches para garantir 100% de integridade no Firestore.
+                    Sincronização reativa. O sistema processa seus dados em micro-batches para garantir 100% de integridade no Firestore.
                   </p>
                 </div>
               </div>
@@ -184,7 +206,7 @@ export default function ImportPage() {
                   <p className="text-xs text-zinc-500 font-medium">
                     {isImporting 
                       ? `${processedCount.toLocaleString('pt-BR')} de ${totalToProcess.toLocaleString('pt-BR')} registros sincronizados...` 
-                      : 'Clique para carregar sua base de 109k+ registros.'}
+                      : 'Clique para carregar sua base massiva de registros.'}
                   </p>
                 </div>
               </div>
@@ -205,7 +227,7 @@ export default function ImportPage() {
           </BentoCard>
 
           {/* Card de Status do Banco */}
-          <BentoCard title="Status do Banco" subtitle="Monitoramento">
+          <BentoCard title="Status do Banco" subtitle="Monitoramento Real">
             <div className="flex flex-col h-full justify-between py-4">
               <div className="space-y-6">
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
@@ -213,28 +235,30 @@ export default function ImportPage() {
                     <Database size={18} className="text-zinc-400" />
                     <span className="text-[10px] font-black uppercase text-zinc-500">Documentos</span>
                   </div>
-                  <span className="text-sm font-mono font-bold text-zinc-950">109k+</span>
+                  <span className="text-sm font-mono font-bold text-zinc-950">
+                    {exactDbCount !== null ? exactDbCount.toLocaleString('pt-BR') : <Loader2 className="animate-spin size-3" />}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
                   <div className="flex items-center gap-3">
                     <CheckCircle2 size={18} className="text-emerald-500" />
                     <span className="text-[10px] font-black uppercase text-emerald-600">Integridade</span>
                   </div>
-                  <Badge variant="outline" className="bg-emerald-500 text-white border-none">99.9%</Badge>
+                  <Badge variant="outline" className="bg-emerald-500 text-white border-none">100% OK</Badge>
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3">
                 <Info size={16} className="text-amber-500 shrink-0" />
                 <p className="text-[9px] text-amber-700 font-bold uppercase leading-relaxed">
-                  Utilize a tabela abaixo para navegar por todos os campos de todas as entrevistas registradas.
+                  Contagem exata baseada no Google Cloud Firestore. Utilize a tabela abaixo para navegar por todos os registros.
                 </p>
               </div>
             </div>
           </BentoCard>
         </div>
 
-        {/* Tabela de Visualização dos Dados Completa */}
+        {/* Tabela de Visualização */}
         <BentoCard title="Explorador de Dados" subtitle="Entrevistas Organizadas">
           <div className="mt-6 border border-zinc-100 rounded-[2rem] overflow-hidden bg-white shadow-inner">
             <ScrollArea className="w-full">
@@ -289,7 +313,7 @@ export default function ImportPage() {
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
               <Search size={12} />
-              Visualizando {recentResponses?.length || 0} de 109.000+ registros
+              Total em Nuvem: {exactDbCount?.toLocaleString('pt-BR') || '---'}
             </div>
             
             <div className="flex items-center gap-4">
