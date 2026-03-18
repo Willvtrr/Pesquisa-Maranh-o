@@ -91,6 +91,15 @@ export default function ImportPage() {
 
   const handleClearDatabase = async () => {
     if (!db) return;
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Aguarde",
+        description: "Autenticando sessão segura no Google Cloud...",
+      });
+      return;
+    }
+
     try {
       setIsClearing(true);
       setStatus('clearing');
@@ -149,6 +158,7 @@ export default function ImportPage() {
     } finally {
       setIsClearing(false);
       setProgress(0);
+      refreshExactCount();
     }
   };
 
@@ -251,10 +261,11 @@ export default function ImportPage() {
                     <Button 
                       variant="destructive" 
                       size="sm" 
-                      disabled={isImporting || isClearing}
+                      disabled={isImporting || isClearing || !user}
                       className="rounded-xl font-black uppercase tracking-widest text-[10px] h-12 px-6"
                     >
-                      <Trash2 size={16} className="mr-2" /> Limpar Banco
+                      <Trash2 size={16} className="mr-2" /> 
+                      {!user ? 'Autenticando...' : 'Limpar Banco'}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="rounded-[2.5rem] border-zinc-200">
