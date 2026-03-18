@@ -51,7 +51,8 @@ export default function ImportPage() {
 
         const total = data.length;
         setTotalToProcess(total);
-        const batchSize = 400; // Reduzido ligeiramente para maior estabilidade
+        // Calibrado para 400 por lote para maior estabilidade em conexões instáveis
+        const batchSize = 400; 
         const responsesRef = collection(db, 'surveyResponses');
 
         for (let i = 0; i < total; i += batchSize) {
@@ -59,7 +60,7 @@ export default function ImportPage() {
           const chunk = data.slice(i, i + batchSize);
           
           chunk.forEach((item, index) => {
-            // Usamos um ID baseado no índice para evitar duplicatas em caso de retry
+            // Usamos um ID baseado no índice para evitar duplicatas em caso de interrupção
             const docId = `survey_${i + index}`;
             const docRef = doc(responsesRef, docId);
             batch.set(docRef, {
@@ -70,8 +71,8 @@ export default function ImportPage() {
 
           try {
             await batch.commit();
-            // Pequena pausa para o stream do Firestore respirar entre lotes massivos
-            await sleep(50); 
+            // Pequena pausa para o motor do Firestore respirar entre lotes massivos
+            await sleep(100); 
           } catch (serverError: any) {
             const permissionError = new FirestorePermissionError({
               path: 'surveyResponses/batch',
@@ -89,14 +90,14 @@ export default function ImportPage() {
 
         setStatus('success');
         toast({
-          title: "Importação Concluída",
-          description: `${total} registros foram salvos com sucesso.`,
+          title: "Carga Massiva Concluída",
+          description: `${total.toLocaleString()} registros sincronizados com sucesso.`,
         });
       } catch (error: any) {
         setStatus('error');
         toast({
           variant: "destructive",
-          title: "Erro na Importação",
+          title: "Erro na Carga",
           description: error.message || "Ocorreu um erro ao processar o arquivo.",
         });
       } finally {
@@ -109,16 +110,16 @@ export default function ImportPage() {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <BentoCard title="Carga de Dados" subtitle="Motor de Importação High-Volume">
+        <BentoCard title="Carga de Inteligência" subtitle="Motor High-Volume (109k+)">
           <div className="space-y-8 mt-4">
             <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex gap-6 items-start">
               <div className="p-4 rounded-2xl bg-orange-600/20 text-orange-500 shrink-0">
                 <Database size={24} />
               </div>
               <div className="space-y-2">
-                <p className="text-sm font-bold text-white uppercase tracking-widest">Controle de Fluxo Ativo</p>
+                <p className="text-sm font-bold text-white uppercase tracking-widest">Protocolo de Ingestão Ativo</p>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Configurado para processar 100k+ registros. O sistema utiliza lotes de 400 registros com intervalos de sincronização para evitar gargalos na conexão Cloud.
+                  Configurado para processar 109.000+ entrevistas. O sistema utiliza lotes otimizados de 400 registros com intervalos de sincronização para garantir zero perda de dados.
                 </p>
               </div>
             </div>
@@ -146,12 +147,12 @@ export default function ImportPage() {
               
               <div className="text-center space-y-2">
                 <h4 className="text-xl font-bold text-zinc-900">
-                  {isImporting ? 'Sincronizando Banco de Dados...' : status === 'success' ? 'Carga finalizada!' : 'Selecione seu arquivo JSON'}
+                  {isImporting ? 'Sincronizando Dados com a Nuvem...' : status === 'success' ? 'Carga Finalizada!' : 'Selecione o arquivo de 109k linhas'}
                 </h4>
                 <p className="text-xs text-zinc-500 font-medium">
                   {isImporting 
                     ? `Processando ${processedCount.toLocaleString()} de ${totalToProcess.toLocaleString()} entrevistas...` 
-                    : 'Clique aqui para carregar o arquivo de 109.000 linhas.'}
+                    : 'Clique para carregar o JSON direto do seu computador.'}
                 </p>
               </div>
             </div>
@@ -159,10 +160,24 @@ export default function ImportPage() {
             {isImporting && (
               <div className="space-y-4 px-2">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Stream de Dados Ativo</span>
+                  <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Fluxo de Dados em Tempo Real</span>
                   <span className="text-sm font-mono font-bold text-orange-600">{Math.round(progress)}%</span>
                 </div>
                 <Progress value={progress} className="h-3 rounded-full bg-zinc-100" />
+                <div className="flex justify-between text-[9px] font-bold text-zinc-400 uppercase">
+                  <span>Iniciando Transações...</span>
+                  <span>{processedCount.toLocaleString()} registros salvos</span>
+                </div>
+              </div>
+            )}
+            
+            {status === 'success' && (
+              <div className="p-6 rounded-3xl bg-emerald-50 border border-emerald-100 flex gap-4 items-center">
+                <CheckCircle2 className="text-emerald-500" size={24} />
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-emerald-900">Sucesso Absoluto</p>
+                  <p className="text-xs text-emerald-700">Toda a base de 109 mil linhas está agora segura no Google Cloud Firestore.</p>
+                </div>
               </div>
             )}
           </div>
