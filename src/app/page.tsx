@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { MesoRegion } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
@@ -9,12 +9,12 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { CheckCircle, Activity, MapPin, Database, BarChart3, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Activity, MapPin, Database, BarChart3, AlertTriangle, Loader2 } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 
-// MAPEAMENTO EXATO DO SEU JSON REAL
+// MAPEAMENTO EXATO DOS CAMPOS DO SEU JSON
 const SURVEY_KEYS = {
   CITY: "Cidade:",
   REGION: "Mesorregião",
@@ -26,7 +26,7 @@ const SURVEY_KEYS = {
 };
 
 export default function Home() {
-  const { data: rawSurveyData } = useSurvey();
+  const { data: rawSurveyData, isLoading } = useSurvey();
   const [filters, setFilters] = useState({
     region: 'all',
     age: 'all',
@@ -110,6 +110,19 @@ export default function Home() {
     return { approvalData, candidateData, topProblems };
   }, [filteredData]);
 
+  if (isLoading && rawSurveyData.length === 0) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+            Sincronizando Banco de Dados...
+          </p>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
@@ -120,17 +133,17 @@ export default function Home() {
                 <Database size={20} />
               </div>
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
-                <span className={`w-2 h-2 rounded-full ${rawSurveyData?.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                <span className={`w-2 h-2 rounded-full ${rawSurveyData.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                  {rawSurveyData?.length > 0 ? 'Dados Ativos' : 'Aguardando JSON'}
+                  {rawSurveyData.length > 0 ? 'Firestore Ativo' : 'Banco Vazio'}
                 </span>
               </div>
             </div>
             <div className="space-y-2 mt-6">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Base de Inteligência</span>
-              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Motor Analítico</h4>
+              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Motor Cloud</h4>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed">
-                {rawSurveyData?.length || 0} Entrevistas Identificadas.
+                {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
             </div>
           </div>
@@ -146,7 +159,7 @@ export default function Home() {
         />
         <StatCard 
           label="Total Amostral" 
-          value={stats.total} 
+          value={stats.total.toLocaleString('pt-BR')} 
           subValue="Registros Qualificados"
           icon={Activity} 
         />
@@ -210,9 +223,9 @@ export default function Home() {
               <BarChart3 size={24} />
             </div>
             <div className="space-y-3 mt-8">
-              <h4 className="text-2xl font-bold tracking-tight">Focco Analytics</h4>
+              <h4 className="text-2xl font-bold tracking-tight">Focco Analytics Cloud</h4>
               <p className="text-orange-50/90 text-sm leading-relaxed font-medium">
-                Monitoramento dinâmico do cenário eleitoral e administrativo. Filtragem reativa por região e perfil demográfico.
+                Arquitetura escalável para processamento de alto volume. Filtros otimizados para recortes demográficos e regionais.
               </p>
             </div>
           </div>

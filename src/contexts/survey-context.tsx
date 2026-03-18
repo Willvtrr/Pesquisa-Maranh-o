@@ -2,7 +2,8 @@
 'use client';
 
 import React, { createContext, useState, ReactNode, useEffect } from 'react';
-import rawData from '../data/surveyData.json';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 export interface SurveyItem {
   [key: string]: any;
@@ -18,24 +19,27 @@ interface SurveyContextType {
 export const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
 export function SurveyProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<SurveyItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const db = useFirestore();
   const [filters, setFilters] = useState<Record<string, any>>({
     region: 'all',
     age: 'all',
     gender: 'all'
   });
 
-  useEffect(() => {
-    // Carrega dados iniciais do JSON para evitar quebra do build
-    if (Array.isArray(rawData)) {
-      setData(rawData);
-    }
-    setIsLoading(false);
-  }, []);
+  // Memoiza a query para evitar loops infinitos
+  const surveyQuery = useMemoFirebase(() => {
+    return collection(db, 'surveyResponses');
+  }, [db]);
+
+  const { data: firestoreData, isLoading } = useCollection<SurveyItem>(surveyQuery);
 
   return (
-    <SurveyContext.Provider value={{ data, filters, setFilters, isLoading }}>
+    <SurveyContext.Provider value={{ 
+      data: firestoreData || [], 
+      filters, 
+      setFilters, 
+      isLoading 
+    }}>
       {children}
     </SurveyContext.Provider>
   );
