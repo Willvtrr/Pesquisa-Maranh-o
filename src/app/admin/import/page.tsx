@@ -4,9 +4,9 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer } from 'firebase/firestore';
+import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer, getDocs } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -15,6 +15,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -24,12 +35,13 @@ export default function ImportPage() {
   const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Estados de Importação
+  // Estados de Importação / Limpeza
   const [isImporting, setIsImporting] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
   const [totalToProcess, setTotalToProcess] = useState(0);
-  const [status, setStatus] = useState<'idle' | 'parsing' | 'processing' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'parsing' | 'processing' | 'success' | 'error' | 'clearing'>('idle');
   const [exactDbCount, setExactDbCount] = useState<number | null>(null);
 
   // Estados de Visualização (Paginação)
@@ -48,13 +60,13 @@ export default function ImportPage() {
     }
   };
 
-  // Busca contagem inicial e após sucesso
+  // Busca contagem inicial e após sucesso/limpeza
   useEffect(() => {
     refreshExactCount();
   }, [db]);
 
   useEffect(() => {
-    if (status === 'success') {
+    if (status === 'success' || status === 'idle') {
       refreshExactCount();
     }
   }, [status]);
@@ -64,9 +76,9 @@ export default function ImportPage() {
     return query(
       collection(db, 'surveyResponses'),
       orderBy('importedAt', 'desc'),
-      limit(pageSize * currentPage)
+      limit(pageSize) // Mostra apenas a primeira página na auditoria rápida
     );
-  }, [db, pageSize, currentPage]);
+  }, [db, pageSize]);
 
   const { data: recentResponses, isLoading: isTableLoading } = useCollection(responsesQuery);
 
@@ -82,6 +94,60 @@ export default function ImportPage() {
       signInAnonymously(auth).catch(console.error);
     }
   }, [user, auth]);
+
+  // Função para limpar o banco (Batch Delete)
+  const handleClearDatabase = async () => {
+    if (!db) return;
+    try {
+      setIsClearing(true);
+      setStatus('clearing');
+      setProgress(0);
+      
+      let deletedCount = 0;
+      const initialCount = exactDbCount || 0;
+      
+      while (true) {
+        const q = query(collection(db, 'surveyResponses'), limit(500));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) break;
+
+        const batch = writeBatch(db);
+        snapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        deletedCount += snapshot.size;
+        
+        if (initialCount > 0) {
+          setProgress(Math.min((deletedCount / initialCount) * 100, 100));
+        }
+        setProcessedCount(deletedCount);
+        
+        // Pequena pausa para evitar sobrecarga
+        await sleep(100);
+      }
+
+      setStatus('idle');
+      setExactDbCount(0);
+      toast({
+        title: "Banco de Dados Resetado",
+        description: "Todos os registros foram removidos com sucesso.",
+      });
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao Limpar",
+        description: error.message || "Não foi possível remover os registros.",
+      });
+    } finally {
+      setIsClearing(false);
+      setProgress(0);
+      setProcessedCount(0);
+    }
+  };
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -112,6 +178,7 @@ export default function ImportPage() {
           const chunk = data.slice(i, i + batchSize);
           
           chunk.forEach((item, index) => {
+            // ID fixo baseado no índice para evitar duplicação se rodar o mesmo arquivo
             const docId = `survey_row_${i + index}`;
             const docRef = doc(responsesRef, docId);
             batch.set(docRef, {
@@ -155,6 +222,8 @@ export default function ImportPage() {
       }
     };
     reader.readAsText(file);
+    // Limpa o input para permitir subir o mesmo arquivo se necessário
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -164,23 +233,56 @@ export default function ImportPage() {
           {/* Card de Upload */}
           <BentoCard title="Infraestrutura de Dados" subtitle="Carga Massiva" className="lg:col-span-2">
             <div className="space-y-8 mt-4">
-              <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex gap-6 items-start">
-                <div className="p-4 rounded-2xl bg-orange-600/20 text-orange-500 shrink-0">
-                  <Activity className={isImporting ? "animate-pulse" : ""} size={24} />
+              <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
+                <div className="flex gap-6 items-start">
+                  <div className="p-4 rounded-2xl bg-orange-600/20 text-orange-500 shrink-0">
+                    <Activity className={isImporting || isClearing ? "animate-pulse" : ""} size={24} />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-bold text-white uppercase tracking-widest">Protocolo de Alta Disponibilidade</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Sincronização reativa. O sistema processa seus dados em micro-batches para garantir integridade.
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-bold text-white uppercase tracking-widest">Protocolo de Alta Disponibilidade</p>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    Sincronização reativa. O sistema processa seus dados em micro-batches para garantir 100% de integridade no Firestore.
-                  </p>
-                </div>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      disabled={isImporting || isClearing}
+                      className="rounded-xl font-black uppercase tracking-widest text-[10px] h-12 px-6"
+                    >
+                      <Trash2 size={16} className="mr-2" /> Limpar Banco
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="rounded-[2.5rem] border-zinc-200">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-2xl font-bold tracking-tight">Tem certeza absoluta?</AlertDialogTitle>
+                      <AlertDialogDescription className="text-zinc-500 font-medium">
+                        Esta ação irá remover permanentemente todos os registros de pesquisa do Firestore. 
+                        Isso não pode ser desfeito.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-2">
+                      <AlertDialogCancel className="rounded-2xl font-bold">Cancelar</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleClearDatabase}
+                        className="rounded-2xl bg-rose-600 hover:bg-rose-700 font-bold"
+                      >
+                        Sim, apagar tudo
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
 
               <div 
-                onClick={() => !isImporting && fileInputRef.current?.click()}
+                onClick={() => !isImporting && !isClearing && fileInputRef.current?.click()}
                 className={`
                   border-2 border-dashed rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 transition-all cursor-pointer
-                  ${isImporting ? 'opacity-50 cursor-wait' : 'hover:border-orange-500/50 hover:bg-orange-50/10'}
+                  ${isImporting || isClearing ? 'opacity-50 cursor-wait' : 'hover:border-orange-500/50 hover:bg-orange-50/10'}
                   ${status === 'success' ? 'border-emerald-500/50 bg-emerald-50/5' : 'border-zinc-200'}
                 `}
               >
@@ -190,33 +292,40 @@ export default function ImportPage() {
                   onChange={handleFileChange} 
                   className="hidden" 
                   accept=".json"
-                  disabled={isImporting}
+                  disabled={isImporting || isClearing}
                 />
                 
                 <div className={`p-6 rounded-full ${status === 'success' ? 'bg-emerald-500' : 'premium-gradient'} text-white shadow-2xl`}>
-                  {status === 'parsing' ? <Loader2 className="animate-spin size-8" /> : <FileJson size={32} />}
+                  {status === 'parsing' ? <Loader2 className="animate-spin size-8" /> : 
+                   status === 'clearing' ? <Trash2 className="animate-pulse size-8" /> : 
+                   <FileJson size={32} />}
                 </div>
                 
                 <div className="text-center space-y-2">
                   <h4 className="text-xl font-bold text-zinc-900">
                     {status === 'parsing' ? 'Analisando Base...' : 
                      status === 'processing' ? 'Transmitindo para Cloud...' :
+                     status === 'clearing' ? 'Limpando Registros...' :
                      status === 'success' ? 'Carga Finalizada!' : 'Suba o arquivo .json'}
                   </h4>
                   <p className="text-xs text-zinc-500 font-medium">
                     {isImporting 
-                      ? `${processedCount.toLocaleString('pt-BR')} de ${totalToProcess.toLocaleString('pt-BR')} registros sincronizados...` 
+                      ? `${processedCount.toLocaleString('pt-BR')} registros sincronizados...` 
+                      : isClearing 
+                      ? `Removendo ${processedCount.toLocaleString('pt-BR')} registros da nuvem...`
                       : 'Clique para carregar sua base massiva de registros.'}
                   </p>
                 </div>
               </div>
 
-              {isImporting && (
+              {(isImporting || isClearing) && (
                 <div className="space-y-4 px-2">
                   <div className="flex justify-between items-end">
                     <div className="flex items-center gap-2">
                       <Loader2 className="size-3 animate-spin text-orange-600" />
-                      <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Fluxo de Dados Ativo</span>
+                      <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">
+                        {isClearing ? 'Operação de Limpeza Ativa' : 'Fluxo de Dados Ativo'}
+                      </span>
                     </div>
                     <span className="text-sm font-mono font-bold text-orange-600">{Math.round(progress)}%</span>
                   </div>
@@ -251,7 +360,7 @@ export default function ImportPage() {
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3">
                 <Info size={16} className="text-amber-500 shrink-0" />
                 <p className="text-[9px] text-amber-700 font-bold uppercase leading-relaxed">
-                  Contagem exata baseada no Google Cloud Firestore. Utilize a tabela abaixo para navegar por todos os registros.
+                  Para evitar duplicados, o sistema usa IDs baseados na posição do arquivo. Use "Limpar Banco" se quiser um reset total.
                 </p>
               </div>
             </div>
@@ -274,12 +383,12 @@ export default function ImportPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {isTableLoading && currentPage === 1 ? (
+                    {isTableLoading ? (
                       <TableRow>
                         <TableCell colSpan={dynamicColumns.length || 5} className="h-64 text-center">
                           <div className="flex flex-col items-center gap-4">
                             <Loader2 className="animate-spin text-orange-600 size-8" />
-                            <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Acessando Nuvem de Dados...</span>
+                            <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Sincronizando Auditoria...</span>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -317,27 +426,9 @@ export default function ImportPage() {
             </div>
             
             <div className="flex items-center gap-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1 || isTableLoading}
-                className="rounded-xl border-zinc-200 text-[10px] font-black uppercase tracking-widest"
-              >
-                <ChevronLeft size={14} className="mr-2" /> Anterior
-              </Button>
-              <div className="text-[10px] font-black uppercase text-zinc-950 bg-zinc-100 px-4 py-2 rounded-lg">
-                Página {currentPage}
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setCurrentPage(p => p + 1)}
-                disabled={isTableLoading || (recentResponses?.length || 0) < pageSize * currentPage}
-                className="rounded-xl border-zinc-200 text-[10px] font-black uppercase tracking-widest"
-              >
-                Próxima <ChevronRight size={14} className="ml-2" />
-              </Button>
+              <p className="text-[10px] font-bold text-zinc-400 uppercase italic">
+                Exibindo registros mais recentes para auditoria rápida
+              </p>
             </div>
           </div>
         </BentoCard>
