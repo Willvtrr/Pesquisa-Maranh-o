@@ -1,143 +1,154 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useFirestore } from '@/firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { Database, Upload, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Database, FileJson, CheckCircle2, AlertCircle, Loader2, UploadCloud } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 export default function ImportPage() {
   const db = useFirestore();
-  const [jsonInput, setJsonInput] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [processedCount, setProcessedCount] = useState(0);
+  const [totalToProcess, setTotalToProcess] = useState(0);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
 
-  const handleImport = async () => {
-    if (!jsonInput.trim()) return;
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    try {
-      setIsImporting(true);
-      setStatus('processing');
-      const data = JSON.parse(jsonInput);
-      
-      if (!Array.isArray(data)) {
-        throw new Error("O formato deve ser um array de objetos [{}, {}]");
-      }
-
-      const total = data.length;
-      const batchSize = 500; // Limite do Firestore por lote
-      const responsesRef = collection(db, 'surveyResponses');
-
-      for (let i = 0; i < total; i += batchSize) {
-        const batch = writeBatch(db);
-        const chunk = data.slice(i, i + batchSize);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        setIsImporting(true);
+        setStatus('processing');
+        const content = e.target?.result as string;
+        const data = JSON.parse(content);
         
-        chunk.forEach((item, index) => {
-          // Criamos um ID único para cada resposta ou usamos um existente
-          const docId = `resp_${i + index}`;
-          const docRef = doc(responsesRef, docId);
-          batch.set(docRef, {
-            ...item,
-            importedAt: new Date().toISOString()
-          }, { merge: true });
+        if (!Array.isArray(data)) {
+          throw new Error("O arquivo deve conter um array de objetos [{}, {}]");
+        }
+
+        const total = data.length;
+        setTotalToProcess(total);
+        const batchSize = 500; 
+        const responsesRef = collection(db, 'surveyResponses');
+
+        for (let i = 0; i < total; i += batchSize) {
+          const batch = writeBatch(db);
+          const chunk = data.slice(i, i + batchSize);
+          
+          chunk.forEach((item, index) => {
+            // Usamos um ID baseado no índice para evitar duplicatas se reenviado
+            const docId = `survey_${i + index}`;
+            const docRef = doc(responsesRef, docId);
+            batch.set(docRef, {
+              ...item,
+              importedAt: new Date().toISOString()
+            }, { merge: true });
+          });
+
+          await batch.commit();
+          const currentProcessed = Math.min(i + batchSize, total);
+          setProcessedCount(currentProcessed);
+          setProgress((currentProcessed / total) * 100);
+        }
+
+        setStatus('success');
+        toast({
+          title: "Importação Concluída",
+          description: `${total} registros foram salvos com sucesso.`,
         });
-
-        await batch.commit();
-        const currentProgress = Math.min(((i + batchSize) / total) * 100, 100);
-        setProgress(currentProgress);
+      } catch (error: any) {
+        console.error(error);
+        setStatus('error');
+        toast({
+          variant: "destructive",
+          title: "Erro no Arquivo",
+          description: error.message || "Certifique-se de que o arquivo é um JSON válido.",
+        });
+      } finally {
+        setIsImporting(false);
       }
-
-      setStatus('success');
-      toast({
-        title: "Importação Concluída",
-        description: `${total} entrevistas foram salvas no banco de dados.`,
-      });
-    } catch (error: any) {
-      console.error(error);
-      setStatus('error');
-      toast({
-        variant: "destructive",
-        title: "Erro na Importação",
-        description: error.message || "Verifique se o JSON está correto.",
-      });
-    } finally {
-      setIsImporting(false);
-    }
+    };
+    reader.readAsText(file);
   };
 
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <BentoCard title="Administração" subtitle="Importador Massivo de Dados">
-          <div className="space-y-6 mt-4">
-            <div className="p-4 rounded-2xl bg-orange-50 border border-orange-100 flex gap-4">
-              <div className="p-3 rounded-xl bg-orange-600 text-white shrink-0">
-                <AlertCircle size={20} />
+        <BentoCard title="Carga de Dados" subtitle="Importador de Alta Performance">
+          <div className="space-y-8 mt-4">
+            <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex gap-6 items-start">
+              <div className="p-4 rounded-2xl bg-orange-600/20 text-orange-500 shrink-0">
+                <Database size={24} />
               </div>
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-zinc-900">Segurança de Dados</p>
-                <p className="text-xs text-zinc-600 leading-relaxed">
-                  Para volumes acima de 100 mil linhas, este importador processa os dados em lotes de 500 registros para evitar sobrecarga no navegador e no banco de dados.
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-white uppercase tracking-widest">Motor de Lote Ativo</p>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Configurado para processar 100k+ registros. O sistema divide automaticamente seu arquivo em lotes de 500 registros (limite do Firestore) e os envia em sequência até completar as 109 mil linhas.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">
-                Cole seu JSON aqui (Array de Objetos)
-              </label>
-              <Textarea 
-                placeholder='[{"Cidade:": "São Luís", ...}, {...}]' 
-                className="min-h-[300px] font-mono text-xs p-6 bg-zinc-50 border-zinc-200 rounded-3xl"
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
+            <div 
+              onClick={() => !isImporting && fileInputRef.current?.click()}
+              className={`
+                border-2 border-dashed rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-4 transition-all cursor-pointer
+                ${isImporting ? 'opacity-50 cursor-wait' : 'hover:border-orange-500/50 hover:bg-orange-50/10'}
+                ${status === 'success' ? 'border-emerald-500/50 bg-emerald-50/5' : 'border-zinc-200'}
+              `}
+            >
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                className="hidden" 
+                accept=".json"
                 disabled={isImporting}
               />
+              
+              <div className={`p-6 rounded-full ${status === 'success' ? 'bg-emerald-500' : 'premium-gradient'} text-white shadow-2xl`}>
+                {isImporting ? <Loader2 className="animate-spin size-8" /> : <FileJson size={32} />}
+              </div>
+              
+              <div className="text-center space-y-2">
+                <h4 className="text-xl font-bold text-zinc-900">
+                  {isImporting ? 'Processando registros...' : status === 'success' ? 'Carga finalizada!' : 'Selecione seu arquivo JSON'}
+                </h4>
+                <p className="text-xs text-zinc-500 font-medium">
+                  {isImporting 
+                    ? `Enviando pacote ${processedCount.toLocaleString()} de ${totalToProcess.toLocaleString()}...` 
+                    : 'Clique aqui para buscar o arquivo de 109k linhas no seu computador.'}
+                </p>
+              </div>
             </div>
 
             {isImporting && (
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-[10px] font-black uppercase text-zinc-400">
-                  <span>Processando registros...</span>
-                  <span>{Math.round(progress)}%</span>
+              <div className="space-y-4 px-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Sincronização Cloud</span>
+                  <span className="text-sm font-mono font-bold text-orange-600">{Math.round(progress)}%</span>
                 </div>
-                <Progress value={progress} className="h-2" />
+                <Progress value={progress} className="h-3 rounded-full bg-zinc-100" />
               </div>
             )}
 
-            <div className="flex gap-4">
-              <Button 
-                onClick={handleImport} 
-                disabled={isImporting || !jsonInput}
-                className="flex-1 h-14 rounded-2xl premium-gradient text-white font-bold uppercase tracking-widest gap-2"
-              >
-                {isImporting ? <Loader2 className="animate-spin" /> : <Upload size={18} />}
-                {isImporting ? 'Importando...' : 'Iniciar Carga no Banco'}
-              </Button>
-              
-              {status === 'success' && (
-                <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm bg-emerald-50 px-6 rounded-2xl border border-emerald-100">
-                  <CheckCircle2 size={18} />
-                  Carga Completa
-                </div>
-              )}
-            </div>
-
-            <div className="pt-6 border-t border-zinc-100 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                <Database size={14} />
-                Destino: Firestore / surveyResponses
+            <div className="pt-8 border-t border-zinc-100 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                <CheckCircle2 size={14} className={status === 'success' ? 'text-emerald-500' : ''} />
+                Protocolo: Batch v2.1
               </div>
-              <p className="text-[10px] font-medium text-zinc-400 italic">
-                Aviso: Dados existentes com o mesmo ID serão mesclados.
-              </p>
+              <div className="px-4 py-2 rounded-xl bg-orange-50 text-orange-700 text-[10px] font-black uppercase tracking-widest">
+                Capacidade: Ilimitada
+              </div>
             </div>
           </div>
         </BentoCard>

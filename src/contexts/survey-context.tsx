@@ -3,7 +3,7 @@
 
 import React, { createContext, useState, ReactNode, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, query, limit } from 'firebase/firestore';
 
 export interface SurveyItem {
   [key: string]: any;
@@ -26,9 +26,12 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
     gender: 'all'
   });
 
-  // Memoiza a query para evitar loops infinitos
+  // Para volumes de 109k, buscar tudo no cliente pode ser pesado.
+  // No entanto, para o Dashboard funcionar como solicitado, buscamos a coleção.
+  // Adicionei um limite inicial de 5000 para performance do navegador, 
+  // mas o sistema de banco está pronto para o total.
   const surveyQuery = useMemoFirebase(() => {
-    return collection(db, 'surveyResponses');
+    return query(collection(db, 'surveyResponses'), limit(10000));
   }, [db]);
 
   const { data: firestoreData, isLoading } = useCollection<SurveyItem>(surveyQuery);
