@@ -1,24 +1,36 @@
 
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { Button } from '@/components/ui/button';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useAuth, useUser } from '@/firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { Database, FileJson, CheckCircle2, AlertCircle, Loader2, UploadCloud } from 'lucide-react';
+import { Database, FileJson, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { signInAnonymously } from 'firebase/auth';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 export default function ImportPage() {
   const db = useFirestore();
+  const auth = useAuth();
+  const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [processedCount, setProcessedCount] = useState(0);
   const [totalToProcess, setTotalToProcess] = useState(0);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+
+  // Garante que o usuário está autenticado para poder gravar no banco
+  useEffect(() => {
+    if (!user && auth) {
+      signInAnonymously(auth).catch(console.error);
+    }
+  }, [user, auth]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -46,7 +58,6 @@ export default function ImportPage() {
           const chunk = data.slice(i, i + batchSize);
           
           chunk.forEach((item, index) => {
-            // Usamos um ID baseado no índice para evitar duplicatas se reenviado
             const docId = `survey_${i + index}`;
             const docRef = doc(responsesRef, docId);
             batch.set(docRef, {
@@ -55,7 +66,18 @@ export default function ImportPage() {
             }, { merge: true });
           });
 
-          await batch.commit();
+          try {
+            await batch.commit();
+          } catch (serverError: any) {
+            const permissionError = new FirestorePermissionError({
+              path: 'surveyResponses/batch',
+              operation: 'write',
+              requestResourceData: { batchCount: chunk.length }
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            throw serverError;
+          }
+
           const currentProcessed = Math.min(i + batchSize, total);
           setProcessedCount(currentProcessed);
           setProgress((currentProcessed / total) * 100);
@@ -67,12 +89,11 @@ export default function ImportPage() {
           description: `${total} registros foram salvos com sucesso.`,
         });
       } catch (error: any) {
-        console.error(error);
         setStatus('error');
         toast({
           variant: "destructive",
-          title: "Erro no Arquivo",
-          description: error.message || "Certifique-se de que o arquivo é um JSON válido.",
+          title: "Erro na Importação",
+          description: error.message || "Ocorreu um erro ao processar o arquivo.",
         });
       } finally {
         setIsImporting(false);
@@ -93,7 +114,7 @@ export default function ImportPage() {
               <div className="space-y-2">
                 <p className="text-sm font-bold text-white uppercase tracking-widest">Motor de Lote Ativo</p>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Configurado para processar 100k+ registros. O sistema divide automaticamente seu arquivo em lotes de 500 registros (limite do Firestore) e os envia em sequência até completar as 109 mil linhas.
+                  Configurado para processar 100k+ registros. O sistema divide automaticamente seu arquivo em lotes de 500 registros para o Firestore e os envia em sequência.
                 </p>
               </div>
             </div>
@@ -126,7 +147,7 @@ export default function ImportPage() {
                 <p className="text-xs text-zinc-500 font-medium">
                   {isImporting 
                     ? `Enviando pacote ${processedCount.toLocaleString()} de ${totalToProcess.toLocaleString()}...` 
-                    : 'Clique aqui para buscar o arquivo de 109k linhas no seu computador.'}
+                    : 'Clique aqui para buscar o arquivo de 109k linhas.'}
                 </p>
               </div>
             </div>
@@ -140,16 +161,6 @@ export default function ImportPage() {
                 <Progress value={progress} className="h-3 rounded-full bg-zinc-100" />
               </div>
             )}
-
-            <div className="pt-8 border-t border-zinc-100 flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                <CheckCircle2 size={14} className={status === 'success' ? 'text-emerald-500' : ''} />
-                Protocolo: Batch v2.1
-              </div>
-              <div className="px-4 py-2 rounded-xl bg-orange-50 text-orange-700 text-[10px] font-black uppercase tracking-widest">
-                Capacidade: Ilimitada
-              </div>
-            </div>
           </div>
         </BentoCard>
       </div>
