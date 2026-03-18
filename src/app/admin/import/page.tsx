@@ -14,6 +14,8 @@ import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export default function ImportPage() {
   const db = useFirestore();
   const auth = useAuth();
@@ -25,7 +27,6 @@ export default function ImportPage() {
   const [totalToProcess, setTotalToProcess] = useState(0);
   const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
 
-  // Garante que o usuário está autenticado para poder gravar no banco
   useEffect(() => {
     if (!user && auth) {
       signInAnonymously(auth).catch(console.error);
@@ -50,7 +51,7 @@ export default function ImportPage() {
 
         const total = data.length;
         setTotalToProcess(total);
-        const batchSize = 500; 
+        const batchSize = 400; // Reduzido ligeiramente para maior estabilidade
         const responsesRef = collection(db, 'surveyResponses');
 
         for (let i = 0; i < total; i += batchSize) {
@@ -58,6 +59,7 @@ export default function ImportPage() {
           const chunk = data.slice(i, i + batchSize);
           
           chunk.forEach((item, index) => {
+            // Usamos um ID baseado no índice para evitar duplicatas em caso de retry
             const docId = `survey_${i + index}`;
             const docRef = doc(responsesRef, docId);
             batch.set(docRef, {
@@ -68,6 +70,8 @@ export default function ImportPage() {
 
           try {
             await batch.commit();
+            // Pequena pausa para o stream do Firestore respirar entre lotes massivos
+            await sleep(50); 
           } catch (serverError: any) {
             const permissionError = new FirestorePermissionError({
               path: 'surveyResponses/batch',
@@ -105,16 +109,16 @@ export default function ImportPage() {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <BentoCard title="Carga de Dados" subtitle="Importador de Alta Performance">
+        <BentoCard title="Carga de Dados" subtitle="Motor de Importação High-Volume">
           <div className="space-y-8 mt-4">
             <div className="p-6 rounded-[2rem] bg-zinc-950 border border-zinc-800 flex gap-6 items-start">
               <div className="p-4 rounded-2xl bg-orange-600/20 text-orange-500 shrink-0">
                 <Database size={24} />
               </div>
               <div className="space-y-2">
-                <p className="text-sm font-bold text-white uppercase tracking-widest">Motor de Lote Ativo</p>
+                <p className="text-sm font-bold text-white uppercase tracking-widest">Controle de Fluxo Ativo</p>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  Configurado para processar 100k+ registros. O sistema divide automaticamente seu arquivo em lotes de 500 registros para o Firestore e os envia em sequência.
+                  Configurado para processar 100k+ registros. O sistema utiliza lotes de 400 registros com intervalos de sincronização para evitar gargalos na conexão Cloud.
                 </p>
               </div>
             </div>
@@ -142,12 +146,12 @@ export default function ImportPage() {
               
               <div className="text-center space-y-2">
                 <h4 className="text-xl font-bold text-zinc-900">
-                  {isImporting ? 'Processando registros...' : status === 'success' ? 'Carga finalizada!' : 'Selecione seu arquivo JSON'}
+                  {isImporting ? 'Sincronizando Banco de Dados...' : status === 'success' ? 'Carga finalizada!' : 'Selecione seu arquivo JSON'}
                 </h4>
                 <p className="text-xs text-zinc-500 font-medium">
                   {isImporting 
-                    ? `Enviando pacote ${processedCount.toLocaleString()} de ${totalToProcess.toLocaleString()}...` 
-                    : 'Clique aqui para buscar o arquivo de 109k linhas.'}
+                    ? `Processando ${processedCount.toLocaleString()} de ${totalToProcess.toLocaleString()} entrevistas...` 
+                    : 'Clique aqui para carregar o arquivo de 109.000 linhas.'}
                 </p>
               </div>
             </div>
@@ -155,7 +159,7 @@ export default function ImportPage() {
             {isImporting && (
               <div className="space-y-4 px-2">
                 <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Sincronização Cloud</span>
+                  <span className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">Stream de Dados Ativo</span>
                   <span className="text-sm font-mono font-bold text-orange-600">{Math.round(progress)}%</span>
                 </div>
                 <Progress value={progress} className="h-3 rounded-full bg-zinc-100" />
