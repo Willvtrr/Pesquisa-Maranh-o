@@ -1,11 +1,13 @@
+
 "use client";
 
 import React from 'react';
-import { LayoutDashboard, BarChart3, Users, Settings, Search, Bell, Menu, Cpu } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, Settings, Search, Bell, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { BottomNav } from './bottom-nav';
+import { useSurvey } from '@/hooks/use-survey';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -28,6 +30,14 @@ const MaranhaoFlag = () => (
 );
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
+  const { data: rawSurveyData } = useSurvey();
+  
+  // Filtra o objeto de INFO se ele existir para mostrar a contagem real
+  const totalCount = React.useMemo(() => {
+    if (!rawSurveyData) return 0;
+    return rawSurveyData.filter(item => !item.INFO).length;
+  }, [rawSurveyData]);
+
   return (
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0">
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
@@ -108,7 +118,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-1 sm:pb-2 lg:pb-0 scrollbar-hide">
             <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2rem] bg-white border border-zinc-200 shadow-lg flex flex-col items-center min-w-[110px] sm:min-w-[140px]">
               <span className="text-[8px] sm:text-[9px] lg:text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-1">Amostragem</span>
-              <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold text-zinc-950">41.979</span>
+              <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold text-zinc-950">
+                {totalCount.toLocaleString('pt-BR')}
+              </span>
             </div>
             <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2rem] premium-gradient text-white shadow-xl flex flex-col items-center min-w-[110px] sm:min-w-[140px]">
               <span className="text-[8px] sm:text-[9px] lg:text-[11px] font-black text-orange-100 uppercase tracking-[0.3em] mb-1">Confiança</span>
