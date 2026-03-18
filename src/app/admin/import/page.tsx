@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy } from 'firebase/firestore';
+import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, startAfter, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, AlertTriangle, List, Database, Search } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, ListFilter } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -29,16 +31,29 @@ export default function ImportPage() {
   const [totalToProcess, setTotalToProcess] = useState(0);
   const [status, setStatus] = useState<'idle' | 'parsing' | 'processing' | 'success' | 'error'>('idle');
 
-  // Monitoramento de Dados Reais
+  // Estados de Visualização (Paginação)
+  const [pageSize] = useState(50);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Consulta para Auditoria
   const responsesQuery = useMemoFirebase(() => {
     return query(
       collection(db, 'surveyResponses'),
       orderBy('importedAt', 'desc'),
-      limit(20)
+      limit(pageSize * currentPage) // Simulação simples de carregamento incremental
     );
-  }, [db]);
+  }, [db, pageSize, currentPage]);
 
   const { data: recentResponses, isLoading: isTableLoading } = useCollection(responsesQuery);
+
+  // Extração dinâmica de colunas (todas as chaves do JSON exceto metadados)
+  const dynamicColumns = useMemo(() => {
+    if (!recentResponses || recentResponses.length === 0) return [];
+    // Pega as chaves do primeiro registro para montar o cabeçalho
+    return Object.keys(recentResponses[0]).filter(key => 
+      !['id', 'importedAt', 'INFO'].includes(key)
+    );
+  }, [recentResponses]);
 
   useEffect(() => {
     if (!user && auth) {
@@ -67,7 +82,6 @@ export default function ImportPage() {
         setTotalToProcess(total);
         setStatus('processing');
 
-        // Lotes menores (200) para 109k+ evitam exaustão de memória e rede
         const batchSize = 200; 
         const responsesRef = collection(db, 'surveyResponses');
 
@@ -86,7 +100,6 @@ export default function ImportPage() {
 
           try {
             await batch.commit();
-            // Pausa estratégica para manter o fluxo estável no Google Cloud
             await sleep(200); 
           } catch (serverError: any) {
             const permissionError = new FirestorePermissionError({
@@ -200,7 +213,7 @@ export default function ImportPage() {
                     <Database size={18} className="text-zinc-400" />
                     <span className="text-[10px] font-black uppercase text-zinc-500">Documentos</span>
                   </div>
-                  <span className="text-sm font-mono font-bold text-zinc-950">100k+</span>
+                  <span className="text-sm font-mono font-bold text-zinc-950">109k+</span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
                   <div className="flex items-center gap-3">
@@ -214,71 +227,94 @@ export default function ImportPage() {
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3">
                 <Info size={16} className="text-amber-500 shrink-0" />
                 <p className="text-[9px] text-amber-700 font-bold uppercase leading-relaxed">
-                  Os dados são processados em tempo real. Você pode ver a amostragem ao lado.
+                  Utilize a tabela abaixo para navegar por todos os campos de todas as entrevistas registradas.
                 </p>
               </div>
             </div>
           </BentoCard>
         </div>
 
-        {/* Tabela de Visualização dos Dados */}
-        <BentoCard title="Auditoria de Sincronização" subtitle="Últimos Registros Identificados">
-          <div className="mt-6 border border-zinc-100 rounded-[2rem] overflow-hidden bg-white">
-            <Table>
-              <TableHeader className="bg-zinc-50">
-                <TableRow>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Cidade</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Região</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Gênero</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Idade</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest">Aprovação Gov</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isTableLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="animate-spin text-zinc-300" />
-                        <span className="text-[10px] font-black uppercase text-zinc-400">Consultando Cloud...</span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : recentResponses?.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center text-zinc-400 text-[10px] font-black uppercase">
-                      Nenhum dado encontrado no banco.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  recentResponses?.map((row, idx) => (
-                    <TableRow key={row.id} className="hover:bg-zinc-50/50 transition-colors">
-                      <TableCell className="text-xs font-bold text-zinc-900">{row["Cidade:"] || "N/A"}</TableCell>
-                      <TableCell className="text-[10px] font-black uppercase text-zinc-500">{row["Mesorregião"] || "N/A"}</TableCell>
-                      <TableCell className="text-[10px] font-bold text-zinc-600">{row["Gênero"] || "N/A"}</TableCell>
-                      <TableCell className="text-[10px] font-bold text-zinc-600">{row["Faixa Etária"] || "N/A"}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline" 
-                          className={row["De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?"] === 'Aprova' 
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                            : "bg-rose-50 text-rose-600 border-rose-100"}
-                        >
-                          {row["De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?"] || "NS/NR"}
-                        </Badge>
-                      </TableCell>
+        {/* Tabela de Visualização dos Dados Completa */}
+        <BentoCard title="Explorador de Dados" subtitle="Entrevistas Organizadas">
+          <div className="mt-6 border border-zinc-100 rounded-[2rem] overflow-hidden bg-white shadow-inner">
+            <ScrollArea className="w-full">
+              <div className="min-w-[1500px]">
+                <Table>
+                  <TableHeader className="bg-zinc-50">
+                    <TableRow>
+                      {dynamicColumns.map((col) => (
+                        <TableHead key={col} className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap px-4">
+                          {col}
+                        </TableHead>
+                      ))}
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {isTableLoading && currentPage === 1 ? (
+                      <TableRow>
+                        <TableCell colSpan={dynamicColumns.length || 5} className="h-64 text-center">
+                          <div className="flex flex-col items-center gap-4">
+                            <Loader2 className="animate-spin text-orange-600 size-8" />
+                            <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Acessando Nuvem de Dados...</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : recentResponses?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={dynamicColumns.length || 5} className="h-32 text-center text-zinc-400 text-[10px] font-black uppercase">
+                          Nenhum dado encontrado. Inicie o upload acima.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      recentResponses?.map((row, idx) => (
+                        <TableRow key={row.id} className="hover:bg-zinc-50/50 transition-colors">
+                          {dynamicColumns.map((col) => (
+                            <TableCell key={`${row.id}-${col}`} className="text-xs font-medium text-zinc-600 px-4 py-3 border-r border-zinc-50 last:border-none">
+                              {typeof row[col] === 'string' && row[col].length > 50 
+                                ? <span title={row[col]}>{row[col].substring(0, 50)}...</span>
+                                : String(row[col] || "---")
+                              }
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           </div>
-          <div className="mt-4 flex items-center justify-between text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-            <div className="flex items-center gap-2">
+
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
               <Search size={12} />
-              Amostra dos últimos 20 registros
+              Visualizando {recentResponses?.length || 0} de 109.000+ registros
             </div>
-            <span>Conexão Segura AES-256</span>
+            
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1 || isTableLoading}
+                className="rounded-xl border-zinc-200 text-[10px] font-black uppercase tracking-widest"
+              >
+                <ChevronLeft size={14} className="mr-2" /> Anterior
+              </Button>
+              <div className="text-[10px] font-black uppercase text-zinc-950 bg-zinc-100 px-4 py-2 rounded-lg">
+                Página {currentPage}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(p => p + 1)}
+                disabled={isTableLoading || (recentResponses?.length || 0) < pageSize * currentPage}
+                className="rounded-xl border-zinc-200 text-[10px] font-black uppercase tracking-widest"
+              >
+                Próxima <ChevronRight size={14} className="ml-2" />
+              </Button>
+            </div>
           </div>
         </BentoCard>
       </div>
