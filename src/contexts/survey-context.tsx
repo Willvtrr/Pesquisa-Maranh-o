@@ -22,7 +22,8 @@ export const SurveyContext = createContext<SurveyContextType | undefined>(undefi
 
 export function SurveyProvider({ children }: { children: ReactNode }) {
   // Inicializa o estado com o array massivo importado do JSON
-  const [data] = useState<SurveyItem[]>(rawData);
+  // Usamos rawData como base. Se o arquivo estiver vazio, inicia array vazio.
+  const [data] = useState<SurveyItem[]>(Array.isArray(rawData) ? rawData : []);
   const [filters, setFilters] = useState<Record<string, any>>({});
 
   return (
