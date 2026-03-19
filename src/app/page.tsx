@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -318,8 +318,8 @@ export default function Home() {
         {/* CABEÇALHO INTEGRADO: Título + Grade Operacional Lateral */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
           
-          {/* LADO ESQUERDO: Títulos do Dashboard */}
-          <div className="xl:col-span-4 space-y-4 lg:pt-4">
+          {/* LADO ESQUERDO: Títulos do Dashboard (Expandido para evitar quebra) */}
+          <div className="xl:col-span-5 space-y-5 lg:pt-4">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1.5 mb-1">
                 <div className="flex gap-1.5 items-center">
@@ -350,24 +350,24 @@ export default function Home() {
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap whitespace-nowrap">
                 <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-950 leading-none">
                   Maranhão
                 </h1>
                 <MaranhaoFlag />
               </div>
-              <h2 className="text-xl md:text-2xl font-black tracking-tighter text-zinc-950/80 leading-tight">
+              <h2 className="text-xl md:text-2xl font-black tracking-tighter text-zinc-950/80 leading-tight whitespace-nowrap">
                 Mapeamento de votos
               </h2>
             </div>
             
-            <p className="text-zinc-500 font-medium text-xs lg:text-sm max-w-xs leading-relaxed">
+            <p className="text-zinc-500 font-medium text-xs lg:text-sm leading-relaxed">
               Inteligência analítica e mapeamento geoespacial estratégico para tomada de decisão em tempo real.
             </p>
           </div>
 
-          {/* LADO DIREITO: Grade de Cards Otimizada (3 Colunas) - AGORA MAIS COMPACTO */}
-          <div className="xl:col-span-8 grid grid-cols-1 lg:grid-cols-3 gap-3 items-stretch">
+          {/* LADO DIREITO: Grade de Cards Otimizada (Cards proporcionais) */}
+          <div className="xl:col-span-7 grid grid-cols-1 lg:grid-cols-3 gap-3 items-stretch">
             
             {/* Card 1: Banco de Dados */}
             <div className="relative card-dark rounded-[2rem] p-4 flex flex-col group h-[300px] shadow-2xl">
