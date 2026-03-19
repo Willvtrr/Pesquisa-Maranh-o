@@ -175,7 +175,7 @@ export default function Home() {
             
             <div className="space-y-2 mt-6">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Base de Inteligência</span>
-              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Motor Cloud</h4>
+              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Motor de Dados</h4>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed">
                 {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
