@@ -23,7 +23,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     { key: 'gender', label: 'Gênero' },
     { key: 'age', label: 'Faixa Etária' },
     { key: 'income', label: 'Renda Familiar' },
-    { key: 'ideology', label: 'Posicionamento Ideológico' },
     { key: 'education', label: 'Grau de Instrução' },
     { key: 'religion', label: 'Religião' },
   ];
@@ -116,7 +115,7 @@ const FilterGroup = ({ label, children }: { label: string, children: React.React
   </div>
 );
 
-const FilterChip = ({ label, active, percentage, onClick }: { label: string, active: boolean, percentage?: number, onClick: () => void }) => (
+export const FilterChip = ({ label, active, percentage, onClick }: { label: string, active: boolean, percentage?: number, onClick: () => void }) => (
   <motion.button 
     whileTap={{ scale: 0.95 }}
     onClick={onClick}

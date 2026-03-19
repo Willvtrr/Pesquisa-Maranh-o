@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/layout/app-layout';
 import { MesoRegion } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { InteractiveMap } from '@/components/dashboard/interactive-map';
-import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
+import { FilterBentoBox, FilterChip } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2 } from 'lucide-react';
@@ -77,18 +77,6 @@ export default function Home() {
         .filter(city => city !== "")
     );
     return cities.size;
-  }, [rawSurveyData]);
-
-  const topCities = useMemo(() => {
-    if (!rawSurveyData) return [];
-    const counts: Record<string, number> = {};
-    rawSurveyData.filter(item => !item.INFO).forEach(item => {
-      const city = String(item["Cidade:"] || "").trim();
-      if (city) counts[city] = (counts[city] || 0) + 1;
-    });
-    return Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
   }, [rawSurveyData]);
 
   const activeKeys = useMemo(() => {
@@ -181,7 +169,6 @@ export default function Home() {
     return options;
   }, [rawSurveyData, activeKeys]);
 
-  // Cálculo de porcentagens para os chips de filtro (estilo Power BI)
   const distributionStats = useMemo(() => {
     const stats: Record<string, Record<string, number>> = {};
     if (!rawSurveyData || totalCount === 0) return stats;
@@ -348,16 +335,16 @@ export default function Home() {
               <p className="text-xs font-medium text-zinc-500"><span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
             </div>
             <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[60px] overflow-y-auto mb-4 relative z-10 log-scroll">
-              <ul className="space-y-2 text-[10px] font-mono">
-                <AnimatePresence initial={false} mode="popLayout">
+              < AnimatePresence initial={false} mode="popLayout">
+                <ul className="space-y-2 text-[10px] font-mono">
                   {syncLogs.map((log) => (
                     <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
                       {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-3 h-3 text-orange-500 animate-spin" />}
                       <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>{log.text}</span>
                     </motion.li>
                   ))}
-                </AnimatePresence>
-              </ul>
+                </ul>
+              </AnimatePresence>
             </div>
             <div className="space-y-4 mt-auto">
               <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
@@ -529,6 +516,32 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
           <ApprovalChart data={chartData.approvalData} />
+          
+          {/* Novo Card de Ideologia Otimizado */}
+          <LuxuryCard title="POSICIONAMENTO IDEOLÓGICO" subtitle="Ideologia">
+            <div className="space-y-4 mt-4">
+              <div className="flex flex-wrap gap-2">
+                <FilterChip 
+                  label="Todas" 
+                  active={filters.ideology.includes('all')} 
+                  onClick={() => handleFilterChange('ideology', 'all')} 
+                />
+                {dynamicOptions.ideology.map(opt => (
+                  <FilterChip 
+                    key={opt} 
+                    label={opt} 
+                    percentage={distributionStats.ideology?.[opt]}
+                    active={filters.ideology.includes(opt)} 
+                    onClick={() => handleFilterChange('ideology', opt)} 
+                  />
+                ))}
+              </div>
+              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest pt-2 border-t border-zinc-50">
+                Filtro Dinâmico Ativo
+              </p>
+            </div>
+          </LuxuryCard>
+
           <CandidateChart data={chartData.candidateData} />
           <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="lg:col-span-2">
             <div className="h-[250px] mt-4">
