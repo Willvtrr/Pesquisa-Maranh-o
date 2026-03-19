@@ -38,7 +38,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -274,6 +274,15 @@ export default function Home() {
     prefeito: PlaceHolderImages.find(i => i.id === 'prefeito-photo')?.imageUrl,
   };
 
+  const selectedCity = filters.city[0];
+  const mayorImageUrl = selectedCity === 'all' 
+    ? images.prefeito 
+    : `https://picsum.photos/seed/flag-${selectedCity.toLowerCase().replace(/\s+/g, '-')}/200/200`;
+
+  const mayorLabel = selectedCity === 'all' 
+    ? "Aprovação Prefeito" 
+    : `Prefeito de ${selectedCity}`;
+
   if (isLoading && rawSurveyData.length === 0) {
     return (
       <AppLayout>
@@ -300,7 +309,9 @@ export default function Home() {
 
           <div className="flex items-center justify-between mb-8 relative z-10">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 transition-colors group-hover:border-zinc-700 shadow-inner">
-              <Database size={20} />
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+              </svg>
             </div>
 
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
@@ -390,9 +401,9 @@ export default function Home() {
         />
         
         <StatCard 
-          label="Aprovação Prefeito" 
+          label={mayorLabel}
           value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-          imageUrl={images.prefeito}
+          imageUrl={mayorImageUrl}
           trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
           subValue={
             <div className="relative w-full space-y-2">
