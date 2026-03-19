@@ -9,7 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox, FilterChip } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2 } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, ArrowUpRight } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -40,6 +40,22 @@ const DEFAULT_KEYS = {
   PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
+
+const MaranhaoFlag = () => (
+  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[48px] md:h-[32px]">
+    <rect width="27" height="2" y="0" fill="#E20613" />
+    <rect width="27" height="2" y="2" fill="#FFFFFF" />
+    <rect width="27" height="2" y="4" fill="#000000" />
+    <rect width="27" height="2" y="6" fill="#E20613" />
+    <rect width="27" height="2" y="8" fill="#FFFFFF" />
+    <rect width="27" height="2" y="10" fill="#000000" />
+    <rect width="27" height="2" y="12" fill="#E20613" />
+    <rect width="27" height="2" y="14" fill="#FFFFFF" />
+    <rect width="27" height="2" y="16" fill="#000000" />
+    <rect width="11" height="8" fill="#004185" />
+    <path d="M5.5 1.5l.7 2h2.1l-1.7 1.2.7 2.1-1.8-1.3-1.8 1.3.7-2.1-1.7-1.2h2.1z" fill="#fff" />
+  </svg>
+);
 
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
@@ -313,156 +329,194 @@ export default function Home() {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
-        {/* Linha Superior: Operação (4 cards) - Altura Reduzida Proporcionalmente */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+      <div className="space-y-12">
+        {/* CABEÇALHO INTEGRADO: Título + 4 Cards ao lado */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
           
-          {/* Card 1: Banco de Dados */}
-          <div className="relative card-dark rounded-[2.5rem] p-6 transition-all duration-300 hover:shadow-2xl flex flex-col group h-[380px]">
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
-                <Database size={18} />
+          {/* LADO ESQUERDO: Títulos do Dashboard */}
+          <div className="xl:col-span-3 space-y-6 lg:pt-4">
+            <div className="flex items-center gap-3 text-[11px] font-black text-orange-600 uppercase tracking-[0.4em]">
+              <div className="flex gap-1.5 items-center">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="relative w-2 h-2">
+                    <motion.div
+                      animate={{ 
+                        opacity: [0, 1, 0], 
+                        scale: [0.8, 1.4, 0.8],
+                        backgroundColor: ["#f97316", "#ea580c", "#f97316"] 
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity, 
+                        delay: i * 0.4,
+                        ease: "easeInOut" 
+                      }}
+                      className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(234,88,12,0.5)]"
+                    />
+                    <div className="w-full h-full rounded-full bg-zinc-200 opacity-30" />
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                <span className="text-[9px] font-bold tracking-widest text-zinc-300 uppercase">Cloud Ativo</span>
-              </div>
+              Monitoramento em tempo real • 2026
             </div>
-            <div className="mb-4 relative z-10">
-              <h3 className="text-[9px] font-bold tracking-[0.2em] text-zinc-500 uppercase mb-1">Base de Inteligência</h3>
-              <h2 className="text-xl font-black tracking-tight text-zinc-100 mb-0.5">Banco de Dados</h2>
-              <p className="text-[10px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
-            </div>
-            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[70px] overflow-y-auto mb-4 relative z-10 log-scroll">
-              <AnimatePresence initial={false} mode="popLayout">
-                <ul className="space-y-2 text-[9px] font-mono">
-                  {syncLogs.map((log) => (
-                    <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
-                      {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-2 h-2 text-orange-500 animate-spin" />}
-                      <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>{log.text}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </AnimatePresence>
-            </div>
-            <div className="space-y-3 mt-auto">
-              <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900 shadow-lg")}>
-                {isSyncing ? <Loader2 className="animate-spin w-3 h-3 text-orange-500" /> : <RefreshCw className="w-3 h-3" />}
-                <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
-              </button>
-              <div className="text-center z-10">
-                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest leading-none mb-1">
-                  {lastSyncDate}
-                </p>
-                <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none">
-                  {lastSyncMsg}
-                </p>
-              </div>
-            </div>
-          </div>
 
-          {/* Card 2: Número de Coletas */}
-          <div className="card-white rounded-[2.5rem] p-6 flex flex-col group h-[380px] shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
-                <FileText size={16} strokeWidth={2.5} />
+            <div className="space-y-2">
+              <div className="flex items-center gap-4">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-zinc-950 leading-none">
+                  Maranhão
+                </h1>
+                <MaranhaoFlag />
               </div>
-              <h3 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
-            </div>
-            <div className="flex-grow flex flex-col justify-center">
-              <h2 className="text-7xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
-                {totalCount.toLocaleString('pt-BR')}
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tighter text-zinc-950/80 leading-tight">
+                Mapeamento de votos
               </h2>
-              <div className="mt-8">
-                <div className="flex items-end gap-1.5 h-12 w-full pt-2 border-b border-zinc-100 pb-1">
-                  {[40, 60, 45, 75, 50, 100].map((h, i) => (
-                    <div key={i} className={cn("w-full rounded-t-sm transition-all duration-500", i === 5 ? "bg-zinc-900" : "bg-zinc-100")} style={{ height: `${h}%` }} />
-                  ))}
+            </div>
+            
+            <p className="text-zinc-500 font-medium text-sm lg:text-lg max-w-xs leading-relaxed">
+              Inteligência analítica e mapeamento geoespacial estratégico.
+            </p>
+          </div>
+
+          {/* LADO DIREITO: Grade de 4 Cards (Reduzidos Proporcionalmente) */}
+          <div className="xl:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+            
+            {/* Card 1: Banco de Dados */}
+            <div className="relative card-dark rounded-[2rem] p-5 flex flex-col group h-[360px] shadow-2xl">
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
+                  <Database size={16} />
+                </div>
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+                  <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-[8px] font-bold tracking-widest text-zinc-300 uppercase">Cloud Ativo</span>
+                </div>
+              </div>
+              <div className="mb-4 relative z-10">
+                <h3 className="text-[8px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Base de Inteligência</h3>
+                <h2 className="text-lg font-black tracking-tight text-zinc-100 mb-0.5">Banco de Dados</h2>
+                <p className="text-[9px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros</p>
+              </div>
+              <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[80px] overflow-y-auto mb-4 relative z-10 log-scroll">
+                <AnimatePresence initial={false} mode="popLayout">
+                  <ul className="space-y-2 text-[8px] font-mono">
+                    {syncLogs.map((log) => (
+                      <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
+                        {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-2 h-2 text-orange-500 animate-spin" />}
+                        <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>{log.text}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </AnimatePresence>
+              </div>
+              <div className="space-y-2 mt-auto">
+                <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900 shadow-lg")}>
+                  {isSyncing ? <Loader2 className="animate-spin w-3 h-3 text-orange-500" /> : <RefreshCw className="w-3 h-3" />}
+                  <span>{isSyncing ? "Sincronizando..." : "Sincronizar Agora"}</span>
+                </button>
+                <div className="text-center z-10 space-y-0.5">
+                  <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest leading-none">{lastSyncDate}</p>
+                  <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none">{lastSyncMsg}</p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between pt-5 mt-2 border-t border-zinc-50">
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Até o momento</span>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
-                <span className="text-[9px] font-black text-emerald-600 uppercase">Em Campo</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Card 3: Número de Municípios */}
-          <div className="card-orange rounded-[2.5rem] p-6 flex flex-col text-white h-[380px] relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 blur-[60px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
-            <div className="relative z-10 flex items-center gap-3 mb-6">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
-                <MapIcon size={16} strokeWidth={2.5} />
+            {/* Card 2: Número de Coletas */}
+            <div className="card-white rounded-[2rem] p-5 flex flex-col group h-[360px] shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
+                  <FileText size={16} strokeWidth={2.5} />
+                </div>
+                <h3 className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
               </div>
-              <h3 className="text-[10px] font-black tracking-widest text-orange-50 uppercase">Número de Municípios</h3>
-            </div>
-            <div className="relative z-10 flex-grow flex flex-col justify-center">
-              <div className="flex items-baseline gap-1">
-                <h2 className="text-7xl font-black tracking-tighter text-white leading-none font-mono">
-                  {citiesCount}
+              <div className="flex-grow flex flex-col justify-center">
+                <h2 className="text-6xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
+                  {totalCount.toLocaleString('pt-BR')}
                 </h2>
-                <span className="text-2xl font-bold text-orange-200 tracking-tighter">/217</span>
+                <div className="mt-6">
+                  <div className="flex items-end gap-1.5 h-10 w-full pt-2 border-b border-zinc-100 pb-1">
+                    {[40, 60, 45, 75, 50, 100].map((h, i) => (
+                      <div key={i} className={cn("w-full rounded-t-sm transition-all duration-500", i === 5 ? "bg-zinc-900" : "bg-zinc-100")} style={{ height: `${h}%` }} />
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-orange-400/30">
-                <span className="text-[9px] font-black text-orange-100 uppercase tracking-widest">Maranhão • Cobertura {((citiesCount/217)*100).toFixed(1)}%</span>
+              <div className="flex items-center justify-between pt-5 mt-2 border-t border-zinc-50">
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest italic">Até o momento</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[9px] font-black text-emerald-600 uppercase">Em Campo</span>
+                </div>
               </div>
             </div>
-            <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-5 mt-2">
-              <span className="text-[9px] font-black text-orange-100 uppercase tracking-widest italic">Concluindo • Faltam 3</span>
-              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-lg">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Em Campo</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Card 4: Status Operacional */}
-          <div className="card-dark rounded-[2.5rem] p-6 flex flex-col text-white h-[380px] group shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500">
-                <ClipboardCheck size={18} />
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                <span className="text-[9px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
-              </div>
-            </div>
-            <div className="mb-4">
-              <h3 className="text-[9px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Status Operacional</h3>
-              <h2 className="text-xl font-black tracking-tight text-white mb-2">Painel de Pesquisas</h2>
-              <div className="flex gap-2 mb-6">
-                <div className="h-2 flex-1 rounded-full bg-zinc-800 overflow-hidden relative">
-                  <div className="h-full w-[85%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.6)]"></div>
-                  <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+            {/* Card 3: Número de Municípios */}
+            <div className="card-orange rounded-[2rem] p-5 flex flex-col text-white h-[360px] relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 blur-[50px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
+              <div className="relative z-10 flex items-center gap-3 mb-6">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
+                  <MapIcon size={16} strokeWidth={2.5} />
                 </div>
-                <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
-                <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
+                <h3 className="text-[9px] font-black tracking-widest text-orange-100 uppercase">Número de Municípios</h3>
               </div>
-            </div>
-            <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.5rem] p-4 flex-1 flex flex-col justify-center gap-4 mt-auto">
-              <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></div>
-                <div className="space-y-0.5">
-                  <p className="text-[10px] font-black text-white uppercase tracking-widest">Pesquisa 1: Reta Final</p>
-                  <p className="text-[8px] font-black text-orange-500 uppercase tracking-widest">Quase Concluída</p>
+              <div className="relative z-10 flex-grow flex flex-col justify-center">
+                <div className="flex items-baseline gap-1">
+                  <h2 className="text-6xl font-black tracking-tighter text-white leading-none font-mono">{citiesCount}</h2>
+                  <span className="text-xl font-bold text-orange-200 tracking-tighter">/217</span>
+                </div>
+                <div className="mt-4 pt-4 border-t border-orange-400/30">
+                  <span className="text-[9px] font-black text-orange-100 uppercase tracking-widest">Maranhão • Cobertura {((citiesCount/217)*100).toFixed(1)}%</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 opacity-30">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Aguardando</p>
+              <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-5 mt-2">
+                <span className="text-[9px] font-black text-orange-100 uppercase tracking-widest italic">Concluindo • Faltam 3</span>
+                <div className="flex items-center gap-2 bg-white px-2 py-1 rounded-xl shadow-lg">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Em Campo</span>
+                </div>
               </div>
-              <div className="flex items-center gap-3 opacity-30">
-                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 3: Planejada</p>
+            </div>
+
+            {/* Card 4: Status Operacional */}
+            <div className="card-dark rounded-[2rem] p-5 flex flex-col text-white h-[360px] group shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500">
+                  <ClipboardCheck size={18} />
+                </div>
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-[8px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
+                </div>
+              </div>
+              <div className="mb-4">
+                <h3 className="text-[8px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Status Operacional</h3>
+                <h2 className="text-xl font-black tracking-tight text-white mb-2 leading-none">Painel de Pesquisas</h2>
+                <div className="flex gap-1.5 mb-6">
+                  <div className="h-1.5 flex-1 rounded-full bg-zinc-800 overflow-hidden relative">
+                    <div className="h-full w-[85%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.6)]"></div>
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
+                  <div className="h-1.5 flex-1 rounded-full bg-zinc-800"></div>
+                  <div className="h-1.5 flex-1 rounded-full bg-zinc-800"></div>
+                </div>
+              </div>
+              <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.5rem] p-4 flex-1 flex flex-col justify-center gap-4 mt-auto">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></div>
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-black text-white uppercase tracking-widest">Pesquisa 1: Reta Final</p>
+                    <p className="text-[7px] font-black text-orange-500 uppercase tracking-widest">Quase Concluída</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 opacity-30">
+                  <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
+                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Aguardando</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Linha de Segmentação: Full Width (Estilo Power BI) */}
+        {/* Linha de Segmentação: Full Width */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <FilterBentoBox 
             filters={filters} 
