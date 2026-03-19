@@ -8,21 +8,15 @@ import { MesoRegion } from '@/data/survey-data';
 import { motion } from 'framer-motion';
 
 interface FilterBentoBoxProps {
-  filters: {
-    region: string;
-    age: string;
-    gender: string;
-    education: string;
-    income: string;
-    religion: string;
-    ideology: string;
-  };
+  filters: Record<string, string[]>;
   onFilterChange: (key: string, value: string) => void;
   onClear: () => void;
   className?: string;
 }
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, className }: FilterBentoBoxProps) => {
+  const isSelected = (key: string, value: string) => filters[key]?.includes(value);
+
   return (
     <LuxuryCard title="Segmentação" subtitle="Recortes de Dados" className={cn("h-full", className)}>
       <div className="flex flex-col md:flex-row gap-x-12 gap-y-8 mt-4 pb-4">
@@ -30,36 +24,36 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, className }: 
         <div className="flex-1 space-y-8">
           <FilterGroup label="Mesorregião">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todas" active={filters.region === 'all'} onClick={() => onFilterChange('region', 'all')} />
+              <FilterChip label="Todas" active={isSelected('region', 'all')} onClick={() => onFilterChange('region', 'all')} />
               {(['Norte', 'Sul', 'Oeste', 'Leste', 'Centro'] as MesoRegion[]).map(r => (
-                <FilterChip key={r} label={r} active={filters.region === r} onClick={() => onFilterChange('region', r)} />
+                <FilterChip key={r} label={r} active={isSelected('region', r)} onClick={() => onFilterChange('region', r)} />
               ))}
             </div>
           </FilterGroup>
 
           <FilterGroup label="Gênero">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todos" active={filters.gender === 'all'} onClick={() => onFilterChange('gender', 'all')} />
+              <FilterChip label="Todos" active={isSelected('gender', 'all')} onClick={() => onFilterChange('gender', 'all')} />
               {['Masculino', 'Feminino'].map(g => (
-                <FilterChip key={g} label={g} active={filters.gender === g} onClick={() => onFilterChange('gender', g)} />
+                <FilterChip key={g} label={g} active={isSelected('gender', g)} onClick={() => onFilterChange('gender', g)} />
               ))}
             </div>
           </FilterGroup>
 
           <FilterGroup label="Renda Familiar">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todas" active={filters.income === 'all'} onClick={() => onFilterChange('income', 'all')} />
+              <FilterChip label="Todas" active={isSelected('income', 'all')} onClick={() => onFilterChange('income', 'all')} />
               {['Até 1 SM', '1 a 2 SM', '2 a 5 SM', '5 a 10 SM', 'Mais de 10 SM'].map(i => (
-                <FilterChip key={i} label={i} active={filters.income === i} onClick={() => onFilterChange('income', i)} />
+                <FilterChip key={i} label={i} active={isSelected('income', i)} onClick={() => onFilterChange('income', i)} />
               ))}
             </div>
           </FilterGroup>
 
           <FilterGroup label="Posicionamento Ideológico">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todos" active={filters.ideology === 'all'} onClick={() => onFilterChange('ideology', 'all')} />
+              <FilterChip label="Todos" active={isSelected('ideology', 'all')} onClick={() => onFilterChange('ideology', 'all')} />
               {['Esquerda', 'Centro', 'Direita', 'NS/NR'].map(id => (
-                <FilterChip key={id} label={id} active={filters.ideology === id} onClick={() => onFilterChange('ideology', id)} />
+                <FilterChip key={id} label={id} active={isSelected('ideology', id)} onClick={() => onFilterChange('ideology', id)} />
               ))}
             </div>
           </FilterGroup>
@@ -69,27 +63,27 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, className }: 
         <div className="flex-1 space-y-8">
           <FilterGroup label="Faixa Etária">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todas" active={filters.age === 'all'} onClick={() => onFilterChange('age', 'all')} />
+              <FilterChip label="Todas" active={isSelected('age', 'all')} onClick={() => onFilterChange('age', 'all')} />
               {['16-24', '25-34', '35-44', '45-59', '60+'].map(age => (
-                <FilterChip key={age} label={age} active={filters.age === age} onClick={() => onFilterChange('age', age)} />
+                <FilterChip key={age} label={age} active={isSelected('age', age)} onClick={() => onFilterChange('age', age)} />
               ))}
             </div>
           </FilterGroup>
 
           <FilterGroup label="Grau de Instrução">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todos" active={filters.education === 'all'} onClick={() => onFilterChange('education', 'all')} />
+              <FilterChip label="Todos" active={isSelected('education', 'all')} onClick={() => onFilterChange('education', 'all')} />
               {['Analfabeto', 'Fund. Incompleto', 'Fund. Completo', 'Médio Incompleto', 'Médio Completo', 'Superior Incompleto', 'Superior Completo'].map(e => (
-                <FilterChip key={e} label={e} active={filters.education === e} onClick={() => onFilterChange('education', e)} />
+                <FilterChip key={e} label={e} active={isSelected('education', e)} onClick={() => onFilterChange('education', e)} />
               ))}
             </div>
           </FilterGroup>
 
           <FilterGroup label="Religião">
             <div className="flex flex-wrap gap-2">
-              <FilterChip label="Todas" active={filters.religion === 'all'} onClick={() => onFilterChange('religion', 'all')} />
+              <FilterChip label="Todas" active={isSelected('religion', 'all')} onClick={() => onFilterChange('religion', 'all')} />
               {['Católica', 'Evangélica', 'Espírita', 'Outras', 'Sem Religião'].map(r => (
-                <FilterChip key={r} label={r} active={filters.religion === r} onClick={() => onFilterChange('religion', r)} />
+                <FilterChip key={r} label={r} active={isSelected('religion', r)} onClick={() => onFilterChange('religion', r)} />
               ))}
             </div>
           </FilterGroup>

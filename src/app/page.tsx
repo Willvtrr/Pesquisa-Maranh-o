@@ -28,7 +28,7 @@ const SURVEY_KEYS = {
   RELIGION: "Religião",
   IDEOLOGY: "Você se considera de esquerda, centro ou direita?",
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -36,14 +36,16 @@ export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string>("");
-  const [filters, setFilters] = useState({
-    region: 'all',
-    age: 'all',
-    gender: 'all',
-    education: 'all',
-    income: 'all',
-    religion: 'all',
-    ideology: 'all'
+  
+  // Estado de filtros agora usa arrays para permitir multisseleção
+  const [filters, setFilters] = useState<Record<string, string[]>>({
+    region: ['all'],
+    age: ['all'],
+    gender: ['all'],
+    education: ['all'],
+    income: ['all'],
+    religion: ['all'],
+    ideology: ['all']
   });
 
   useEffect(() => {
@@ -58,17 +60,38 @@ export default function Home() {
   }, [isSyncing]);
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters(prev => {
+      const currentValues = prev[key] || [];
+      
+      // Se clicar em 'all', limpa tudo e deixa só 'all'
+      if (value === 'all') {
+        return { ...prev, [key]: ['all'] };
+      }
+
+      // Se clicar em um valor específico:
+      let newValues;
+      if (currentValues.includes(value)) {
+        // Se já estiver lá, remove
+        newValues = currentValues.filter(v => v !== value);
+        // Se ficar vazio, volta para 'all'
+        if (newValues.length === 0) newValues = ['all'];
+      } else {
+        // Se não estiver lá, adiciona e remove 'all'
+        newValues = [...currentValues.filter(v => v !== 'all'), value];
+      }
+
+      return { ...prev, [key]: newValues };
+    });
   };
 
   const clearFilters = () => setFilters({ 
-    region: 'all', 
-    age: 'all', 
-    gender: 'all',
-    education: 'all',
-    income: 'all',
-    religion: 'all',
-    ideology: 'all'
+    region: ['all'], 
+    age: ['all'], 
+    gender: ['all'],
+    education: ['all'],
+    income: ['all'],
+    religion: ['all'],
+    ideology: ['all']
   });
 
   const handleManualSync = async () => {
@@ -92,13 +115,13 @@ export default function Home() {
       const itemReligion = String(item[SURVEY_KEYS.RELIGION] || '').trim();
       const itemIdeology = String(item[SURVEY_KEYS.IDEOLOGY] || '').trim();
 
-      const regionMatch = filters.region === 'all' || itemRegion === filters.region;
-      const ageMatch = filters.age === 'all' || itemAge === filters.age;
-      const genderMatch = filters.gender === 'all' || itemGender === filters.gender;
-      const educationMatch = filters.education === 'all' || itemEducation === filters.education;
-      const incomeMatch = filters.income === 'all' || itemIncome === filters.income;
-      const religionMatch = filters.religion === 'all' || itemReligion === filters.religion;
-      const ideologyMatch = filters.ideology === 'all' || itemIdeology === filters.ideology;
+      const regionMatch = filters.region.includes('all') || filters.region.includes(itemRegion);
+      const ageMatch = filters.age.includes('all') || filters.age.includes(itemAge);
+      const genderMatch = filters.gender.includes('all') || filters.gender.includes(itemGender);
+      const educationMatch = filters.education.includes('all') || filters.education.includes(itemEducation);
+      const incomeMatch = filters.income.includes('all') || filters.income.includes(itemIncome);
+      const religionMatch = filters.religion.includes('all') || filters.religion.includes(itemReligion);
+      const ideologyMatch = filters.ideology.includes('all') || filters.ideology.includes(itemIdeology);
 
       return regionMatch && ageMatch && genderMatch && educationMatch && incomeMatch && religionMatch && ideologyMatch;
     });
@@ -218,15 +241,13 @@ export default function Home() {
         <StatCard label="Total Amostral" value={stats.total.toLocaleString('pt-BR')} subValue="Registros Qualificados" icon={Activity} />
         <StatCard label="Municípios" value={stats.citiesCount} subValue="Capilaridade da Amostra" icon={MapPin} />
 
-        {/* Agora ocupa 2 colunas para remover a necessidade de rolagem */}
         <FilterBentoBox filters={filters} onFilterChange={handleFilterChange} onClear={clearFilters} className="lg:col-span-2" />
         
-        {/* Mapa ajustado para ficar ao lado dos filtros */}
         <InteractiveMap stats={filteredData.reduce((acc, curr) => {
           const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
           if (r) acc[r] = (acc[r] || 0) + 1;
           return acc;
-        }, {} as Record<MesoRegion, number>)} activeRegion={filters.region} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
+        }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' && filters.region.length === 1 ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
 
         <ApprovalChart data={chartData.approvalData} />
         <CandidateChart data={chartData.candidateData} />
