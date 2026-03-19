@@ -9,7 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
+import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw, MapPin } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -17,6 +17,13 @@ import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SURVEY_KEYS = {
   CITY: "Cidade:",
@@ -159,12 +166,11 @@ export default function Home() {
     const presPct = calculatePct(SURVEY_KEYS.PRESIDENT_APPROVAL);
     const mayorPct = calculatePct(SURVEY_KEYS.MAYOR_APPROVAL);
 
-    // Valores padrão baseados em médias reais se os dados estiverem vazios
     return { 
       total, 
-      govPct: govPct > 0 ? govPct : 58.1,
-      presPct: presPct > 0 ? presPct : 44.5,
-      mayorPct: mayorPct > 0 ? mayorPct : 62.3
+      govPct,
+      presPct,
+      mayorPct
     };
   }, [filteredData]);
 
@@ -354,9 +360,31 @@ export default function Home() {
         <StatCard 
           label="Aprovação Prefeito" 
           value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-          subValue={filters.city.includes('all') ? "Fator Municipal" : filters.city.join(', ')} 
           imageUrl={images.prefeito}
           trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
+          subValue={
+            <div className="relative w-full">
+              <Select 
+                value={filters.city[0]} 
+                onValueChange={(val) => handleFilterChange('city', val)}
+              >
+                <SelectTrigger className="h-10 bg-zinc-50/80 border-zinc-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20">
+                  <div className="flex items-center gap-2 truncate">
+                    <MapPin size={12} className="text-orange-600 shrink-0" />
+                    <SelectValue placeholder="Selecionar Município" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl">
+                  <SelectItem value="all" className="text-[10px] font-bold uppercase">Média Estadual</SelectItem>
+                  {dynamicOptions.city.map(city => (
+                    <SelectItem key={city} value={city} className="text-[10px] font-bold uppercase">
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          }
         />
 
         <FilterBentoBox 

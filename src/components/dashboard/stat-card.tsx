@@ -10,7 +10,7 @@ import Image from 'next/image';
 interface StatCardProps {
   label: string;
   value: string | number;
-  subValue?: string;
+  subValue?: React.ReactNode;
   icon?: LucideIcon;
   imageUrl?: string;
   trend?: 'up' | 'down';
@@ -61,9 +61,9 @@ export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, 
           {subValue && (
             <div className="flex items-center gap-2 mt-1">
               <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-              <p className="text-[10px] lg:text-[11px] text-zinc-500 font-bold uppercase tracking-tight">
+              <div className="text-[10px] lg:text-[11px] text-zinc-500 font-bold uppercase tracking-tight w-full">
                 {subValue}
-              </p>
+              </div>
             </div>
           )}
         </div>
