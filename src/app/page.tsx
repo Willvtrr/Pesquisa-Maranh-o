@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -271,12 +271,13 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Linha Superior: Banco de Dados + Resumo Operacional */}
+        {/* Linha Superior: Exatamente como no print fornecido */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-          <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
+          {/* Card 1: Banco de Dados (Escuro) */}
+          <div className="relative bg-[#09090b] rounded-[2.5rem] p-8 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
             <motion.div initial={{ width: 0 }} animate={{ width: isSyncing ? '100%' : '0%' }} transition={{ duration: 2, ease: "easeOut" }} className="absolute top-0 left-0 h-[2px] bg-orange-500 z-20" />
-            <div className="flex items-center justify-between mb-8 relative z-10">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 transition-colors group-hover:border-zinc-700 shadow-inner">
+            <div className="flex items-center justify-between mb-10 relative z-10">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
                 <Database size={20} />
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
@@ -284,16 +285,16 @@ export default function Home() {
                 <span className="text-[10px] font-semibold tracking-wide text-zinc-300 uppercase">Cloud Ativo</span>
               </div>
             </div>
-            <div className="mb-5 relative z-10">
-              <h3 className="text-[10px] font-semibold tracking-[0.2em] text-zinc-500 uppercase mb-1">Base de Inteligência</h3>
-              <h2 className="text-2xl font-semibold tracking-tight text-zinc-100 mb-1">Banco de Dados</h2>
+            <div className="mb-6 relative z-10">
+              <h3 className="text-[10px] font-semibold tracking-[0.2em] text-zinc-500 uppercase mb-2">Base de Inteligência</h3>
+              <h2 className="text-3xl font-semibold tracking-tight text-zinc-100 mb-1">Banco de Dados</h2>
               <p className="text-xs font-medium text-zinc-500"><span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Entrevistas Processadas</p>
             </div>
-            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[100px] overflow-y-auto mb-6 relative z-10 log-scroll">
-              <ul className="space-y-2 text-[10px] font-mono text-zinc-400">
+            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 h-[120px] overflow-y-auto mb-8 relative z-10 log-scroll">
+              <ul className="space-y-3 text-[10px] font-mono">
                 <AnimatePresence initial={false} mode="popLayout">
                   {syncLogs.map((log) => (
-                    <motion.li key={log.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2">
+                    <motion.li key={log.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
                       {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-3 h-3 text-orange-500 animate-spin" />}
                       <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>{log.text}</span>
                     </motion.li>
@@ -301,40 +302,40 @@ export default function Home() {
                 </AnimatePresence>
               </ul>
             </div>
-            <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-zinc-100 hover:bg-white text-zinc-900")}>
+            <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-zinc-100 hover:bg-white text-zinc-900 shadow-lg shadow-black/20")}>
               {isSyncing ? <Loader2 className="animate-spin w-4 h-4 text-orange-500" /> : <RefreshCw className="w-4 h-4" />}
               <span>{isSyncing ? "Sincronizando..." : "Sincronizar Agora"}</span>
             </button>
-            <div className="mt-auto text-center relative z-10 pb-2">
+            <div className="mt-auto text-center relative z-10">
               <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">ÚLTIMA ATT: <span className="text-zinc-500">{lastSync}</span></p>
             </div>
           </div>
 
-          {/* Card: Número de Coletas */}
-          <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] bg-white border border-zinc-100 ring-1 ring-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
-            <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-4">Número de coletas</span>
-            <span className="text-4xl sm:text-5xl lg:text-7xl font-mono font-bold text-zinc-950">
+          {/* Card 2: Número de Coletas (Branco) */}
+          <div className="px-10 py-12 rounded-[2.5rem] bg-white border border-zinc-100 ring-1 ring-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300 group">
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-10 text-center">Número de coletas</span>
+            <span className="text-7xl font-mono font-bold text-zinc-950 tracking-tighter">
               {totalCount.toLocaleString('pt-BR')}
             </span>
-            <span className="text-[6px] lg:text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em] mt-4">Até o momento</span>
+            <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em] mt-10 text-center">Até o momento</span>
           </div>
 
-          {/* Card: Número de Municípios */}
-          <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] premium-gradient text-white border border-orange-400/20 ring-1 ring-white/20 shadow-[0_20px_50px_rgba(234,88,12,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
-            <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-orange-100 uppercase tracking-[0.3em] mb-4">Número de Municípios</span>
-            <span className="text-4xl sm:text-5xl lg:text-7xl font-mono font-bold">
+          {/* Card 3: Número de Municípios (Laranja) */}
+          <div className="px-10 py-12 rounded-[2.5rem] premium-gradient text-white border border-orange-400/20 ring-1 ring-white/20 shadow-[0_20px_50px_rgba(234,88,12,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
+            <span className="text-[10px] font-black text-orange-100 uppercase tracking-[0.3em] mb-10 text-center">Número de Municípios</span>
+            <span className="text-7xl font-mono font-bold tracking-tighter">
               {citiesCount.toLocaleString('pt-BR')}
             </span>
-            <span className="text-[6px] lg:text-[10px] font-bold text-orange-200/60 uppercase tracking-[0.4em] mt-4">Até o momento</span>
+            <span className="text-[10px] font-bold text-orange-200/60 uppercase tracking-[0.4em] mt-10 text-center">Até o momento</span>
           </div>
 
-          {/* Card: Status da Operação */}
-          <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] bg-zinc-950 text-white border border-zinc-800 ring-1 ring-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
-            <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-4">Status da Operação</span>
-            <span className="text-4xl sm:text-5xl lg:text-7xl font-mono font-bold text-white">
+          {/* Card 4: Status da Operação (Zinco Escuro) */}
+          <div className="px-10 py-12 rounded-[2.5rem] bg-zinc-950 text-white border border-zinc-800 ring-1 ring-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-10 text-center">Status da Operação</span>
+            <span className="text-7xl font-mono font-bold text-white tracking-tighter">
               1 DE 3
             </span>
-            <span className="text-[6px] lg:text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-4 text-center">Concluindo • Faltam 3</span>
+            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-10 text-center uppercase">Concluindo • Faltam 3</span>
           </div>
         </div>
 
