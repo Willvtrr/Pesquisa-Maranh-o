@@ -28,7 +28,7 @@ const SURVEY_KEYS = {
   RELIGION: "Religião",
   IDEOLOGY: "Você se considera de esquerda, centro ou direita?",
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -218,8 +218,10 @@ export default function Home() {
         <StatCard label="Total Amostral" value={stats.total.toLocaleString('pt-BR')} subValue="Registros Qualificados" icon={Activity} />
         <StatCard label="Municípios" value={stats.citiesCount} subValue="Capilaridade da Amostra" icon={MapPin} />
 
-        <FilterBentoBox filters={filters} onFilterChange={handleFilterChange} onClear={clearFilters} />
+        {/* Agora ocupa 2 colunas para remover a necessidade de rolagem */}
+        <FilterBentoBox filters={filters} onFilterChange={handleFilterChange} onClear={clearFilters} className="lg:col-span-2" />
         
+        {/* Mapa ajustado para ficar ao lado dos filtros */}
         <InteractiveMap stats={filteredData.reduce((acc, curr) => {
           const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
           if (r) acc[r] = (acc[r] || 0) + 1;
