@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { BentoCard } from './bento-card';
+import { LuxuryCard } from './luxury-card';
 
 interface ApprovalChartProps {
   data: { name: string; value: number }[];
@@ -16,7 +16,7 @@ const COLORS = {
 
 export const ApprovalChart = ({ data }: ApprovalChartProps) => {
   return (
-    <BentoCard title="Aprovação" subtitle="Sentimento do Eleitor">
+    <LuxuryCard title="Aprovação" subtitle="Sentimento do Eleitor">
       <div className="h-[220px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -68,6 +68,6 @@ export const ApprovalChart = ({ data }: ApprovalChartProps) => {
           </div>
         ))}
       </div>
-    </BentoCard>
+    </LuxuryCard>
   );
 };

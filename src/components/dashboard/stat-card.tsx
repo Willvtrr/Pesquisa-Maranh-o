@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { LucideIcon, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { BentoCard } from './bento-card';
+import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 
 interface StatCardProps {
   label: string;
@@ -17,16 +16,16 @@ interface StatCardProps {
 
 export const StatCard = ({ label, value, subValue, icon: Icon, trend, className }: StatCardProps) => {
   return (
-    <BentoCard className={cn("group", className)}>
+    <LuxuryCard className={cn("group", className)}>
       <div className="flex flex-col h-full justify-between relative z-10">
         <div className="flex items-center justify-between mb-6 lg:mb-8">
-          <div className="p-3 lg:p-4 rounded-xl lg:rounded-2xl inner-relief text-zinc-600 group-hover:premium-gradient group-hover:text-white transition-all duration-500">
+          <div className="p-3 lg:p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-600 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
             <Icon size={20} className="lg:size-[24px]" strokeWidth={2.5} />
           </div>
           
           {trend && (
             <div className={cn(
-                "text-[9px] lg:text-[10px] font-black px-3 lg:px-4 py-1.5 rounded-lg lg:rounded-xl flex items-center gap-1.5 uppercase tracking-widest border shadow-sm",
+                "text-[9px] lg:text-[10px] font-black px-3 lg:px-4 py-1.5 rounded-xl flex items-center gap-1.5 uppercase tracking-widest border shadow-sm",
                 trend === 'up' 
                   ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
                   : "bg-rose-50 text-rose-600 border-rose-100"
@@ -55,10 +54,6 @@ export const StatCard = ({ label, value, subValue, icon: Icon, trend, className 
           )}
         </div>
       </div>
-      
-      <div className="absolute top-0 right-0 p-4 lg:p-8 opacity-0 group-hover:opacity-[0.03] transition-opacity duration-1000 pointer-events-none">
-        <Icon size={120} className="lg:size-[180px]" strokeWidth={0.5} />
-      </div>
-    </BentoCard>
+    </LuxuryCard>
   );
 };

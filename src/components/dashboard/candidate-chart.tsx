@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
-import { BentoCard } from './bento-card';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { LuxuryCard } from './luxury-card';
 
 interface CandidateChartProps {
   data: { name: string; value: number }[];
@@ -12,7 +12,7 @@ const COLORS = ['#ea580c', '#fb923c', '#fdba74', '#fed7aa', '#cbd5e1', '#e2e8f0'
 
 export const CandidateChart = ({ data }: CandidateChartProps) => {
   return (
-    <BentoCard title="Intenção de Voto" subtitle="Resultados Espontâneos" className="lg:col-span-2">
+    <LuxuryCard title="Intenção de Voto" subtitle="Resultados Espontâneos" className="lg:col-span-2">
       <div className="h-[280px] mt-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ left: 10, right: 30, top: 0, bottom: 0 }}>
@@ -48,6 +48,6 @@ export const CandidateChart = ({ data }: CandidateChartProps) => {
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </BentoCard>
+    </LuxuryCard>
   );
 };
