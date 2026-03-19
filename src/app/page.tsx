@@ -319,8 +319,8 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
           
           {/* LADO ESQUERDO: Títulos do Dashboard */}
-          <div className="xl:col-span-3 space-y-6 lg:pt-4">
-            <div className="flex flex-col gap-3">
+          <div className="xl:col-span-4 space-y-4 lg:pt-4">
+            <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1.5 mb-1">
                 <div className="flex gap-1.5 items-center">
                   {[0, 1, 2].map((i) => (
@@ -343,51 +343,51 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <div className="text-[11px] font-black text-orange-600 uppercase tracking-[0.4em]">
+                <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">
                   Monitoramento em tempo real • 2026
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div className="flex items-center gap-4">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-zinc-950 leading-none">
+                <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-950 leading-none">
                   Maranhão
                 </h1>
                 <MaranhaoFlag />
               </div>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tighter text-zinc-950/80 leading-tight">
+              <h2 className="text-xl md:text-2xl font-black tracking-tighter text-zinc-950/80 leading-tight">
                 Mapeamento de votos
               </h2>
             </div>
             
-            <p className="text-zinc-500 font-medium text-sm lg:text-lg max-w-xs leading-relaxed">
-              Inteligência analítica e mapeamento geoespacial estratégico.
+            <p className="text-zinc-500 font-medium text-xs lg:text-sm max-w-xs leading-relaxed">
+              Inteligência analítica e mapeamento geoespacial estratégico para tomada de decisão em tempo real.
             </p>
           </div>
 
-          {/* LADO DIREITO: Grade de Cards Otimizada (3 Colunas) */}
-          <div className="xl:col-span-9 grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+          {/* LADO DIREITO: Grade de Cards Otimizada (3 Colunas) - AGORA MAIS COMPACTO */}
+          <div className="xl:col-span-8 grid grid-cols-1 lg:grid-cols-3 gap-3 items-stretch">
             
-            {/* Card 1: Banco de Dados (Altura Total) */}
-            <div className="relative card-dark rounded-[2rem] p-5 flex flex-col group h-[360px] shadow-2xl">
-              <div className="flex items-center justify-between mb-4 relative z-10">
-                <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
-                  <Database size={16} />
+            {/* Card 1: Banco de Dados */}
+            <div className="relative card-dark rounded-[2rem] p-4 flex flex-col group h-[300px] shadow-2xl">
+              <div className="flex items-center justify-between mb-2 relative z-10">
+                <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
+                  <Database size={14} />
                 </div>
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800">
+                <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
                   <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                  <span className="text-[8px] font-bold tracking-widest text-zinc-300 uppercase">Cloud Ativo</span>
+                  <span className="text-[7px] font-bold tracking-widest text-zinc-300 uppercase">Cloud Ativo</span>
                 </div>
               </div>
-              <div className="mb-4 relative z-10">
-                <h3 className="text-[8px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Base de Inteligência</h3>
-                <h2 className="text-lg font-black tracking-tight text-zinc-100 mb-0.5">Banco de Dados</h2>
-                <p className="text-[9px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{totalCount.toLocaleString('pt-BR')}</span> Registros</p>
+              <div className="mb-2 relative z-10">
+                <h3 className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Base de Inteligência</h3>
+                <h2 className="text-base font-black tracking-tight text-zinc-100 mb-0.5">Banco de Dados</h2>
+                <p className="text-[8px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{totalCount.toLocaleString('pt-BR')}</span> Registros</p>
               </div>
-              <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[80px] overflow-y-auto mb-4 relative z-10 log-scroll">
+              <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-2 h-[60px] overflow-y-auto mb-3 relative z-10 log-scroll">
                 <AnimatePresence initial={false} mode="popLayout">
-                  <ul className="space-y-2 text-[8px] font-mono">
+                  <ul className="space-y-1 text-[7px] font-mono">
                     {syncLogs.map((log) => (
                       <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
                         {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-2 h-2 text-orange-500 animate-spin" />}
@@ -398,94 +398,93 @@ export default function Home() {
                 </AnimatePresence>
               </div>
               <div className="space-y-2 mt-auto">
-                <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900 shadow-lg")}>
-                  {isSyncing ? <Loader2 className="animate-spin w-3 h-3 text-orange-500" /> : <RefreshCw className="w-3 h-3" />}
+                <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900 shadow-lg")}>
+                  {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5 text-orange-500" /> : <RefreshCw className="w-2.5 h-2.5" />}
                   <span>{isSyncing ? "Sincronizando..." : "Sincronizar Agora"}</span>
                 </button>
                 <div className="text-center z-10 space-y-0.5">
-                  <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest leading-none">{lastSyncDate}</p>
-                  <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none">{lastSyncMsg}</p>
+                  <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">{lastSyncDate}</p>
+                  <p className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none">{lastSyncMsg}</p>
                 </div>
               </div>
             </div>
 
             {/* COLUNA CENTRAL: Empilhamento de Coletas e Municípios */}
-            <div className="flex flex-col gap-4 h-[360px]">
-              {/* Card 2: Número de Coletas (Compacto) */}
-              <div className="card-white rounded-[1.5rem] p-4 flex flex-col justify-center flex-1 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col gap-3 h-[300px]">
+              {/* Card 2: Número de Coletas */}
+              <div className="card-white rounded-[1.5rem] p-3 flex flex-col justify-center flex-1 shadow-sm">
+                <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
-                      <FileText size={12} strokeWidth={2.5} />
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
+                      <FileText size={10} strokeWidth={2.5} />
                     </div>
-                    <h3 className="text-[8px] font-black tracking-widest text-zinc-500 uppercase">Coletas</h3>
+                    <h3 className="text-[7px] font-black tracking-widest text-zinc-500 uppercase">Coletas</h3>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[7px] font-black text-emerald-600 uppercase">EM CAMPO</span>
+                    <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[6px] font-black text-emerald-600 uppercase">EM CAMPO</span>
                   </div>
                 </div>
-                <h2 className="text-4xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
+                <h2 className="text-3xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
                   {totalCount.toLocaleString('pt-BR')}
                 </h2>
               </div>
 
-              {/* Card 3: Número de Municípios (Compacto) */}
-              <div className="card-orange rounded-[1.5rem] p-4 flex flex-col justify-center flex-1 text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[30px] rounded-full pointer-events-none -mr-6 -mt-6"></div>
-                <div className="relative z-10 flex items-center justify-between mb-2">
+              {/* Card 3: Número de Municípios */}
+              <div className="card-orange rounded-[1.5rem] p-3 flex flex-col justify-center flex-1 text-white relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 blur-[25px] rounded-full pointer-events-none -mr-4 -mt-4"></div>
+                <div className="relative z-10 flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
-                      <MapIcon size={12} strokeWidth={2.5} />
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
+                      <MapIcon size={10} strokeWidth={2.5} />
                     </div>
-                    <h3 className="text-[8px] font-black tracking-widest text-orange-100 uppercase">Municípios</h3>
+                    <h3 className="text-[7px] font-black tracking-widest text-orange-100 uppercase">Municípios</h3>
                   </div>
-                  <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded-full shadow-lg">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[7px] font-black text-emerald-600 uppercase">EM CAMPO</span>
+                  <div className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded-full shadow-lg">
+                    <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[6px] font-black text-emerald-600 uppercase">EM CAMPO</span>
                   </div>
                 </div>
                 <div className="relative z-10 flex items-baseline gap-1">
-                  <h2 className="text-4xl font-black tracking-tighter text-white leading-none font-mono">{citiesCount}</h2>
-                  <span className="text-xs font-bold text-orange-200 tracking-tighter">/217</span>
+                  <h2 className="text-3xl font-black tracking-tighter text-white leading-none font-mono">{citiesCount}</h2>
+                  <span className="text-[10px] font-bold text-orange-200 tracking-tighter">/217</span>
                 </div>
               </div>
             </div>
 
-            {/* Card 4: Status Operacional (Altura Total) */}
-            <div className="card-dark rounded-[2rem] p-5 flex flex-col text-white h-[360px] group shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500">
-                  <ClipboardCheck size={18} />
+            {/* Card 4: Status Operacional */}
+            <div className="card-dark rounded-[2rem] p-4 flex flex-col text-white h-[300px] group shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
+                  <ClipboardCheck size={14} />
                 </div>
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                  <span className="text-[8px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
+                <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
+                  <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-[7px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
                 </div>
               </div>
-              <div className="mb-4">
-                <h3 className="text-[8px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Status Operacional</h3>
-                <h2 className="text-xl font-black tracking-tight text-white mb-2 leading-none">Painel de Pesquisas</h2>
-                <div className="flex gap-1.5 mb-6">
-                  <div className="h-1.5 flex-1 rounded-full bg-zinc-800 overflow-hidden relative">
-                    <div className="h-full w-[85%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.6)]"></div>
-                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              <div className="mb-2">
+                <h3 className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Status Operacional</h3>
+                <h2 className="text-base font-black tracking-tight text-white mb-1.5 leading-none">Painel de Pesquisas</h2>
+                <div className="flex gap-1 mb-3">
+                  <div className="h-1 flex-1 rounded-full bg-zinc-800 overflow-hidden relative">
+                    <div className="h-full w-[85%] bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.6)]"></div>
                   </div>
-                  <div className="h-1.5 flex-1 rounded-full bg-zinc-800"></div>
-                  <div className="h-1.5 flex-1 rounded-full bg-zinc-800"></div>
+                  <div className="h-1 flex-1 rounded-full bg-zinc-800"></div>
+                  <div className="h-1 flex-1 rounded-full bg-zinc-800"></div>
                 </div>
               </div>
-              <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.5rem] p-4 flex-1 flex flex-col justify-center gap-4 mt-auto">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></div>
+              <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.25rem] p-3 flex-1 flex flex-col justify-center gap-3 mt-auto">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 ring-2 ring-orange-500/20"></div>
                   <div className="space-y-0.5">
-                    <p className="text-[9px] font-black text-white uppercase tracking-widest">Pesquisa 1: Reta Final</p>
-                    <p className="text-[7px] font-black text-orange-500 uppercase tracking-widest">Quase Concluída</p>
+                    <p className="text-[8px] font-black text-white uppercase tracking-widest">Pesquisa 1: Reta Final</p>
+                    <p className="text-[6px] font-black text-orange-500 uppercase tracking-widest">Quase Concluída</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 opacity-30">
-                  <div className="w-2 h-2 rounded-full bg-zinc-800"></div>
-                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Aguardando</p>
+                <div className="flex items-center gap-2 opacity-30">
+                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
+                  <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Aguardando</p>
                 </div>
               </div>
             </div>
@@ -547,30 +546,6 @@ export default function Home() {
           <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
           <ApprovalChart data={chartData.approvalData} />
           
-          <LuxuryCard title="POSICIONAMENTO IDEOLÓGICO" subtitle="Ideologia">
-            <div className="space-y-4 mt-4">
-              <div className="flex flex-wrap gap-2">
-                <FilterChip 
-                  label="Todas" 
-                  active={filters.ideology.includes('all')} 
-                  onClick={() => handleFilterChange('ideology', 'all')} 
-                />
-                {dynamicOptions.ideology.map(opt => (
-                  <FilterChip 
-                    key={opt} 
-                    label={opt} 
-                    percentage={distributionStats.ideology?.[opt]}
-                    active={filters.ideology.includes(opt)} 
-                    onClick={() => handleFilterChange('ideology', opt)} 
-                  />
-                ))}
-              </div>
-              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest pt-2 border-t border-zinc-50">
-                Filtro Dinâmico Ativo
-              </p>
-            </div>
-          </LuxuryCard>
-
           <CandidateChart data={chartData.candidateData} />
           <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="lg:col-span-2">
             <div className="h-[250px] mt-4">
