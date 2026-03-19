@@ -14,7 +14,7 @@ interface AppLayoutProps {
 }
 
 const MaranhaoFlag = () => (
-  <svg width="32" height="22" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[54px] md:h-[36px]">
+  <svg width="32" height="22" viewBox="0 0 27 18" className="rounded-[2px] shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />
@@ -86,8 +86,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-10 lg:mb-16 flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8"
         >
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[10px] lg:text-[12px] font-black text-orange-600 uppercase tracking-[0.3em] sm:tracking-[0.4em]">
+          <div className="space-y-1 lg:space-y-2">
+            <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[10px] lg:text-[12px] font-black text-orange-600 uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4">
               <div className="flex gap-1 sm:gap-1.5 items-center">
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="relative w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2">
@@ -103,14 +103,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               Monitoramento em tempo real • 2026
             </div>
             
-            <div className="flex items-center gap-3 sm:gap-4 lg:gap-8 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter text-zinc-950 leading-[1.1] sm:leading-tight">
-                Mapeamento de votos no Maranhão
-              </h1>
-              <MaranhaoFlag />
+            <div className="space-y-0 lg:space-y-1">
+              <div className="flex items-center gap-4 lg:gap-6">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-zinc-950 leading-none">
+                  Maranhão
+                </h1>
+                <MaranhaoFlag />
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-zinc-950/80 leading-tight">
+                Mapeamento de votos
+              </h2>
             </div>
             
-            <p className="text-zinc-500 font-medium text-sm sm:text-base lg:text-xl max-w-2xl leading-relaxed">
+            <p className="text-zinc-500 font-medium text-sm sm:text-base lg:text-xl max-w-2xl leading-relaxed pt-2">
               Estratificação de alta precisão e processamento geospacial em tempo real para inteligência de campanha
             </p>
           </div>
@@ -136,7 +141,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg inner-relief flex items-center justify-center text-zinc-400">
               <Cpu size={12} className="sm:size-[14px]" />
             </div>
-            <div className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] sm:tracking-[0.3em] text-center lg:text-left">
+            <div className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center lg:text-left">
               © 2026 FOCCO ANALYTICS • V3.5-LXS
             </div>
           </div>
