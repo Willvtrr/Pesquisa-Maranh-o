@@ -403,11 +403,14 @@ export default function Home() {
             
             <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-6 mt-4">
               <span className="text-[10px] font-black text-orange-200 uppercase tracking-widest">Cobertura: {((citiesCount / 217) * 100).toFixed(1)}%</span>
-              <span className="text-[9px] font-black text-orange-600 bg-white px-3 py-1.5 rounded-xl shadow-lg uppercase tracking-wider">Ativo</span>
+              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-lg">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Em Campo</span>
+              </div>
             </div>
           </div>
 
-          {/* Card 4: Status Operacional (IDÊNTICO AO PRINT) */}
+          {/* Card 4: Status Operacional */}
           <div className="card-dark rounded-[2.5rem] p-8 flex flex-col min-h-[420px] text-white">
             <div className="relative z-10 flex flex-col h-full">
               <div className="flex items-center justify-between mb-8">
