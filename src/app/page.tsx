@@ -41,7 +41,6 @@ export default function Home() {
     { id: '2', text: "ID:4520 Entrevista: #0318-011", status: 'success' },
     { id: '3', text: "ID:4519 Entrevista: #0318-010", status: 'success' },
   ]);
-  const logContainerRef = useRef<HTMLDivElement>(null);
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
@@ -55,8 +54,17 @@ export default function Home() {
 
   useEffect(() => {
     const updateSyncTime = () => {
-      const now = new Date();
-      setLastSync(`${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`);
+      // Lógica de 12 minutos antes da hora atual
+      const date = new Date();
+      date.setMinutes(date.getMinutes() - 12);
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      setLastSync(`${day}/${month}/${year} ÀS ${hours}:${minutes}`);
     };
     if (!lastSync) updateSyncTime();
   }, [lastSync]);
@@ -174,17 +182,14 @@ export default function Home() {
     if (isSyncing) return;
     setIsSyncing(true);
     
-    // Adicionar log pendente
     const pendingId = Math.random().toString();
     setSyncLogs(prev => [
       { id: pendingId, text: "Buscando pacotes...", status: 'pending' },
       ...prev
     ]);
 
-    // Simular tempo de processamento
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Finalizar log e atualizar dados
     setSyncLogs(prev => prev.map(log => 
       log.id === pendingId 
         ? { ...log, text: `ID:${4522 + prev.length} Entrevista: #0318-013`, status: 'success' } 
@@ -192,7 +197,13 @@ export default function Home() {
     ));
 
     const now = new Date();
-    setLastSync(`Hoje às ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    setLastSync(`${day}/${month}/${year} ÀS ${hours}:${minutes}`);
     setIsSyncing(false);
     
     toast({ 
@@ -216,10 +227,8 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         
-        {/* Card Banco de Dados - Implementação Fiel ao HTML Premium */}
         <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
           
-          {/* Barra de Progresso no Topo */}
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: isSyncing ? '100%' : '0%' }}
@@ -250,7 +259,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Log de Auditoria */}
           <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[100px] overflow-y-auto mb-6 relative z-10 scrollbar-hide">
             <ul className="space-y-2 text-[10px] font-mono text-zinc-400">
               <AnimatePresence initial={false} mode="popLayout">
@@ -294,21 +302,18 @@ export default function Home() {
           </button>
 
           <div className="mt-auto text-center relative z-10 pb-2">
-            <p className="text-[9px] font-medium text-zinc-600 uppercase tracking-widest">
-              Última att: <span className="text-zinc-500">{lastSync}</span>
+            <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">
+              ÚLTIA ATT: <span className="text-zinc-500">{lastSync}</span>
             </p>
           </div>
 
-          {/* Brilho Atmosférico de Fundo */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.1)_0%,transparent_70%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
         </div>
 
-        {/* Estatísticas do Topo */}
         <StatCard label="Aprovação (Gestão)" value={`${stats.approvalPct.toFixed(1)}%`} subValue="Fator de Governo" icon={CheckCircle} trend={stats.approvalPct > 50 ? "up" : "down"} />
         <StatCard label="Total Amostral" value={stats.total.toLocaleString('pt-BR')} subValue="Recorte Selecionado" icon={Activity} />
         <StatCard label="Municípios" value={stats.citiesCount} subValue="Capilaridade" icon={MapPin} />
 
-        {/* Filtros de Segmentação */}
         <FilterBentoBox 
           filters={filters} 
           options={dynamicOptions} 
@@ -317,7 +322,6 @@ export default function Home() {
           className="lg:col-span-2" 
         />
         
-        {/* Mapa Interativo */}
         <InteractiveMap 
           stats={filteredData.reduce((acc, curr) => {
             const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
@@ -328,11 +332,9 @@ export default function Home() {
           onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
         />
 
-        {/* Gráficos */}
         <ApprovalChart data={chartData.approvalData} />
         <CandidateChart data={chartData.candidateData} />
 
-        {/* Demandas Sociais */}
         <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="lg:col-span-2">
           <div className="h-[250px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
@@ -354,7 +356,6 @@ export default function Home() {
           </div>
         </LuxuryCard>
 
-        {/* Footer Card */}
         <LuxuryCard className="bg-orange-600 text-white border-none shadow-xl relative p-6 lg:p-8 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(255,255,255,0.2)_0%,transparent_50%)]" />
           <div className="flex flex-col h-full justify-between relative z-10">
@@ -369,4 +370,3 @@ export default function Home() {
     </AppLayout>
   );
 }
-
