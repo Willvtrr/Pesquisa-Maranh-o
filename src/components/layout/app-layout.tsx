@@ -78,7 +78,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           className="mb-6 sm:mb-10 lg:mb-16 flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8"
         >
           <div className="space-y-1 lg:space-y-2">
-            <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[10px] lg:text-[12px] font-black text-orange-600 uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-4">
+            <div className="space-y-0 lg:space-y-1">
+              <div className="flex items-center gap-4 lg:gap-6">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-zinc-950 leading-none">
+                  Maranhão
+                </h1>
+                <MaranhaoFlag />
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-zinc-950/80 leading-tight">
+                Mapeamento de votos
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-2.5 sm:gap-3 text-[9px] sm:text-[10px] lg:text-[12px] font-black text-orange-600 uppercase tracking-[0.3em] sm:tracking-[0.4em] mt-4 mb-2">
               <div className="flex gap-1 sm:gap-1.5 items-center">
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="relative w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2">
@@ -92,18 +104,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 ))}
               </div>
               Monitoramento em tempo real • 2026
-            </div>
-            
-            <div className="space-y-0 lg:space-y-1">
-              <div className="flex items-center gap-4 lg:gap-6">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-zinc-950 leading-none">
-                  Maranhão
-                </h1>
-                <MaranhaoFlag />
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-zinc-950/80 leading-tight">
-                Mapeamento de votos
-              </h2>
             </div>
             
             <p className="text-zinc-500 font-medium text-sm sm:text-base lg:text-xl max-w-2xl leading-relaxed pt-2">
