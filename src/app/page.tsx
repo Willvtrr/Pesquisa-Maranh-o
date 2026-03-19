@@ -38,7 +38,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -67,7 +67,6 @@ export default function Home() {
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     
-    // Pega o primeiro registro real
     const sample = rawSurveyData.find(d => !d.INFO) || {};
     const keys = Object.keys(sample);
 
@@ -298,8 +297,9 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         
-        {/* Card Banco de Dados */}
+        {/* Card Banco de Dados - Fidelidade HTML Minimalista */}
         <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
+          {/* Barra de Progresso no Topo */}
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: isSyncing ? '100%' : '0%' }}
@@ -380,6 +380,7 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Efeito Glow Interno */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.1)_0%,transparent_70%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
         </div>
 
@@ -417,7 +418,7 @@ export default function Home() {
                     <SelectValue placeholder="Selecionar Município" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl">
+                <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
                   <SelectItem value="all" className="text-[10px] font-bold uppercase">Média Estadual</SelectItem>
                   {dynamicOptions.city.map(city => (
                     <SelectItem key={city} value={city} className="text-[10px] font-bold uppercase">
