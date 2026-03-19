@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -326,7 +326,7 @@ export default function Home() {
             <span className="text-7xl font-mono font-bold tracking-tighter">
               {citiesCount.toLocaleString('pt-BR')}
             </span>
-            <span className="text-[10px] font-bold text-orange-200/60 uppercase tracking-[0.4em] mt-10 text-center">Até o momento</span>
+            <span className="text-[10px] font-bold text-orange-200/60 uppercase tracking-[0.4em] mt-10 text-center uppercase text-orange-100/40 italic">Até o momento</span>
           </div>
 
           {/* Card 4: Status da Operação (Zinco Escuro) */}
