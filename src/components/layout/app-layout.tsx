@@ -14,7 +14,7 @@ interface AppLayoutProps {
 }
 
 const MaranhaoFlag = () => (
-  <svg width="32" height="22" viewBox="0 0 27 18" className="rounded-[2px] shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
+  <svg width="32" height="22" viewBox="0 0 27 18" className="rounded-[1px] shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />

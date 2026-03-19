@@ -16,6 +16,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // MAPEAMENTO EXATO DOS CAMPOS DO SEU JSON
 const SURVEY_KEYS = {
@@ -60,7 +61,7 @@ export default function Home() {
 
   const handleManualSync = async () => {
     setIsSyncing(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSyncing(false);
     toast({
       title: "Sincronização Ativa",
@@ -156,8 +157,8 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-pointer transition-all">
-          {/* Brilho Atmosférico Suave na Base (Radial Glow) */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(234,88,12,0.25)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0 pointer-events-none" />
+          {/* Brilho Atmosférico Total (Radial Glow) */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.2)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
           
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
@@ -178,24 +179,55 @@ export default function Home() {
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed">
                 {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
-              {lastSync && (
-                <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mt-1">
-                  Última Sincronização: {lastSync}
-                </p>
-              )}
             </div>
 
-            <Button 
-              onClick={(e) => { e.stopPropagation(); handleManualSync(); }}
-              disabled={isSyncing}
-              variant="outline"
-              className="mt-6 w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 transition-all group/btn"
-            >
-              <RefreshCw size={14} className={cn("mr-2", isSyncing && "animate-spin")} />
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
-              </span>
-            </Button>
+            <div className="mt-6 flex flex-col gap-3">
+              <Button 
+                onClick={(e) => { e.stopPropagation(); handleManualSync(); }}
+                disabled={isSyncing}
+                variant="outline"
+                className={cn(
+                  "w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 transition-all group/btn h-14",
+                  isSyncing && "border-orange-500 scale-[0.98] opacity-80"
+                )}
+              >
+                <div className="relative mr-3">
+                  <RefreshCw size={18} className={cn(isSyncing && "animate-spin text-orange-500")} />
+                  {isSyncing && (
+                    <motion.div
+                      layoutId="sync-ring"
+                      className="absolute inset-0 rounded-full border-2 border-orange-500/30"
+                      animate={{ scale: [1, 1.8], opacity: [1, 0] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    />
+                  )}
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
+                </span>
+              </Button>
+              
+              <AnimatePresence mode="wait">
+                {lastSync && !isSyncing && (
+                  <motion.p 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[9px] text-zinc-600 font-black uppercase tracking-widest text-center"
+                  >
+                    Última Sincronização: {lastSync}
+                  </motion.p>
+                )}
+                {isSyncing && (
+                  <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-[9px] text-orange-500 font-black uppercase tracking-widest text-center animate-pulse"
+                  >
+                    Atualizando fluxo de dados...
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </BentoCard>
 
