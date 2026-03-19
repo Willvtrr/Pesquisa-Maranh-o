@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -60,7 +60,7 @@ const MaranhaoFlag = () => (
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncDate, setLastSyncDate] = useState<string>("");
+  const [lastSyncDate, setLastSyncDate] = useState<string>("19/03/2026 - 17:07");
   const [lastSyncMsg, setLastSyncMsg] = useState<string>("SINCRONIZADO HÁ 1 MINUTO");
   const [syncLogs, setSyncLogs] = useState<{id: string, text: string, status: 'success' | 'pending'}[]>([
     { id: '1', text: "ID:4521 Entrevista: #0318-012", status: 'success' },
@@ -124,20 +124,6 @@ export default function Home() {
       PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
     };
   }, [rawSurveyData]);
-
-  useEffect(() => {
-    const updateSyncTime = () => {
-      const now = new Date();
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      setLastSyncDate(`${day}/${month}/${year} - ${hours}:${minutes}`);
-      setLastSyncMsg("SINCRONIZADO HÁ 1 MINUTO");
-    };
-    if (!lastSyncDate) updateSyncTime();
-  }, [lastSyncDate]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
@@ -306,7 +292,6 @@ export default function Home() {
   const images = {
     lula: PlaceHolderImages.find(i => i.id === 'lula-photo')?.imageUrl,
     brandao: PlaceHolderImages.find(i => i.id === 'brandao-photo')?.imageUrl,
-    prefeito: PlaceHolderImages.find(i => i.id === 'prefeito-photo')?.imageUrl,
   };
 
   const selectedCity = filters.city[0];
@@ -335,8 +320,8 @@ export default function Home() {
           
           {/* LADO ESQUERDO: Títulos do Dashboard */}
           <div className="xl:col-span-3 space-y-6 lg:pt-4">
-            <div className="flex items-center gap-3 text-[11px] font-black text-orange-600 uppercase tracking-[0.4em]">
-              <div className="flex gap-1.5 items-center">
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-1.5 items-center mb-1">
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="relative w-2 h-2">
                     <motion.div
@@ -357,7 +342,9 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              Monitoramento em tempo real • 2026
+              <div className="text-[11px] font-black text-orange-600 uppercase tracking-[0.4em]">
+                Monitoramento em tempo real • 2026
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -394,7 +381,7 @@ export default function Home() {
               <div className="mb-4 relative z-10">
                 <h3 className="text-[8px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Base de Inteligência</h3>
                 <h2 className="text-lg font-black tracking-tight text-zinc-100 mb-0.5">Banco de Dados</h2>
-                <p className="text-[9px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros</p>
+                <p className="text-[9px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{totalCount.toLocaleString('pt-BR')}</span> Registros</p>
               </div>
               <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[80px] overflow-y-auto mb-4 relative z-10 log-scroll">
                 <AnimatePresence initial={false} mode="popLayout">
