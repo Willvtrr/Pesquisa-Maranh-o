@@ -153,8 +153,8 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-default transition-all">
-          {/* Brilho Atmosférico Profundo (Z-0 para ficar por baixo) */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.2)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0 pointer-events-none" />
+          {/* Brilho Atmosférico Profundo na Base (Z-0) */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(234,88,12,0.3)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
           
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
@@ -183,7 +183,7 @@ export default function Home() {
                 disabled={isSyncing}
                 variant="outline"
                 className={cn(
-                  "w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 transition-all h-14 relative overflow-hidden",
+                  "w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 hover:text-white transition-all h-14 relative overflow-hidden",
                   isSyncing && "border-orange-500 scale-[0.98] opacity-80"
                 )}
               >
