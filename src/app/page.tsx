@@ -9,7 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2 } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -181,6 +181,38 @@ export default function Home() {
     return options;
   }, [rawSurveyData, activeKeys]);
 
+  // Cálculo de porcentagens para os chips de filtro (estilo Power BI)
+  const distributionStats = useMemo(() => {
+    const stats: Record<string, Record<string, number>> = {};
+    if (!rawSurveyData || totalCount === 0) return stats;
+
+    const keys = {
+      region: activeKeys.REGION,
+      gender: activeKeys.GENDER,
+      age: activeKeys.AGE,
+      income: activeKeys.INCOME,
+      ideology: activeKeys.IDEOLOGY,
+      education: activeKeys.EDUCATION,
+      religion: activeKeys.RELIGION,
+    };
+
+    Object.entries(keys).forEach(([filterKey, dataKey]) => {
+      const counts: Record<string, number> = {};
+      rawSurveyData.forEach(item => {
+        if (item.INFO) return;
+        const val = String(item[dataKey] || '').trim();
+        if (val) counts[val] = (counts[val] || 0) + 1;
+      });
+      
+      stats[filterKey] = {};
+      Object.entries(counts).forEach(([val, count]) => {
+        stats[filterKey][val] = (count / totalCount) * 100;
+      });
+    });
+
+    return stats;
+  }, [rawSurveyData, activeKeys, totalCount]);
+
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
     return rawSurveyData.filter(item => {
@@ -276,9 +308,9 @@ export default function Home() {
   };
 
   const selectedCity = filters.city[0];
-  const mayorImageUrl = selectedCity === 'all' 
+  const flagUrl = selectedCity === 'all' 
     ? "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Bandeira_do_Maranh%C3%A3o.svg/1200px-Bandeira_do_Maranh%C3%A3o.svg.png" 
-    : `https://picsum.photos/seed/flag-${selectedCity.toLowerCase().replace(/\s+/g, '-')}/400/300`;
+    : `https://picsum.photos/seed/flag-${selectedCity.toLowerCase().replace(/\s+/g, '-')}/800/600`;
 
   const mayorLabel = selectedCity === 'all' ? "APROVAÇÃO PREFEITO" : `Prefeito de ${selectedCity}`;
 
@@ -296,12 +328,12 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Linha Superior: Operação */}
+        {/* Linha Superior: Operação (4 cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           
           {/* Card 1: Banco de Dados */}
-          <div className="relative card-dark rounded-[2.5rem] p-8 transition-all duration-300 hover:lift flex flex-col group min-h-[360px]">
-            <div className="flex items-center justify-between mb-8 relative z-10">
+          <div className="relative card-dark rounded-[2.5rem] p-8 transition-all duration-300 hover:shadow-2xl flex flex-col group h-[360px]">
+            <div className="flex items-center justify-between mb-6 relative z-10">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
                 <Database size={20} />
               </div>
@@ -315,7 +347,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold tracking-tight text-zinc-100 mb-1">Banco de Dados</h2>
               <p className="text-xs font-medium text-zinc-500"><span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
             </div>
-            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[80px] overflow-y-auto mb-6 relative z-10 log-scroll">
+            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[60px] overflow-y-auto mb-4 relative z-10 log-scroll">
               <ul className="space-y-2 text-[10px] font-mono">
                 <AnimatePresence initial={false} mode="popLayout">
                   {syncLogs.map((log) => (
@@ -327,13 +359,13 @@ export default function Home() {
                 </AnimatePresence>
               </ul>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 mt-auto">
               <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
                 {isSyncing ? <Loader2 className="animate-spin w-4 h-4 text-orange-500" /> : <RefreshCw className="w-4 h-4" />}
                 <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
               </button>
-              <div className="text-center z-10 space-y-0.5">
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">
+              <div className="text-center z-10">
+                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">
                   {lastSyncDate}
                 </p>
                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none">
@@ -344,166 +376,128 @@ export default function Home() {
           </div>
 
           {/* Card 2: Número de Coletas */}
-          <div className="card-white rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[360px]">
+          <div className="card-white rounded-[2.5rem] p-8 flex flex-col group h-[360px]">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 shadow-inner">
                 <FileText size={16} strokeWidth={2.5} />
               </div>
               <h3 className="text-xs font-bold tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
             </div>
-            
             <div className="flex-grow flex flex-col justify-center">
-              <h2 className="text-[4.5rem] leading-none font-black tracking-tighter text-zinc-900">
+              <h2 className="text-7xl font-black tracking-tighter text-zinc-900 font-mono">
                 {totalCount.toLocaleString('pt-BR')}
               </h2>
-              
               <div className="mt-6">
-                <div className="flex justify-between items-end mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">↑ +12.4%</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-end gap-1.5 h-10 w-full pt-2 border-b border-zinc-100 pb-1">
+                <div className="flex items-end gap-1.5 h-12 w-full pt-2 border-b border-zinc-100 pb-1">
                   {[40, 60, 45, 75, 50, 100].map((h, i) => (
-                    <div 
-                      key={i} 
-                      className={cn(
-                        "w-full rounded-t-sm transition-all duration-500",
-                        i === 5 ? "bg-zinc-800" : "bg-zinc-100"
-                      )}
-                      style={{ height: `${h}%` }}
-                    />
+                    <div key={i} className={cn("w-full rounded-t-sm transition-all duration-500", i === 5 ? "bg-zinc-800" : "bg-zinc-100")} style={{ height: `${h}%` }} />
                   ))}
                 </div>
               </div>
             </div>
-            
-            <div className="flex items-center justify-between pt-4 mt-2">
+            <div className="flex items-center justify-between pt-4 mt-2 border-t border-zinc-50">
               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Até o momento</span>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span className="text-[10px] font-black text-emerald-600 uppercase">Em Campo</span>
               </div>
             </div>
           </div>
 
           {/* Card 3: Número de Municípios */}
-          <div className="card-orange rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[360px] relative overflow-hidden text-white">
+          <div className="card-orange rounded-[2.5rem] p-8 flex flex-col text-white h-[360px] relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/20 blur-[60px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
-            
             <div className="relative z-10 flex items-center gap-3 mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
                 <MapIcon size={16} strokeWidth={2.5} />
               </div>
               <h3 className="text-xs font-bold tracking-widest text-orange-100 uppercase">Número de Municípios</h3>
             </div>
-            
             <div className="relative z-10 flex-grow flex flex-col justify-center">
               <div className="flex items-baseline gap-1">
-                <h2 className="text-[4.5rem] font-black tracking-tighter text-white leading-none">
+                <h2 className="text-7xl font-black tracking-tighter text-white leading-none font-mono">
                   {citiesCount}
                 </h2>
                 <span className="text-2xl font-bold text-orange-200 tracking-tighter">/217</span>
               </div>
-
-              <div className="mt-6">
-                <div className="flex justify-between text-[9px] font-black text-orange-100 uppercase tracking-widest mb-2 border-b border-orange-400/30 pb-1.5">
-                  <span>Municípios com Maior Volume</span>
-                </div>
-                
-                <div className="space-y-1 mt-2">
-                  {topCities.map(([name, count], i) => (
-                    <div key={name} className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-white tracking-wide uppercase text-[9px]">{i+1}. {name}</span>
-                      <span className="font-mono font-bold text-orange-200 bg-white/10 px-2 py-0.5 rounded-lg backdrop-blur-md">{count}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-4 pt-4 border-t border-orange-400/30">
+                <span className="text-[9px] font-black text-orange-200 uppercase tracking-widest">Maranhão • Cobertura {((citiesCount/217)*100).toFixed(1)}%</span>
               </div>
             </div>
-            
             <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-4 mt-2">
-              <span className="text-[10px] font-black text-orange-200 uppercase tracking-widest">Cobertura: {((citiesCount / 217) * 100).toFixed(1)}%</span>
-              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-lg">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+              <span className="text-[10px] font-black text-orange-100 uppercase tracking-widest italic">Concluindo • Faltam 3</span>
+              <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Em Campo</span>
               </div>
             </div>
           </div>
 
           {/* Card 4: Status Operacional */}
-          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col min-h-[360px] text-white">
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
-                  <ClipboardCheck size={20} />
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 shadow-inner">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></div>
-                  <span className="text-[9px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
-                </div>
+          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col text-white h-[360px]">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 text-orange-500">
+                <ClipboardCheck size={20} />
               </div>
-      
-              <div className="mb-4">
-                <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Status Operacional</h3>
-                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Painel de Pesquisas</h2>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                  Avançando na <span className="text-orange-500">Pesquisa 1 de 3</span> programadas
-                </p>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
+                <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></div>
+                <span className="text-[9px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
               </div>
-      
-              <div className="flex gap-2 mb-6">
-                <div className="h-2 flex-1 rounded-full bg-zinc-800 relative overflow-hidden">
-                  <div className="absolute inset-y-0 left-0 w-[70%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]"></div>
+            </div>
+            <div className="mb-4">
+              <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Status Operacional</h3>
+              <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Painel de Pesquisas</h2>
+              <div className="flex gap-2 mb-4">
+                <div className="h-2 flex-1 rounded-full bg-zinc-800 overflow-hidden">
+                  <div className="h-full w-[85%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]"></div>
                 </div>
                 <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
                 <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
               </div>
-      
-              <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.5rem] p-4 flex-1 flex flex-col justify-center gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative flex items-center justify-center">
-                    <div className="w-3 h-3 rounded-full bg-orange-500 ring-2 ring-orange-500/20"></div>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] font-black text-white uppercase tracking-widest">Pesquisa 1: Em Campo</p>
-                    <p className="text-[8px] font-black text-orange-500 uppercase">Reta final (Quase Concluída)</p>
-                  </div>
+            </div>
+            <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.5rem] p-4 flex-1 flex flex-col justify-center gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 rounded-full bg-orange-500 ring-4 ring-orange-500/10"></div>
+                <div className="space-y-0.5">
+                  <p className="text-[9px] font-black text-white uppercase tracking-widest">Pesquisa 1: Reta Final</p>
+                  <p className="text-[7px] font-black text-orange-500 uppercase tracking-widest">Quase Concluída</p>
                 </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="w-3 h-3 rounded-full bg-zinc-800"></div>
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Pesquisa 2: Programada</p>
-                    <p className="text-[8px] font-black text-zinc-700 uppercase">Aguardando Início</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="w-3 h-3 rounded-full bg-zinc-800"></div>
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Pesquisa 3: Futura</p>
-                    <p className="text-[8px] font-black text-zinc-700 uppercase">Planejada</p>
-                  </div>
-                </div>
+              </div>
+              <div className="flex items-center gap-3 opacity-40">
+                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
+                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Aguardando</p>
+              </div>
+              <div className="flex items-center gap-3 opacity-40">
+                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800"></div>
+                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 3: Planejada</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Grade de Aprovações */}
+        {/* Linha de Segmentação: Full Width (Estilo Power BI) */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <FilterBentoBox 
+            filters={filters} 
+            options={dynamicOptions} 
+            distribution={distributionStats}
+            onFilterChange={handleFilterChange} 
+            onClear={clearFilters} 
+            className="lg:col-span-4" 
+          />
+        </div>
+
+        {/* Grade de Aprovações (3 cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[360px]" />
-          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[360px]" />
-          
+          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="h-[360px]" />
+          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="h-[360px]" />
           <StatCard 
             label={mayorLabel}
             value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-            imageUrl={mayorImageUrl}
+            imageUrl={flagUrl}
             trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
             variant="hero"
-            className="min-h-[360px]"
+            className="h-[360px]"
             subValue={
               <div className="relative w-full space-y-3">
                 <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
@@ -514,7 +508,7 @@ export default function Home() {
                     </div>
                   </SelectTrigger>
                   <SelectContent className="rounded-[2rem] border-zinc-200 shadow-2xl max-h-[350px]">
-                    <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest py-3">MÉDIA ESTADUAL</SelectItem>
+                    <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest py-3 italic">MÉDIA ESTADUAL</SelectItem>
                     {dynamicOptions.city.map(city => (
                       <SelectItem key={city} value={city} className="text-[10px] font-bold uppercase py-3 border-t border-zinc-50 first:border-none">
                         {city}
@@ -533,7 +527,6 @@ export default function Home() {
 
         {/* Restante do Dashboard */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <FilterBentoBox filters={filters} options={dynamicOptions} onFilterChange={handleFilterChange} onClear={clearFilters} className="lg:col-span-2" />
           <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
           <ApprovalChart data={chartData.approvalData} />
           <CandidateChart data={chartData.candidateData} />
