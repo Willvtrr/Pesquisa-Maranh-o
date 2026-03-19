@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { BottomNav } from './bottom-nav';
-import { useSurvey } from '@/hooks/use-survey';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -30,26 +29,6 @@ const MaranhaoFlag = () => (
 );
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { data: rawSurveyData } = useSurvey();
-  
-  // Filtra o objeto de INFO se ele existir para mostrar a contagem real
-  const totalCount = React.useMemo(() => {
-    if (!rawSurveyData) return 0;
-    return rawSurveyData.filter(item => !item.INFO).length;
-  }, [rawSurveyData]);
-
-  // Conta o número único de municípios
-  const citiesCount = React.useMemo(() => {
-    if (!rawSurveyData) return 0;
-    const cities = new Set(
-      rawSurveyData
-        .filter(item => !item.INFO)
-        .map(item => String(item["Cidade:"] || "").trim())
-        .filter(city => city !== "")
-    );
-    return cities.size;
-  }, [rawSurveyData]);
-
   return (
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0">
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
@@ -130,35 +109,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             <p className="text-zinc-500 font-medium text-sm sm:text-base lg:text-xl max-w-2xl leading-relaxed pt-2">
               Inteligência analítica e mapeamento geoespacial.
             </p>
-          </div>
-          
-          <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-1 sm:pb-2 lg:pb-0 scrollbar-hide">
-            {/* Card: Número de Coletas */}
-            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] bg-white border border-zinc-100 ring-1 ring-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center min-w-[140px] sm:min-w-[180px] hover:-translate-y-1 transition-all duration-300">
-              <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-1">Número de coletas</span>
-              <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold text-zinc-950">
-                {totalCount.toLocaleString('pt-BR')}
-              </span>
-              <span className="text-[6px] lg:text-[8px] font-bold text-zinc-300 uppercase tracking-widest mt-1">Até o momento</span>
-            </div>
-
-            {/* Card: Número de Municípios */}
-            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] premium-gradient text-white border border-orange-400/20 ring-1 ring-white/20 shadow-[0_20px_50px_rgba(234,88,12,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center min-w-[140px] sm:min-w-[180px] hover:-translate-y-1 transition-all duration-300">
-              <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-orange-100 uppercase tracking-[0.3em] mb-1">Número de Municípios</span>
-              <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold">
-                {citiesCount.toLocaleString('pt-BR')}
-              </span>
-              <span className="text-[6px] lg:text-[8px] font-bold text-orange-200/60 uppercase tracking-widest mt-1">Até o momento</span>
-            </div>
-
-            {/* Card: Status da Operação */}
-            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] bg-zinc-900 text-white border border-zinc-800 ring-1 ring-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center min-w-[140px] sm:min-w-[180px] hover:-translate-y-1 transition-all duration-300">
-              <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-1">Status da Operação</span>
-              <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold text-white">
-                1 DE 3
-              </span>
-              <span className="text-[6px] lg:text-[8px] font-bold text-zinc-600 uppercase tracking-widest mt-1 text-center">Concluindo • Faltam 3</span>
-            </div>
           </div>
         </motion.div>
         
