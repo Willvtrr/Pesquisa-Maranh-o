@@ -9,10 +9,13 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { CheckCircle, Activity, MapPin, Database, BarChart3, AlertTriangle, Loader2 } from 'lucide-react';
+import { CheckCircle, Activity, MapPin, Database, BarChart3, AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import { BentoCard } from '@/components/dashboard/bento-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 // MAPEAMENTO EXATO DOS CAMPOS DO SEU JSON
 const SURVEY_KEYS = {
@@ -27,6 +30,7 @@ const SURVEY_KEYS = {
 
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
+  const [isSyncing, setIsSyncing] = useState(false);
   const [filters, setFilters] = useState({
     region: 'all',
     age: 'all',
@@ -38,6 +42,17 @@ export default function Home() {
   };
 
   const clearFilters = () => setFilters({ region: 'all', age: 'all', gender: 'all' });
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    // Simula uma pequena latência de rede para feedback visual, embora o Firestore seja real-time
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setIsSyncing(false);
+    toast({
+      title: "Sincronização Ativa",
+      description: "Os dados foram atualizados em tempo real com o Google Cloud.",
+    });
+  };
 
   // Filtragem dos dados reais com limpeza de espaços
   const filteredData = useMemo(() => {
@@ -126,7 +141,10 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-        <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8">
+        <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-pointer transition-all">
+          {/* Degradê Laranja no Hover */}
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-600/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+          
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
               <div className="p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
@@ -139,6 +157,7 @@ export default function Home() {
                 </span>
               </div>
             </div>
+            
             <div className="space-y-2 mt-6">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Base de Inteligência</span>
               <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Motor Cloud</h4>
@@ -146,8 +165,21 @@ export default function Home() {
                 {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
             </div>
+
+            <Button 
+              onClick={(e) => { e.stopPropagation(); handleManualSync(); }}
+              disabled={isSyncing}
+              variant="outline"
+              className="mt-6 w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 transition-all group/btn"
+            >
+              <RefreshCw size={14} className={cn("mr-2", isSyncing && "animate-spin")} />
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
+              </span>
+            </Button>
           </div>
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full" />
+          
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full z-0" />
         </BentoCard>
 
         <StatCard 
