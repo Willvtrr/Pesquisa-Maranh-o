@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -77,7 +78,6 @@ export default function Home() {
     return cities.size;
   }, [rawSurveyData]);
 
-  // Top 3 cities for the Municipality Card
   const topCities = useMemo(() => {
     if (!rawSurveyData) return [];
     const counts: Record<string, number> = {};
@@ -283,10 +283,10 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Linha Superior: Exatamente como no print e HTML fornecidos */}
+        {/* Linha Superior: Operação */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           
-          {/* Card 1: Banco de Dados (Escuro - Original mantido por ser a central de comando) */}
+          {/* Card 1: Banco de Dados */}
           <div className="relative card-dark rounded-[2.5rem] p-8 transition-all duration-300 hover:lift flex flex-col group min-h-[420px]">
             <div className="flex items-center justify-between mb-10 relative z-10">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
@@ -320,17 +320,17 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Card 2: Número de Coletas (Branco Premium do HTML) */}
+          {/* Card 2: Número de Coletas */}
           <div className="card-white rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px]">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 shadow-inner">
                 <FileText size={16} strokeWidth={2.5} />
               </div>
-              <h3 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
+              <h3 className="text-xs font-bold tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
             </div>
             
             <div className="flex-grow flex flex-col justify-center">
-              <h2 className="text-7xl lg:text-8xl font-black tracking-tighter text-zinc-900 leading-none">
+              <h2 className="text-[4.5rem] lg:text-[5rem] leading-none font-black tracking-tighter text-zinc-900">
                 {totalCount.toLocaleString('pt-BR')}
               </h2>
               
@@ -342,13 +342,13 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <div className="flex items-end gap-1.5 h-14 w-full pt-2 border-b border-zinc-100 pb-1">
+                <div className="flex items-end gap-1.5 h-12 w-full pt-2 border-b border-zinc-100 pb-1">
                   {[40, 60, 45, 75, 50, 100].map((h, i) => (
                     <div 
                       key={i} 
                       className={cn(
-                        "w-full rounded-t-lg transition-all duration-500",
-                        i === 5 ? "bg-zinc-800 shadow-lg" : "bg-zinc-100 hover:bg-zinc-200"
+                        "w-full rounded-t-sm transition-all duration-500",
+                        i === 5 ? "bg-zinc-800" : "bg-zinc-100"
                       )}
                       style={{ height: `${h}%` }}
                     />
@@ -357,7 +357,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="flex items-center justify-between pt-6 mt-4 border-t border-zinc-50">
+            <div className="flex items-center justify-between pt-6 mt-4">
               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Até o momento</span>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
@@ -366,7 +366,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Card 3: Número de Municípios (Laranja Premium do HTML) */}
+          {/* Card 3: Número de Municípios */}
           <div className="card-orange rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px] relative overflow-hidden text-white">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/20 blur-[60px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
             
@@ -374,12 +374,12 @@ export default function Home() {
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
                 <MapIcon size={16} strokeWidth={2.5} />
               </div>
-              <h3 className="text-[10px] font-black tracking-widest text-orange-100 uppercase">Número de Municípios</h3>
+              <h3 className="text-xs font-bold tracking-widest text-orange-100 uppercase">Número de Municípios</h3>
             </div>
             
             <div className="relative z-10 flex-grow flex flex-col justify-center">
-              <div className="flex items-baseline gap-2">
-                <h2 className="text-7xl lg:text-8xl font-black tracking-tighter text-white leading-none">
+              <div className="flex items-baseline gap-1">
+                <h2 className="text-[4.5rem] lg:text-[5rem] font-black tracking-tighter text-white leading-none">
                   {citiesCount}
                 </h2>
                 <span className="text-2xl font-bold text-orange-200 tracking-tighter">/217</span>
@@ -407,50 +407,59 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Card 4: Status da Operação (Dark Premium do HTML) */}
-          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px] group text-white">
+          {/* Card 4: Status Operacional (IDÊNTICO AO PRINT) */}
+          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col min-h-[420px] text-white">
             <div className="relative z-10 flex flex-col h-full">
               <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
-                  <ClipboardCheck size={20} />
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+                  <ClipboardCheck size={24} />
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
-                  <span className="text-[10px] font-bold tracking-wide text-zinc-300 uppercase">Processando</span>
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 shadow-inner">
+                  <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></div>
+                  <span className="text-[10px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
                 </div>
               </div>
       
-              <div className="mb-6">
-                <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-2">Engenharia de Pesquisas</h3>
-                <h2 className="text-2xl font-bold tracking-tight text-zinc-100 mb-1">Status Operacional</h2>
-                <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
-                  Sincronizando <span className="text-orange-500">Etapa 1 de 3</span>
+              <div className="mb-8">
+                <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-2">Status Operacional</h3>
+                <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Painel de Pesquisas</h2>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                  Avançando na <span className="text-orange-500">Pesquisa 1 de 3</span> programadas
                 </p>
               </div>
       
-              <div className="flex gap-2 mb-8">
+              <div className="flex gap-3 mb-10">
                 <div className="h-2 flex-1 rounded-full bg-zinc-800 relative overflow-hidden">
-                  <div className="absolute inset-y-0 left-0 w-[85%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]">
-                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-                  </div>
+                  <div className="absolute inset-y-0 left-0 w-[70%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]"></div>
                 </div>
                 <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
                 <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
               </div>
       
-              <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-6 flex-1 flex flex-col justify-center gap-6 mt-auto">
-                <div className="flex items-center gap-4">
-                  <div className="w-3 h-3 rounded-full bg-orange-500 ring-4 ring-orange-500/20 flex-shrink-0"></div>
-                  <div>
-                    <p className="text-[10px] font-black text-zinc-100 uppercase tracking-widest">Pesquisa 1: Em Campo</p>
-                    <p className="text-[9px] font-bold text-orange-500 uppercase mt-1">Concluindo Sincronização</p>
+              <div className="bg-[#121214] border border-zinc-800/60 rounded-[2rem] p-6 flex-1 flex flex-col justify-center gap-8">
+                <div className="flex items-center gap-5">
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-black text-white uppercase tracking-widest">Pesquisa 1: Em Campo</p>
+                    <p className="text-[9px] font-black text-orange-500 uppercase">Reta final (Quase Concluída)</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 opacity-30">
-                  <div className="w-3 h-3 rounded-full bg-zinc-600 flex-shrink-0"></div>
-                  <div>
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Agendada</p>
-                    <p className="text-[9px] font-bold text-zinc-500 uppercase mt-1">Lote de Segurança</p>
+                
+                <div className="flex items-center gap-5">
+                  <div className="w-4 h-4 rounded-full bg-zinc-800"></div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Pesquisa 2: Programada</p>
+                    <p className="text-[9px] font-black text-zinc-700 uppercase">Aguardando Início</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-5">
+                  <div className="w-4 h-4 rounded-full bg-zinc-800"></div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Pesquisa 3: Futura</p>
+                    <p className="text-[9px] font-black text-zinc-700 uppercase">Planejada</p>
                   </div>
                 </div>
               </div>
@@ -458,7 +467,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Grade de Aprovações: 3 Colunas dedicada para os líderes */}
+        {/* Grade de Aprovações */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" />
           <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" />
