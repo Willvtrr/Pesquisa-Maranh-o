@@ -37,7 +37,6 @@ export default function Home() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string>("");
   
-  // Estado de filtros agora usa arrays para permitir multisseleção
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
     age: ['all'],
@@ -51,10 +50,7 @@ export default function Home() {
   useEffect(() => {
     const updateSyncTime = () => {
       const now = new Date();
-      const syncTime = new Date(now.getTime() - 2 * 60000);
-      const formattedDate = syncTime.toLocaleDateString('pt-BR');
-      const formattedTime = syncTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      setLastSync(`${formattedDate} às ${formattedTime}`);
+      setLastSync(`${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`);
     };
     updateSyncTime();
   }, [isSyncing]);
@@ -62,77 +58,81 @@ export default function Home() {
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
       const currentValues = prev[key] || [];
+      if (value === 'all') return { ...prev, [key]: ['all'] };
       
-      // Se clicar em 'all', limpa tudo e deixa só 'all'
-      if (value === 'all') {
-        return { ...prev, [key]: ['all'] };
-      }
-
-      // Se clicar em um valor específico:
       let newValues;
       if (currentValues.includes(value)) {
-        // Se já estiver lá, remove
         newValues = currentValues.filter(v => v !== value);
-        // Se ficar vazio, volta para 'all'
         if (newValues.length === 0) newValues = ['all'];
       } else {
-        // Se não estiver lá, adiciona e remove 'all'
         newValues = [...currentValues.filter(v => v !== 'all'), value];
       }
-
       return { ...prev, [key]: newValues };
     });
   };
 
   const clearFilters = () => setFilters({ 
-    region: ['all'], 
-    age: ['all'], 
-    gender: ['all'],
-    education: ['all'],
-    income: ['all'],
-    religion: ['all'],
-    ideology: ['all']
+    region: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all']
   });
 
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSyncing(false);
-    toast({
-      title: "Sincronização Ativa",
-      description: "Os dados foram atualizados em tempo real com o Google Cloud.",
-    });
-  };
+  // Extração dinâmica de opções baseada nos dados REAIS do Firestore
+  const dynamicOptions = useMemo(() => {
+    const options: Record<string, string[]> = {
+      region: [], age: [], gender: [], education: [], income: [], religion: [], ideology: []
+    };
+
+    if (!rawSurveyData) return options;
+
+    const getUniques = (key: string) => {
+      const vals = new Set<string>();
+      rawSurveyData.forEach(item => {
+        const val = String(item[key] || '').trim();
+        if (val && val !== 'all' && val !== 'NS/NR') vals.add(val);
+      });
+      return Array.from(vals).sort();
+    };
+
+    options.region = getUniques(SURVEY_KEYS.REGION);
+    options.age = getUniques(SURVEY_KEYS.AGE);
+    options.gender = getUniques(SURVEY_KEYS.GENDER);
+    options.education = getUniques(SURVEY_KEYS.EDUCATION);
+    options.income = getUniques(SURVEY_KEYS.INCOME);
+    options.religion = getUniques(SURVEY_KEYS.RELIGION);
+    options.ideology = getUniques(SURVEY_KEYS.IDEOLOGY);
+
+    return options;
+  }, [rawSurveyData]);
 
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
     return rawSurveyData.filter(item => {
-      const itemRegion = String(item[SURVEY_KEYS.REGION] || '').trim();
-      const itemAge = String(item[SURVEY_KEYS.AGE] || '').trim();
-      const itemGender = String(item[SURVEY_KEYS.GENDER] || '').trim();
-      const itemEducation = String(item[SURVEY_KEYS.EDUCATION] || '').trim();
-      const itemIncome = String(item[SURVEY_KEYS.INCOME] || '').trim();
-      const itemReligion = String(item[SURVEY_KEYS.RELIGION] || '').trim();
-      const itemIdeology = String(item[SURVEY_KEYS.IDEOLOGY] || '').trim();
+      // Ignora documento de informação se existir
+      if (item.INFO) return false;
 
-      const regionMatch = filters.region.includes('all') || filters.region.includes(itemRegion);
-      const ageMatch = filters.age.includes('all') || filters.age.includes(itemAge);
-      const genderMatch = filters.gender.includes('all') || filters.gender.includes(itemGender);
-      const educationMatch = filters.education.includes('all') || filters.education.includes(itemEducation);
-      const incomeMatch = filters.income.includes('all') || filters.income.includes(itemIncome);
-      const religionMatch = filters.religion.includes('all') || filters.religion.includes(itemReligion);
-      const ideologyMatch = filters.ideology.includes('all') || filters.ideology.includes(itemIdeology);
+      const checkMatch = (filterKey: string, dataKey: string) => {
+        const currentFilters = filters[filterKey];
+        if (currentFilters.includes('all')) return true;
+        const itemVal = String(item[dataKey] || '').trim();
+        return currentFilters.includes(itemVal);
+      };
 
-      return regionMatch && ageMatch && genderMatch && educationMatch && incomeMatch && religionMatch && ideologyMatch;
+      return (
+        checkMatch('region', SURVEY_KEYS.REGION) &&
+        checkMatch('age', SURVEY_KEYS.AGE) &&
+        checkMatch('gender', SURVEY_KEYS.GENDER) &&
+        checkMatch('education', SURVEY_KEYS.EDUCATION) &&
+        checkMatch('income', SURVEY_KEYS.INCOME) &&
+        checkMatch('religion', SURVEY_KEYS.RELIGION) &&
+        checkMatch('ideology', SURVEY_KEYS.IDEOLOGY)
+      );
     });
   }, [filters, rawSurveyData]);
 
   const stats = useMemo(() => {
     const total = filteredData.length;
-    const approvalCount = filteredData.filter(d => {
-      const val = String(d[SURVEY_KEYS.GOV_APPROVAL] || '').toLowerCase().trim();
-      return val === 'aprova';
-    }).length;
+    const approvalCount = filteredData.filter(d => 
+      String(d[SURVEY_KEYS.GOV_APPROVAL] || '').toLowerCase().trim() === 'aprova'
+    ).length;
     const citiesCount = new Set(filteredData.map(d => String(d[SURVEY_KEYS.CITY] || '').trim())).size;
     const approvalPct = total > 0 ? (approvalCount / total) * 100 : 0;
     return { total, approvalCount, approvalPct, citiesCount };
@@ -146,40 +146,39 @@ export default function Home() {
       else if (status === 'Desaprova') approvalMap['Desaprova']++;
       else approvalMap['NS/NR']++;
     });
-    const approvalData = Object.entries(approvalMap).map(([name, value]) => ({ name, value }));
 
     const candidateCounts: Record<string, number> = {};
     filteredData.forEach(d => {
       const cand = String(d[SURVEY_KEYS.PRESIDENT_VOTE] || 'Não Citado').trim();
       if (cand) candidateCounts[cand] = (candidateCounts[cand] || 0) + 1;
     });
-    const candidateData = Object.entries(candidateCounts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 7);
 
     const problemCounts: Record<string, number> = {};
     filteredData.forEach(d => {
       const prob = String(d[SURVEY_KEYS.PROBLEMS] || '').trim();
-      if (prob && prob !== 'NS/NR') {
-        problemCounts[prob] = (problemCounts[prob] || 0) + 1;
-      }
+      if (prob && prob !== 'NS/NR') problemCounts[prob] = (problemCounts[prob] || 0) + 1;
     });
-    const topProblems = Object.entries(problemCounts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-    return { approvalData, candidateData, topProblems };
+
+    return {
+      approvalData: Object.entries(approvalMap).map(([name, value]) => ({ name, value })),
+      candidateData: Object.entries(candidateCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 7),
+      topProblems: Object.entries(problemCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5)
+    };
   }, [filteredData]);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsSyncing(false);
+    toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
+  };
 
   if (isLoading && rawSurveyData.length === 0) {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
           <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-            Sincronizando Banco de Dados...
-          </p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sincronizando Banco de Dados...</p>
         </div>
       </AppLayout>
     );
@@ -188,70 +187,62 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-        <LuxuryCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-default">
-          <div className="absolute inset-x-0 bottom-0 h-48 bg-[radial-gradient(circle_at_50%_100%,rgba(234,88,12,0.3)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
+        {/* Card Banco de Dados */}
+        <LuxuryCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.4)_0%,transparent_70%)] opacity-80 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
-              <div className="p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
-                <Database size={20} />
-              </div>
+              <div className="p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30"><Database size={20} /></div>
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800">
                 <span className={`w-2 h-2 rounded-full ${rawSurveyData.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                  {rawSurveyData.length > 0 ? 'Cloud Ativo' : 'Banco Vazio'}
-                </span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Cloud Ativo</span>
               </div>
             </div>
-            
             <div className="space-y-2 mt-6">
               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Base de Inteligência</span>
               <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Banco de Dados</h4>
-              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide">
-                {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
-              </p>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide">{rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas.</p>
             </div>
-
             <div className="mt-6 flex flex-col gap-4">
-              <Button 
-                onClick={handleManualSync}
-                disabled={isSyncing}
-                variant="outline"
-                className="w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-orange-600 hover:text-white hover:border-orange-500 h-14 transition-all duration-300"
-              >
-                <RefreshCw size={18} className={cn(isSyncing && "animate-spin text-orange-500")} />
-                <span className="text-[10px] font-black uppercase tracking-widest ml-3">
-                  {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
-                </span>
+              <Button onClick={handleManualSync} disabled={isSyncing} variant="outline" className="w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-orange-600 hover:text-white hover:border-orange-500 h-14">
+                <RefreshCw size={18} className={cn(isSyncing && "animate-spin")} />
+                <span className="text-[10px] font-black uppercase tracking-widest ml-3">{isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}</span>
               </Button>
-              <AnimatePresence mode="wait">
-                {lastSync && !isSyncing && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                    className="text-[9px] text-zinc-600 font-black uppercase tracking-widest text-center"
-                  >
-                    Última Sincronização: {lastSync}
-                  </motion.p>
-                )}
-              </AnimatePresence>
+              <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest text-center">Sincronizado: {lastSync}</p>
             </div>
           </div>
         </LuxuryCard>
 
-        <StatCard label="Aprovação (Carlos Brandão)" value={`${stats.approvalPct.toFixed(1)}%`} subValue="Gestão Estadual" icon={CheckCircle} trend={stats.approvalPct > 50 ? "up" : "down"} />
-        <StatCard label="Total Amostral" value={stats.total.toLocaleString('pt-BR')} subValue="Registros Qualificados" icon={Activity} />
-        <StatCard label="Municípios" value={stats.citiesCount} subValue="Capilaridade da Amostra" icon={MapPin} />
+        {/* Estatísticas do Topo */}
+        <StatCard label="Aprovação (Gestão)" value={`${stats.approvalPct.toFixed(1)}%`} subValue="Fator de Governo" icon={CheckCircle} trend={stats.approvalPct > 50 ? "up" : "down"} />
+        <StatCard label="Total Amostral" value={stats.total.toLocaleString('pt-BR')} subValue="Recorte Selecionado" icon={Activity} />
+        <StatCard label="Municípios" value={stats.citiesCount} subValue="Capilaridade" icon={MapPin} />
 
-        <FilterBentoBox filters={filters} onFilterChange={handleFilterChange} onClear={clearFilters} className="lg:col-span-2" />
+        {/* Filtros de Segmentação */}
+        <FilterBentoBox 
+          filters={filters} 
+          options={dynamicOptions} 
+          onFilterChange={handleFilterChange} 
+          onClear={clearFilters} 
+          className="lg:col-span-2" 
+        />
         
-        <InteractiveMap stats={filteredData.reduce((acc, curr) => {
-          const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
-          if (r) acc[r] = (acc[r] || 0) + 1;
-          return acc;
-        }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' && filters.region.length === 1 ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
+        {/* Mapa Interativo */}
+        <InteractiveMap 
+          stats={filteredData.reduce((acc, curr) => {
+            const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
+            if (r) acc[r] = (acc[r] || 0) + 1;
+            return acc;
+          }, {} as Record<MesoRegion, number>)} 
+          activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} 
+          onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
+        />
 
+        {/* Gráficos */}
         <ApprovalChart data={chartData.approvalData} />
         <CandidateChart data={chartData.candidateData} />
 
+        {/* Demandas Sociais */}
         <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="lg:col-span-2">
           <div className="h-[250px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
@@ -269,21 +260,18 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2 mt-4 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
             <AlertTriangle size={12} className="text-rose-500" />
-            Problemas Citados Espontaneamente
+            Dados filtrados conforme segmentação ativa
           </div>
         </LuxuryCard>
 
+        {/* Footer Card */}
         <LuxuryCard className="bg-orange-600 text-white border-none shadow-xl relative p-6 lg:p-8 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(255,255,255,0.2)_0%,transparent_50%)]" />
           <div className="flex flex-col h-full justify-between relative z-10">
-            <div className="p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md">
-              <BarChart3 size={24} />
-            </div>
+            <div className="p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md"><BarChart3 size={24} /></div>
             <div className="space-y-3 mt-8">
-              <h4 className="text-2xl font-bold tracking-tight">Focco Analytics Cloud</h4>
-              <p className="text-orange-50/90 text-sm leading-relaxed font-medium">
-                Arquitetura escalável para processamento de alto volume com recortes geográficos precisos.
-              </p>
+              <h4 className="text-2xl font-bold tracking-tight">Análise Executiva</h4>
+              <p className="text-orange-50/90 text-sm leading-relaxed font-medium">Os dados acima refletem exatamente a combinação dos filtros selecionados na segmentação.</p>
             </div>
           </div>
         </LuxuryCard>
