@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -22,6 +23,10 @@ const SURVEY_KEYS = {
   REGION: "Mesorregião",
   GENDER: "Gênero",
   AGE: "Faixa Etária",
+  EDUCATION: "Grau de Instrução",
+  INCOME: "Renda Familiar",
+  RELIGION: "Religião",
+  IDEOLOGY: "Você se considera de esquerda, centro ou direita?",
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
@@ -34,7 +39,11 @@ export default function Home() {
   const [filters, setFilters] = useState({
     region: 'all',
     age: 'all',
-    gender: 'all'
+    gender: 'all',
+    education: 'all',
+    income: 'all',
+    religion: 'all',
+    ideology: 'all'
   });
 
   useEffect(() => {
@@ -52,7 +61,15 @@ export default function Home() {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const clearFilters = () => setFilters({ region: 'all', age: 'all', gender: 'all' });
+  const clearFilters = () => setFilters({ 
+    region: 'all', 
+    age: 'all', 
+    gender: 'all',
+    education: 'all',
+    income: 'all',
+    religion: 'all',
+    ideology: 'all'
+  });
 
   const handleManualSync = async () => {
     setIsSyncing(true);
@@ -70,10 +87,20 @@ export default function Home() {
       const itemRegion = String(item[SURVEY_KEYS.REGION] || '').trim();
       const itemAge = String(item[SURVEY_KEYS.AGE] || '').trim();
       const itemGender = String(item[SURVEY_KEYS.GENDER] || '').trim();
+      const itemEducation = String(item[SURVEY_KEYS.EDUCATION] || '').trim();
+      const itemIncome = String(item[SURVEY_KEYS.INCOME] || '').trim();
+      const itemReligion = String(item[SURVEY_KEYS.RELIGION] || '').trim();
+      const itemIdeology = String(item[SURVEY_KEYS.IDEOLOGY] || '').trim();
+
       const regionMatch = filters.region === 'all' || itemRegion === filters.region;
       const ageMatch = filters.age === 'all' || itemAge === filters.age;
       const genderMatch = filters.gender === 'all' || itemGender === filters.gender;
-      return regionMatch && ageMatch && genderMatch;
+      const educationMatch = filters.education === 'all' || itemEducation === filters.education;
+      const incomeMatch = filters.income === 'all' || itemIncome === filters.income;
+      const religionMatch = filters.religion === 'all' || itemReligion === filters.religion;
+      const ideologyMatch = filters.ideology === 'all' || itemIdeology === filters.ideology;
+
+      return regionMatch && ageMatch && genderMatch && educationMatch && incomeMatch && religionMatch && ideologyMatch;
     });
   }, [filters, rawSurveyData]);
 
@@ -139,7 +166,7 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <LuxuryCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-default">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(234,88,12,0.2)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-[radial-gradient(circle_at_50%_100%,rgba(234,88,12,0.3)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
               <div className="p-3 rounded-2xl bg-orange-600/20 text-orange-500 ring-1 ring-orange-500/30">
@@ -166,7 +193,7 @@ export default function Home() {
                 onClick={handleManualSync}
                 disabled={isSyncing}
                 variant="outline"
-                className="w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500 h-14"
+                className="w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-orange-600 hover:text-white hover:border-orange-500 h-14 transition-all duration-300"
               >
                 <RefreshCw size={18} className={cn(isSyncing && "animate-spin text-orange-500")} />
                 <span className="text-[10px] font-black uppercase tracking-widest ml-3">
@@ -176,7 +203,7 @@ export default function Home() {
               <AnimatePresence mode="wait">
                 {lastSync && !isSyncing && (
                   <motion.p 
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
                     className="text-[9px] text-zinc-600 font-black uppercase tracking-widest text-center"
                   >
                     Última Sincronização: {lastSync}
@@ -192,6 +219,7 @@ export default function Home() {
         <StatCard label="Municípios" value={stats.citiesCount} subValue="Capilaridade da Amostra" icon={MapPin} />
 
         <FilterBentoBox filters={filters} onFilterChange={handleFilterChange} onClear={clearFilters} />
+        
         <InteractiveMap stats={filteredData.reduce((acc, curr) => {
           const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
           if (r) acc[r] = (acc[r] || 0) + 1;
