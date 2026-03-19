@@ -63,20 +63,23 @@ export default function Home() {
     ideology: ['all']
   });
 
-  // Motor de Detecção de Chaves Dinâmicas
+  // Motor de Detecção de Chaves Dinâmicas Robusto
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     
     const sample = rawSurveyData.find(d => !d.INFO) || {};
     const keys = Object.keys(sample);
 
-    const findKey = (keywords: string[], fallback: string) => {
-      const found = keys.find(k => keywords.every(kw => k.toLowerCase().includes(kw.toLowerCase())));
+    const findKey = (keywords: string[], fallback: string, exclude: string[] = []) => {
+      const found = keys.find(k => 
+        keywords.every(kw => k.toLowerCase().includes(kw.toLowerCase())) &&
+        !exclude.some(ex => k.toLowerCase().includes(ex.toLowerCase()))
+      );
       return found || fallback;
     };
 
     return {
-      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY),
+      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY, ['aprova', 'desaprova', 'governo', 'presidente', 'votar']),
       REGION: findKey(['mesorregião'], DEFAULT_KEYS.REGION),
       GENDER: findKey(['gênero'], DEFAULT_KEYS.GENDER),
       AGE: findKey(['etária'], DEFAULT_KEYS.AGE),
@@ -297,9 +300,8 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         
-        {/* Card Banco de Dados - Fidelidade HTML Minimalista */}
+        {/* Card Banco de Dados */}
         <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
-          {/* Barra de Progresso no Topo */}
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: isSyncing ? '100%' : '0%' }}
@@ -309,9 +311,7 @@ export default function Home() {
 
           <div className="flex items-center justify-between mb-8 relative z-10">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 transition-colors group-hover:border-zinc-700 shadow-inner">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-              </svg>
+              <Database size={20} />
             </div>
 
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
@@ -379,9 +379,6 @@ export default function Home() {
               ÚLTIMA ATT: <span className="text-zinc-500">{lastSync}</span>
             </p>
           </div>
-
-          {/* Efeito Glow Interno */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.1)_0%,transparent_70%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
         </div>
 
         {/* Cards de Aprovação dos Líderes */}
@@ -470,21 +467,6 @@ export default function Home() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="flex items-center gap-2 mt-4 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-            <AlertTriangle size={12} className="text-rose-500" />
-            Dados filtrados conforme segmentação ativa
-          </div>
-        </LuxuryCard>
-
-        <LuxuryCard className="bg-orange-600 text-white border-none shadow-xl relative p-6 lg:p-8 overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(255,255,255,0.2)_0%,transparent_50%)]" />
-          <div className="flex flex-col h-full justify-between relative z-10">
-            <div className="p-4 rounded-2xl bg-white/20 w-fit backdrop-blur-md"><BarChart3 size={24} /></div>
-            <div className="space-y-3 mt-8">
-              <h4 className="text-2xl font-bold tracking-tight">Análise Executiva</h4>
-              <p className="text-orange-50/90 text-sm leading-relaxed font-medium">Os dados acima refletem exatamente a combinação dos filtros selecionados na segmentação.</p>
-            </div>
           </div>
         </LuxuryCard>
       </div>
