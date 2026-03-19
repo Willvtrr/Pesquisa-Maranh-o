@@ -1,0 +1,23 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "lula-photo",
+      "description": "Presidente Lula",
+      "imageUrl": "https://picsum.photos/seed/lula-ma/200/200",
+      "imageHint": "President Lula"
+    },
+    {
+      "id": "brandao-photo",
+      "description": "Governador Carlos Brandão",
+      "imageUrl": "https://picsum.photos/seed/brandao-ma/200/200",
+      "imageHint": "Governor Brandão"
+    },
+    {
+      "id": "prefeito-photo",
+      "description": "Prefeito Municipal",
+      "imageUrl": "https://picsum.photos/seed/prefeito-ma/200/200",
+      "imageHint": "Mayor Photo"
+    }
+  ]
+}
