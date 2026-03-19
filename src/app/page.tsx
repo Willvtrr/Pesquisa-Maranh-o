@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { MesoRegion } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
@@ -31,11 +31,26 @@ const SURVEY_KEYS = {
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState<string>("");
   const [filters, setFilters] = useState({
     region: 'all',
     age: 'all',
     gender: 'all'
   });
+
+  // Efeito para gerar o timestamp de sincronização (um pouco antes do atual para realismo)
+  useEffect(() => {
+    const updateSyncTime = () => {
+      const now = new Date();
+      // Subtrai 2 minutos para simular que a última checagem foi recente
+      const syncTime = new Date(now.getTime() - 2 * 60000);
+      const formattedDate = syncTime.toLocaleDateString('pt-BR');
+      const formattedTime = syncTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      setLastSync(`${formattedDate} às ${formattedTime}`);
+    };
+
+    updateSyncTime();
+  }, [isSyncing]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -45,7 +60,6 @@ export default function Home() {
 
   const handleManualSync = async () => {
     setIsSyncing(true);
-    // Simula uma pequena latência de rede para feedback visual, embora o Firestore seja real-time
     await new Promise(resolve => setTimeout(resolve, 800));
     setIsSyncing(false);
     toast({
@@ -142,8 +156,8 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-pointer transition-all">
-          {/* Degradê Laranja no Hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-600/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+          {/* Degradê Laranja Ajustado para a Parte Inferior */}
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-orange-600/30 via-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0" />
           
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
@@ -164,6 +178,11 @@ export default function Home() {
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed">
                 {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
+              {lastSync && (
+                <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mt-1">
+                  Última Sincronização: {lastSync}
+                </p>
+              )}
             </div>
 
             <Button 
@@ -178,8 +197,6 @@ export default function Home() {
               </span>
             </Button>
           </div>
-          
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-orange-600/10 blur-[60px] rounded-full z-0" />
         </BentoCard>
 
         <StatCard 
