@@ -36,7 +36,11 @@ export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string>("");
-  const [syncLogs, setSyncLogs] = useState<{id: string, text: string, status: 'success' | 'pending'}[]>([]);
+  const [syncLogs, setSyncLogs] = useState<{id: string, text: string, status: 'success' | 'pending'}[]>([
+    { id: '1', text: "ID:4521 Entrevista: #0318-012", status: 'success' },
+    { id: '2', text: "ID:4520 Entrevista: #0318-011", status: 'success' },
+    { id: '3', text: "ID:4519 Entrevista: #0318-010", status: 'success' },
+  ]);
   const logContainerRef = useRef<HTMLDivElement>(null);
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
@@ -54,14 +58,8 @@ export default function Home() {
       const now = new Date();
       setLastSync(`${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`);
     };
-    updateSyncTime();
-  }, [isSyncing]);
-
-  useEffect(() => {
-    if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = 0;
-    }
-  }, [syncLogs]);
+    if (!lastSync) updateSyncTime();
+  }, [lastSync]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
@@ -176,27 +174,31 @@ export default function Home() {
     if (isSyncing) return;
     setIsSyncing(true);
     
-    // Simular logs de entrada
-    const initialLogs = [
-      { id: Math.random().toString(), text: "Conectando ao Google Cloud...", status: 'pending' as const },
-      { id: Math.random().toString(), text: "Autenticando sessão segura...", status: 'pending' as const },
-    ];
-    setSyncLogs(initialLogs);
-
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Adicionar log pendente
+    const pendingId = Math.random().toString();
     setSyncLogs(prev => [
-      { id: Math.random().toString(), text: "Buscando novos pacotes de dados...", status: 'pending' as const },
+      { id: pendingId, text: "Buscando pacotes...", status: 'pending' },
       ...prev
     ]);
 
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setSyncLogs(prev => [
-      { id: Math.random().toString(), text: "Sincronização completa. 100% íntegro.", status: 'success' as const },
-      ...prev.map(l => ({ ...l, status: 'success' as const }))
-    ]);
+    // Simular tempo de processamento
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // Finalizar log e atualizar dados
+    setSyncLogs(prev => prev.map(log => 
+      log.id === pendingId 
+        ? { ...log, text: `ID:${4522 + prev.length} Entrevista: #0318-013`, status: 'success' } 
+        : log
+    ));
+
+    const now = new Date();
+    setLastSync(`Hoje às ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
     setIsSyncing(false);
-    toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
+    
+    toast({ 
+      title: "Sincronização Ativa", 
+      description: "Os dados foram atualizados em tempo real com o Google Cloud." 
+    });
   };
 
   if (isLoading && rawSurveyData.length === 0) {
@@ -213,8 +215,10 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-        {/* Card Banco de Dados - Versão Premium Minimalista */}
-        <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 lg:p-8 border border-zinc-800 shadow-2xl overflow-hidden flex flex-col group min-h-[420px]">
+        
+        {/* Card Banco de Dados - Implementação Fiel ao HTML Premium */}
+        <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
+          
           {/* Barra de Progresso no Topo */}
           <motion.div 
             initial={{ width: 0 }}
@@ -223,81 +227,80 @@ export default function Home() {
             className="absolute top-0 left-0 h-[2px] bg-orange-500 z-20"
           />
 
-          <div className="flex items-center justify-between relative z-10 mb-8">
-            <div className="p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-orange-500 group-hover:border-zinc-700 transition-colors shadow-inner">
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 transition-colors group-hover:border-zinc-700 shadow-inner">
               <Database size={20} />
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 shadow-sm">
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
               <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">Cloud Ativo</span>
+              <span className="text-[10px] font-semibold tracking-wide text-zinc-300 uppercase">Cloud Ativo</span>
             </div>
           </div>
 
-          <div className="space-y-2 relative z-10 mb-6">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Base de Inteligência</span>
-            <h4 className="text-2xl font-bold text-white tracking-tight">Banco de Dados</h4>
-            <p className="text-xs text-zinc-400 font-bold uppercase tracking-wide">
-              <span className="text-zinc-100">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Entrevistas Processadas
+          <div className="mb-5 relative z-10">
+            <h3 className="text-[10px] font-semibold tracking-[0.2em] text-zinc-500 uppercase mb-1">
+              Base de Inteligência
+            </h3>
+            <h2 className="text-2xl font-semibold tracking-tight text-zinc-100 mb-1">
+              Banco de Dados
+            </h2>
+            <p className="text-xs font-medium text-zinc-500">
+              <span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Entrevistas Processadas
             </p>
           </div>
 
           {/* Log de Auditoria */}
-          <div 
-            ref={logContainerRef}
-            className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4 h-[100px] overflow-y-auto mb-8 scrollbar-hide relative z-10"
-          >
-            <AnimatePresence mode="popLayout">
-              {syncLogs.length === 0 ? (
-                <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest text-center mt-4">Aguardando novo fluxo...</p>
-              ) : (
-                <ul className="space-y-2 text-[10px] font-mono text-zinc-500">
-                  {syncLogs.map((log) => (
-                    <motion.li 
-                      key={log.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      {log.status === 'success' ? (
-                        <Check size={10} className="text-emerald-500" />
-                      ) : (
-                        <RefreshCw size={10} className="text-orange-500 animate-spin" />
-                      )}
+          <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[100px] overflow-y-auto mb-6 relative z-10 scrollbar-hide">
+            <ul className="space-y-2 text-[10px] font-mono text-zinc-400">
+              <AnimatePresence initial={false} mode="popLayout">
+                {syncLogs.map((log) => (
+                  <motion.li 
+                    key={log.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    {log.status === 'success' ? (
+                      <span className="text-orange-500 font-bold">✓</span>
+                    ) : (
+                      <Loader2 className="w-3 h-3 text-orange-500 animate-spin" />
+                    )}
+                    <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>
                       {log.text}
-                    </motion.li>
-                  ))}
-                </ul>
-              )}
-            </AnimatePresence>
+                    </span>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </ul>
           </div>
 
-          <div className="mt-auto space-y-4 relative z-10">
-            <Button 
-              onClick={handleManualSync} 
-              disabled={isSyncing} 
-              className={cn(
-                "w-full rounded-2xl h-14 transition-all duration-300 active:scale-[0.98]",
-                isSyncing 
-                  ? "bg-zinc-900 text-zinc-400 border border-zinc-800 hover:bg-zinc-900" 
-                  : "bg-zinc-100 text-zinc-950 hover:bg-white"
-              )}
-            >
-              {isSyncing ? (
-                <Loader2 size={18} className="animate-spin text-orange-500" />
-              ) : (
-                <RefreshCw size={18} className="mr-3" />
-              )}
-              <span className="text-[10px] font-black uppercase tracking-widest">
-                {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
-              </span>
-            </Button>
-            <p className="text-[9px] text-zinc-600 font-black uppercase tracking-[0.2em] text-center">
-              Sincronizado: <span className="text-zinc-500">{lastSync || 'Hoje às 21:27'}</span>
+          <button 
+            onClick={handleManualSync}
+            disabled={isSyncing}
+            className={cn(
+              "relative w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10",
+              isSyncing 
+                ? "bg-zinc-900 text-zinc-300 border border-zinc-800" 
+                : "bg-zinc-100 hover:bg-white text-zinc-900"
+            )}
+          >
+            {isSyncing ? (
+              <Loader2 className="animate-spin w-4 h-4 text-orange-500" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+            <span>{isSyncing ? "Sincronizando..." : "Sincronizar Agora"}</span>
+          </button>
+
+          <div className="mt-auto text-center relative z-10 pb-2">
+            <p className="text-[9px] font-medium text-zinc-600 uppercase tracking-widest">
+              Última att: <span className="text-zinc-500">{lastSync}</span>
             </p>
           </div>
-          
+
           {/* Brilho Atmosférico de Fundo */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.15)_0%,transparent_70%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.1)_0%,transparent_70%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
         </div>
 
         {/* Estatísticas do Topo */}
@@ -366,3 +369,4 @@ export default function Home() {
     </AppLayout>
   );
 }
+
