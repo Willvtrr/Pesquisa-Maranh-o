@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -54,7 +53,7 @@ export default function Home() {
 
   useEffect(() => {
     const updateSyncTime = () => {
-      // Lógica de 12 minutos antes da hora atual
+      // Lógica de 12 minutos antes da hora atual (Simulação de sistema ativo)
       const date = new Date();
       date.setMinutes(date.getMinutes() - 12);
       
@@ -227,8 +226,10 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         
+        {/* Card Banco de Dados - Estética Stealth Minimalista */}
         <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
           
+          {/* Barra de Progresso Superior */}
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: isSyncing ? '100%' : '0%' }}
@@ -259,7 +260,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[100px] overflow-y-auto mb-6 relative z-10 scrollbar-hide">
+          {/* Log de Auditoria com Scrollbar Minimalista */}
+          <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[100px] overflow-y-auto mb-6 relative z-10 log-scroll">
             <ul className="space-y-2 text-[10px] font-mono text-zinc-400">
               <AnimatePresence initial={false} mode="popLayout">
                 {syncLogs.map((log) => (
@@ -303,10 +305,11 @@ export default function Home() {
 
           <div className="mt-auto text-center relative z-10 pb-2">
             <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">
-              ÚLTIA ATT: <span className="text-zinc-500">{lastSync}</span>
+              ÚLTIMA ATT: <span className="text-zinc-500">{lastSync}</span>
             </p>
           </div>
 
+          {/* Brilho Atmosférico de Fundo */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(234,88,12,0.1)_0%,transparent_70%)] pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
         </div>
 
