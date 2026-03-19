@@ -39,44 +39,37 @@
 }
 
 @layer components {
-  /* Materialidade Sólida: Sombras 3D ultra-definidas com múltiplas camadas */
-  .bento-3d {
-    @apply bg-white border border-zinc-200/60 rounded-[2.5rem] ring-1 ring-white/50;
-    box-shadow: 
-      0 2px 4px rgba(0,0,0,0.01),
-      0 12px 24px rgba(0,0,0,0.02),
-      0 32px 64px -16px rgba(0,0,0,0.04),
-      inset 0 1px 0 rgba(255,255,255,0.8);
+  /* Premium Card Themes from HTML */
+  .card-white {
+    @apply bg-white border border-zinc-200/80;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
   }
   
-  /* Efeito de relevo interno técnico */
-  .inner-relief {
-    @apply bg-zinc-50/80 border border-zinc-200/40;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+  .card-orange {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    @apply border border-orange-400/50;
+    box-shadow: 0 10px 30px -10px rgba(234, 88, 12, 0.3);
   }
 
-  /* Material Fosco Premium */
-  .material-matte {
-    @apply bg-gradient-to-br from-zinc-50 to-zinc-100 border-zinc-200 shadow-inner;
+  .card-dark {
+    @apply bg-[#09090b] border border-zinc-800;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
   }
 
-  /* Acento Metálico: High-Performance Orange Bronze */
-  .premium-gradient {
-    background: linear-gradient(145deg, #fb923c 0%, #ea580c 45%, #7c2d12 100%);
-    box-shadow: 
-      0 8px 20px -4px rgba(234, 88, 12, 0.3), 
-      inset 0 1px 0 rgba(255,255,255,0.25);
+  /* Materialidade Sólida: Sombras 3D ultra-definidas */
+  .bento-3d {
+    @apply rounded-[2.5rem];
+    transition: transform 0.1s ease-out, border-color 0.3s ease, box-shadow 0.3s ease;
   }
-
-  /* Salto 3D Dinâmico: Ajustado para 0.15s snappier effect */
+  
   .hover-lift {
     @apply transition-all duration-150 ease-out;
   }
   .hover-lift:hover {
-    transform: translateY(-12px) scale(1.02);
+    transform: translateY(-8px) scale(1.01);
     box-shadow: 
-      0 40px 80px -20px rgba(0,0,0,0.14),
-      0 20px 40px -10px rgba(0,0,0,0.08);
+      0 40px 80px -20px rgba(0,0,0,0.12),
+      0 20px 40px -10px rgba(0,0,0,0.06);
   }
 
   .tech-mono {
@@ -92,8 +85,5 @@
   }
   .log-scroll::-webkit-scrollbar-thumb {
     @apply bg-zinc-800 rounded-full;
-  }
-  .log-scroll::-webkit-scrollbar-thumb:hover {
-    @apply bg-zinc-700;
   }
 }

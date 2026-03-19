@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -9,7 +8,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw, MapPin, Users } from 'lucide-react';
+import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -76,6 +75,19 @@ export default function Home() {
         .filter(city => city !== "")
     );
     return cities.size;
+  }, [rawSurveyData]);
+
+  // Top 3 cities for the Municipality Card
+  const topCities = useMemo(() => {
+    if (!rawSurveyData) return [];
+    const counts: Record<string, number> = {};
+    rawSurveyData.filter(item => !item.INFO).forEach(item => {
+      const city = String(item["Cidade:"] || "").trim();
+      if (city) counts[city] = (counts[city] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
   }, [rawSurveyData]);
 
   const activeKeys = useMemo(() => {
@@ -271,11 +283,11 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Linha Superior: Exatamente como no print fornecido */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-          {/* Card 1: Banco de Dados (Escuro) */}
-          <div className="relative bg-[#09090b] rounded-[2.5rem] p-8 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
-            <motion.div initial={{ width: 0 }} animate={{ width: isSyncing ? '100%' : '0%' }} transition={{ duration: 2, ease: "easeOut" }} className="absolute top-0 left-0 h-[2px] bg-orange-500 z-20" />
+        {/* Linha Superior: Exatamente como no print e HTML fornecidos */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+          
+          {/* Card 1: Banco de Dados (Escuro - Original mantido por ser a central de comando) */}
+          <div className="relative card-dark rounded-[2.5rem] p-8 transition-all duration-300 hover:lift flex flex-col group min-h-[420px]">
             <div className="flex items-center justify-between mb-10 relative z-10">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
                 <Database size={20} />
@@ -287,14 +299,14 @@ export default function Home() {
             </div>
             <div className="mb-6 relative z-10">
               <h3 className="text-[10px] font-semibold tracking-[0.2em] text-zinc-500 uppercase mb-2">Base de Inteligência</h3>
-              <h2 className="text-3xl font-semibold tracking-tight text-zinc-100 mb-1">Banco de Dados</h2>
-              <p className="text-xs font-medium text-zinc-500"><span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Entrevistas Processadas</p>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-100 mb-1">Banco de Dados</h2>
+              <p className="text-xs font-medium text-zinc-500"><span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
             </div>
             <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 h-[120px] overflow-y-auto mb-8 relative z-10 log-scroll">
               <ul className="space-y-3 text-[10px] font-mono">
                 <AnimatePresence initial={false} mode="popLayout">
                   {syncLogs.map((log) => (
-                    <motion.li key={log.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+                    <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
                       {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-3 h-3 text-orange-500 animate-spin" />}
                       <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>{log.text}</span>
                     </motion.li>
@@ -302,45 +314,152 @@ export default function Home() {
                 </AnimatePresence>
               </ul>
             </div>
-            <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-zinc-100 hover:bg-white text-zinc-900 shadow-lg shadow-black/20")}>
+            <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
               {isSyncing ? <Loader2 className="animate-spin w-4 h-4 text-orange-500" /> : <RefreshCw className="w-4 h-4" />}
-              <span>{isSyncing ? "Sincronizando..." : "Sincronizar Agora"}</span>
+              <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
             </button>
-            <div className="mt-auto text-center relative z-10">
-              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-600">ÚLTIMA ATT: <span className="text-zinc-500">{lastSync}</span></p>
+          </div>
+
+          {/* Card 2: Número de Coletas (Branco Premium do HTML) */}
+          <div className="card-white rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px]">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 shadow-inner">
+                <FileText size={16} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
+            </div>
+            
+            <div className="flex-grow flex flex-col justify-center">
+              <h2 className="text-7xl lg:text-8xl font-black tracking-tighter text-zinc-900 leading-none">
+                {totalCount.toLocaleString('pt-BR')}
+              </h2>
+              
+              <div className="mt-8">
+                <div className="flex justify-between items-end mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">↑ +12.4%</span>
+                    <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wide">vs. Meta</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-end gap-1.5 h-14 w-full pt-2 border-b border-zinc-100 pb-1">
+                  {[40, 60, 45, 75, 50, 100].map((h, i) => (
+                    <div 
+                      key={i} 
+                      className={cn(
+                        "w-full rounded-t-lg transition-all duration-500",
+                        i === 5 ? "bg-zinc-800 shadow-lg" : "bg-zinc-100 hover:bg-zinc-200"
+                      )}
+                      style={{ height: `${h}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between pt-6 mt-4 border-t border-zinc-50">
+              <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Até o momento</span>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <span className="text-[10px] font-black text-emerald-600 uppercase">Em Campo</span>
+              </div>
             </div>
           </div>
 
-          {/* Card 2: Número de Coletas (Branco) */}
-          <div className="px-10 py-12 rounded-[2.5rem] bg-white border border-zinc-100 ring-1 ring-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300 group">
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-10 text-center">Número de coletas</span>
-            <span className="text-7xl font-mono font-bold text-zinc-950 tracking-tighter">
-              {totalCount.toLocaleString('pt-BR')}
-            </span>
-            <span className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em] mt-10 text-center">Até o momento</span>
+          {/* Card 3: Número de Municípios (Laranja Premium do HTML) */}
+          <div className="card-orange rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px] relative overflow-hidden text-white">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/20 blur-[60px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
+            
+            <div className="relative z-10 flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
+                <MapIcon size={16} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-[10px] font-black tracking-widest text-orange-100 uppercase">Número de Municípios</h3>
+            </div>
+            
+            <div className="relative z-10 flex-grow flex flex-col justify-center">
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-7xl lg:text-8xl font-black tracking-tighter text-white leading-none">
+                  {citiesCount}
+                </h2>
+                <span className="text-2xl font-bold text-orange-200 tracking-tighter">/217</span>
+              </div>
+
+              <div className="mt-8">
+                <div className="flex justify-between text-[9px] font-black text-orange-100 uppercase tracking-widest mb-3 border-b border-orange-400/30 pb-2">
+                  <span>Municípios com Maior Volume</span>
+                </div>
+                
+                <div className="space-y-2 mt-3">
+                  {topCities.map(([name, count], i) => (
+                    <div key={name} className="flex justify-between items-center text-xs">
+                      <span className="font-bold text-white tracking-wide uppercase text-[10px]">{i+1}. {name}</span>
+                      <span className="font-mono font-bold text-orange-200 bg-white/10 px-3 py-1 rounded-lg backdrop-blur-md">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-6 mt-4">
+              <span className="text-[10px] font-black text-orange-200 uppercase tracking-widest">Cobertura: {((citiesCount / 217) * 100).toFixed(1)}%</span>
+              <span className="text-[9px] font-black text-orange-600 bg-white px-3 py-1.5 rounded-xl shadow-lg uppercase tracking-wider">Ativo</span>
+            </div>
           </div>
 
-          {/* Card 3: Número de Municípios (Laranja) */}
-          <div className="px-10 py-12 rounded-[2.5rem] premium-gradient text-white border border-orange-400/20 ring-1 ring-white/20 shadow-[0_20px_50px_rgba(234,88,12,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
-            <span className="text-[10px] font-black text-orange-100 uppercase tracking-[0.3em] mb-10 text-center">Número de Municípios</span>
-            <span className="text-7xl font-mono font-bold tracking-tighter">
-              {citiesCount.toLocaleString('pt-BR')}
-            </span>
-            <span className="text-[10px] font-bold text-orange-200/60 uppercase tracking-[0.4em] mt-10 text-center uppercase text-orange-100/40 italic">Até o momento</span>
-          </div>
-
-          {/* Card 4: Status da Operação (Zinco Escuro) */}
-          <div className="px-10 py-12 rounded-[2.5rem] bg-zinc-950 text-white border border-zinc-800 ring-1 ring-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center min-h-[420px] hover:-translate-y-1 transition-all duration-300">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-10 text-center">Status da Operação</span>
-            <span className="text-7xl font-mono font-bold text-white tracking-tighter">
-              1 DE 3
-            </span>
-            <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-10 text-center uppercase">Concluindo • Faltam 3</span>
+          {/* Card 4: Status da Operação (Dark Premium do HTML) */}
+          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px] group text-white">
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
+                  <ClipboardCheck size={20} />
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></div>
+                  <span className="text-[10px] font-bold tracking-wide text-zinc-300 uppercase">Processando</span>
+                </div>
+              </div>
+      
+              <div className="mb-6">
+                <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-2">Engenharia de Pesquisas</h3>
+                <h2 className="text-2xl font-bold tracking-tight text-zinc-100 mb-1">Status Operacional</h2>
+                <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
+                  Sincronizando <span className="text-orange-500">Etapa 1 de 3</span>
+                </p>
+              </div>
+      
+              <div className="flex gap-2 mb-8">
+                <div className="h-2 flex-1 rounded-full bg-zinc-800 relative overflow-hidden">
+                  <div className="absolute inset-y-0 left-0 w-[85%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]">
+                    <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
+                <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
+              </div>
+      
+              <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-6 flex-1 flex flex-col justify-center gap-6 mt-auto">
+                <div className="flex items-center gap-4">
+                  <div className="w-3 h-3 rounded-full bg-orange-500 ring-4 ring-orange-500/20 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-[10px] font-black text-zinc-100 uppercase tracking-widest">Pesquisa 1: Em Campo</p>
+                    <p className="text-[9px] font-bold text-orange-500 uppercase mt-1">Concluindo Sincronização</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 opacity-30">
+                  <div className="w-3 h-3 rounded-full bg-zinc-600 flex-shrink-0"></div>
+                  <div>
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Agendada</p>
+                    <p className="text-[9px] font-bold text-zinc-500 uppercase mt-1">Lote de Segurança</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Linha de Aprovações: Grade de 3 Colunas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+        {/* Grade de Aprovações: 3 Colunas dedicada para os líderes */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" />
           <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" />
           
@@ -378,7 +497,7 @@ export default function Home() {
         </div>
 
         {/* Restante do Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <FilterBentoBox filters={filters} options={dynamicOptions} onFilterChange={handleFilterChange} onClear={clearFilters} className="lg:col-span-2" />
           <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
           <ApprovalChart data={chartData.approvalData} />
