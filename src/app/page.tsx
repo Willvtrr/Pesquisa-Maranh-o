@@ -9,7 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw, MapPin } from 'lucide-react';
+import { Database, BarChart3, AlertTriangle, Loader2, RefreshCw, MapPin, Users } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -25,7 +25,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const SURVEY_KEYS = {
+// Chaves padrão (fallback)
+const DEFAULT_KEYS = {
   CITY: "Cidade:",
   REGION: "Mesorregião",
   GENDER: "Gênero",
@@ -61,6 +62,36 @@ export default function Home() {
     religion: ['all'],
     ideology: ['all']
   });
+
+  // Motor de Detecção de Chaves Dinâmicas
+  const activeKeys = useMemo(() => {
+    if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
+    
+    // Pega o primeiro registro real
+    const sample = rawSurveyData.find(d => !d.INFO) || {};
+    const keys = Object.keys(sample);
+
+    const findKey = (keywords: string[], fallback: string) => {
+      const found = keys.find(k => keywords.every(kw => k.toLowerCase().includes(kw.toLowerCase())));
+      return found || fallback;
+    };
+
+    return {
+      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY),
+      REGION: findKey(['mesorregião'], DEFAULT_KEYS.REGION),
+      GENDER: findKey(['gênero'], DEFAULT_KEYS.GENDER),
+      AGE: findKey(['etária'], DEFAULT_KEYS.AGE),
+      EDUCATION: findKey(['instrução'], DEFAULT_KEYS.EDUCATION),
+      INCOME: findKey(['renda'], DEFAULT_KEYS.INCOME),
+      RELIGION: findKey(['religião'], DEFAULT_KEYS.RELIGION),
+      IDEOLOGY: findKey(['esquerda', 'direita'], DEFAULT_KEYS.IDEOLOGY),
+      GOV_APPROVAL: findKey(['aprova', 'governador'], DEFAULT_KEYS.GOV_APPROVAL),
+      PRESIDENT_APPROVAL: findKey(['aprova', 'presidente'], DEFAULT_KEYS.PRESIDENT_APPROVAL),
+      MAYOR_APPROVAL: findKey(['aprova', 'prefeito'], DEFAULT_KEYS.MAYOR_APPROVAL),
+      PROBLEMS: findKey(['problema', 'grave'], DEFAULT_KEYS.PROBLEMS),
+      PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
+    };
+  }, [rawSurveyData]);
 
   useEffect(() => {
     const updateSyncTime = () => {
@@ -114,17 +145,17 @@ export default function Home() {
       return Array.from(vals).sort();
     };
 
-    options.region = getUniques(SURVEY_KEYS.REGION);
-    options.city = getUniques(SURVEY_KEYS.CITY);
-    options.age = getUniques(SURVEY_KEYS.AGE);
-    options.gender = getUniques(SURVEY_KEYS.GENDER);
-    options.education = getUniques(SURVEY_KEYS.EDUCATION);
-    options.income = getUniques(SURVEY_KEYS.INCOME);
-    options.religion = getUniques(SURVEY_KEYS.RELIGION);
-    options.ideology = getUniques(SURVEY_KEYS.IDEOLOGY);
+    options.region = getUniques(activeKeys.REGION);
+    options.city = getUniques(activeKeys.CITY);
+    options.age = getUniques(activeKeys.AGE);
+    options.gender = getUniques(activeKeys.GENDER);
+    options.education = getUniques(activeKeys.EDUCATION);
+    options.income = getUniques(activeKeys.INCOME);
+    options.religion = getUniques(activeKeys.RELIGION);
+    options.ideology = getUniques(activeKeys.IDEOLOGY);
 
     return options;
-  }, [rawSurveyData]);
+  }, [rawSurveyData, activeKeys]);
 
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
@@ -139,32 +170,33 @@ export default function Home() {
       };
 
       return (
-        checkMatch('region', SURVEY_KEYS.REGION) &&
-        checkMatch('city', SURVEY_KEYS.CITY) &&
-        checkMatch('age', SURVEY_KEYS.AGE) &&
-        checkMatch('gender', SURVEY_KEYS.GENDER) &&
-        checkMatch('education', SURVEY_KEYS.EDUCATION) &&
-        checkMatch('income', SURVEY_KEYS.INCOME) &&
-        checkMatch('religion', SURVEY_KEYS.RELIGION) &&
-        checkMatch('ideology', SURVEY_KEYS.IDEOLOGY)
+        checkMatch('region', activeKeys.REGION) &&
+        checkMatch('city', activeKeys.CITY) &&
+        checkMatch('age', activeKeys.AGE) &&
+        checkMatch('gender', activeKeys.GENDER) &&
+        checkMatch('education', activeKeys.EDUCATION) &&
+        checkMatch('income', activeKeys.INCOME) &&
+        checkMatch('religion', activeKeys.RELIGION) &&
+        checkMatch('ideology', activeKeys.IDEOLOGY)
       );
     });
-  }, [filters, rawSurveyData]);
+  }, [filters, rawSurveyData, activeKeys]);
 
   const approvalStats = useMemo(() => {
     const total = filteredData.length;
     
     const calculatePct = (key: string) => {
       if (total === 0) return 0;
-      const approvalCount = filteredData.filter(d => 
-        String(d[key] || '').toLowerCase().trim() === 'aprova'
-      ).length;
+      const approvalCount = filteredData.filter(d => {
+        const val = String(d[key] || '').toLowerCase().trim();
+        return val === 'aprova' || val === 'aprovado' || val === 'sim';
+      }).length;
       return (approvalCount / total) * 100;
     };
 
-    const govPct = calculatePct(SURVEY_KEYS.GOV_APPROVAL);
-    const presPct = calculatePct(SURVEY_KEYS.PRESIDENT_APPROVAL);
-    const mayorPct = calculatePct(SURVEY_KEYS.MAYOR_APPROVAL);
+    const govPct = calculatePct(activeKeys.GOV_APPROVAL);
+    const presPct = calculatePct(activeKeys.PRESIDENT_APPROVAL);
+    const mayorPct = calculatePct(activeKeys.MAYOR_APPROVAL);
 
     return { 
       total, 
@@ -172,26 +204,26 @@ export default function Home() {
       presPct,
       mayorPct
     };
-  }, [filteredData]);
+  }, [filteredData, activeKeys]);
 
   const chartData = useMemo(() => {
     const approvalMap: Record<string, number> = { 'Aprova': 0, 'Desaprova': 0, 'NS/NR': 0 };
     filteredData.forEach(d => {
-      const status = String(d[SURVEY_KEYS.GOV_APPROVAL] || '').trim();
-      if (status === 'Aprova') approvalMap['Aprova']++;
-      else if (status === 'Desaprova') approvalMap['Desaprova']++;
+      const val = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().trim();
+      if (val === 'aprova' || val === 'aprovado' || val === 'sim') approvalMap['Aprova']++;
+      else if (val === 'desaprova' || val === 'desaprovado' || val === 'não' || val === 'nao') approvalMap['Desaprova']++;
       else approvalMap['NS/NR']++;
     });
 
     const candidateCounts: Record<string, number> = {};
     filteredData.forEach(d => {
-      const cand = String(d[SURVEY_KEYS.PRESIDENT_VOTE] || 'Não Citado').trim();
+      const cand = String(d[activeKeys.PRESIDENT_VOTE] || 'Não Citado').trim();
       if (cand) candidateCounts[cand] = (candidateCounts[cand] || 0) + 1;
     });
 
     const problemCounts: Record<string, number> = {};
     filteredData.forEach(d => {
-      const prob = String(d[SURVEY_KEYS.PROBLEMS] || '').trim();
+      const prob = String(d[activeKeys.PROBLEMS] || '').trim();
       if (prob && prob !== 'NS/NR') problemCounts[prob] = (problemCounts[prob] || 0) + 1;
     });
 
@@ -200,7 +232,7 @@ export default function Home() {
       candidateData: Object.entries(candidateCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 7),
       topProblems: Object.entries(problemCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5)
     };
-  }, [filteredData]);
+  }, [filteredData, activeKeys]);
 
   const handleManualSync = async () => {
     if (isSyncing) return;
@@ -363,7 +395,7 @@ export default function Home() {
           imageUrl={images.prefeito}
           trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
           subValue={
-            <div className="relative w-full">
+            <div className="relative w-full space-y-2">
               <Select 
                 value={filters.city[0]} 
                 onValueChange={(val) => handleFilterChange('city', val)}
@@ -383,6 +415,10 @@ export default function Home() {
                   ))}
                 </SelectContent>
               </Select>
+              <div className="flex items-center gap-1.5 text-[8px] font-black text-zinc-400 uppercase tracking-widest">
+                <Users size={10} />
+                n = {approvalStats.total.toLocaleString('pt-BR')}
+              </div>
             </div>
           }
         />
@@ -397,7 +433,7 @@ export default function Home() {
         
         <InteractiveMap 
           stats={filteredData.reduce((acc, curr) => {
-            const r = String(curr[SURVEY_KEYS.REGION] || '').trim() as MesoRegion;
+            const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion;
             if (r) acc[r] = (acc[r] || 0) + 1;
             return acc;
           }, {} as Record<MesoRegion, number>)} 
