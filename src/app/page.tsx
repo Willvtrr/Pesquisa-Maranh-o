@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -123,13 +123,13 @@ export default function Home() {
   useEffect(() => {
     const updateSyncTime = () => {
       const date = new Date();
-      date.setMinutes(date.getMinutes() - 12);
+      date.setMinutes(date.getMinutes() - 1);
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      setLastSync(`${day}/${month}/${year} ÀS ${hours}:${minutes}`);
+      setLastSync(`Sincronizado há 1 minuto`);
     };
     if (!lastSync) updateSyncTime();
   }, [lastSync]);
@@ -250,10 +250,14 @@ export default function Home() {
     setSyncLogs(prev => [{ id: pendingId, text: "Buscando pacotes...", status: 'pending' }, ...prev]);
     await new Promise(resolve => setTimeout(resolve, 2000));
     setSyncLogs(prev => prev.map(log => log.id === pendingId ? { ...log, text: `ID:${4522 + prev.length} Entrevista: #0318-013`, status: 'success' } : log));
-    const now = new Date();
-    setLastSync(`${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ÀS ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
+    setLastSync(`Sincronizado agora`);
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
+    
+    // Reset to "1 minute" after a brief moment to simulate real-time state
+    setTimeout(() => {
+      setLastSync(`Sincronizado há 1 minuto`);
+    }, 5000);
   };
 
   const images = {
@@ -314,10 +318,17 @@ export default function Home() {
                 </AnimatePresence>
               </ul>
             </div>
-            <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
-              {isSyncing ? <Loader2 className="animate-spin w-4 h-4 text-orange-500" /> : <RefreshCw className="w-4 h-4" />}
-              <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
-            </button>
+            <div className="space-y-4">
+              <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
+                {isSyncing ? <Loader2 className="animate-spin w-4 h-4 text-orange-500" /> : <RefreshCw className="w-4 h-4" />}
+                <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
+              </button>
+              <div className="text-center z-10">
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                  {lastSync}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Card 2: Número de Coletas */}
