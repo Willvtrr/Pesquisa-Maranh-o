@@ -5,6 +5,7 @@ import React from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface FilterBentoBoxProps {
   filters: Record<string, string[]>;
@@ -19,6 +20,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, clas
 
   const filterGroups = [
     { key: 'region', label: 'Mesorregião' },
+    { key: 'city', label: 'Município' },
     { key: 'gender', label: 'Gênero' },
     { key: 'income', label: 'Renda Familiar' },
     { key: 'ideology', label: 'Posicionamento Ideológico' },
@@ -28,8 +30,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, clas
   ];
 
   // Divide os grupos em duas colunas para o layout premium
-  const leftColumn = filterGroups.slice(0, 4);
-  const rightColumn = filterGroups.slice(4);
+  const leftColumn = filterGroups.filter((_, i) => i % 2 === 0);
+  const rightColumn = filterGroups.filter((_, i) => i % 2 !== 0);
 
   return (
     <LuxuryCard title="Segmentação" subtitle="Recortes de Dados" className={cn("h-full", className)}>
@@ -38,21 +40,41 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, clas
         <div className="flex-1 space-y-8">
           {leftColumn.map((group) => (
             <FilterGroup key={group.key} label={group.label}>
-              <div className="flex flex-wrap gap-2">
-                <FilterChip 
-                  label="Todas" 
-                  active={isSelected(group.key, 'all')} 
-                  onClick={() => onFilterChange(group.key, 'all')} 
-                />
-                {(options[group.key] || []).map(opt => (
+              {group.key === 'city' ? (
+                <ScrollArea className="h-[120px] pr-4">
+                  <div className="flex flex-wrap gap-2">
+                    <FilterChip 
+                      label="Todas" 
+                      active={isSelected(group.key, 'all')} 
+                      onClick={() => onFilterChange(group.key, 'all')} 
+                    />
+                    {(options[group.key] || []).map(opt => (
+                      <FilterChip 
+                        key={opt} 
+                        label={opt} 
+                        active={isSelected(group.key, opt)} 
+                        onClick={() => onFilterChange(group.key, opt)} 
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="flex flex-wrap gap-2">
                   <FilterChip 
-                    key={opt} 
-                    label={opt} 
-                    active={isSelected(group.key, opt)} 
-                    onClick={() => onFilterChange(group.key, opt)} 
+                    label="Todas" 
+                    active={isSelected(group.key, 'all')} 
+                    onClick={() => onFilterChange(group.key, 'all')} 
                   />
-                ))}
-              </div>
+                  {(options[group.key] || []).map(opt => (
+                    <FilterChip 
+                      key={opt} 
+                      label={opt} 
+                      active={isSelected(group.key, opt)} 
+                      onClick={() => onFilterChange(group.key, opt)} 
+                    />
+                  ))}
+                </div>
+              )}
             </FilterGroup>
           ))}
         </div>

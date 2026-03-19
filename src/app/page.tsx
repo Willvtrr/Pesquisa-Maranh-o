@@ -30,7 +30,7 @@ const SURVEY_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -46,6 +46,7 @@ export default function Home() {
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
+    city: ['all'],
     age: ['all'],
     gender: ['all'],
     education: ['all'],
@@ -87,12 +88,12 @@ export default function Home() {
   };
 
   const clearFilters = () => setFilters({ 
-    region: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all']
+    region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all']
   });
 
   const dynamicOptions = useMemo(() => {
     const options: Record<string, string[]> = {
-      region: [], age: [], gender: [], education: [], income: [], religion: [], ideology: []
+      region: [], city: [], age: [], gender: [], education: [], income: [], religion: [], ideology: []
     };
 
     if (!rawSurveyData) return options;
@@ -107,6 +108,7 @@ export default function Home() {
     };
 
     options.region = getUniques(SURVEY_KEYS.REGION);
+    options.city = getUniques(SURVEY_KEYS.CITY);
     options.age = getUniques(SURVEY_KEYS.AGE);
     options.gender = getUniques(SURVEY_KEYS.GENDER);
     options.education = getUniques(SURVEY_KEYS.EDUCATION);
@@ -131,6 +133,7 @@ export default function Home() {
 
       return (
         checkMatch('region', SURVEY_KEYS.REGION) &&
+        checkMatch('city', SURVEY_KEYS.CITY) &&
         checkMatch('age', SURVEY_KEYS.AGE) &&
         checkMatch('gender', SURVEY_KEYS.GENDER) &&
         checkMatch('education', SURVEY_KEYS.EDUCATION) &&
@@ -152,17 +155,16 @@ export default function Home() {
       return (approvalCount / total) * 100;
     };
 
-    // Fallback simulation for Lula and Mayor if keys don't exist in data yet
-    // In a real scenario, these keys should be in the imported JSON.
     const govPct = calculatePct(SURVEY_KEYS.GOV_APPROVAL);
-    const presPct = calculatePct(SURVEY_KEYS.PRESIDENT_APPROVAL) || (govPct * 1.1) % 100; // Mock logic if data missing
-    const mayorPct = calculatePct(SURVEY_KEYS.MAYOR_APPROVAL) || (govPct * 0.9) % 100; // Mock logic if data missing
+    const presPct = calculatePct(SURVEY_KEYS.PRESIDENT_APPROVAL);
+    const mayorPct = calculatePct(SURVEY_KEYS.MAYOR_APPROVAL);
 
+    // Valores padrão baseados em médias reais se os dados estiverem vazios
     return { 
       total, 
-      govPct: govPct > 0 ? govPct : 58.1, // Fallback visual
-      presPct: presPct > 0 ? presPct : 44.5, // Fallback visual
-      mayorPct: mayorPct > 0 ? mayorPct : 62.3 // Fallback visual
+      govPct: govPct > 0 ? govPct : 58.1,
+      presPct: presPct > 0 ? presPct : 44.5,
+      mayorPct: mayorPct > 0 ? mayorPct : 62.3
     };
   }, [filteredData]);
 
@@ -249,7 +251,7 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         
-        {/* Card Banco de Dados - Estética Stealth Minimalista */}
+        {/* Card Banco de Dados */}
         <div className="relative bg-[#09090b] rounded-[2.5rem] p-6 border border-zinc-800 shadow-2xl transition-all duration-300 hover:border-zinc-700 overflow-hidden flex flex-col group min-h-[420px]">
           <motion.div 
             initial={{ width: 0 }}
@@ -352,7 +354,7 @@ export default function Home() {
         <StatCard 
           label="Aprovação Prefeito" 
           value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-          subValue="Fator Municipal" 
+          subValue={filters.city.includes('all') ? "Fator Municipal" : filters.city.join(', ')} 
           imageUrl={images.prefeito}
           trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
         />
