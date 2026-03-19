@@ -44,7 +44,8 @@ const DEFAULT_KEYS = {
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSync, setLastSync] = useState<string>("");
+  const [lastSyncDate, setLastSyncDate] = useState<string>("");
+  const [lastSyncMsg, setLastSyncMsg] = useState<string>("SINCRONIZADO HÁ 1 MINUTO");
   const [syncLogs, setSyncLogs] = useState<{id: string, text: string, status: 'success' | 'pending'}[]>([
     { id: '1', text: "ID:4521 Entrevista: #0318-012", status: 'success' },
     { id: '2', text: "ID:4520 Entrevista: #0318-011", status: 'success' },
@@ -122,17 +123,18 @@ export default function Home() {
 
   useEffect(() => {
     const updateSyncTime = () => {
-      const date = new Date();
-      date.setMinutes(date.getMinutes() - 1);
+      const now = new Date();
+      const date = new Date(now.getTime() - 60000);
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      setLastSync(`Sincronizado há 1 minuto`);
+      setLastSyncDate(`${day}/${month}/${year} - ${hours}:${minutes}`);
+      setLastSyncMsg("SINCRONIZADO HÁ 1 MINUTO");
     };
-    if (!lastSync) updateSyncTime();
-  }, [lastSync]);
+    if (!lastSyncDate) updateSyncTime();
+  }, [lastSyncDate]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
@@ -250,14 +252,21 @@ export default function Home() {
     setSyncLogs(prev => [{ id: pendingId, text: "Buscando pacotes...", status: 'pending' }, ...prev]);
     await new Promise(resolve => setTimeout(resolve, 2000));
     setSyncLogs(prev => prev.map(log => log.id === pendingId ? { ...log, text: `ID:${4522 + prev.length} Entrevista: #0318-013`, status: 'success' } : log));
-    setLastSync(`Sincronizado agora`);
+    
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    setLastSyncDate(`${day}/${month}/${year} - ${hours}:${minutes}`);
+    setLastSyncMsg("SINCRONIZADO AGORA");
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
     
-    // Reset to "1 minute" after a brief moment to simulate real-time state
     setTimeout(() => {
-      setLastSync(`Sincronizado há 1 minuto`);
-    }, 5000);
+      setLastSyncMsg("SINCRONIZADO HÁ 1 MINUTO");
+    }, 60000);
   };
 
   const images = {
@@ -291,8 +300,8 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           
           {/* Card 1: Banco de Dados */}
-          <div className="relative card-dark rounded-[2.5rem] p-8 transition-all duration-300 hover:lift flex flex-col group min-h-[420px]">
-            <div className="flex items-center justify-between mb-10 relative z-10">
+          <div className="relative card-dark rounded-[2.5rem] p-8 transition-all duration-300 hover:lift flex flex-col group min-h-[360px]">
+            <div className="flex items-center justify-between mb-8 relative z-10">
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
                 <Database size={20} />
               </div>
@@ -301,13 +310,13 @@ export default function Home() {
                 <span className="text-[10px] font-semibold tracking-wide text-zinc-300 uppercase">Cloud Ativo</span>
               </div>
             </div>
-            <div className="mb-6 relative z-10">
+            <div className="mb-4 relative z-10">
               <h3 className="text-[10px] font-semibold tracking-[0.2em] text-zinc-500 uppercase mb-2">Base de Inteligência</h3>
               <h2 className="text-2xl font-bold tracking-tight text-zinc-100 mb-1">Banco de Dados</h2>
               <p className="text-xs font-medium text-zinc-500"><span className="text-zinc-300">{rawSurveyData.length.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
             </div>
-            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 h-[120px] overflow-y-auto mb-8 relative z-10 log-scroll">
-              <ul className="space-y-3 text-[10px] font-mono">
+            <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-3 h-[80px] overflow-y-auto mb-6 relative z-10 log-scroll">
+              <ul className="space-y-2 text-[10px] font-mono">
                 <AnimatePresence initial={false} mode="popLayout">
                   {syncLogs.map((log) => (
                     <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
@@ -319,20 +328,23 @@ export default function Home() {
               </ul>
             </div>
             <div className="space-y-4">
-              <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
+              <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900")}>
                 {isSyncing ? <Loader2 className="animate-spin w-4 h-4 text-orange-500" /> : <RefreshCw className="w-4 h-4" />}
                 <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
               </button>
-              <div className="text-center z-10">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                  {lastSync}
+              <div className="text-center z-10 space-y-0.5">
+                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest leading-none">
+                  {lastSyncDate}
+                </p>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none">
+                  {lastSyncMsg}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Card 2: Número de Coletas */}
-          <div className="card-white rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px]">
+          <div className="card-white rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[360px]">
             <div className="flex items-center gap-3 mb-6">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 shadow-inner">
                 <FileText size={16} strokeWidth={2.5} />
@@ -341,19 +353,18 @@ export default function Home() {
             </div>
             
             <div className="flex-grow flex flex-col justify-center">
-              <h2 className="text-[4.5rem] lg:text-[5rem] leading-none font-black tracking-tighter text-zinc-900">
+              <h2 className="text-[4.5rem] leading-none font-black tracking-tighter text-zinc-900">
                 {totalCount.toLocaleString('pt-BR')}
               </h2>
               
-              <div className="mt-8">
-                <div className="flex justify-between items-end mb-3">
+              <div className="mt-6">
+                <div className="flex justify-between items-end mb-2">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">↑ +12.4%</span>
-                    <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wide">vs. Meta</span>
                   </div>
                 </div>
                 
-                <div className="flex items-end gap-1.5 h-12 w-full pt-2 border-b border-zinc-100 pb-1">
+                <div className="flex items-end gap-1.5 h-10 w-full pt-2 border-b border-zinc-100 pb-1">
                   {[40, 60, 45, 75, 50, 100].map((h, i) => (
                     <div 
                       key={i} 
@@ -368,7 +379,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="flex items-center justify-between pt-6 mt-4">
+            <div className="flex items-center justify-between pt-4 mt-2">
               <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Até o momento</span>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
@@ -378,7 +389,7 @@ export default function Home() {
           </div>
 
           {/* Card 3: Número de Municípios */}
-          <div className="card-orange rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[420px] relative overflow-hidden text-white">
+          <div className="card-orange rounded-[2.5rem] p-8 flex flex-col hover:lift transition-all duration-300 min-h-[360px] relative overflow-hidden text-white">
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/20 blur-[60px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
             
             <div className="relative z-10 flex items-center gap-3 mb-6">
@@ -390,29 +401,29 @@ export default function Home() {
             
             <div className="relative z-10 flex-grow flex flex-col justify-center">
               <div className="flex items-baseline gap-1">
-                <h2 className="text-[4.5rem] lg:text-[5rem] font-black tracking-tighter text-white leading-none">
+                <h2 className="text-[4.5rem] font-black tracking-tighter text-white leading-none">
                   {citiesCount}
                 </h2>
                 <span className="text-2xl font-bold text-orange-200 tracking-tighter">/217</span>
               </div>
 
-              <div className="mt-8">
-                <div className="flex justify-between text-[9px] font-black text-orange-100 uppercase tracking-widest mb-3 border-b border-orange-400/30 pb-2">
+              <div className="mt-6">
+                <div className="flex justify-between text-[9px] font-black text-orange-100 uppercase tracking-widest mb-2 border-b border-orange-400/30 pb-1.5">
                   <span>Municípios com Maior Volume</span>
                 </div>
                 
-                <div className="space-y-2 mt-3">
+                <div className="space-y-1 mt-2">
                   {topCities.map(([name, count], i) => (
                     <div key={name} className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-white tracking-wide uppercase text-[10px]">{i+1}. {name}</span>
-                      <span className="font-mono font-bold text-orange-200 bg-white/10 px-3 py-1 rounded-lg backdrop-blur-md">{count}</span>
+                      <span className="font-bold text-white tracking-wide uppercase text-[9px]">{i+1}. {name}</span>
+                      <span className="font-mono font-bold text-orange-200 bg-white/10 px-2 py-0.5 rounded-lg backdrop-blur-md">{count}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
             
-            <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-6 mt-4">
+            <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-4 mt-2">
               <span className="text-[10px] font-black text-orange-200 uppercase tracking-widest">Cobertura: {((citiesCount / 217) * 100).toFixed(1)}%</span>
               <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-lg">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
@@ -422,27 +433,27 @@ export default function Home() {
           </div>
 
           {/* Card 4: Status Operacional */}
-          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col min-h-[420px] text-white">
+          <div className="card-dark rounded-[2.5rem] p-8 flex flex-col min-h-[360px] text-white">
             <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
-                  <ClipboardCheck size={24} />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+                  <ClipboardCheck size={20} />
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 shadow-inner">
-                  <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></div>
-                  <span className="text-[10px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 shadow-inner">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></div>
+                  <span className="text-[9px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
                 </div>
               </div>
       
-              <div className="mb-8">
-                <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-2">Status Operacional</h3>
-                <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Painel de Pesquisas</h2>
+              <div className="mb-4">
+                <h3 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-1">Status Operacional</h3>
+                <h2 className="text-2xl font-bold tracking-tight text-white mb-1">Painel de Pesquisas</h2>
                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                   Avançando na <span className="text-orange-500">Pesquisa 1 de 3</span> programadas
                 </p>
               </div>
       
-              <div className="flex gap-3 mb-10">
+              <div className="flex gap-2 mb-6">
                 <div className="h-2 flex-1 rounded-full bg-zinc-800 relative overflow-hidden">
                   <div className="absolute inset-y-0 left-0 w-[70%] bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]"></div>
                 </div>
@@ -450,30 +461,30 @@ export default function Home() {
                 <div className="h-2 flex-1 rounded-full bg-zinc-800"></div>
               </div>
       
-              <div className="bg-[#121214] border border-zinc-800/60 rounded-[2rem] p-6 flex-1 flex flex-col justify-center gap-8">
-                <div className="flex items-center gap-5">
+              <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.5rem] p-4 flex-1 flex flex-col justify-center gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex items-center justify-center">
-                    <div className="w-4 h-4 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></div>
+                    <div className="w-3 h-3 rounded-full bg-orange-500 ring-2 ring-orange-500/20"></div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-black text-white uppercase tracking-widest">Pesquisa 1: Em Campo</p>
-                    <p className="text-[9px] font-black text-orange-500 uppercase">Reta final (Quase Concluída)</p>
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] font-black text-white uppercase tracking-widest">Pesquisa 1: Em Campo</p>
+                    <p className="text-[8px] font-black text-orange-500 uppercase">Reta final (Quase Concluída)</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-5">
-                  <div className="w-4 h-4 rounded-full bg-zinc-800"></div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Pesquisa 2: Programada</p>
-                    <p className="text-[9px] font-black text-zinc-700 uppercase">Aguardando Início</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-3 h-3 rounded-full bg-zinc-800"></div>
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Pesquisa 2: Programada</p>
+                    <p className="text-[8px] font-black text-zinc-700 uppercase">Aguardando Início</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-5">
-                  <div className="w-4 h-4 rounded-full bg-zinc-800"></div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-black text-zinc-600 uppercase tracking-widest">Pesquisa 3: Futura</p>
-                    <p className="text-[9px] font-black text-zinc-700 uppercase">Planejada</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-3 h-3 rounded-full bg-zinc-800"></div>
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Pesquisa 3: Futura</p>
+                    <p className="text-[8px] font-black text-zinc-700 uppercase">Planejada</p>
                   </div>
                 </div>
               </div>
@@ -483,8 +494,8 @@ export default function Home() {
 
         {/* Grade de Aprovações */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" />
-          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" />
+          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[360px]" />
+          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[360px]" />
           
           <StatCard 
             label={mayorLabel}
@@ -492,12 +503,13 @@ export default function Home() {
             imageUrl={mayorImageUrl}
             trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
             variant="hero"
+            className="min-h-[360px]"
             subValue={
               <div className="relative w-full space-y-3">
                 <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
-                  <SelectTrigger className="h-12 bg-zinc-50/80 border-zinc-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm">
+                  <SelectTrigger className="h-10 bg-zinc-50/80 border-zinc-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm">
                     <div className="flex items-center gap-2 truncate">
-                      <MapPin size={14} className="text-orange-600 shrink-0" />
+                      <MapPin size={12} className="text-orange-600 shrink-0" />
                       <SelectValue placeholder="MÉDIA ESTADUAL" />
                     </div>
                   </SelectTrigger>
