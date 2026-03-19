@@ -156,8 +156,8 @@ export default function Home() {
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-pointer transition-all">
-          {/* Degradê Laranja Ajustado para a Parte Inferior */}
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-orange-600/30 via-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0" />
+          {/* Brilho Atmosférico Suave na Base (Radial Glow) */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(234,88,12,0.25)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0 pointer-events-none" />
           
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
