@@ -9,7 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox, FilterChip } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, ArrowUpRight } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2 } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -315,35 +315,37 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-12">
-        {/* CABEÇALHO INTEGRADO: Título + 4 Cards ao lado */}
+        {/* CABEÇALHO INTEGRADO: Título + Grade Operacional Lateral */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
           
           {/* LADO ESQUERDO: Títulos do Dashboard */}
           <div className="xl:col-span-3 space-y-6 lg:pt-4">
             <div className="flex flex-col gap-3">
-              <div className="flex gap-1.5 items-center mb-1">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="relative w-2 h-2">
-                    <motion.div
-                      animate={{ 
-                        opacity: [0, 1, 0], 
-                        scale: [0.8, 1.4, 0.8],
-                        backgroundColor: ["#f97316", "#ea580c", "#f97316"] 
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity, 
-                        delay: i * 0.4,
-                        ease: "easeInOut" 
-                      }}
-                      className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(234,88,12,0.5)]"
-                    />
-                    <div className="w-full h-full rounded-full bg-zinc-200 opacity-30" />
-                  </div>
-                ))}
-              </div>
-              <div className="text-[11px] font-black text-orange-600 uppercase tracking-[0.4em]">
-                Monitoramento em tempo real • 2026
+              <div className="flex flex-col gap-1.5 mb-1">
+                <div className="flex gap-1.5 items-center">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="relative w-2 h-2">
+                      <motion.div
+                        animate={{ 
+                          opacity: [0, 1, 0], 
+                          scale: [0.8, 1.4, 0.8],
+                          backgroundColor: ["#f97316", "#ea580c", "#f97316"] 
+                        }}
+                        transition={{ 
+                          duration: 2, 
+                          repeat: Infinity, 
+                          delay: i * 0.4,
+                          ease: "easeInOut" 
+                        }}
+                        className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(234,88,12,0.5)]"
+                      />
+                      <div className="w-full h-full rounded-full bg-zinc-200 opacity-30" />
+                    </div>
+                  ))}
+                </div>
+                <div className="text-[11px] font-black text-orange-600 uppercase tracking-[0.4em]">
+                  Monitoramento em tempo real • 2026
+                </div>
               </div>
             </div>
 
@@ -364,10 +366,10 @@ export default function Home() {
             </p>
           </div>
 
-          {/* LADO DIREITO: Grade de 4 Cards (Reduzidos Proporcionalmente) */}
-          <div className="xl:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+          {/* LADO DIREITO: Grade de Cards Otimizada (3 Colunas) */}
+          <div className="xl:col-span-9 grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
             
-            {/* Card 1: Banco de Dados */}
+            {/* Card 1: Banco de Dados (Altura Total) */}
             <div className="relative card-dark rounded-[2rem] p-5 flex flex-col group h-[360px] shadow-2xl">
               <div className="flex items-center justify-between mb-4 relative z-10">
                 <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
@@ -407,63 +409,50 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Card 2: Número de Coletas */}
-            <div className="card-white rounded-[2rem] p-5 flex flex-col group h-[360px] shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
-                  <FileText size={16} strokeWidth={2.5} />
-                </div>
-                <h3 className="text-[9px] font-black tracking-widest text-zinc-500 uppercase">Número de Coletas</h3>
-              </div>
-              <div className="flex-grow flex flex-col justify-center">
-                <h2 className="text-6xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
-                  {totalCount.toLocaleString('pt-BR')}
-                </h2>
-                <div className="mt-6">
-                  <div className="flex items-end gap-1.5 h-10 w-full pt-2 border-b border-zinc-100 pb-1">
-                    {[40, 60, 45, 75, 50, 100].map((h, i) => (
-                      <div key={i} className={cn("w-full rounded-t-sm transition-all duration-500", i === 5 ? "bg-zinc-900" : "bg-zinc-100")} style={{ height: `${h}%` }} />
-                    ))}
+            {/* COLUNA CENTRAL: Empilhamento de Coletas e Municípios */}
+            <div className="flex flex-col gap-4 h-[360px]">
+              {/* Card 2: Número de Coletas (Compacto) */}
+              <div className="card-white rounded-[1.5rem] p-4 flex flex-col justify-center flex-1 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
+                      <FileText size={12} strokeWidth={2.5} />
+                    </div>
+                    <h3 className="text-[8px] font-black tracking-widest text-zinc-500 uppercase">Coletas</h3>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[7px] font-black text-emerald-600 uppercase">EM CAMPO</span>
                   </div>
                 </div>
+                <h2 className="text-4xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
+                  {totalCount.toLocaleString('pt-BR')}
+                </h2>
               </div>
-              <div className="flex items-center justify-between pt-5 mt-2 border-t border-zinc-50">
-                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest italic">Até o momento</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span className="text-[9px] font-black text-emerald-600 uppercase">Em Campo</span>
+
+              {/* Card 3: Número de Municípios (Compacto) */}
+              <div className="card-orange rounded-[1.5rem] p-4 flex flex-col justify-center flex-1 text-white relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[30px] rounded-full pointer-events-none -mr-6 -mt-6"></div>
+                <div className="relative z-10 flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
+                      <MapIcon size={12} strokeWidth={2.5} />
+                    </div>
+                    <h3 className="text-[8px] font-black tracking-widest text-orange-100 uppercase">Municípios</h3>
+                  </div>
+                  <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded-full shadow-lg">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[7px] font-black text-emerald-600 uppercase">EM CAMPO</span>
+                  </div>
+                </div>
+                <div className="relative z-10 flex items-baseline gap-1">
+                  <h2 className="text-4xl font-black tracking-tighter text-white leading-none font-mono">{citiesCount}</h2>
+                  <span className="text-xs font-bold text-orange-200 tracking-tighter">/217</span>
                 </div>
               </div>
             </div>
 
-            {/* Card 3: Número de Municípios */}
-            <div className="card-orange rounded-[2rem] p-5 flex flex-col text-white h-[360px] relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 blur-[50px] rounded-full pointer-events-none -mr-10 -mt-10"></div>
-              <div className="relative z-10 flex items-center gap-3 mb-6">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
-                  <MapIcon size={16} strokeWidth={2.5} />
-                </div>
-                <h3 className="text-[9px] font-black tracking-widest text-orange-100 uppercase">Número de Municípios</h3>
-              </div>
-              <div className="relative z-10 flex-grow flex flex-col justify-center">
-                <div className="flex items-baseline gap-1">
-                  <h2 className="text-6xl font-black tracking-tighter text-white leading-none font-mono">{citiesCount}</h2>
-                  <span className="text-xl font-bold text-orange-200 tracking-tighter">/217</span>
-                </div>
-                <div className="mt-4 pt-4 border-t border-orange-400/30">
-                  <span className="text-[9px] font-black text-orange-100 uppercase tracking-widest">Maranhão • Cobertura {((citiesCount/217)*100).toFixed(1)}%</span>
-                </div>
-              </div>
-              <div className="relative z-10 flex items-center justify-between border-t border-orange-400/50 pt-5 mt-2">
-                <span className="text-[9px] font-black text-orange-100 uppercase tracking-widest italic">Concluindo • Faltam 3</span>
-                <div className="flex items-center gap-2 bg-white px-2 py-1 rounded-xl shadow-lg">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Em Campo</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Status Operacional */}
+            {/* Card 4: Status Operacional (Altura Total) */}
             <div className="card-dark rounded-[2rem] p-5 flex flex-col text-white h-[360px] group shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-zinc-900 border border-zinc-800 text-orange-500">
