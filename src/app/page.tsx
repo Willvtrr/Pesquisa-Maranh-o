@@ -158,7 +158,7 @@ export default function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-pointer transition-all">
           {/* Brilho Atmosférico Total (Radial Glow) */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.2)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.15)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
           
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
@@ -175,7 +175,7 @@ export default function Home() {
             
             <div className="space-y-2 mt-6">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Base de Inteligência</span>
-              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Motor de Dados</h4>
+              <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Banco de Dados</h4>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed">
                 {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
@@ -229,6 +229,9 @@ export default function Home() {
               </AnimatePresence>
             </div>
           </div>
+          
+          {/* Efeito de preenchimento de degradê na base ao passar o mouse */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-orange-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
         </BentoCard>
 
         <StatCard 
