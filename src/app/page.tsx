@@ -39,11 +39,10 @@ export default function Home() {
     gender: 'all'
   });
 
-  // Efeito para gerar o timestamp de sincronização (um pouco antes do atual para realismo)
+  // Efeito para gerar o timestamp de sincronização
   useEffect(() => {
     const updateSyncTime = () => {
       const now = new Date();
-      // Subtrai 2 minutos para simular que a última checagem foi recente
       const syncTime = new Date(now.getTime() - 2 * 60000);
       const formattedDate = syncTime.toLocaleDateString('pt-BR');
       const formattedTime = syncTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -69,7 +68,7 @@ export default function Home() {
     });
   };
 
-  // Filtragem dos dados reais com limpeza de espaços
+  // Filtragem dos dados reais
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
     
@@ -100,7 +99,6 @@ export default function Home() {
   }, [filteredData]);
 
   const chartData = useMemo(() => {
-    // Processamento de Aprovação
     const approvalMap: Record<string, number> = { 'Aprova': 0, 'Desaprova': 0, 'NS/NR': 0 };
     filteredData.forEach(d => {
       const status = String(d[SURVEY_KEYS.GOV_APPROVAL] || '').trim();
@@ -111,7 +109,6 @@ export default function Home() {
 
     const approvalData = Object.entries(approvalMap).map(([name, value]) => ({ name, value }));
 
-    // Processamento de Candidatos
     const candidateCounts: Record<string, number> = {};
     filteredData.forEach(d => {
       const cand = String(d[SURVEY_KEYS.PRESIDENT_VOTE] || 'Não Citado').trim();
@@ -123,7 +120,6 @@ export default function Home() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 7);
 
-    // Principais Problemas
     const problemCounts: Record<string, number> = {};
     filteredData.forEach(d => {
       const prob = String(d[SURVEY_KEYS.PROBLEMS] || '').trim();
@@ -156,9 +152,9 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-        <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-pointer transition-all">
-          {/* Brilho Atmosférico Total (Radial Glow) */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.15)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0 pointer-events-none" />
+        <BentoCard className="bg-zinc-950 border-none relative overflow-hidden group shadow-2xl p-6 lg:p-8 cursor-default transition-all">
+          {/* Brilho Atmosférico Profundo (Z-0 para ficar por baixo) */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,88,12,0.2)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-0 pointer-events-none" />
           
           <div className="flex flex-col h-full justify-between relative z-10">
             <div className="flex items-center justify-between">
@@ -174,64 +170,66 @@ export default function Home() {
             </div>
             
             <div className="space-y-2 mt-6">
-              <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em]">Base de Inteligência</span>
+              <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Base de Inteligência</span>
               <h4 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Banco de Dados</h4>
               <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wide leading-relaxed">
                 {rawSurveyData.length.toLocaleString('pt-BR')} Entrevistas Processadas.
               </p>
             </div>
 
-            <div className="mt-6 flex flex-col gap-3">
+            <div className="mt-6 flex flex-col gap-4">
               <Button 
                 onClick={(e) => { e.stopPropagation(); handleManualSync(); }}
                 disabled={isSyncing}
                 variant="outline"
                 className={cn(
-                  "w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 transition-all group/btn h-14",
+                  "w-full rounded-2xl bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-orange-500/50 transition-all h-14 relative overflow-hidden",
                   isSyncing && "border-orange-500 scale-[0.98] opacity-80"
                 )}
               >
-                <div className="relative mr-3">
+                <div className="flex items-center justify-center gap-3 relative z-10">
                   <RefreshCw size={18} className={cn(isSyncing && "animate-spin text-orange-500")} />
-                  {isSyncing && (
-                    <motion.div
-                      layoutId="sync-ring"
-                      className="absolute inset-0 rounded-full border-2 border-orange-500/30"
-                      animate={{ scale: [1, 1.8], opacity: [1, 0] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
-                  )}
+                  <span className="text-[10px] font-black uppercase tracking-widest">
+                    {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
+                  </span>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest">
-                  {isSyncing ? 'Sincronizando...' : 'Sincronizar Agora'}
-                </span>
+                
+                {isSyncing && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 4, opacity: 0 }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="absolute inset-0 bg-orange-500/20 rounded-full"
+                  />
+                )}
               </Button>
               
-              <AnimatePresence mode="wait">
-                {lastSync && !isSyncing && (
-                  <motion.p 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[9px] text-zinc-600 font-black uppercase tracking-widest text-center"
-                  >
-                    Última Sincronização: {lastSync}
-                  </motion.p>
-                )}
-                {isSyncing && (
-                  <motion.p 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-[9px] text-orange-500 font-black uppercase tracking-widest text-center animate-pulse"
-                  >
-                    Atualizando fluxo de dados...
-                  </motion.p>
-                )}
-              </AnimatePresence>
+              <div className="min-h-[14px] flex flex-col items-center">
+                <AnimatePresence mode="wait">
+                  {isSyncing ? (
+                    <motion.p 
+                      key="syncing"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-[9px] text-orange-500 font-black uppercase tracking-widest text-center animate-pulse"
+                    >
+                      Processando fluxo Google Cloud...
+                    </motion.p>
+                  ) : lastSync && (
+                    <motion.p 
+                      key="last-sync"
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-[9px] text-zinc-600 font-black uppercase tracking-widest text-center"
+                    >
+                      Última Sincronização: {lastSync}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
-          
-          {/* Efeito de preenchimento de degradê na base ao passar o mouse */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-orange-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0" />
         </BentoCard>
 
         <StatCard 
