@@ -14,7 +14,7 @@ interface AppLayoutProps {
 }
 
 const MaranhaoFlag = () => (
-  <svg width="32" height="22" viewBox="0 0 27 18" className="rounded-[1px] shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
+  <svg width="32" height="22" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />
@@ -121,13 +121,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
           
           <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 overflow-x-auto pb-1 sm:pb-2 lg:pb-0 scrollbar-hide">
-            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2rem] bg-white border border-zinc-200 shadow-lg flex flex-col items-center min-w-[110px] sm:min-w-[140px]">
+            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] bg-white border border-zinc-100 ring-1 ring-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center min-w-[110px] sm:min-w-[140px] hover:-translate-y-1 transition-all duration-300">
               <span className="text-[8px] sm:text-[9px] lg:text-[11px] font-black text-zinc-400 uppercase tracking-[0.3em] mb-1">Amostragem</span>
               <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold text-zinc-950">
                 {totalCount.toLocaleString('pt-BR')}
               </span>
             </div>
-            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2rem] premium-gradient text-white shadow-xl flex flex-col items-center min-w-[110px] sm:min-w-[140px]">
+            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] premium-gradient text-white border border-orange-400/20 ring-1 ring-white/20 shadow-[0_20px_50px_rgba(234,88,12,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center min-w-[110px] sm:min-w-[140px] hover:-translate-y-1 transition-all duration-300">
               <span className="text-[8px] sm:text-[9px] lg:text-[11px] font-black text-orange-100 uppercase tracking-[0.3em] mb-1">Confiança</span>
               <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold">95.0%</span>
             </div>
