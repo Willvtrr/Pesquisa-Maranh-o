@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -148,6 +149,15 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 {citiesCount.toLocaleString('pt-BR')}
               </span>
               <span className="text-[6px] lg:text-[8px] font-bold text-orange-200/60 uppercase tracking-widest mt-1">Até o momento</span>
+            </div>
+
+            {/* Card: Status da Operação */}
+            <div className="px-5 py-3.5 sm:px-8 sm:py-5 lg:px-10 lg:py-6 rounded-2xl lg:rounded-[2.5rem] bg-zinc-900 text-white border border-zinc-800 ring-1 ring-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.1),0_2px_10px_rgba(0,0,0,0.04)] flex flex-col items-center min-w-[140px] sm:min-w-[180px] hover:-translate-y-1 transition-all duration-300">
+              <span className="text-[7px] sm:text-[8px] lg:text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-1">Status da Operação</span>
+              <span className="text-xl sm:text-2xl lg:text-4xl font-mono font-bold text-white">
+                1 DE 3
+              </span>
+              <span className="text-[6px] lg:text-[8px] font-bold text-zinc-600 uppercase tracking-widest mt-1 text-center">Concluindo • Faltam 3</span>
             </div>
           </div>
         </motion.div>
