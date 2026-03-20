@@ -11,8 +11,10 @@ import {
   CheckCircle2, 
   X,
   ChevronRight,
-  Map as MapIcon
+  Map as MapIcon,
+  Loader2
 } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import {
   Dialog,
   DialogContent,
@@ -42,19 +44,35 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-// Coordenadas geográficas reais do Maranhão (aproximação vetorial de alta fidelidade)
-const MESO_PATHS = [
-  { id: 'Metrop.', label: 'METROP.', path: "M58,12 C60,11 63,12 64,15 C65,18 63,22 60,23 C57,24 55,20 54,17 C53,14 55,13 58,12 Z" },
-  { id: 'Norte', label: 'NORTE', path: "M45,25 C50,15 65,15 75,25 C85,35 78,55 65,60 C55,65 40,55 35,45 C30,35 40,35 45,25 Z" },
-  { id: 'Leste', label: 'LESTE', path: "M75,25 C85,25 95,35 98,55 C100,75 90,95 75,105 C65,115 55,95 65,60 C78,55 85,35 75,25 Z" },
-  { id: 'Oeste', label: 'OESTE', path: "M35,45 C40,55 35,75 25,95 C15,115 5,95 2,75 C0,55 10,45 25,35 C30,35 30,35 35,45 Z" },
-  { id: 'Centro', label: 'CENTRO', path: "M65,60 C55,95 45,105 35,85 C25,65 35,55 35,45 C40,55 55,65 65,60 Z" },
-  { id: 'Sul', label: 'SUL', path: "M25,95 C35,85 45,105 55,95 C65,115 75,105 85,145 C95,185 45,185 25,165 C5,145 15,115 25,95 Z" },
+const MESO_MARKERS = [
+  { id: 'Metrop.', label: 'METROP.', position: { lat: -2.53, lng: -44.30 } },
+  { id: 'Norte', label: 'NORTE', position: { lat: -3.50, lng: -44.80 } },
+  { id: 'Leste', label: 'LESTE', position: { lat: -4.86, lng: -43.35 } },
+  { id: 'Oeste', label: 'OESTE', position: { lat: -5.52, lng: -47.47 } },
+  { id: 'Centro', label: 'CENTRO', position: { lat: -5.29, lng: -44.49 } },
+  { id: 'Sul', label: 'SUL', position: { lat: -7.53, lng: -46.03 } },
+];
+
+const mapStyles = [
+  { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
+  { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+  { "featureType": "administrative.land_parcel", "stylers": [{ "visibility": "off" }] },
+  { "featureType": "administrative.neighborhood", "stylers": [{ "visibility": "off" }] },
+  { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
+  { "featureType": "road", "stylers": [{ "visibility": "off" }] },
+  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: apiKey || "",
+  });
 
   const isSelected = (key: string, value: string) => filters[key]?.includes(value);
 
@@ -220,47 +238,61 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        {/* Mesorregião - MAPA REAL DO MARANHÃO */}
+        {/* Mesorregião - GOOGLE MAPS ENGINE */}
         <div className="space-y-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
-            Mesorregião
+            Mesorregião (Mapa Real)
           </label>
           
-          <div className="bg-zinc-50/50 rounded-[2.5rem] p-6 border border-zinc-100 shadow-inner">
-            <div className="aspect-[4/5] relative mb-10 px-4">
-              <svg viewBox="0 0 100 185" className="w-full h-full drop-shadow-2xl">
-                {MESO_PATHS.map((meso) => {
-                  const active = isSelected('region', meso.id);
-                  return (
-                    <motion.path
-                      key={meso.id}
-                      d={meso.path}
-                      fill={active ? MESO_COLORS[meso.id] : "#e2e8f0"}
-                      stroke="#ffffff"
-                      strokeWidth="1.2"
-                      initial={false}
-                      animate={{ 
-                        fill: active ? MESO_COLORS[meso.id] : "#e2e8f0",
-                        scale: active ? 1.05 : 1,
-                        filter: active ? `drop-shadow(0 0 12px ${MESO_COLORS[meso.id]}44)` : 'none'
-                      }}
-                      onClick={() => onFilterChange('region', meso.id)}
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                    />
-                  );
-                })}
-              </svg>
+          <div className="bg-zinc-50/50 rounded-[2.5rem] p-4 border border-zinc-100 shadow-inner overflow-hidden">
+            <div className="aspect-[4/3] relative mb-6 rounded-2xl overflow-hidden border border-zinc-200 shadow-xl">
+              {isLoaded ? (
+                <GoogleMap
+                  mapContainerStyle={{ width: '100%', height: '100%' }}
+                  center={{ lat: -5.0, lng: -45.0 }}
+                  zoom={5}
+                  options={{
+                    styles: mapStyles,
+                    disableDefaultUI: true,
+                    gestureHandling: 'cooperative'
+                  }}
+                >
+                  {MESO_MARKERS.map((meso) => {
+                    const active = isSelected('region', meso.id);
+                    return (
+                      <Marker
+                        key={meso.id}
+                        position={meso.position}
+                        onClick={() => onFilterChange('region', meso.id)}
+                        icon={{
+                          path: google.maps.SymbolPath.CIRCLE,
+                          fillColor: active ? MESO_COLORS[meso.id] : "#a1a1aa",
+                          fillOpacity: 1,
+                          strokeColor: "#ffffff",
+                          strokeWeight: 2,
+                          scale: active ? 10 : 7,
+                        }}
+                      />
+                    );
+                  })}
+                </GoogleMap>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-100 gap-4">
+                  <Loader2 className="animate-spin text-orange-600 size-6" />
+                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Engine Ativa...</span>
+                </div>
+              )}
             </div>
             
-            {/* Legenda em 2 Colunas conforme Protótipo */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+            {/* Legenda em 2 Colunas */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
               <button 
                 onClick={() => onFilterChange('region', 'all')}
                 className={cn(
-                  "flex items-center justify-between p-2.5 rounded-xl transition-all group",
+                  "flex items-center justify-between p-2 rounded-xl transition-all",
                   filters.region?.[0] === 'all' 
-                    ? "bg-white shadow-lg ring-1 ring-zinc-200" 
+                    ? "bg-white shadow-md ring-1 ring-zinc-200" 
                     : "hover:bg-white/50"
                 )}
               >
@@ -270,7 +302,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
               </button>
 
-              {MESO_PATHS.map((meso) => {
+              {MESO_MARKERS.map((meso) => {
                 const percentage = distribution?.region?.[meso.id] || 0;
                 const active = isSelected('region', meso.id);
                 return (
@@ -278,16 +310,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     key={meso.id}
                     onClick={() => onFilterChange('region', meso.id)}
                     className={cn(
-                      "flex items-center justify-between p-2.5 rounded-xl transition-all group",
+                      "flex items-center justify-between p-2 rounded-xl transition-all",
                       active 
-                        ? "bg-white shadow-lg ring-1 ring-zinc-200" 
+                        ? "bg-white shadow-md ring-1 ring-zinc-200" 
                         : "hover:bg-white/50"
                     )}
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
                       <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[meso.id] }} />
                       <span className={cn(
-                        "text-[9px] font-black uppercase truncate",
+                        "text-[8px] font-black uppercase truncate",
                         active ? "text-orange-600" : "text-zinc-500"
                       )}>
                         {meso.label}
