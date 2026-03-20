@@ -8,6 +8,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
+import { DemographicProfile } from '@/components/dashboard/demographic-profile';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -35,7 +36,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -296,7 +297,7 @@ export default function Home() {
       <div className="space-y-8">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           
-          <div className="xl:col-span-4 space-y-4 lg:pt-2">
+          <div className="xl:col-span-5 space-y-4 lg:pt-2">
             <div className="flex flex-col gap-1.5 mb-1">
               <div className="flex gap-1.5 items-center">
                 {[0, 1, 2].map((i) => (
@@ -341,7 +342,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="xl:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[240px]">
+          <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[240px]">
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -401,7 +402,7 @@ export default function Home() {
               </div>
 
               <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-4xl font-black tracking-tighter text-zinc-950 leading-none mb-1">
+                <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-none mb-1">
                   {totalCount.toLocaleString('pt-BR')}
                 </h2>
                 <div className="flex gap-0.5 mt-4">
@@ -434,7 +435,7 @@ export default function Home() {
 
               <div className="flex-1 flex flex-col justify-center relative z-10">
                 <div className="flex items-baseline gap-1">
-                  <h2 className="text-4xl font-black tracking-tighter leading-none">61</h2>
+                  <h2 className="text-2xl font-black tracking-tighter leading-none">61</h2>
                   <span className="text-lg font-black opacity-60">/217</span>
                 </div>
                 <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura 28.1%</p>
@@ -477,14 +478,6 @@ export default function Home() {
                     <span className="text-[7px] font-black uppercase tracking-widest">Pesquisa 1: Reta Final</span>
                   </div>
                   <p className="text-[5px] font-black text-orange-500/60 uppercase tracking-widest pl-3.5">Quase Concluída</p>
-                </div>
-                <div className="flex items-center gap-2 opacity-30">
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
-                  <span className="text-[7px] font-black uppercase tracking-widest">Pesquisa 2: Aguardando</span>
-                </div>
-                <div className="flex items-center gap-2 opacity-30">
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-700"></div>
-                  <span className="text-[7px] font-black uppercase tracking-widest">Pesquisa 3: Planejada</span>
                 </div>
               </div>
             </div>
@@ -546,6 +539,8 @@ export default function Home() {
                 </div>
               </LuxuryCard>
             </div>
+
+            <DemographicProfile stats={distributionStats} />
           </div>
           
           <div className="xl:col-span-1">
