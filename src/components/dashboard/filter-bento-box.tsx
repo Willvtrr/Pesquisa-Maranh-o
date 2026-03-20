@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
@@ -23,7 +22,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MesoRegion } from '@/data/survey-data';
 
@@ -69,7 +67,6 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
   const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
-  
   for (const key of keys) {
     const val = feature.getProperty(key);
     if (val) return String(val);
@@ -126,7 +123,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.75;
-        let strokeWeight = 2;
+        let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
@@ -164,7 +161,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   return (
     <LuxuryCard 
-      title="SEGMENTAÇÃO ESTRATÉGICA" 
+      title="SEGMENTAÇÃO" 
       subtitle="Recorte Territorial" 
       className={cn("flex flex-col h-full", className)}
     >

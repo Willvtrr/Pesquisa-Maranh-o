@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
@@ -50,20 +49,11 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
   const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
-  
   for (const key of keys) {
     const val = feature.getProperty(key);
     if (val) return String(val);
   }
-  
-  let found: string | null = null;
-  feature.forEachProperty((value, name) => {
-    if (typeof value === 'string' && value.length > 3 && !found) {
-      found = value;
-    }
-  });
-  
-  return found;
+  return null;
 };
 
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
