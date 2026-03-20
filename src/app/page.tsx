@@ -37,7 +37,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -318,7 +318,7 @@ export default function Home() {
         {/* CABEÇALHO INTEGRADO: Título + Grade Operacional Lateral */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
           
-          {/* LADO ESQUERDO: Títulos do Dashboard (Expandido para evitar quebra) */}
+          {/* LADO ESQUERDO: Títulos do Dashboard */}
           <div className="xl:col-span-5 space-y-5 lg:pt-4">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1.5 mb-1">
@@ -366,7 +366,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* LADO DIREITO: Grade de Cards Otimizada (Cards proporcionais) */}
+          {/* LADO DIREITO: Grade de Cards Otimizada */}
           <div className="xl:col-span-7 grid grid-cols-1 lg:grid-cols-3 gap-3 items-stretch">
             
             {/* Card 1: Banco de Dados */}
@@ -411,7 +411,6 @@ export default function Home() {
 
             {/* COLUNA CENTRAL: Empilhamento de Coletas e Municípios */}
             <div className="flex flex-col gap-3 h-[300px]">
-              {/* Card 2: Número de Coletas */}
               <div className="card-white rounded-[1.5rem] p-3 flex flex-col justify-center flex-1 shadow-sm">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
@@ -430,7 +429,6 @@ export default function Home() {
                 </h2>
               </div>
 
-              {/* Card 3: Número de Municípios */}
               <div className="card-orange rounded-[1.5rem] p-3 flex flex-col justify-center flex-1 text-white relative overflow-hidden shadow-2xl">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 blur-[25px] rounded-full pointer-events-none -mr-4 -mt-4"></div>
                 <div className="relative z-10 flex items-center justify-between mb-1">
@@ -491,19 +489,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Linha de Segmentação: Full Width */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <FilterBentoBox 
-            filters={filters} 
-            options={dynamicOptions} 
-            distribution={distributionStats}
-            onFilterChange={handleFilterChange} 
-            onClear={clearFilters} 
-            className="lg:col-span-4" 
-          />
-        </div>
-
-        {/* Grade de Aprovações (3 cards) */}
+        {/* Grade de Aprovações (3 cards) - AGORA ACIMA DA SEGMENTAÇÃO */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="h-[360px]" />
           <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="h-[360px]" />
@@ -538,6 +524,18 @@ export default function Home() {
                 </div>
               </div>
             }
+          />
+        </div>
+
+        {/* Linha de Segmentação: Full Width */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <FilterBentoBox 
+            filters={filters} 
+            options={dynamicOptions} 
+            distribution={distributionStats}
+            onFilterChange={handleFilterChange} 
+            onClear={clearFilters} 
+            className="lg:col-span-4" 
           />
         </div>
 
