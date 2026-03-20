@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -28,22 +29,14 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   return (
     <LuxuryCard className={cn("flex flex-col h-full", className)}>
-      <div className="space-y-1 mb-8">
-        <h3 className="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
-          Segmentação
-        </h3>
-        <p className="text-2xl font-black text-zinc-950 tracking-tight">Recortes de Dados</p>
-      </div>
-
       <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 scrollbar-hide">
         {filterGroups.map((group) => (
           <div key={group.key} className="space-y-4">
             <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
-              <span className="w-1 h-1 bg-zinc-300 rounded-full" />
+              <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
               {group.label}
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-x-3 gap-y-3">
               <FilterChip 
                 label="Todas" 
                 active={isSelected(group.key, 'all')} 
@@ -83,16 +76,16 @@ export const FilterChip = ({ label, active, percentage, onClick }: { label: stri
     whileTap={{ scale: 0.96 }}
     onClick={onClick}
     className={cn(
-      "px-4 py-2 rounded-2xl text-[10px] font-bold transition-all border flex items-center gap-2",
+      "px-5 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center gap-3",
       active 
-        ? "bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-600/20" 
-        : "bg-white border-zinc-200 text-zinc-600 hover:border-orange-300 hover:text-orange-600"
+        ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/30" 
+        : "bg-white border-zinc-100 text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50"
     )}
   >
-    <span className="truncate max-w-[140px]">{label}</span>
+    <span className="truncate max-w-[120px]">{label}</span>
     {percentage !== undefined && (
       <span className={cn(
-        "text-[9px] font-black px-1.5 py-0.5 rounded-lg",
+        "text-[9px] font-black px-2 py-0.5 rounded-full flex items-center justify-center min-w-[32px]",
         active ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-400"
       )}>
         {Math.round(percentage)}%
