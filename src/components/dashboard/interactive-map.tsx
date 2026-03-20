@@ -72,7 +72,9 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
     if (!map) return;
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
+      const ibgeName = event.feature.getProperty('nm_meso') || 
+                      event.feature.getProperty('NM_MESO') || 
+                      event.feature.getProperty('nome');
       const regionKey = mapIBGENameToApp(ibgeName);
       
       onRegionSelect(regionKey);
@@ -95,14 +97,16 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const ibgeName = feature.getProperty('nm_meso') || feature.getProperty('NM_MESO');
+        const ibgeName = feature.getProperty('nm_meso') || 
+                        feature.getProperty('NM_MESO') || 
+                        feature.getProperty('nome');
         const regionKey = mapIBGENameToApp(ibgeName);
         
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
-        let fillColor = MESO_COLORS[regionKey] || '#52525b';
-        let fillOpacity = 0.7;
+        let fillColor = MESO_COLORS[regionKey] || '#f97316';
+        let fillOpacity = 0.6;
         let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
 
@@ -112,8 +116,9 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeWeight = 3;
             strokeColor = '#ffffff';
           } else {
+            // Isolamento visual: as outras regiões ficam "apagadinhas"
             fillColor = '#cbd5e1'; 
-            fillOpacity = 0.15;
+            fillOpacity = 0.08;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }

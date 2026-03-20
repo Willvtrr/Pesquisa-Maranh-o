@@ -94,7 +94,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     if (!map) return;
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
+      const ibgeName = event.feature.getProperty('nm_meso') || 
+                      event.feature.getProperty('NM_MESO') || 
+                      event.feature.getProperty('nome');
       const region = mapIBGENameToApp(ibgeName);
       onFilterChange('region', region);
     });
@@ -107,25 +109,28 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const ibgeName = feature.getProperty('nm_meso') || feature.getProperty('NM_MESO');
+        const ibgeName = feature.getProperty('nm_meso') || 
+                        feature.getProperty('NM_MESO') || 
+                        feature.getProperty('nome');
         const regionKey = mapIBGENameToApp(ibgeName);
         
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
-        let fillColor = MESO_COLORS[regionKey] || '#52525b';
-        let fillOpacity = 0.7;
-        let strokeWeight = 1.5;
+        let fillColor = MESO_COLORS[regionKey] || '#f97316';
+        let fillOpacity = 0.6;
+        let strokeWeight = 1;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
           if (isThisRegionActive) {
-            fillOpacity = 0.95;
+            fillOpacity = 0.9;
             strokeWeight = 3;
             strokeColor = '#ffffff';
           } else {
-            fillColor = '#cbd5e1';
-            fillOpacity = 0.15;
+            // Regiões não selecionadas ficam "apagadinhas"
+            fillColor = '#cbd5e1'; 
+            fillOpacity = 0.1;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }
