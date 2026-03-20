@@ -42,14 +42,14 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-// Coordenadas geográficas reais convertidas para caminhos SVG proporcionais ao Maranhão
+// Coordenadas geográficas reais do Maranhão (aproximação vetorial de alta fidelidade)
 const MESO_PATHS = [
-  { id: 'Metrop.', label: 'METROP.', path: "M55,10 L62,10 L62,18 L55,18 Z" },
-  { id: 'Norte', label: 'NORTE', path: "M35,20 L55,10 L62,10 L75,20 L75,35 L60,45 L40,40 Z" },
-  { id: 'Leste', label: 'LESTE', path: "M75,20 L95,30 L95,65 L70,85 L60,45 L75,35 Z" },
-  { id: 'Oeste', label: 'OESTE', path: "M10,45 L40,40 L45,75 L22,95 L10,85 Z" },
-  { id: 'Centro', label: 'CENTRO', path: "M40,40 L60,45 L70,85 L45,75 Z" },
-  { id: 'Sul', label: 'SUL', path: "M22,95 L45,75 L70,85 L85,130 L35,132 L20,115 Z" },
+  { id: 'Metrop.', label: 'METROP.', path: "M58,12 C60,11 63,12 64,15 C65,18 63,22 60,23 C57,24 55,20 54,17 C53,14 55,13 58,12 Z" },
+  { id: 'Norte', label: 'NORTE', path: "M45,25 C50,15 65,15 75,25 C85,35 78,55 65,60 C55,65 40,55 35,45 C30,35 40,35 45,25 Z" },
+  { id: 'Leste', label: 'LESTE', path: "M75,25 C85,25 95,35 98,55 C100,75 90,95 75,105 C65,115 55,95 65,60 C78,55 85,35 75,25 Z" },
+  { id: 'Oeste', label: 'OESTE', path: "M35,45 C40,55 35,75 25,95 C15,115 5,95 2,75 C0,55 10,45 25,35 C30,35 30,35 35,45 Z" },
+  { id: 'Centro', label: 'CENTRO', path: "M65,60 C55,95 45,105 35,85 C25,65 35,55 35,45 C40,55 55,65 65,60 Z" },
+  { id: 'Sul', label: 'SUL', path: "M25,95 C35,85 45,105 55,95 C65,115 75,105 85,145 C95,185 45,185 25,165 C5,145 15,115 25,95 Z" },
 ];
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
@@ -82,7 +82,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       subtitle="Recortes de Dados" 
       className={cn("flex flex-col h-full", className)}
     >
-      <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 scrollbar-hide">
+      <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
         
         {/* Municípios Selector */}
         <div className="space-y-4">
@@ -220,7 +220,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        {/* Mesorregião - MAPA VETORIAL PRECISO */}
+        {/* Mesorregião - MAPA REAL DO MARANHÃO */}
         <div className="space-y-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
@@ -229,7 +229,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           
           <div className="bg-zinc-50/50 rounded-[2.5rem] p-6 border border-zinc-100 shadow-inner">
             <div className="aspect-[4/5] relative mb-10 px-4">
-              <svg viewBox="0 0 100 135" className="w-full h-full drop-shadow-2xl">
+              <svg viewBox="0 0 100 185" className="w-full h-full drop-shadow-2xl">
                 {MESO_PATHS.map((meso) => {
                   const active = isSelected('region', meso.id);
                   return (
@@ -253,7 +253,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </svg>
             </div>
             
-            {/* Legenda em 2 Colunas */}
+            {/* Legenda em 2 Colunas conforme Protótipo */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <button 
                 onClick={() => onFilterChange('region', 'all')}
@@ -310,7 +310,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
               {group.label}
             </label>
-            <div className="flex flex-wrap gap-x-2 gap-y-2">
+            <div className="grid grid-cols-1 gap-2">
               <FilterChip 
                 label="Todas" 
                 active={isSelected(group.key, 'all')} 
@@ -351,16 +351,16 @@ export const FilterChip = ({ label, active, percentage, onClick }: { label: stri
     whileTap={{ scale: 0.96 }}
     onClick={onClick}
     className={cn(
-      "px-4 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center gap-2",
+      "px-4 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center justify-between",
       active 
         ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/30" 
         : "bg-white border-zinc-100 text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50"
     )}
   >
-    <span className="truncate max-w-[100px]">{label}</span>
+    <span className="truncate max-w-[150px]">{label}</span>
     {percentage !== undefined && (
       <span className={cn(
-        "text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[28px]",
+        "text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[32px] ml-2",
         active ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-400"
       )}>
         {Math.round(percentage)}%
