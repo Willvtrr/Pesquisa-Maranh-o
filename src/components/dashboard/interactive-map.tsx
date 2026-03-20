@@ -26,12 +26,12 @@ const mapStyles = [
 ];
 
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e', // Rosa/Vermelho
-  'Norte': '#f97316',   // Laranja
-  'Oeste': '#22c55e',   // Verde
-  'Centro': '#eab308',  // Amarelo
-  'Leste': '#3b82f6',   // Azul
-  'Sul': '#a855f7',     // Roxo
+  'Metrop.': '#f43f5e',
+  'Norte': '#f97316',
+  'Oeste': '#22c55e',
+  'Centro': '#eab308',
+  'Leste': '#3b82f6',
+  'Sul': '#a855f7',
 };
 
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
@@ -46,14 +46,13 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   return 'Norte';
 };
 
-// Função para extrair o nome da região de forma robusta
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  return feature.getProperty('nm_meso') || 
-         feature.getProperty('NM_MESO') || 
-         feature.getProperty('nome') || 
-         feature.getProperty('name') || 
-         feature.getProperty('NM_MESOREG') ||
-         null;
+  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO'];
+  for (const prop of props) {
+    const val = feature.getProperty(prop);
+    if (val) return String(val);
+  }
+  return null;
 };
 
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
@@ -92,7 +91,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         name: ibgeName || regionKey
       });
       
-      // Zoom suave na região
       map.panTo(event.latLng);
     });
 
@@ -121,8 +119,8 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeWeight = 4;
             strokeColor = '#ffffff';
           } else {
-            fillColor = '#94a3b8'; // Cinza suave
-            fillOpacity = 0.05;    // Quase transparente (apagadinha)
+            fillColor = '#94a3b8';
+            fillOpacity = 0.05;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }

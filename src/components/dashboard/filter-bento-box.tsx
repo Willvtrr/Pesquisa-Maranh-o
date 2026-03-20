@@ -66,12 +66,12 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  return feature.getProperty('nm_meso') || 
-         feature.getProperty('NM_MESO') || 
-         feature.getProperty('nome') || 
-         feature.getProperty('name') || 
-         feature.getProperty('NM_MESOREG') ||
-         null;
+  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO'];
+  for (const prop of props) {
+    const val = feature.getProperty(prop);
+    if (val) return String(val);
+  }
+  return null;
 };
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
@@ -305,21 +305,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
 
           <div className="grid grid-cols-2 gap-2 mt-4">
-            <button 
-              onClick={() => onFilterChange('region', 'all')}
-              className={cn(
-                "flex items-center justify-between p-2 rounded-xl transition-all border",
-                filters.region?.[0] === 'all' 
-                  ? "bg-white border-zinc-200 shadow-md ring-1 ring-zinc-100" 
-                  : "bg-transparent border-transparent hover:bg-zinc-50"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-zinc-300" />
-                <span className="text-[9px] font-black uppercase text-zinc-500">Média MA</span>
-              </div>
-            </button>
-
             {Object.keys(MESO_COLORS).map((id) => {
               const percentage = distribution?.region?.[id] || 0;
               const active = isSelected('region', id);
