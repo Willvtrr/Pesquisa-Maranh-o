@@ -12,7 +12,7 @@ import {
   Plus, 
   X,
   ChevronRight,
-  Map
+  Map as MapIcon
 } from 'lucide-react';
 import {
   Dialog,
@@ -22,9 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FilterBentoBoxProps {
   filters: Record<string, string[]>;
@@ -34,6 +33,25 @@ interface FilterBentoBoxProps {
   distribution?: Record<string, Record<string, number>>;
   className?: string;
 }
+
+const MESO_COLORS: Record<string, string> = {
+  'Metrop.': '#ea580c',
+  'Norte': '#f97316',
+  'Oeste': '#fb923c',
+  'Centro': '#fdba74',
+  'Leste': '#fed7aa',
+  'Sul': '#cbd5e1',
+};
+
+// Coordenadas estilizadas para as mesorregiões do Maranhão
+const MESO_PATHS = [
+  { id: 'Metrop.', label: 'Metropolitana', path: "M62,18 L68,18 L68,24 L62,24 Z" },
+  { id: 'Norte', label: 'Norte', path: "M45,15 L60,15 L60,35 L40,35 Z" },
+  { id: 'Leste', label: 'Leste', path: "M60,15 L85,25 L80,60 L60,55 Z" },
+  { id: 'Centro', label: 'Centro', path: "M40,35 L60,35 L60,65 L45,70 Z" },
+  { id: 'Oeste', label: 'Oeste', path: "M15,30 L40,35 L45,70 L20,80 Z" },
+  { id: 'Sul', label: 'Sul', path: "M20,80 L45,70 L60,65 L70,110 L30,110 Z" },
+];
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,7 +70,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const selectedCitiesCount = filters.city?.[0] === 'all' ? 0 : filters.city?.length || 0;
 
   const filterGroups = [
-    { key: 'region', label: 'Mesorregião' },
     { key: 'gender', label: 'Gênero' },
     { key: 'age', label: 'Faixa Etária' },
     { key: 'income', label: 'Renda Familiar' },
@@ -66,9 +83,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       subtitle="Recortes de Dados" 
       className={cn("flex flex-col h-full", className)}
     >
-      <div className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2 scrollbar-hide">
+      <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 scrollbar-hide">
         
-        {/* Municípios Selector - App Style */}
+        {/* Municípios Selector */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
@@ -114,7 +131,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               <DialogHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
                 <DialogTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
-                    <Map size={24} />
+                    <MapIcon size={24} />
                   </div>
                   Escolha os Municípios
                 </DialogTitle>
@@ -202,6 +219,79 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </div>
             </DialogContent>
           </Dialog>
+        </div>
+
+        {/* Mesorregião - MAPA REDUZIDO */}
+        <div className="space-y-6">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
+            Mesorregião
+          </label>
+          
+          <div className="bg-zinc-50 rounded-[2rem] p-4 border border-zinc-100">
+            <div className="aspect-[4/5] relative mb-6">
+              <svg viewBox="0 0 100 125" className="w-full h-full drop-shadow-sm">
+                {MESO_PATHS.map((meso) => {
+                  const active = isSelected('region', meso.id);
+                  return (
+                    <motion.path
+                      key={meso.id}
+                      d={meso.path}
+                      fill={active ? MESO_COLORS[meso.id] : "#e2e8f0"}
+                      stroke="#ffffff"
+                      strokeWidth="1.5"
+                      initial={false}
+                      animate={{ 
+                        fill: active ? MESO_COLORS[meso.id] : "#e2e8f0",
+                        scale: active ? 1.05 : 1
+                      }}
+                      onClick={() => onFilterChange('region', meso.id)}
+                      className="cursor-pointer hover:opacity-80 transition-opacity"
+                    />
+                  );
+                })}
+              </svg>
+            </div>
+            
+            {/* Legenda Horizontal do Mapa */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+              <button 
+                onClick={() => onFilterChange('region', 'all')}
+                className={cn(
+                  "flex items-center gap-2 p-1.5 rounded-lg transition-all",
+                  filters.region?.[0] === 'all' ? "bg-white shadow-sm ring-1 ring-zinc-200" : "hover:bg-zinc-100"
+                )}
+              >
+                <div className="w-2 h-2 rounded-full bg-zinc-400" />
+                <span className="text-[9px] font-black uppercase text-zinc-500">Todas</span>
+              </button>
+              {MESO_PATHS.map((meso) => {
+                const percentage = distribution?.region?.[meso.id] || 0;
+                const active = isSelected('region', meso.id);
+                return (
+                  <button 
+                    key={meso.id}
+                    onClick={() => onFilterChange('region', meso.id)}
+                    className={cn(
+                      "flex items-center justify-between p-1.5 rounded-lg transition-all",
+                      active ? "bg-white shadow-sm ring-1 ring-zinc-200" : "hover:bg-zinc-100"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[meso.id] }} />
+                      <span className={cn(
+                        "text-[9px] font-black uppercase truncate",
+                        active ? "text-orange-600" : "text-zinc-500"
+                      )}>
+                        {meso.id}
+                      </span>
+                    </div>
+                    <span className="text-[8px] font-bold text-zinc-400">{Math.round(percentage)}%</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {filterGroups.map((group) => (
