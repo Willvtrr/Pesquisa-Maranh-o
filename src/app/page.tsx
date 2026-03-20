@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -349,7 +348,7 @@ export default function Home() {
             </div>
             
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">
-              Inteligência analítica e mapeamento geoespacial estratégico para tomada de decisão em tempo real.
+              Inteligência de dados estratégica.
             </p>
           </div>
 
