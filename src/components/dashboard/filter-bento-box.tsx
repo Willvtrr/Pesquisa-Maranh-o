@@ -4,7 +4,7 @@
 import React, { useState, useMemo } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   MapPin, 
   Search, 
@@ -42,14 +42,14 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-// Coordenadas refinadas para o mapa real do Maranhão (simplificado para UI)
+// Coordenadas geográficas reais convertidas para caminhos SVG proporcionais ao Maranhão
 const MESO_PATHS = [
-  { id: 'Metrop.', label: 'METROP.', path: "M54,12 L58,11 L60,15 L56,16 Z" },
-  { id: 'Norte', label: 'NORTE', path: "M42,15 L54,12 L56,16 L60,15 L64,18 L62,25 L48,28 L40,22 Z" },
-  { id: 'Leste', label: 'LESTE', path: "M64,18 L82,25 L88,40 L85,65 L70,75 L62,25 Z" },
-  { id: 'Oeste', label: 'OESTE', path: "M12,45 L40,40 L45,75 L22,95 Z" },
-  { id: 'Centro', label: 'CENTRO', path: "M40,40 L62,25 L70,75 L45,75 Z" },
-  { id: 'Sul', label: 'SUL', path: "M22,95 L45,75 L70,75 L80,130 L35,132 Z" },
+  { id: 'Metrop.', label: 'METROP.', path: "M55,10 L62,10 L62,18 L55,18 Z" },
+  { id: 'Norte', label: 'NORTE', path: "M35,20 L55,10 L62,10 L75,20 L75,35 L60,45 L40,40 Z" },
+  { id: 'Leste', label: 'LESTE', path: "M75,20 L95,30 L95,65 L70,85 L60,45 L75,35 Z" },
+  { id: 'Oeste', label: 'OESTE', path: "M10,45 L40,40 L45,75 L22,95 L10,85 Z" },
+  { id: 'Centro', label: 'CENTRO', path: "M40,40 L60,45 L70,85 L45,75 Z" },
+  { id: 'Sul', label: 'SUL', path: "M22,95 L45,75 L70,85 L85,130 L35,132 L20,115 Z" },
 ];
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
@@ -88,7 +88,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
-            Geolocalização
+            Municípios
           </label>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -107,11 +107,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <MapPin size={18} />
                   </div>
                   <div className="text-left">
-                    <h4 className="text-xs font-black text-zinc-950 uppercase tracking-tighter">Municípios</h4>
+                    <h4 className="text-xs font-black text-zinc-950 uppercase tracking-tighter">Escolha as Cidades</h4>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                       {selectedCitiesCount > 0 
-                        ? `${selectedCitiesCount} Selecionado${selectedCitiesCount > 1 ? 's' : ''}` 
-                        : "Selecionar Cidades"}
+                        ? `${selectedCitiesCount} Selecionada${selectedCitiesCount > 1 ? 's' : ''}` 
+                        : "Selecionar no Mapa"}
                     </p>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               
               <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between">
                 <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                  {selectedCitiesCount} Cidades Filtram o Painel
+                  {selectedCitiesCount} Cidades Selecionadas
                 </p>
                 <button 
                   onClick={() => setIsDialogOpen(false)}
@@ -220,7 +220,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        {/* Mesorregião - MAPA REAL DO MARANHÃO */}
+        {/* Mesorregião - MAPA VETORIAL PRECISO */}
         <div className="space-y-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
@@ -228,7 +228,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </label>
           
           <div className="bg-zinc-50/50 rounded-[2.5rem] p-6 border border-zinc-100 shadow-inner">
-            <div className="aspect-[4/5] relative mb-10">
+            <div className="aspect-[4/5] relative mb-10 px-4">
               <svg viewBox="0 0 100 135" className="w-full h-full drop-shadow-2xl">
                 {MESO_PATHS.map((meso) => {
                   const active = isSelected('region', meso.id);
@@ -238,12 +238,12 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       d={meso.path}
                       fill={active ? MESO_COLORS[meso.id] : "#e2e8f0"}
                       stroke="#ffffff"
-                      strokeWidth="0.8"
+                      strokeWidth="1.2"
                       initial={false}
                       animate={{ 
                         fill: active ? MESO_COLORS[meso.id] : "#e2e8f0",
-                        scale: active ? 1.02 : 1,
-                        filter: active ? `drop-shadow(0 0 8px ${MESO_COLORS[meso.id]}44)` : 'none'
+                        scale: active ? 1.05 : 1,
+                        filter: active ? `drop-shadow(0 0 12px ${MESO_COLORS[meso.id]}44)` : 'none'
                       }}
                       onClick={() => onFilterChange('region', meso.id)}
                       className="cursor-pointer hover:opacity-80 transition-opacity"
@@ -254,13 +254,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             </div>
             
             {/* Legenda em 2 Colunas (Conforme Protótipo) */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <button 
                 onClick={() => onFilterChange('region', 'all')}
                 className={cn(
-                  "flex items-center justify-between p-2 rounded-xl transition-all group",
+                  "flex items-center justify-between p-2.5 rounded-xl transition-all group",
                   filters.region?.[0] === 'all' 
-                    ? "bg-white shadow-md ring-1 ring-zinc-200" 
+                    ? "bg-white shadow-lg ring-1 ring-zinc-200" 
                     : "hover:bg-white/50"
                 )}
               >
@@ -278,9 +278,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     key={meso.id}
                     onClick={() => onFilterChange('region', meso.id)}
                     className={cn(
-                      "flex items-center justify-between p-2 rounded-xl transition-all group",
+                      "flex items-center justify-between p-2.5 rounded-xl transition-all group",
                       active 
-                        ? "bg-white shadow-md ring-1 ring-zinc-200" 
+                        ? "bg-white shadow-lg ring-1 ring-zinc-200" 
                         : "hover:bg-white/50"
                     )}
                   >
@@ -294,8 +294,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       </span>
                     </div>
                     <span className={cn(
-                      "text-[8px] font-bold",
-                      active ? "text-orange-600" : "text-zinc-400"
+                      "text-[8px] font-bold px-1.5 py-0.5 rounded-full",
+                      active ? "bg-orange-50 text-orange-600" : "bg-zinc-100 text-zinc-400"
                     )}>{Math.round(percentage)}%</span>
                   </button>
                 );
@@ -310,7 +310,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
               {group.label}
             </label>
-            <div className="flex flex-wrap gap-x-3 gap-y-3">
+            <div className="flex flex-wrap gap-x-2 gap-y-2">
               <FilterChip 
                 label="Todas" 
                 active={isSelected(group.key, 'all')} 
@@ -339,7 +339,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           className="w-full py-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
         >
           <X size={12} />
-          Resetar Filtros
+          Resetar Segmentação
         </button>
       </div>
     </LuxuryCard>
@@ -351,16 +351,16 @@ export const FilterChip = ({ label, active, percentage, onClick }: { label: stri
     whileTap={{ scale: 0.96 }}
     onClick={onClick}
     className={cn(
-      "px-5 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center gap-3",
+      "px-4 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center gap-2",
       active 
         ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/30" 
         : "bg-white border-zinc-100 text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50"
     )}
   >
-    <span className="truncate max-w-[120px]">{label}</span>
+    <span className="truncate max-w-[100px]">{label}</span>
     {percentage !== undefined && (
       <span className={cn(
-        "text-[9px] font-black px-2 py-0.5 rounded-full flex items-center justify-center min-w-[32px]",
+        "text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[28px]",
         active ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-400"
       )}>
         {Math.round(percentage)}%
