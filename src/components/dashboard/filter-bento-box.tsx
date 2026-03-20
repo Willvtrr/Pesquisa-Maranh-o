@@ -35,13 +35,14 @@ interface FilterBentoBoxProps {
   className?: string;
 }
 
+// Cores vivas e distintas sincronizadas com o mapa principal
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#ea580c',
-  'Norte': '#f97316',
-  'Oeste': '#fb923c',
-  'Centro': '#fdba74',
-  'Leste': '#fed7aa',
-  'Sul': '#cbd5e1',
+  'Metrop.': '#f43f5e', // Rose
+  'Norte': '#f97316',   // Orange
+  'Oeste': '#eab308',   // Yellow/Amber
+  'Centro': '#22c55e',  // Green
+  'Leste': '#3b82f6',   // Blue
+  'Sul': '#a855f7',     // Purple
 };
 
 const mapStyles = [
@@ -99,13 +100,33 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       map.data.setStyle((feature) => {
         const ibgeName = feature.getProperty('nm_meso') || feature.getProperty('NM_MESO');
         const regionKey = mapIBGENameToApp(ibgeName);
-        const isActive = activeRegion === regionKey;
+        
+        const isSelectionActive = activeRegion !== 'all';
+        const isThisRegionActive = activeRegion === regionKey;
+        
+        let fillColor = MESO_COLORS[regionKey] || '#52525b';
+        let fillOpacity = 0.6;
+        let strokeWeight = 1;
+        let strokeColor = '#ffffff';
+
+        if (isSelectionActive) {
+          if (isThisRegionActive) {
+            fillOpacity = 0.95;
+            strokeWeight = 2;
+          } else {
+            // "Apagadinhas" para focar na selecionada
+            fillColor = '#cbd5e1';
+            fillOpacity = 0.1;
+            strokeWeight = 0.5;
+            strokeColor = '#f1f5f9';
+          }
+        }
         
         return {
-          fillColor: isActive ? MESO_COLORS[regionKey] : '#52525b',
-          fillOpacity: isActive ? 0.8 : 0.4,
-          strokeColor: '#ffffff',
-          strokeWeight: 1,
+          fillColor,
+          fillOpacity,
+          strokeColor,
+          strokeWeight,
           visible: true
         };
       });
@@ -327,7 +348,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[id] }} />
                     <span className={cn(
                       "text-[8px] font-black uppercase truncate",
-                      active ? "text-orange-600" : "text-zinc-500"
+                      active ? "text-zinc-950" : "text-zinc-500"
                     )}>
                       {id === 'Metrop.' ? 'Metropolitana' : id}
                     </span>
