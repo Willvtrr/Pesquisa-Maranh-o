@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Polygon } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Loader2, MapPin, AlertTriangle } from 'lucide-react';
@@ -28,14 +28,41 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-const regionMarkers: { id: MesoRegion; position: { lat: number; lng: number }; label: string }[] = [
-  { id: 'Metrop.', label: 'Metropolitana de São Luís', position: { lat: -2.53, lng: -44.30 } },
-  { id: 'Norte', label: 'Norte Maranhense', position: { lat: -3.50, lng: -44.80 } },
-  { id: 'Oeste', label: 'Oeste Maranhense', position: { lat: -5.52, lng: -47.47 } },
-  { id: 'Centro', label: 'Centro Maranhense', position: { lat: -5.29, lng: -44.49 } },
-  { id: 'Leste', label: 'Leste Maranhense', position: { lat: -4.86, lng: -43.35 } },
-  { id: 'Sul', label: 'Sul Maranhense', position: { lat: -7.53, lng: -46.03 } },
-];
+const MESO_PATHS: Record<string, { lat: number, lng: number }[]> = {
+  'Metrop.': [
+    { lat: -2.3, lng: -44.5 }, { lat: -2.3, lng: -44.1 },
+    { lat: -2.7, lng: -44.1 }, { lat: -2.7, lng: -44.5 }
+  ],
+  'Norte': [
+    { lat: -1.5, lng: -45.5 }, { lat: -1.5, lng: -43.5 },
+    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -45.5 }
+  ],
+  'Leste': [
+    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -42.5 },
+    { lat: -6.5, lng: -42.5 }, { lat: -6.5, lng: -43.5 }
+  ],
+  'Oeste': [
+    { lat: -3.5, lng: -48.5 }, { lat: -3.5, lng: -46.5 },
+    { lat: -7.5, lng: -46.5 }, { lat: -7.5, lng: -48.5 }
+  ],
+  'Centro': [
+    { lat: -3.5, lng: -46.5 }, { lat: -3.5, lng: -43.5 },
+    { lat: -6.5, lng: -43.5 }, { lat: -6.5, lng: -46.5 }
+  ],
+  'Sul': [
+    { lat: -6.5, lng: -47.5 }, { lat: -6.5, lng: -44.5 },
+    { lat: -9.5, lng: -44.5 }, { lat: -9.5, lng: -47.5 }
+  ],
+};
+
+const MESO_COLORS: Record<string, string> = {
+  'Metrop.': '#ea580c',
+  'Norte': '#f97316',
+  'Oeste': '#fb923c',
+  'Centro': '#fdba74',
+  'Leste': '#fed7aa',
+  'Sul': '#cbd5e1',
+};
 
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -92,19 +119,17 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               gestureHandling: 'cooperative'
             }}
           >
-            {regionMarkers.map((marker) => (
-              <Marker
-                key={marker.id}
-                position={marker.position}
-                onClick={() => onRegionSelect(marker.id)}
-                icon={{
-                  path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
-                  fillColor: activeRegion === marker.id ? "#ea580c" : "#18181b",
-                  fillOpacity: 1,
-                  strokeColor: "#ffffff",
+            {Object.entries(MESO_PATHS).map(([id, path]) => (
+              <Polygon
+                key={id}
+                path={path}
+                onClick={() => onRegionSelect(id as MesoRegion)}
+                options={{
+                  fillColor: activeRegion === id ? MESO_COLORS[id] : "#18181b",
+                  fillOpacity: activeRegion === id ? 0.6 : 0.3,
+                  strokeColor: activeRegion === id ? MESO_COLORS[id] : "#ffffff",
+                  strokeOpacity: 0.8,
                   strokeWeight: 2,
-                  scale: activeRegion === marker.id ? 1.4 : 1.1,
-                  anchor: new google.maps.Point(12, 24),
                 }}
               />
             ))}
@@ -155,7 +180,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
                         initial={{ width: 0 }}
                         animate={{ width: `${(stats[currentRegion as MesoRegion] / totalSamples) * 100}%` }}
                         transition={{ duration: 1, ease: "circOut" }}
-                        className="h-full bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.4)]"
+                        className="h-full bg-orange-600 shadow-[0_0_15px_rgba(234,12,12,0.4)]"
                       />
                     </div>
                   </div>

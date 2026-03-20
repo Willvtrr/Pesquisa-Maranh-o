@@ -14,7 +14,7 @@ import {
   Map as MapIcon,
   Loader2
 } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Polygon } from '@react-google-maps/api';
 import {
   Dialog,
   DialogContent,
@@ -44,14 +44,33 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-const MESO_MARKERS = [
-  { id: 'Metrop.', label: 'METROP.', position: { lat: -2.53, lng: -44.30 } },
-  { id: 'Norte', label: 'NORTE', position: { lat: -3.50, lng: -44.80 } },
-  { id: 'Leste', label: 'LESTE', position: { lat: -4.86, lng: -43.35 } },
-  { id: 'Oeste', label: 'OESTE', position: { lat: -5.52, lng: -47.47 } },
-  { id: 'Centro', label: 'CENTRO', position: { lat: -5.29, lng: -44.49 } },
-  { id: 'Sul', label: 'SUL', position: { lat: -7.53, lng: -46.03 } },
-];
+// Coordenadas aproximadas para desenhar as divisões regionais no Google Maps
+const MESO_PATHS: Record<string, { lat: number, lng: number }[]> = {
+  'Metrop.': [
+    { lat: -2.3, lng: -44.5 }, { lat: -2.3, lng: -44.1 },
+    { lat: -2.7, lng: -44.1 }, { lat: -2.7, lng: -44.5 }
+  ],
+  'Norte': [
+    { lat: -1.5, lng: -45.5 }, { lat: -1.5, lng: -43.5 },
+    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -45.5 }
+  ],
+  'Leste': [
+    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -42.5 },
+    { lat: -6.5, lng: -42.5 }, { lat: -6.5, lng: -43.5 }
+  ],
+  'Oeste': [
+    { lat: -3.5, lng: -48.5 }, { lat: -3.5, lng: -46.5 },
+    { lat: -7.5, lng: -46.5 }, { lat: -7.5, lng: -48.5 }
+  ],
+  'Centro': [
+    { lat: -3.5, lng: -46.5 }, { lat: -3.5, lng: -43.5 },
+    { lat: -6.5, lng: -43.5 }, { lat: -6.5, lng: -46.5 }
+  ],
+  'Sul': [
+    { lat: -6.5, lng: -47.5 }, { lat: -6.5, lng: -44.5 },
+    { lat: -9.5, lng: -44.5 }, { lat: -9.5, lng: -47.5 }
+  ],
+};
 
 const mapStyles = [
   { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
@@ -238,7 +257,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        {/* Mesorregião - GOOGLE MAPS ENGINE */}
+        {/* Mesorregião - GOOGLE MAPS ENGINE COM POLÍGONOS */}
         <div className="space-y-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
@@ -258,20 +277,19 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     gestureHandling: 'cooperative'
                   }}
                 >
-                  {MESO_MARKERS.map((meso) => {
-                    const active = isSelected('region', meso.id);
+                  {Object.entries(MESO_PATHS).map(([id, path]) => {
+                    const active = isSelected('region', id);
                     return (
-                      <Marker
-                        key={meso.id}
-                        position={meso.position}
-                        onClick={() => onFilterChange('region', meso.id)}
-                        icon={{
-                          path: google.maps.SymbolPath.CIRCLE,
-                          fillColor: active ? MESO_COLORS[meso.id] : "#a1a1aa",
-                          fillOpacity: 1,
-                          strokeColor: "#ffffff",
+                      <Polygon
+                        key={id}
+                        path={path}
+                        onClick={() => onFilterChange('region', id)}
+                        options={{
+                          fillColor: active ? MESO_COLORS[id] : "#a1a1aa",
+                          fillOpacity: active ? 0.6 : 0.3,
+                          strokeColor: active ? MESO_COLORS[id] : "#ffffff",
+                          strokeOpacity: 0.8,
                           strokeWeight: 2,
-                          scale: active ? 10 : 7,
                         }}
                       />
                     );
@@ -302,13 +320,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
               </button>
 
-              {MESO_MARKERS.map((meso) => {
-                const percentage = distribution?.region?.[meso.id] || 0;
-                const active = isSelected('region', meso.id);
+              {Object.keys(MESO_PATHS).map((id) => {
+                const percentage = distribution?.region?.[id] || 0;
+                const active = isSelected('region', id);
                 return (
                   <button 
-                    key={meso.id}
-                    onClick={() => onFilterChange('region', meso.id)}
+                    key={id}
+                    onClick={() => onFilterChange('region', id)}
                     className={cn(
                       "flex items-center justify-between p-2 rounded-xl transition-all",
                       active 
@@ -317,12 +335,12 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     )}
                   >
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[meso.id] }} />
+                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[id] }} />
                       <span className={cn(
                         "text-[8px] font-black uppercase truncate",
                         active ? "text-orange-600" : "text-zinc-500"
                       )}>
-                        {meso.label}
+                        {id.toUpperCase()}
                       </span>
                     </div>
                     <span className={cn(
