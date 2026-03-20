@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -338,7 +339,7 @@ export default function Home() {
             </div>
             
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">
-              App de Inteligência Política e Monitoramento Estratégico de Dados Eleitorais do Maranhão.
+              App de inteligência política e monitoramento de dados eleitorais.
             </p>
           </div>
 
