@@ -73,7 +73,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
+    id: 'google-map-script-shared',
     googleMapsApiKey: apiKey || "",
     libraries: ['maps'],
     language: 'pt-BR',
@@ -118,19 +118,17 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.6;
+        let fillOpacity = 0.7;
         let strokeWeight = 1;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
           if (isThisRegionActive) {
-            fillOpacity = 0.9;
+            fillOpacity = 0.95;
             strokeWeight = 3;
-            strokeColor = '#ffffff';
           } else {
-            // Regiões não selecionadas ficam "apagadinhas"
             fillColor = '#cbd5e1'; 
-            fillOpacity = 0.1;
+            fillOpacity = 0.05;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }
@@ -159,7 +157,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   return (
     <LuxuryCard 
-      title="SEGMENTAÇÃO DE DADOS" 
+      title="SEGMENTAÇÃO ESTRATÉGICA" 
       subtitle="Filtros Geográficos" 
       className={cn("flex flex-col h-full", className)}
     >
@@ -186,11 +184,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <MapPin size={18} />
                   </div>
                   <div className="text-left">
-                    <h4 className="text-xs font-black text-zinc-950 uppercase tracking-tighter">Escolha as Cidades</h4>
+                    <h4 className="text-xs font-black text-zinc-950 uppercase tracking-tighter">Cidades Alvo</h4>
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                       {selectedCitiesCount > 0 
-                        ? `${selectedCitiesCount} Selecionada${selectedCitiesCount > 1 ? 's' : ''}` 
-                        : "Selecionar na Base"}
+                        ? `${selectedCitiesCount} Ativa${selectedCitiesCount > 1 ? 's' : ''}` 
+                        : "Selecionar Municípios"}
                     </p>
                   </div>
                 </div>
@@ -204,7 +202,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
                     <MapIcon size={24} />
                   </div>
-                  Municípios do Maranhão
+                  Base Territorial Maranhense
                 </DialogTitle>
                 <div className="relative mt-6">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 size-4" />
@@ -260,13 +258,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               
               <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between">
                 <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                  {selectedCitiesCount} Selecionadas
+                  {selectedCitiesCount} Municípios no Recorte
                 </p>
                 <button 
                   onClick={() => setIsDialogOpen(false)}
                   className="px-8 py-3 bg-zinc-950 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl"
                 >
-                  Confirmar
+                  Aplicar Filtros
                 </button>
               </div>
             </DialogContent>
@@ -276,7 +274,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         <div className="space-y-4 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
-            Mesorregião (Malha Digital)
+            Mesorregião (Mapa Real)
           </label>
           
           <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl overflow-hidden">
@@ -284,7 +282,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               {isLoaded ? (
                 <GoogleMap
                   mapContainerStyle={{ width: '100%', height: '100%' }}
-                  center={{ lat: -5.0, lng: -45.0 }}
+                  center={{ lat: -5.3, lng: -45.0 }}
                   zoom={5}
                   onLoad={onLoad}
                   options={{
@@ -314,7 +312,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-zinc-300" />
-                <span className="text-[9px] font-black uppercase text-zinc-500">Todas</span>
+                <span className="text-[9px] font-black uppercase text-zinc-500">Média MA</span>
               </div>
             </button>
 
@@ -338,7 +336,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       "text-[8px] font-black uppercase truncate",
                       active ? "text-zinc-950" : "text-zinc-500"
                     )}>
-                      {id === 'Metrop.' ? 'Metrop.' : id}
+                      {id}
                     </span>
                   </div>
                   <span className="text-[8px] font-bold text-zinc-400">
@@ -382,7 +380,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           className="w-full py-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all flex items-center justify-center gap-2 shadow-inner"
         >
           <X size={12} />
-          Limpar Filtros
+          Resetar Recorte
         </button>
       </div>
     </LuxuryCard>

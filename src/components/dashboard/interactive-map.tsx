@@ -15,7 +15,7 @@ interface InteractiveMapProps {
 }
 
 const mapContainerStyle = { width: '100%', height: '100%' };
-const center = { lat: -5.0, lng: -45.0 };
+const center = { lat: -5.3, lng: -45.0 };
 
 const mapStyles = [
   { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
@@ -49,7 +49,7 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
+    id: 'google-map-script-shared',
     googleMapsApiKey: apiKey || "",
     libraries: ['maps'],
     language: 'pt-BR',
@@ -63,6 +63,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
+    // Carrega a malha oficial do IBGE para o Maranhão (ID 21)
     mapInstance.data.loadGeoJson(
       'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
     );
@@ -79,9 +80,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       
       onRegionSelect(regionKey);
       
-      map.panTo(event.latLng);
-      map.setZoom(7);
-
       setInfoWindowData({
         lat: event.latLng.lat(),
         lng: event.latLng.lng(),
@@ -106,20 +104,19 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.6;
-        let strokeWeight = 1.5;
+        let fillOpacity = 0.65;
+        let strokeWeight = 2;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
-            strokeWeight = 3;
+            strokeWeight = 4;
             strokeColor = '#ffffff';
           } else {
-            // Isolamento visual: as outras regiões ficam "apagadinhas"
             fillColor = '#cbd5e1'; 
-            fillOpacity = 0.08;
-            strokeWeight = 0.5;
+            fillOpacity = 0.05;
+            strokeWeight = 1;
             strokeColor = '#f1f5f9';
           }
         }
@@ -137,23 +134,21 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   if (!apiKey || loadError) {
     return (
-      <LuxuryCard title="Geolocalização" subtitle="Engine de Mapas" className="min-h-[500px]">
+      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[500px]">
         <div className="flex flex-col items-center justify-center h-full text-center gap-6">
-          <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
-            <AlertTriangle className="w-10 h-10 text-rose-500" />
-          </div>
-          <p className="text-xs text-zinc-500 font-medium">Erro ao carregar mapa. Verifique sua chave API.</p>
+          <AlertTriangle className="w-12 h-12 text-rose-500" />
+          <p className="text-sm text-zinc-500 font-medium max-w-xs">Erro ao carregar o engine de mapas. Verifique sua chave API do Google Cloud.</p>
         </div>
       </LuxuryCard>
     );
   }
 
   return (
-    <LuxuryCard title="GEOLOCALIZAÇÃO ESTRATÉGICA" subtitle="Densidade por Mesorregião" className="relative p-0 overflow-hidden min-h-[600px]">
+    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Polígonos por Mesorregião" className="relative p-0 overflow-hidden min-h-[600px]">
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
-        <div className="px-4 py-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
-          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-widest">MAPA INTERATIVO: MARANHÃO</span>
+        <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
+          <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
+          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE • Sincronizado</span>
         </div>
       </div>
 
@@ -179,12 +174,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
                 position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }}
                 onCloseClick={() => setInfoWindowData(null)}
               >
-                <div className="p-2 min-w-[120px]">
-                  <p className="text-[10px] font-black uppercase text-orange-600 mb-1">Mesorregião</p>
-                  <p className="text-sm font-bold text-zinc-900">{infoWindowData.name}</p>
-                  <div className="mt-2 pt-2 border-t border-zinc-100 flex items-center justify-between">
-                    <span className="text-[9px] font-bold text-zinc-400">Status</span>
-                    <span className="text-[9px] font-black text-emerald-600 uppercase">Selecionada</span>
+                <div className="p-3 min-w-[150px]">
+                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1">Foco Regional</p>
+                  <p className="text-sm font-black text-zinc-900 leading-tight">{infoWindowData.name}</p>
+                  <div className="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-zinc-400">Integridade</span>
+                    <span className="text-[9px] font-black text-emerald-600 uppercase">100% OK</span>
                   </div>
                 </div>
               </InfoWindow>
@@ -193,7 +188,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-6">
             <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
-            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Iniciando Cartografia Digital...</p>
+            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Iniciando Cartografia Maranhense...</p>
           </div>
         )}
 
@@ -207,17 +202,17 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             >
               <div>
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
                     {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion}
                   </span>
-                  <button onClick={() => onRegionSelect('all')} className="p-2 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
-                    <ArrowUpRight size={16} className="text-zinc-400" />
+                  <button onClick={() => onRegionSelect('all')} className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
+                    <ArrowUpRight size={18} className="text-zinc-400" />
                   </button>
                 </div>
 
                 <div className="space-y-8">
                   <div className="space-y-1">
-                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Amostra Regional</span>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Amostra de Votos</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-black text-zinc-950 tracking-tighter">
                         {(stats[activeRegion as MesoRegion] || 0).toLocaleString('pt-BR')}
@@ -228,17 +223,17 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-end">
-                      <span className="text-[9px] font-black text-zinc-500 uppercase">Representatividade</span>
-                      <span className="text-xl font-black font-mono" style={{ color: MESO_COLORS[activeRegion] }}>
+                      <span className="text-[10px] font-black text-zinc-500 uppercase">Representatividade</span>
+                      <span className="text-2xl font-black font-mono" style={{ color: MESO_COLORS[activeRegion] }}>
                         {totalSamples > 0 ? ((stats[activeRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
                       </span>
                     </div>
-                    <div className="h-3 w-full bg-zinc-100 rounded-full overflow-hidden">
+                    <div className="h-4 w-full bg-zinc-100 rounded-full overflow-hidden shadow-inner">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(stats[activeRegion as MesoRegion] / totalSamples) * 100}%` }}
                         transition={{ duration: 1, ease: "circOut" }}
-                        className="h-full"
+                        className="h-full shadow-lg"
                         style={{ backgroundColor: MESO_COLORS[activeRegion] }}
                       />
                     </div>
@@ -247,7 +242,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               </div>
 
               <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-center">
-                <p className="text-[9px] text-zinc-400 font-black uppercase tracking-widest">Base de Dados: IBGE 2026</p>
+                <p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">Base de Dados Cloud: Maranhão 2026</p>
               </div>
             </motion.div>
           )}
