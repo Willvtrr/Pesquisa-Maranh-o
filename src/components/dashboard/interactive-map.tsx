@@ -52,11 +52,18 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       <LuxuryCard title="Geolocalização" subtitle="Engine de Mapas Profissional" className="lg:col-span-2 lg:row-span-2 min-h-[400px]">
         <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-6">
           <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100 shadow-inner">
-            <MapPin className="w-10 h-10 text-zinc-300" />
+            {loadError ? <AlertTriangle className="w-10 h-10 text-rose-500" /> : <MapPin className="w-10 h-10 text-zinc-300" />}
           </div>
           <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.3em]">Protocolo de Visualização</p>
-            <p className="text-xs text-zinc-500 font-medium max-w-xs">Insira uma chave API do Google Maps para ativar a engine de geolocalização estratégica.</p>
+            <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.3em]">
+              {loadError ? 'Erro de Autenticação' : 'Protocolo de Visualização'}
+            </p>
+            <p className="text-xs text-zinc-500 font-medium max-w-xs">
+              {loadError 
+                ? "Este domínio não está autorizado nas configurações da sua Chave de API (RefererNotAllowedMapError). Verifique o Google Cloud Console."
+                : "Insira uma chave API do Google Maps para ativar a engine de geolocalização estratégica."
+              }
+            </p>
           </div>
         </div>
       </LuxuryCard>
