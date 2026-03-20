@@ -253,7 +253,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </svg>
             </div>
             
-            {/* Legenda em 2 Colunas (Conforme Protótipo) */}
+            {/* Legenda em 2 Colunas */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <button 
                 onClick={() => onFilterChange('region', 'all')}
