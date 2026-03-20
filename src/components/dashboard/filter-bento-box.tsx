@@ -68,11 +68,11 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const props = feature.toObject().properties || {};
   const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
   
   for (const key of keys) {
-    if (props[key]) return String(props[key]);
+    const val = feature.getProperty(key);
+    if (val) return String(val);
   }
   return null;
 };

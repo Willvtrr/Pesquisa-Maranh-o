@@ -49,20 +49,21 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const props = feature.toObject().properties || {};
   const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
   
   for (const key of keys) {
-    if (props[key]) return String(props[key]);
+    const val = feature.getProperty(key);
+    if (val) return String(val);
   }
   
-  // Fallback para qualquer string que pareça um nome
-  for (const key in props) {
-    if (typeof props[key] === 'string' && props[key].length > 3) {
-      return props[key];
+  let found: string | null = null;
+  feature.forEachProperty((value, name) => {
+    if (typeof value === 'string' && value.length > 3 && !found) {
+      found = value;
     }
-  }
-  return null;
+  });
+  
+  return found;
 };
 
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
@@ -130,7 +131,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeWeight = 4;
             strokeColor = '#ffffff';
           } else {
-            fillOpacity = 0.05; // "Apagadinhas"
+            fillOpacity = 0.05;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }
