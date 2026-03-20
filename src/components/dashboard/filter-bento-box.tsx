@@ -28,7 +28,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   ];
 
   return (
-    <LuxuryCard className={cn("flex flex-col h-full", className)}>
+    <LuxuryCard 
+      title="SEGMENTAÇÃO" 
+      subtitle="Recortes de Dados" 
+      className={cn("flex flex-col h-full", className)}
+    >
       <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 scrollbar-hide">
         {filterGroups.map((group) => (
           <div key={group.key} className="space-y-4">
