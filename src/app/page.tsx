@@ -37,12 +37,12 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
 const MaranhaoFlag = () => (
-  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[48px] md:h-[32px]">
+  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[42px] md:h-[28px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />
@@ -305,7 +305,7 @@ export default function Home() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
+          <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sincronizando Banco de Dados...</p>
         </div>
       </AppLayout>
@@ -314,17 +314,17 @@ export default function Home() {
 
   return (
     <AppLayout>
-      <div className="space-y-12">
-        {/* CABEÇALHO INTEGRADO: Título + Grade Operacional Lateral */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-start">
+      <div className="space-y-8">
+        {/* CABEÇALHO INTEGRADO: Título + Cockpit Operacional Lateral */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
           
           {/* LADO ESQUERDO: Títulos do Dashboard */}
-          <div className="xl:col-span-5 space-y-5 lg:pt-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-col gap-1.5 mb-1">
-                <div className="flex gap-1.5 items-center">
+          <div className="xl:col-span-5 space-y-3 lg:pt-2">
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 mb-0.5">
+                <div className="flex gap-1 items-center">
                   {[0, 1, 2].map((i) => (
-                    <div key={i} className="relative w-2 h-2">
+                    <div key={i} className="relative w-1.5 h-1.5">
                       <motion.div
                         animate={{ 
                           opacity: [0, 1, 0], 
@@ -337,196 +337,172 @@ export default function Home() {
                           delay: i * 0.4,
                           ease: "easeInOut" 
                         }}
-                        className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(234,88,12,0.5)]"
+                        className="absolute inset-0 rounded-full shadow-[0_0_8px_rgba(234,88,12,0.5)]"
                       />
                       <div className="w-full h-full rounded-full bg-zinc-200 opacity-30" />
                     </div>
                   ))}
                 </div>
-                <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">
+                <div className="text-[8px] font-black text-orange-600 uppercase tracking-[0.4em]">
                   Monitoramento em tempo real • 2026
                 </div>
               </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-4 flex-wrap whitespace-nowrap">
-                <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-zinc-950 leading-none">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-3 flex-wrap whitespace-nowrap">
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-950 leading-none">
                   Maranhão
                 </h1>
                 <MaranhaoFlag />
               </div>
-              <h2 className="text-xl md:text-2xl font-black tracking-tighter text-zinc-950/80 leading-tight whitespace-nowrap">
+              <h2 className="text-lg md:text-xl font-black tracking-tighter text-zinc-950/80 leading-tight whitespace-nowrap">
                 Mapeamento de votos
               </h2>
             </div>
             
-            <p className="text-zinc-500 font-medium text-xs lg:text-sm leading-relaxed">
+            <p className="text-zinc-500 font-medium text-[10px] leading-relaxed max-w-md">
               Inteligência analítica e mapeamento geoespacial estratégico para tomada de decisão em tempo real.
             </p>
           </div>
 
-          {/* LADO DIREITO: Grade de Cards Otimizada (Empilhada para Economizar Espaço Lateral) */}
-          <div className="xl:col-span-7 grid grid-cols-1 lg:grid-cols-2 gap-3 items-stretch">
+          {/* LADO DIREITO: Cockpit Ultra-Compacto (2 Colunas Empilhadas) */}
+          <div className="xl:col-span-7 grid grid-cols-2 gap-3 items-stretch">
             
             {/* COLUNA 1: Infraestrutura (Banco + Pesquisas) */}
-            <div className="flex flex-col gap-3 h-[450px]">
-              {/* Banco de Dados */}
-              <div className="relative card-dark rounded-[2rem] p-4 flex flex-col group flex-1 shadow-2xl">
-                <div className="flex items-center justify-between mb-2 relative z-10">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500 shadow-inner">
-                    <Database size={14} />
+            <div className="flex flex-col gap-2 h-[240px]">
+              {/* Banco de Dados - Ultra Minimalista */}
+              <div className="relative card-dark rounded-2xl p-3 flex flex-col group flex-1 shadow-xl overflow-hidden">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
+                    <Database size={12} />
                   </div>
-                  <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                    <span className="text-[7px] font-bold tracking-widest text-zinc-300 uppercase">Cloud Ativo</span>
+                    <span className="text-[6px] font-bold tracking-widest text-zinc-300 uppercase">Cloud</span>
                   </div>
                 </div>
-                <div className="mb-2 relative z-10">
-                  <h3 className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Base de Inteligência</h3>
-                  <h2 className="text-base font-black tracking-tight text-zinc-100 mb-0.5">Banco de Dados</h2>
-                  <p className="text-[8px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{totalCount.toLocaleString('pt-BR')}</span> Registros</p>
+                <div className="mb-1.5">
+                  <h3 className="text-[6px] font-black tracking-widest text-zinc-500 uppercase mb-0.5">Base Inteligência</h3>
+                  <h2 className="text-sm font-black tracking-tight text-zinc-100">Banco de Dados</h2>
+                  <p className="text-[8px] font-medium text-zinc-500"><span className="text-zinc-300 font-bold">{totalCount.toLocaleString('pt-BR')}</span> Reg.</p>
                 </div>
-                <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-2 h-[45px] overflow-y-auto mb-3 relative z-10 log-scroll">
-                  <AnimatePresence initial={false} mode="popLayout">
-                    <ul className="space-y-1 text-[7px] font-mono">
-                      {syncLogs.map((log) => (
-                        <motion.li key={log.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
-                          {log.status === 'success' ? <span className="text-orange-500 font-bold">✓</span> : <Loader2 className="w-2 h-2 text-orange-500 animate-spin" />}
-                          <span className={cn(log.status === 'pending' ? 'text-orange-400' : 'text-zinc-400')}>{log.text}</span>
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </AnimatePresence>
+                <div className="bg-zinc-900/40 border border-zinc-800/40 rounded-lg p-1.5 h-[35px] overflow-y-auto mb-2 log-scroll">
+                  <ul className="space-y-0.5 text-[6px] font-mono">
+                    {syncLogs.slice(0, 2).map((log) => (
+                      <li key={log.id} className="flex items-center gap-1.5">
+                        <span className="text-orange-500 font-bold">✓</span>
+                        <span className="text-zinc-500 truncate">{log.text}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="space-y-2 mt-auto">
-                  <button onClick={handleManualSync} disabled={isSyncing} className={cn("relative w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest transition-all duration-200 active:scale-[0.98] overflow-hidden z-10", isSyncing ? "bg-zinc-900 text-zinc-300 border border-zinc-800" : "bg-white hover:bg-zinc-100 text-zinc-900 shadow-lg")}>
-                    {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5 text-orange-500" /> : <RefreshCw className="w-2.5 h-2.5" />}
-                    <span>{isSyncing ? "Sincronizando..." : "Sincronizar Agora"}</span>
-                  </button>
-                  <div className="text-center z-10 space-y-0.5">
-                    <p className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">{lastSyncDate}</p>
-                    <p className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none">{lastSyncMsg}</p>
-                  </div>
-                </div>
+                <button onClick={handleManualSync} disabled={isSyncing} className="mt-auto w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg font-black text-[7px] uppercase tracking-widest bg-white hover:bg-zinc-100 text-zinc-900 shadow-sm transition-all active:scale-95">
+                  {isSyncing ? <Loader2 className="animate-spin w-2 h-2 text-orange-500" /> : <RefreshCw className="w-2 h-2" />}
+                  <span>Sincronizar</span>
+                </button>
               </div>
 
-              {/* Status Operacional / Painel de Pesquisas */}
-              <div className="card-dark rounded-[2rem] p-4 flex flex-col text-white flex-1 group shadow-2xl">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
-                    <ClipboardCheck size={14} />
+              {/* Status Operacional / Pesquisas */}
+              <div className="card-dark rounded-2xl p-3 flex flex-col text-white flex-1 group shadow-xl overflow-hidden">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
+                    <ClipboardCheck size={12} />
                   </div>
-                  <div className="flex items-center gap-2 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
-                    <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                    <span className="text-[7px] font-black tracking-widest text-zinc-100 uppercase">Em Andamento</span>
+                  <span className="text-[6px] font-black tracking-widest text-zinc-400 uppercase">Status Operacional</span>
+                </div>
+                <div className="mb-1.5">
+                  <h2 className="text-sm font-black tracking-tight text-white leading-none mb-1">Painel Pesquisas</h2>
+                  <div className="flex gap-0.5">
+                    <div className="h-0.5 flex-1 rounded-full bg-orange-500"></div>
+                    <div className="h-0.5 flex-1 rounded-full bg-zinc-800"></div>
+                    <div className="h-0.5 flex-1 rounded-full bg-zinc-800"></div>
                   </div>
                 </div>
-                <div className="mb-2">
-                  <h3 className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Status Operacional</h3>
-                  <h2 className="text-base font-black tracking-tight text-white mb-1.5 leading-none">Painel de Pesquisas</h2>
-                  <div className="flex gap-1 mb-2">
-                    <div className="h-1 flex-1 rounded-full bg-zinc-800 overflow-hidden relative">
-                      <div className="h-full w-[85%] bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.6)]"></div>
-                    </div>
-                    <div className="h-1 flex-1 rounded-full bg-zinc-800"></div>
-                    <div className="h-1 flex-1 rounded-full bg-zinc-800"></div>
+                <div className="bg-[#121214] border border-zinc-800/60 rounded-xl p-2 flex-1 flex flex-col justify-center gap-1 mt-auto">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-orange-500"></div>
+                    <p className="text-[7px] font-black text-white uppercase tracking-widest">P1: Reta Final</p>
                   </div>
-                </div>
-                <div className="bg-[#121214] border border-zinc-800/60 rounded-[1.25rem] p-3 flex-1 flex flex-col justify-center gap-2 mt-auto">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 ring-2 ring-orange-500/20"></div>
-                    <div className="space-y-0.5">
-                      <p className="text-[8px] font-black text-white uppercase tracking-widest">Pesquisa 1: Reta Final</p>
-                      <p className="text-[6px] font-black text-orange-500 uppercase tracking-widest">Quase Concluída</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-30">
-                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-800"></div>
-                    <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Pesquisa 2: Aguardando</p>
+                  <div className="flex items-center gap-1.5 opacity-30">
+                    <div className="w-1 h-1 rounded-full bg-zinc-800"></div>
+                    <p className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">P2: Aguardando</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* COLUNA 2: Campo (Coletas + Municípios) */}
-            <div className="flex flex-col gap-3 h-[450px]">
-              {/* Número de Coletas */}
-              <div className="card-white rounded-[1.5rem] p-4 flex flex-col justify-center flex-1 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-100 text-zinc-400 shadow-inner">
-                      <FileText size={12} strokeWidth={2.5} />
+            <div className="flex flex-col gap-2 h-[240px]">
+              {/* Coletas */}
+              <div className="card-white rounded-2xl p-3 flex flex-col justify-center flex-1 shadow-sm border-zinc-100">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-zinc-50 text-zinc-400 shadow-inner">
+                      <FileText size={10} />
                     </div>
-                    <h3 className="text-[8px] font-black tracking-widest text-zinc-500 uppercase">Coletas</h3>
+                    <h3 className="text-[7px] font-black tracking-widest text-zinc-500 uppercase">Coletas</h3>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[7px] font-black text-emerald-600 uppercase">EM CAMPO</span>
-                  </div>
+                  <span className="text-[6px] font-black text-emerald-600 uppercase">CAMPO</span>
                 </div>
-                <h2 className="text-4xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
+                <h2 className="text-2xl font-black tracking-tighter text-zinc-950 font-mono leading-none">
                   {totalCount.toLocaleString('pt-BR')}
                 </h2>
               </div>
 
-              {/* Número de Municípios */}
-              <div className="card-orange rounded-[1.5rem] p-4 flex flex-col justify-center flex-1 text-white relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[30px] rounded-full pointer-events-none -mr-6 -mt-6"></div>
-                <div className="relative z-10 flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm shadow-inner">
-                      <MapIcon size={12} strokeWidth={2.5} />
+              {/* Municípios */}
+              <div className="card-orange rounded-2xl p-3 flex flex-col justify-center flex-1 text-white relative overflow-hidden shadow-xl">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 blur-[20px] rounded-full pointer-events-none -mr-4 -mt-4"></div>
+                <div className="relative z-10 flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-center w-5 h-5 rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-sm">
+                      <MapIcon size={10} />
                     </div>
-                    <h3 className="text-[8px] font-black tracking-widest text-orange-100 uppercase">Municípios</h3>
+                    <h3 className="text-[7px] font-black tracking-widest text-orange-100 uppercase">Municípios</h3>
                   </div>
-                  <div className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded-full shadow-lg">
-                    <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span className="text-[7px] font-black text-emerald-600 uppercase">EM CAMPO</span>
-                  </div>
+                  <span className="text-[6px] font-black text-white/80 uppercase">61/217</span>
                 </div>
-                <div className="relative z-10 flex items-baseline gap-1">
-                  <h2 className="text-4xl font-black tracking-tighter text-white leading-none font-mono">{citiesCount}</h2>
-                  <span className="text-xs font-bold text-orange-200 tracking-tighter">/217</span>
-                </div>
+                <h2 className="text-2xl font-black tracking-tighter text-white leading-none font-mono relative z-10">
+                  {citiesCount}
+                </h2>
               </div>
             </div>
 
           </div>
         </div>
 
-        {/* Grade de Aprovações (3 cards) - AGORA ACIMA DA SEGMENTAÇÃO */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="h-[360px]" />
-          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="h-[360px]" />
+        {/* Grade de Aprovações (3 cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[320px]" />
+          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[320px]" />
           <StatCard 
             label={mayorLabel}
             value={`${approvalStats.mayorPct.toFixed(1)}%`} 
             imageUrl={flagUrl}
             trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
             variant="hero"
-            className="h-[360px]"
+            className="min-h-[320px]"
             subValue={
-              <div className="relative w-full space-y-3">
+              <div className="relative w-full space-y-2">
                 <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
-                  <SelectTrigger className="h-10 bg-zinc-50/80 border-zinc-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm">
-                    <div className="flex items-center gap-2 truncate">
-                      <MapPin size={12} className="text-orange-600 shrink-0" />
+                  <SelectTrigger className="h-8 bg-zinc-50/80 border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm px-2">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <MapPin size={10} className="text-orange-600 shrink-0" />
                       <SelectValue placeholder="MÉDIA ESTADUAL" />
                     </div>
                   </SelectTrigger>
-                  <SelectContent className="rounded-[2rem] border-zinc-200 shadow-2xl max-h-[350px]">
-                    <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest py-3 italic">MÉDIA ESTADUAL</SelectItem>
+                  <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
+                    <SelectItem value="all" className="text-[9px] font-black uppercase tracking-widest py-2 italic">MÉDIA ESTADUAL</SelectItem>
                     {dynamicOptions.city.map(city => (
-                      <SelectItem key={city} value={city} className="text-[10px] font-bold uppercase py-3 border-t border-zinc-50 first:border-none">
+                      <SelectItem key={city} value={city} className="text-[9px] font-bold uppercase py-2 border-t border-zinc-50 first:border-none">
                         {city}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <div className="flex items-center gap-2 px-1">
-                  <Users size={12} className="text-zinc-400" />
-                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">N = {approvalStats.total.toLocaleString('pt-BR')}</span>
+                <div className="flex items-center gap-1.5 px-1">
+                  <Users size={10} className="text-zinc-400" />
+                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">N = {approvalStats.total.toLocaleString('pt-BR')}</span>
                 </div>
               </div>
             }
@@ -534,7 +510,7 @@ export default function Home() {
         </div>
 
         {/* Linha de Segmentação: Full Width */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <FilterBentoBox 
             filters={filters} 
             options={dynamicOptions} 
@@ -546,19 +522,19 @@ export default function Home() {
         </div>
 
         {/* Restante do Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
           <ApprovalChart data={chartData.approvalData} />
           
           <CandidateChart data={chartData.candidateData} />
           <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="lg:col-span-2">
-            <div className="h-[250px] mt-4">
+            <div className="h-[220px] mt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData.topProblems} layout="vertical" margin={{ left: 40, right: 30 }}>
+                <BarChart data={chartData.topProblems} layout="vertical" margin={{ left: 30, right: 30 }}>
                   <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 10, fontWeight: 800 }} width={100} />
-                  <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '11px' }} />
-                  <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={20}>
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 9, fontWeight: 800 }} width={80} />
+                  <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={16}>
                     {chartData.topProblems.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981'][index % 5]} />
                     ))}
