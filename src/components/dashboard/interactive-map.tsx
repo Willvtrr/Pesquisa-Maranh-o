@@ -27,14 +27,13 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-// Cores vivas e distintas para cada mesorregião
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e', // Rose
-  'Norte': '#f97316',   // Orange
-  'Oeste': '#eab308',   // Yellow/Amber
-  'Centro': '#22c55e',  // Green
-  'Leste': '#3b82f6',   // Blue
-  'Sul': '#a855f7',     // Purple
+  'Metrop.': '#f43f5e',
+  'Norte': '#f97316',
+  'Oeste': '#eab308',
+  'Centro': '#22c55e',
+  'Leste': '#3b82f6',
+  'Sul': '#a855f7',
 };
 
 const mapIBGENameToApp = (ibgeName: string | undefined | null): MesoRegion => {
@@ -67,30 +66,39 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    
     mapInstance.data.loadGeoJson(
       'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
     );
+  }, []);
 
-    mapInstance.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+  useEffect(() => {
+    if (!map) return;
+
+    const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
       const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
       const region = mapIBGENameToApp(ibgeName);
       onRegionSelect(region);
       setHoverInfo({
         lat: event.latLng.lat(),
         lng: event.latLng.lng(),
-        name: ibgeName
+        name: ibgeName || region
       });
     });
 
-    mapInstance.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
-      mapInstance.data.overrideStyle(event.feature, { fillOpacity: 0.9, strokeWeight: 3 });
+    const overListener = map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
+      map.data.overrideStyle(event.feature, { fillOpacity: 0.9, strokeWeight: 3 });
     });
 
-    mapInstance.data.addListener('mouseout', (event: google.maps.Data.MouseEvent) => {
-      mapInstance.data.revertStyle();
+    const outListener = map.data.addListener('mouseout', (event: google.maps.Data.MouseEvent) => {
+      map.data.revertStyle();
     });
-  }, [onRegionSelect]);
+
+    return () => {
+      google.maps.event.removeListener(clickListener);
+      google.maps.event.removeListener(overListener);
+      google.maps.event.removeListener(outListener);
+    };
+  }, [map, onRegionSelect]);
 
   useEffect(() => {
     if (map) {
@@ -112,7 +120,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeWeight = 2.5;
             strokeColor = '#ffffff';
           } else {
-            // "Apagadinhas" quando não selecionadas
             fillColor = '#cbd5e1'; 
             fillOpacity = 0.15;
             strokeWeight = 0.5;

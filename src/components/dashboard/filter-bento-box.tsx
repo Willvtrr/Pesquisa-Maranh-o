@@ -35,14 +35,13 @@ interface FilterBentoBoxProps {
   className?: string;
 }
 
-// Cores vivas e distintas sincronizadas com o mapa principal
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e', // Rose
-  'Norte': '#f97316',   // Orange
-  'Oeste': '#eab308',   // Yellow/Amber
-  'Centro': '#22c55e',  // Green
-  'Leste': '#3b82f6',   // Blue
-  'Sul': '#a855f7',     // Purple
+  'Metrop.': '#f43f5e',
+  'Norte': '#f97316',
+  'Oeste': '#eab308',
+  'Centro': '#22c55e',
+  'Leste': '#3b82f6',
+  'Sul': '#a855f7',
 };
 
 const mapStyles = [
@@ -88,12 +87,21 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     mapInstance.data.loadGeoJson(
       'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
     );
-    mapInstance.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+  }, []);
+
+  useEffect(() => {
+    if (!map) return;
+
+    const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
       const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
       const region = mapIBGENameToApp(ibgeName);
       onFilterChange('region', region);
     });
-  }, [onFilterChange]);
+
+    return () => {
+      google.maps.event.removeListener(clickListener);
+    };
+  }, [map, onFilterChange]);
 
   useEffect(() => {
     if (map) {
@@ -114,7 +122,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             fillOpacity = 0.95;
             strokeWeight = 2;
           } else {
-            // "Apagadinhas" para focar na selecionada
             fillColor = '#cbd5e1';
             fillOpacity = 0.1;
             strokeWeight = 0.5;
