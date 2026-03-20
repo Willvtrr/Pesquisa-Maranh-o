@@ -5,7 +5,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, Loader2, AlertTriangle, MapPin } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 
 interface InteractiveMapProps {
@@ -37,20 +37,30 @@ const MESO_COLORS: Record<string, string> = {
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
   const name = String(ibgeName).toLowerCase();
-  if (name.includes('metropolitana')) return 'Metrop.';
+  
+  if (name.includes('metropol')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
   if (name.includes('oeste')) return 'Oeste';
   if (name.includes('leste')) return 'Leste';
   if (name.includes('centro')) return 'Centro';
+  
   return 'Norte';
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
-  for (const prop of props) {
-    const val = feature.getProperty(prop);
-    if (val) return String(val);
+  const props = feature.toObject().properties || {};
+  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
+  
+  for (const key of keys) {
+    if (props[key]) return String(props[key]);
+  }
+  
+  // Fallback para qualquer string que pareça um nome
+  for (const key in props) {
+    if (typeof props[key] === 'string' && props[key].length > 3) {
+      return props[key];
+    }
   }
   return null;
 };
@@ -65,7 +75,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [infoWindowData, setInfoWindowData] = useState<{ lat: number, lng: number, name: string } | null>(null);
+  const [infoWindowData, setInfoWindowData] = useState<{ lat: number, lng: number, name: string, region: string } | null>(null);
 
   const totalSamples = useMemo(() => Object.values(stats).reduce((a, b) => a + b, 0), [stats]);
 
@@ -80,15 +90,16 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
     if (!map) return;
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const ibgeName = getRegionNameFromFeature(event.feature);
-      const regionKey = mapIBGENameToApp(ibgeName);
+      const rawName = getRegionNameFromFeature(event.feature);
+      const regionKey = mapIBGENameToApp(rawName);
       
       onRegionSelect(regionKey);
       
       setInfoWindowData({
         lat: event.latLng.lat(),
         lng: event.latLng.lng(),
-        name: ibgeName || regionKey
+        name: rawName || regionKey,
+        region: regionKey
       });
       
       map.panTo(event.latLng);
@@ -102,14 +113,14 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const ibgeName = getRegionNameFromFeature(feature);
-        const regionKey = mapIBGENameToApp(ibgeName);
+        const rawName = getRegionNameFromFeature(feature);
+        const regionKey = mapIBGENameToApp(rawName);
         
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.7;
+        let fillOpacity = 0.75;
         let strokeWeight = 2;
         let strokeColor = '#ffffff';
 
@@ -117,10 +128,11 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
           if (isThisRegionActive) {
             fillOpacity = 0.95;
             strokeWeight = 4;
+            strokeColor = '#ffffff';
           } else {
-            fillOpacity = 0.05;
+            fillOpacity = 0.05; // "Apagadinhas"
             strokeWeight = 0.5;
-            strokeColor = '#e2e8f0';
+            strokeColor = '#f1f5f9';
           }
         }
         
@@ -177,12 +189,17 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
                 position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }}
                 onCloseClick={() => setInfoWindowData(null)}
               >
-                <div className="p-3 min-w-[150px]">
-                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1">Foco Regional</p>
-                  <p className="text-sm font-black text-zinc-900 leading-tight">{infoWindowData.name}</p>
+                <div className="p-3 min-w-[160px]">
+                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1">
+                    <MapPin size={10} />
+                    Recorte Regional
+                  </p>
+                  <p className="text-sm font-black text-zinc-900 leading-tight">
+                    {infoWindowData.name}
+                  </p>
                   <div className="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
-                    <span className="text-[9px] font-bold text-zinc-400">Integridade</span>
-                    <span className="text-[9px] font-black text-emerald-600 uppercase">100% OK</span>
+                    <span className="text-[9px] font-bold text-zinc-400">Status</span>
+                    <span className="text-[9px] font-black text-emerald-600 uppercase">Sincronizado</span>
                   </div>
                 </div>
               </InfoWindow>

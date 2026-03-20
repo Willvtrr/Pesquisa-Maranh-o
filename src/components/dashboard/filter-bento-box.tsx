@@ -56,20 +56,23 @@ const mapStyles = [
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
   const name = String(ibgeName).toLowerCase();
-  if (name.includes('metropolitana')) return 'Metrop.';
+  
+  if (name.includes('metropol')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
   if (name.includes('oeste')) return 'Oeste';
   if (name.includes('leste')) return 'Leste';
   if (name.includes('centro')) return 'Centro';
+  
   return 'Norte';
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
-  for (const prop of props) {
-    const val = feature.getProperty(prop);
-    if (val) return String(val);
+  const props = feature.toObject().properties || {};
+  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
+  
+  for (const key of keys) {
+    if (props[key]) return String(props[key]);
   }
   return null;
 };
@@ -102,8 +105,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     if (!map) return;
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const ibgeName = getRegionNameFromFeature(event.feature);
-      const region = mapIBGENameToApp(ibgeName);
+      const rawName = getRegionNameFromFeature(event.feature);
+      const region = mapIBGENameToApp(rawName);
       onFilterChange('region', region);
     });
 
@@ -115,14 +118,14 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const ibgeName = getRegionNameFromFeature(feature);
-        const regionKey = mapIBGENameToApp(ibgeName);
+        const rawName = getRegionNameFromFeature(feature);
+        const regionKey = mapIBGENameToApp(rawName);
         
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.7;
+        let fillOpacity = 0.75;
         let strokeWeight = 2;
         let strokeColor = '#ffffff';
 
@@ -130,6 +133,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           if (isThisRegionActive) {
             fillOpacity = 0.95;
             strokeWeight = 3;
+            strokeColor = '#ffffff';
           } else {
             fillOpacity = 0.05;
             strokeWeight = 0.5;
@@ -161,7 +165,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   return (
     <LuxuryCard 
       title="SEGMENTAÇÃO ESTRATÉGICA" 
-      subtitle="Filtros Geográficos" 
+      subtitle="Recorte Territorial" 
       className={cn("flex flex-col h-full", className)}
     >
       <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
