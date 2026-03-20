@@ -55,6 +55,7 @@ const mapStyles = [
 
 const mapIBGENameToApp = (ibgeName: string): MesoRegion => {
   const name = ibgeName.toLowerCase();
+  if (name.includes('metropolitana')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
   if (name.includes('oeste')) return 'Oeste';
@@ -74,6 +75,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     id: 'google-map-script',
     googleMapsApiKey: apiKey || "",
     libraries: ['maps'],
+    language: 'pt-BR',
+    region: 'BR'
   });
 
   const isSelected = (key: string, value: string) => filters[key]?.includes(value);
@@ -306,7 +309,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </div>
             </button>
 
-            {Object.keys(MESO_COLORS).filter(k => k !== 'Metrop.').map((id) => {
+            {Object.keys(MESO_COLORS).map((id) => {
               const percentage = distribution?.region?.[id] || 0;
               const active = isSelected('region', id);
               return (
@@ -326,7 +329,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       "text-[8px] font-black uppercase truncate",
                       active ? "text-orange-600" : "text-zinc-500"
                     )}>
-                      {id}
+                      {id === 'Metrop.' ? 'Metropolitana' : id}
                     </span>
                   </div>
                   <Badge variant="secondary" className="bg-zinc-100 text-[8px] font-bold px-1.5 h-4 min-w-[32px] justify-center">

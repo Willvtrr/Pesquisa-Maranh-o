@@ -39,12 +39,13 @@ const MESO_COLORS: Record<string, string> = {
 
 const mapIBGENameToApp = (ibgeName: string): MesoRegion => {
   const name = ibgeName.toLowerCase();
+  if (name.includes('metropolitana')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
   if (name.includes('oeste')) return 'Oeste';
   if (name.includes('leste')) return 'Leste';
   if (name.includes('centro')) return 'Centro';
-  return 'Norte'; // Fallback
+  return 'Norte';
 };
 
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
@@ -53,6 +54,8 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
     id: 'google-map-script',
     googleMapsApiKey: apiKey || "", 
     libraries: ['maps'],
+    language: 'pt-BR',
+    region: 'BR'
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -64,7 +67,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
     
-    // Carregar Malha do IBGE para Maranhão (ID 21)
+    // Carregar Malha do IBGE para Maranhão (ID 21) - Mesorregiões reais
     mapInstance.data.loadGeoJson(
       'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
     );
@@ -181,7 +184,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             >
               <div>
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">{currentRegion} Maranhense</span>
+                  <span className="text-[10px] font-black text-orange-600 uppercase tracking-[0.2em]">{currentRegion === 'Metrop.' ? 'Metropolitana' : currentRegion} Maranhense</span>
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
                     <ArrowUpRight size={16} />
                   </div>
@@ -219,7 +222,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
               <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100">
                 <p className="text-[9px] text-zinc-500 font-bold uppercase leading-relaxed text-center">
-                  Dados baseados na malha oficial do IBGE.
+                  Dados baseados na malha oficial do IBGE. Interface em Português.
                 </p>
               </div>
             </motion.div>
