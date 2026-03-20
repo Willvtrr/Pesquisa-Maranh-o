@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
@@ -52,7 +53,7 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-const mapIBGENameToApp = (ibgeName: string | undefined | null): MesoRegion => {
+const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
   const name = String(ibgeName).toLowerCase();
   if (name.includes('metropolitana')) return 'Metrop.';
@@ -80,7 +81,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   });
 
   const isSelected = (key: string, value: string) => filters[key]?.includes(value);
-  const activeRegion = filters.region?.[0];
+  const activeRegion = filters.region?.[0] || 'all';
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
@@ -120,11 +121,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
-            strokeWeight = 2.5;
+            strokeWeight = 3;
             strokeColor = '#ffffff';
           } else {
             fillColor = '#cbd5e1';
-            fillOpacity = 0.1;
+            fillOpacity = 0.15;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }
@@ -273,7 +274,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             Mesorregião (Malha Digital)
           </label>
           
-          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl">
+          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl overflow-hidden">
             <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100 bg-zinc-50">
               {isLoaded ? (
                 <GoogleMap

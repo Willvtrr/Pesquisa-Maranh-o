@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
@@ -25,15 +26,15 @@ const mapStyles = [
 ];
 
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e', // Rose
-  'Norte': '#f97316',   // Orange
-  'Oeste': '#22c55e',   // Green
-  'Centro': '#eab308',  // Yellow
-  'Leste': '#3b82f6',   // Blue
-  'Sul': '#a855f7',     // Purple
+  'Metrop.': '#f43f5e',
+  'Norte': '#f97316',
+  'Oeste': '#22c55e',
+  'Centro': '#eab308',
+  'Leste': '#3b82f6',
+  'Sul': '#a855f7',
 };
 
-const mapIBGENameToApp = (ibgeName: string | undefined | null): MesoRegion => {
+const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
   const name = String(ibgeName).toLowerCase();
   if (name.includes('metropolitana')) return 'Metrop.';
@@ -76,7 +77,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       
       onRegionSelect(regionKey);
       
-      // Zoom e centralização
       map.panTo(event.latLng);
       map.setZoom(7);
 
@@ -87,18 +87,8 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       });
     });
 
-    const overListener = map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
-      map.data.overrideStyle(event.feature, { fillOpacity: 0.95, strokeWeight: 3 });
-    });
-
-    const outListener = map.data.addListener('mouseout', (event: google.maps.Data.MouseEvent) => {
-      map.data.revertStyle();
-    });
-
     return () => {
       google.maps.event.removeListener(clickListener);
-      google.maps.event.removeListener(overListener);
-      google.maps.event.removeListener(outListener);
     };
   }, [map, onRegionSelect]);
 
@@ -123,7 +113,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeColor = '#ffffff';
           } else {
             fillColor = '#cbd5e1'; 
-            fillOpacity = 0.1;
+            fillOpacity = 0.15;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }
