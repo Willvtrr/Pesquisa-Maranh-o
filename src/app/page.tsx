@@ -37,12 +37,12 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
 const MaranhaoFlag = () => (
-  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[42px] md:h-[28px]">
+  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />
@@ -315,16 +315,16 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* CABEÇALHO INTEGRADO: Título + Cockpit Operacional Lateral */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+        {/* CABEÇALHO INTEGRADO: Título Ampliado + Cockpit Operacional Lateral Minimalista */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           
-          {/* LADO ESQUERDO: Títulos do Dashboard */}
-          <div className="xl:col-span-5 space-y-3 lg:pt-2">
-            <div className="flex flex-col gap-1">
-              <div className="flex flex-col gap-1 mb-0.5">
-                <div className="flex gap-1 items-center">
+          {/* LADO ESQUERDO: Títulos do Dashboard (Aumentados) */}
+          <div className="xl:col-span-5 space-y-4 lg:pt-4">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 mb-1">
+                <div className="flex gap-1.5 items-center">
                   {[0, 1, 2].map((i) => (
-                    <div key={i} className="relative w-1.5 h-1.5">
+                    <div key={i} className="relative w-2 h-2">
                       <motion.div
                         animate={{ 
                           opacity: [0, 1, 0], 
@@ -337,36 +337,36 @@ export default function Home() {
                           delay: i * 0.4,
                           ease: "easeInOut" 
                         }}
-                        className="absolute inset-0 rounded-full shadow-[0_0_8px_rgba(234,88,12,0.5)]"
+                        className="absolute inset-0 rounded-full shadow-[0_0_10px_rgba(234,88,12,0.6)]"
                       />
                       <div className="w-full h-full rounded-full bg-zinc-200 opacity-30" />
                     </div>
                   ))}
                 </div>
-                <div className="text-[8px] font-black text-orange-600 uppercase tracking-[0.4em]">
+                <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">
                   Monitoramento em tempo real • 2026
                 </div>
               </div>
             </div>
 
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-3 flex-wrap whitespace-nowrap">
-                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-950 leading-none">
+            <div className="space-y-1">
+              <div className="flex items-center gap-4 flex-wrap whitespace-nowrap">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-zinc-950 leading-none">
                   Maranhão
                 </h1>
                 <MaranhaoFlag />
               </div>
-              <h2 className="text-lg md:text-xl font-black tracking-tighter text-zinc-950/80 leading-tight whitespace-nowrap">
+              <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-zinc-950/80 leading-tight whitespace-nowrap">
                 Mapeamento de votos
               </h2>
             </div>
             
-            <p className="text-zinc-500 font-medium text-[10px] leading-relaxed max-w-md">
+            <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed max-w-2xl">
               Inteligência analítica e mapeamento geoespacial estratégico para tomada de decisão em tempo real.
             </p>
           </div>
 
-          {/* LADO DIREITO: Cockpit Ultra-Compacto (2 Colunas Empilhadas) */}
+          {/* LADO DIREITO: Cockpit Ultra-Compacto (Permanece Minimalista) */}
           <div className="xl:col-span-7 grid grid-cols-2 gap-3 items-stretch">
             
             {/* COLUNA 1: Infraestrutura (Banco + Pesquisas) */}
@@ -473,15 +473,15 @@ export default function Home() {
 
         {/* Grade de Aprovações (3 cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[320px]" />
-          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[320px]" />
+          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[420px]" />
+          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[420px]" />
           <StatCard 
             label={mayorLabel}
             value={`${approvalStats.mayorPct.toFixed(1)}%`} 
             imageUrl={flagUrl}
             trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
             variant="hero"
-            className="min-h-[320px]"
+            className="min-h-[420px]"
             subValue={
               <div className="relative w-full space-y-2">
                 <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
