@@ -72,7 +72,7 @@ const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | n
   return null;
 };
 
-const Counter = ({ value, color, symbolColor }: { value: number, color: string, symbolColor: string }) => {
+const Counter = ({ value, color, symbolColor, size = "text-[5rem]", symbolSize = "text-4xl" }: { value: number, color: string, symbolColor: string, size?: string, symbolSize?: string }) => {
   const springValue = useSpring(0, { stiffness: 40, damping: 20 });
   const displayValue = useTransform(springValue, (latest) => Math.round(latest));
 
@@ -81,9 +81,9 @@ const Counter = ({ value, color, symbolColor }: { value: number, color: string, 
   }, [value, springValue]);
 
   return (
-    <h2 className={cn("text-[5rem] leading-none font-black tracking-tighter flex items-baseline justify-center", color)}>
+    <h2 className={cn("leading-none font-black tracking-tighter flex items-baseline justify-center", size, color)}>
       <motion.span>{displayValue}</motion.span>
-      <span className={cn("text-4xl ml-0.5", symbolColor)}>%</span>
+      <span className={cn("ml-0.5", symbolSize, symbolColor)}>%</span>
     </h2>
   );
 };
@@ -310,35 +310,33 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* NOVO VISUAL DE GÊNERO PREMIUM - ACIMA DE FAIXA ETÁRIA */}
-        <div className="space-y-4 mesh-bg p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm bg-white relative overflow-hidden">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center justify-center gap-2 mb-6">
+        {/* GÊNERO PREMIUM COMPACTO - LATERALIZADO */}
+        <div className="space-y-4 mesh-bg p-4 rounded-[2rem] border border-zinc-100 shadow-sm bg-white relative overflow-hidden">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center justify-center gap-2 mb-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
             GÊNERO
           </label>
           
-          <div className="grid grid-cols-2 gap-8 relative">
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-zinc-100 -translate-x-1/2"></div>
-            
+          <div className="flex flex-col gap-6 relative">
             {/* FEMININO */}
             <div 
               className={cn(
-                "flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105",
+                "flex items-center justify-center gap-6 cursor-pointer transition-all hover:scale-105",
                 isSelected('gender', 'Feminino') ? "opacity-100" : "opacity-80"
               )}
               onClick={() => onFilterChange('gender', 'Feminino')}
             >
-              <div className="text-center">
-                <Counter value={femalePct} color="text-[#e83e8c]" symbolColor="text-[#f472b6]" />
-                <p className="text-[9px] font-black tracking-[0.2em] text-zinc-500 uppercase">Feminino</p>
+              <div className="text-right flex flex-col items-end">
+                <Counter value={femalePct} color="text-[#e83e8c]" symbolColor="text-[#f472b6]" size="text-4xl" symbolSize="text-xl" />
+                <p className="text-[8px] font-black tracking-[0.2em] text-[#e83e8c] uppercase">Feminino</p>
               </div>
-              <div className="glass-capsule w-20 h-40 p-4 relative flex items-center justify-center transform transition-all duration-500">
+              <div className="glass-capsule w-14 h-28 p-2.5 relative flex items-center justify-center shadow-lg">
                 <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
                   <motion.div 
                     initial={{ height: 0 }}
                     animate={{ height: `${femalePct}%` }}
                     transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
-                    className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6] shadow-[0_-15px_30px_rgba(232,62,140,0.5)]"
+                    className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6] shadow-[0_-10px_20px_rgba(232,62,140,0.5)]"
                   >
                     <div className="absolute top-0 left-0 w-full h-1 bg-white/40 blur-[1px]"></div>
                   </motion.div>
@@ -346,29 +344,31 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </div>
             </div>
 
+            <div className="w-full h-px bg-zinc-50 hidden sm:block"></div>
+
             {/* MASCULINO */}
             <div 
               className={cn(
-                "flex flex-col items-center gap-4 cursor-pointer transition-all hover:scale-105",
+                "flex items-center justify-center gap-6 cursor-pointer transition-all hover:scale-105",
                 isSelected('gender', 'Masculino') ? "opacity-100" : "opacity-80"
               )}
               onClick={() => onFilterChange('gender', 'Masculino')}
             >
-              <div className="text-center">
-                <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" />
-                <p className="text-[9px] font-black tracking-[0.2em] text-zinc-500 uppercase">Masculino</p>
-              </div>
-              <div className="glass-capsule w-20 h-40 p-4 relative flex items-center justify-center transform transition-all duration-500">
+              <div className="glass-capsule w-14 h-28 p-2.5 relative flex items-center justify-center shadow-lg">
                 <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
                   <motion.div 
                     initial={{ height: 0 }}
                     animate={{ height: `${malePct}%` }}
                     transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
-                    className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa] shadow-[0_-15px_30px_rgba(29,112,184,0.5)]"
+                    className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa] shadow-[0_-10px_20px_rgba(29,112,184,0.5)]"
                   >
                     <div className="absolute top-0 left-0 w-full h-1 bg-white/40 blur-[1px]"></div>
                   </motion.div>
                 </div>
+              </div>
+              <div className="text-left flex flex-col items-start">
+                <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" size="text-4xl" symbolSize="text-xl" />
+                <p className="text-[8px] font-black tracking-[0.2em] text-[#1d70b8] uppercase">Masculino</p>
               </div>
             </div>
           </div>

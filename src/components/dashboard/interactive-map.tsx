@@ -46,6 +46,7 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
+  // Use getProperty instead of toObject for direct API access
   const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
   for (const key of keys) {
     const val = feature.getProperty(key);
@@ -101,10 +102,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         const regionKey = mapIBGENameToApp(rawName);
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
+        
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.75;
         let strokeWeight = 2;
         let strokeColor = '#ffffff';
+
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
