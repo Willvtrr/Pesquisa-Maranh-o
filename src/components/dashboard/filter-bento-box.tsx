@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -14,7 +14,7 @@ import {
   Map as MapIcon,
   Loader2
 } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polygon } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MesoRegion } from '@/data/survey-data';
 
 interface FilterBentoBoxProps {
   filters: Record<string, string[]>;
@@ -44,56 +45,69 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-// Coordenadas para os polígonos de mesorregião
-const MESO_PATHS: Record<string, { lat: number, lng: number }[]> = {
-  'Metrop.': [
-    { lat: -2.3, lng: -44.5 }, { lat: -2.3, lng: -44.1 },
-    { lat: -2.7, lng: -44.1 }, { lat: -2.7, lng: -44.5 }
-  ],
-  'Norte': [
-    { lat: -1.5, lng: -45.5 }, { lat: -1.5, lng: -43.5 },
-    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -45.5 }
-  ],
-  'Leste': [
-    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -42.5 },
-    { lat: -6.5, lng: -42.5 }, { lat: -6.5, lng: -43.5 }
-  ],
-  'Oeste': [
-    { lat: -3.5, lng: -48.5 }, { lat: -3.5, lng: -46.5 },
-    { lat: -7.5, lng: -46.5 }, { lat: -7.5, lng: -48.5 }
-  ],
-  'Centro': [
-    { lat: -3.5, lng: -46.5 }, { lat: -3.5, lng: -43.5 },
-    { lat: -6.5, lng: -43.5 }, { lat: -6.5, lng: -46.5 }
-  ],
-  'Sul': [
-    { lat: -6.5, lng: -47.5 }, { lat: -6.5, lng: -44.5 },
-    { lat: -9.5, lng: -44.5 }, { lat: -9.5, lng: -47.5 }
-  ],
-};
-
 const mapStyles = [
   { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
   { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-  { "featureType": "administrative.land_parcel", "stylers": [{ "visibility": "off" }] },
-  { "featureType": "administrative.neighborhood", "stylers": [{ "visibility": "off" }] },
   { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
   { "featureType": "road", "stylers": [{ "visibility": "off" }] },
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
+const mapIBGENameToApp = (ibgeName: string): MesoRegion => {
+  const name = ibgeName.toLowerCase();
+  if (name.includes('norte')) return 'Norte';
+  if (name.includes('sul')) return 'Sul';
+  if (name.includes('oeste')) return 'Oeste';
+  if (name.includes('leste')) return 'Leste';
+  if (name.includes('centro')) return 'Centro';
+  return 'Norte';
+};
+
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey || "",
+    libraries: ['maps'],
   });
 
   const isSelected = (key: string, value: string) => filters[key]?.includes(value);
+  const activeRegion = filters.region?.[0];
+
+  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+    mapInstance.data.loadGeoJson(
+      'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
+    );
+    mapInstance.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
+      const region = mapIBGENameToApp(ibgeName);
+      onFilterChange('region', region);
+    });
+  }, [onFilterChange]);
+
+  useEffect(() => {
+    if (map) {
+      map.data.setStyle((feature) => {
+        const ibgeName = feature.getProperty('nm_meso') || feature.getProperty('NM_MESO');
+        const regionKey = mapIBGENameToApp(ibgeName);
+        const isActive = activeRegion === regionKey;
+        
+        return {
+          fillColor: isActive ? MESO_COLORS[regionKey] : '#52525b',
+          fillOpacity: isActive ? 0.8 : 0.4,
+          strokeColor: '#ffffff',
+          strokeWeight: 1,
+          visible: true
+        };
+      });
+    }
+  }, [map, activeRegion]);
 
   const filteredCities = useMemo(() => {
     const cities = options.city || [];
@@ -105,14 +119,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   const selectedCitiesCount = filters.city?.[0] === 'all' ? 0 : filters.city?.length || 0;
 
-  const filterGroups = [
-    { key: 'gender', label: 'Gênero' },
-    { key: 'age', label: 'Faixa Etária' },
-    { key: 'income', label: 'Renda Familiar' },
-    { key: 'education', label: 'Grau de Instrução' },
-    { key: 'religion', label: 'Religião' },
-  ];
-
   return (
     <LuxuryCard 
       title="SEGMENTAÇÃO" 
@@ -120,8 +126,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       className={cn("flex flex-col h-full", className)}
     >
       <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
-        
-        {/* Municípios Selector */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
@@ -257,44 +261,26 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        {/* Mesorregião - ORGANIZAÇÃO CONFORME PROTÓTIPO */}
         <div className="space-y-4 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
             Mesorregião (Mapa Real)
           </label>
           
-          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] ring-1 ring-zinc-50/50">
-            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100 shadow-md">
+          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-md">
+            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100">
               {isLoaded ? (
                 <GoogleMap
                   mapContainerStyle={{ width: '100%', height: '100%' }}
                   center={{ lat: -5.0, lng: -45.0 }}
                   zoom={5}
+                  onLoad={onLoad}
                   options={{
                     styles: mapStyles,
                     disableDefaultUI: true,
                     gestureHandling: 'cooperative'
                   }}
-                >
-                  {Object.entries(MESO_PATHS).map(([id, path]) => {
-                    const active = isSelected('region', id);
-                    return (
-                      <Polygon
-                        key={id}
-                        path={path}
-                        onClick={() => onFilterChange('region', id)}
-                        options={{
-                          fillColor: active ? MESO_COLORS[id] : "#a1a1aa",
-                          fillOpacity: active ? 0.6 : 0.3,
-                          strokeColor: active ? MESO_COLORS[id] : "#ffffff",
-                          strokeOpacity: 0.8,
-                          strokeWeight: 2,
-                        }}
-                      />
-                    );
-                  })}
-                </GoogleMap>
+                />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-3">
                   <Loader2 className="animate-spin text-orange-600 size-5" />
@@ -304,7 +290,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             </div>
           </div>
 
-          {/* Legenda Organizada em 2 Colunas */}
           <div className="grid grid-cols-2 gap-2 mt-4">
             <button 
               onClick={() => onFilterChange('region', 'all')}
@@ -321,7 +306,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </div>
             </button>
 
-            {Object.keys(MESO_PATHS).map((id) => {
+            {Object.keys(MESO_COLORS).filter(k => k !== 'Metrop.').map((id) => {
               const percentage = distribution?.region?.[id] || 0;
               const active = isSelected('region', id);
               return (
@@ -353,30 +338,27 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {filterGroups.map((group) => (
-          <div key={group.key} className="space-y-4">
+        {['gender', 'age', 'income', 'education', 'religion'].map((key) => (
+          <div key={key} className="space-y-4">
             <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
-              {group.label}
+              {key === 'gender' ? 'Gênero' : key === 'age' ? 'Faixa Etária' : key === 'income' ? 'Renda' : key === 'education' ? 'Escolaridade' : 'Religião'}
             </label>
             <div className="grid grid-cols-1 gap-2">
               <FilterChip 
                 label="Todas" 
-                active={isSelected(group.key, 'all')} 
-                onClick={() => onFilterChange(group.key, 'all')} 
+                active={isSelected(key, 'all')} 
+                onClick={() => onFilterChange(key, 'all')} 
               />
-              {(options[group.key] || []).map(opt => {
-                const percentage = distribution?.[group.key]?.[opt];
-                return (
-                  <FilterChip 
-                    key={opt} 
-                    label={opt} 
-                    percentage={percentage}
-                    active={isSelected(group.key, opt)} 
-                    onClick={() => onFilterChange(group.key, opt)} 
-                  />
-                );
-              })}
+              {(options[key] || []).map(opt => (
+                <FilterChip 
+                  key={opt} 
+                  label={opt} 
+                  percentage={distribution?.[key]?.[opt]}
+                  active={isSelected(key, opt)} 
+                  onClick={() => onFilterChange(key, opt)} 
+                />
+              ))}
             </div>
           </div>
         ))}

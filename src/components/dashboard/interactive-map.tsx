@@ -1,8 +1,8 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, Polygon } from '@react-google-maps/api';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Loader2, MapPin, AlertTriangle } from 'lucide-react';
@@ -28,33 +28,6 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-const MESO_PATHS: Record<string, { lat: number, lng: number }[]> = {
-  'Metrop.': [
-    { lat: -2.3, lng: -44.5 }, { lat: -2.3, lng: -44.1 },
-    { lat: -2.7, lng: -44.1 }, { lat: -2.7, lng: -44.5 }
-  ],
-  'Norte': [
-    { lat: -1.5, lng: -45.5 }, { lat: -1.5, lng: -43.5 },
-    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -45.5 }
-  ],
-  'Leste': [
-    { lat: -3.5, lng: -43.5 }, { lat: -3.5, lng: -42.5 },
-    { lat: -6.5, lng: -42.5 }, { lat: -6.5, lng: -43.5 }
-  ],
-  'Oeste': [
-    { lat: -3.5, lng: -48.5 }, { lat: -3.5, lng: -46.5 },
-    { lat: -7.5, lng: -46.5 }, { lat: -7.5, lng: -48.5 }
-  ],
-  'Centro': [
-    { lat: -3.5, lng: -46.5 }, { lat: -3.5, lng: -43.5 },
-    { lat: -6.5, lng: -43.5 }, { lat: -6.5, lng: -46.5 }
-  ],
-  'Sul': [
-    { lat: -6.5, lng: -47.5 }, { lat: -6.5, lng: -44.5 },
-    { lat: -9.5, lng: -44.5 }, { lat: -9.5, lng: -47.5 }
-  ],
-};
-
 const MESO_COLORS: Record<string, string> = {
   'Metrop.': '#ea580c',
   'Norte': '#f97316',
@@ -64,15 +37,75 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
+const mapIBGENameToApp = (ibgeName: string): MesoRegion => {
+  const name = ibgeName.toLowerCase();
+  if (name.includes('norte')) return 'Norte';
+  if (name.includes('sul')) return 'Sul';
+  if (name.includes('oeste')) return 'Oeste';
+  if (name.includes('leste')) return 'Leste';
+  if (name.includes('centro')) return 'Centro';
+  return 'Norte'; // Fallback
+};
+
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey || "", 
+    libraries: ['maps'],
   });
+
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [hoverInfo, setHoverInfo] = useState<{ lat: number, lng: number, name: string } | null>(null);
 
   const totalSamples = useMemo(() => Object.values(stats).reduce((a, b) => a + b, 0), [stats]);
   const currentRegion = activeRegion !== 'all' ? activeRegion : null;
+
+  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+    
+    // Carregar Malha do IBGE para Maranhão (ID 21)
+    mapInstance.data.loadGeoJson(
+      'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
+    );
+
+    mapInstance.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
+      const region = mapIBGENameToApp(ibgeName);
+      onRegionSelect(region);
+      setHoverInfo({
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+        name: ibgeName
+      });
+    });
+
+    mapInstance.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
+      mapInstance.data.overrideStyle(event.feature, { fillOpacity: 0.8, strokeWeight: 3 });
+    });
+
+    mapInstance.data.addListener('mouseout', (event: google.maps.Data.MouseEvent) => {
+      mapInstance.data.revertStyle();
+    });
+  }, [onRegionSelect]);
+
+  useEffect(() => {
+    if (map) {
+      map.data.setStyle((feature) => {
+        const ibgeName = feature.getProperty('nm_meso') || feature.getProperty('NM_MESO');
+        const regionKey = mapIBGENameToApp(ibgeName);
+        const isActive = activeRegion === regionKey;
+        
+        return {
+          fillColor: isActive ? MESO_COLORS[regionKey] : '#52525b',
+          fillOpacity: isActive ? 0.7 : 0.3,
+          strokeColor: '#ffffff',
+          strokeWeight: isActive ? 2 : 1,
+          visible: true
+        };
+      });
+    }
+  }, [map, activeRegion]);
 
   if (!apiKey || loadError) {
     return (
@@ -87,7 +120,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             </p>
             <p className="text-xs text-zinc-500 font-medium max-w-xs">
               {loadError 
-                ? "Este domínio não está autorizado nas configurações da sua Chave de API (RefererNotAllowedMapError). Verifique o Google Cloud Console."
+                ? "Erro: RefererNotAllowedMapError. Autorize o domínio no Google Cloud Console."
                 : "Insira uma chave API do Google Maps para ativar a engine de geolocalização estratégica."
               }
             </p>
@@ -99,7 +132,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   return (
     <LuxuryCard title="Geolocalização" subtitle="Densidade Regional" className="lg:col-span-2 lg:row-span-2 relative p-0 overflow-hidden min-h-[500px]">
-      <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
+      <div className="absolute top-6 left-6 z-20 flex flex-col gap-2 pointer-events-none">
         <div className="px-4 py-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
           <span className="text-[10px] font-black text-zinc-950 uppercase tracking-widest">Monitoramento Ativo: Maranhão</span>
@@ -112,6 +145,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             mapContainerStyle={mapContainerStyle} 
             center={center} 
             zoom={6} 
+            onLoad={onLoad}
             options={{
               styles: mapStyles,
               disableDefaultUI: true,
@@ -119,20 +153,16 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               gestureHandling: 'cooperative'
             }}
           >
-            {Object.entries(MESO_PATHS).map(([id, path]) => (
-              <Polygon
-                key={id}
-                path={path}
-                onClick={() => onRegionSelect(id as MesoRegion)}
-                options={{
-                  fillColor: activeRegion === id ? MESO_COLORS[id] : "#18181b",
-                  fillOpacity: activeRegion === id ? 0.6 : 0.3,
-                  strokeColor: activeRegion === id ? MESO_COLORS[id] : "#ffffff",
-                  strokeOpacity: 0.8,
-                  strokeWeight: 2,
-                }}
-              />
-            ))}
+            {hoverInfo && (
+              <InfoWindow
+                position={{ lat: hoverInfo.lat, lng: hoverInfo.lng }}
+                onCloseClick={() => setHoverInfo(null)}
+              >
+                <div className="p-2">
+                  <p className="text-[10px] font-black uppercase text-orange-600">{hoverInfo.name}</p>
+                </div>
+              </InfoWindow>
+            )}
           </GoogleMap>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-6">
@@ -189,7 +219,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
               <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100">
                 <p className="text-[9px] text-zinc-500 font-bold uppercase leading-relaxed text-center">
-                  Dados segmentados por zona de influência regional de alta precisão.
+                  Dados baseados na malha oficial do IBGE.
                 </p>
               </div>
             </motion.div>
