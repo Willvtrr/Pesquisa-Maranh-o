@@ -17,13 +17,6 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
@@ -275,12 +268,15 @@ export default function Home() {
     brandao: PlaceHolderImages.find(i => i.id === 'brandao-photo')?.imageUrl,
   };
 
-  const selectedCity = filters.city[0];
-  const flagUrl = selectedCity === 'all' 
+  const isAllCities = filters.city.includes('all');
+  const flagUrl = isAllCities 
     ? "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Bandeira_do_Maranh%C3%A3o.svg/1200px-Bandeira_do_Maranh%C3%A3o.svg.png" 
-    : `https://picsum.photos/seed/flag-${selectedCity.toLowerCase().replace(/\s+/g, '-')}/800/600`;
+    : filters.city.length === 1 
+      ? `https://picsum.photos/seed/flag-${filters.city[0].toLowerCase().replace(/\s+/g, '-')}/800/600`
+      : `https://picsum.photos/seed/multi-city-flag/800/600`;
 
-  const mayorLabel = selectedCity === 'all' ? "APROVAÇÃO PREFEITO" : `Prefeito de ${selectedCity}`;
+  const mayorLabel = isAllCities ? "APROVAÇÃO PREFEITO" : filters.city.length === 1 ? `Prefeito de ${filters.city[0]}` : "Média de Municípios";
+  const subValueLabel = isAllCities ? "MÉDIA ESTADUAL" : filters.city.length === 1 ? filters.city[0] : `${filters.city.length} Cidades Selecionadas`;
 
   if (isLoading && rawSurveyData.length === 0) {
     return (
@@ -498,23 +494,9 @@ export default function Home() {
                 variant="hero"
                 className="min-h-[180px]"
                 subValue={
-                  <div className="relative w-full space-y-2">
-                    <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
-                      <SelectTrigger className="h-8 bg-zinc-50/80 border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm px-2">
-                        <div className="flex items-center gap-1.5 truncate">
-                          <MapPin size={10} className="text-orange-600 shrink-0" />
-                          <SelectValue placeholder="MÉDIA ESTADUAL" />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
-                        <SelectItem value="all" className="text-[9px] font-black uppercase tracking-widest py-2 italic">MÉDIA ESTADUAL</SelectItem>
-                        {dynamicOptions.city.map(city => (
-                          <SelectItem key={city} value={city} className="text-[9px] font-bold uppercase py-2 border-t border-zinc-50 first:border-none">
-                            {city}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-zinc-500 mt-1">
+                    <MapPin size={10} className="text-orange-600" />
+                    {subValueLabel}
                   </div>
                 }
               />
