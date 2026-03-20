@@ -36,14 +36,12 @@ const MESO_COLORS: Record<string, string> = {
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
   const name = String(ibgeName).toLowerCase();
-  
   if (name.includes('metropol')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
   if (name.includes('oeste')) return 'Oeste';
   if (name.includes('leste')) return 'Leste';
   if (name.includes('centro')) return 'Centro';
-  
   return 'Norte';
 };
 
@@ -79,23 +77,18 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   useEffect(() => {
     if (!map) return;
-
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
       const rawName = getRegionNameFromFeature(event.feature);
       const regionKey = mapIBGENameToApp(rawName);
-      
       onRegionSelect(regionKey);
-      
       setInfoWindowData({
         lat: event.latLng.lat(),
         lng: event.latLng.lng(),
         name: rawName || regionKey,
         region: regionKey
       });
-      
       map.panTo(event.latLng);
     });
-
     return () => {
       google.maps.event.removeListener(clickListener);
     };
@@ -106,15 +99,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       map.data.setStyle((feature) => {
         const rawName = getRegionNameFromFeature(feature);
         const regionKey = mapIBGENameToApp(rawName);
-        
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
-        
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.75;
         let strokeWeight = 2;
         let strokeColor = '#ffffff';
-
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
@@ -126,14 +116,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeColor = '#f1f5f9';
           }
         }
-        
-        return {
-          fillColor,
-          fillOpacity,
-          strokeColor,
-          strokeWeight,
-          visible: true
-        };
+        return { fillColor, fillOpacity, strokeColor, strokeWeight, visible: true };
       });
     }
   }, [map, activeRegion]);
@@ -157,37 +140,14 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
           <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE • Sincronizado</span>
         </div>
       </div>
-
       <div className="w-full h-full relative">
         {isLoaded ? (
-          <GoogleMap 
-            mapContainerStyle={mapContainerStyle} 
-            center={center} 
-            zoom={6} 
-            onLoad={onLoad}
-            options={{
-              styles: mapStyles,
-              disableDefaultUI: false,
-              zoomControl: true,
-              mapTypeControl: false,
-              streetViewControl: false,
-              fullscreenControl: true,
-              gestureHandling: 'cooperative'
-            }}
-          >
+          <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={6} onLoad={onLoad} options={{ styles: mapStyles, disableDefaultUI: false, zoomControl: true, mapTypeControl: false, streetViewControl: false, fullscreenControl: true, gestureHandling: 'cooperative' }}>
             {infoWindowData && (
-              <InfoWindow
-                position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }}
-                onCloseClick={() => setInfoWindowData(null)}
-              >
+              <InfoWindow position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }} onCloseClick={() => setInfoWindowData(null)}>
                 <div className="p-3 min-w-[160px]">
-                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1">
-                    <MapPin size={10} />
-                    Recorte Regional
-                  </p>
-                  <p className="text-sm font-black text-zinc-900 leading-tight">
-                    {infoWindowData.name}
-                  </p>
+                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1"><MapPin size={10} />Recorte Regional</p>
+                  <p className="text-sm font-black text-zinc-900 leading-tight">{infoWindowData.name}</p>
                   <div className="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
                     <span className="text-[9px] font-bold text-zinc-400">Status</span>
                     <span className="text-[9px] font-black text-emerald-600 uppercase">Sincronizado</span>
@@ -202,62 +162,34 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Iniciando Cartografia Maranhense...</p>
           </div>
         )}
-
         <AnimatePresence>
           {activeRegion !== 'all' && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="absolute right-6 top-6 bottom-6 w-80 p-8 bg-white/95 backdrop-blur-2xl border border-zinc-200 rounded-[2.5rem] shadow-2xl z-30 flex flex-col justify-between"
-            >
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="absolute right-6 top-6 bottom-6 w-80 p-8 bg-white/95 backdrop-blur-2xl border border-zinc-200 rounded-[2.5rem] shadow-2xl z-30 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: MESO_COLORS[activeRegion] }} />
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
-                      {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion} Maranhense
-                    </span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>{activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion} Maranhense</span>
                   </div>
-                  <button onClick={() => onRegionSelect('all')} className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
-                    <ArrowUpRight size={18} className="text-zinc-400" />
-                  </button>
+                  <button onClick={() => onRegionSelect('all')} className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors"><ArrowUpRight size={18} className="text-zinc-400" /></button>
                 </div>
-
                 <div className="space-y-8">
                   <div className="space-y-1">
                     <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Amostra de Votos</span>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-zinc-950 tracking-tighter">
-                        {(stats[activeRegion as MesoRegion] || 0).toLocaleString('pt-BR')}
-                      </span>
+                      <span className="text-4xl font-black text-zinc-950 tracking-tighter">{(stats[activeRegion as MesoRegion] || 0).toLocaleString('pt-BR')}</span>
                       <span className="text-xs font-bold text-zinc-400">Entrevistas</span>
                     </div>
                   </div>
-
                   <div className="space-y-3">
-                    <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-black text-zinc-500 uppercase">Representatividade</span>
-                      <span className="text-2xl font-black font-mono" style={{ color: MESO_COLORS[activeRegion] }}>
-                        {totalSamples > 0 ? ((stats[activeRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
-                      </span>
-                    </div>
+                    <div className="flex justify-between items-end"><span className="text-[10px] font-black text-zinc-500 uppercase">Representatividade</span><span className="text-2xl font-black font-mono" style={{ color: MESO_COLORS[activeRegion] }}>{totalSamples > 0 ? ((stats[activeRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%</span></div>
                     <div className="h-4 w-full bg-zinc-100 rounded-full overflow-hidden shadow-inner">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(stats[activeRegion as MesoRegion] / totalSamples) * 100}%` }}
-                        transition={{ duration: 1, ease: "circOut" }}
-                        className="h-full shadow-lg"
-                        style={{ backgroundColor: MESO_COLORS[activeRegion] }}
-                      />
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${(stats[activeRegion as MesoRegion] / totalSamples) * 100}%` }} transition={{ duration: 1, ease: "circOut" }} className="h-full shadow-lg" style={{ backgroundColor: MESO_COLORS[activeRegion] }} />
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-center">
-                <p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">Base de Dados Cloud: Maranhão 2026</p>
-              </div>
+              <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-center"><p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">Base de Dados Cloud: Maranhão 2026</p></div>
             </motion.div>
           )}
         </AnimatePresence>
