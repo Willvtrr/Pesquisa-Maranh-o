@@ -65,6 +65,15 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   return 'Norte';
 };
 
+const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
+  return feature.getProperty('nm_meso') || 
+         feature.getProperty('NM_MESO') || 
+         feature.getProperty('nome') || 
+         feature.getProperty('name') || 
+         feature.getProperty('NM_MESOREG') ||
+         null;
+};
+
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -73,9 +82,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script-shared',
+    id: 'google-map-script',
     googleMapsApiKey: apiKey || "",
-    libraries: ['maps'],
     language: 'pt-BR',
     region: 'BR'
   });
@@ -94,9 +102,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     if (!map) return;
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const ibgeName = event.feature.getProperty('nm_meso') || 
-                      event.feature.getProperty('NM_MESO') || 
-                      event.feature.getProperty('nome');
+      const ibgeName = getRegionNameFromFeature(event.feature);
       const region = mapIBGENameToApp(ibgeName);
       onFilterChange('region', region);
     });
@@ -109,9 +115,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const ibgeName = feature.getProperty('nm_meso') || 
-                        feature.getProperty('NM_MESO') || 
-                        feature.getProperty('nome');
+        const ibgeName = getRegionNameFromFeature(feature);
         const regionKey = mapIBGENameToApp(ibgeName);
         
         const isSelectionActive = activeRegion !== 'all';
@@ -127,7 +131,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             fillOpacity = 0.95;
             strokeWeight = 3;
           } else {
-            fillColor = '#cbd5e1'; 
+            fillColor = '#94a3b8'; 
             fillOpacity = 0.05;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';

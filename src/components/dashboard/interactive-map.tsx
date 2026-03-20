@@ -5,7 +5,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api';
 import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Loader2, MapPin, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, Loader2, AlertTriangle } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 
 interface InteractiveMapProps {
@@ -26,12 +26,12 @@ const mapStyles = [
 ];
 
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e',
-  'Norte': '#f97316',
-  'Oeste': '#22c55e',
-  'Centro': '#eab308',
-  'Leste': '#3b82f6',
-  'Sul': '#a855f7',
+  'Metrop.': '#f43f5e', // Rosa/Vermelho
+  'Norte': '#f97316',   // Laranja
+  'Oeste': '#22c55e',   // Verde
+  'Centro': '#eab308',  // Amarelo
+  'Leste': '#3b82f6',   // Azul
+  'Sul': '#a855f7',     // Roxo
 };
 
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
@@ -46,12 +46,21 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   return 'Norte';
 };
 
+// Função para extrair o nome da região de forma robusta
+const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
+  return feature.getProperty('nm_meso') || 
+         feature.getProperty('NM_MESO') || 
+         feature.getProperty('nome') || 
+         feature.getProperty('name') || 
+         feature.getProperty('NM_MESOREG') ||
+         null;
+};
+
 export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script-shared',
+    id: 'google-map-script',
     googleMapsApiKey: apiKey || "",
-    libraries: ['maps'],
     language: 'pt-BR',
     region: 'BR'
   });
@@ -63,7 +72,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    // Carrega a malha oficial do IBGE para o Maranhão (ID 21)
     mapInstance.data.loadGeoJson(
       'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
     );
@@ -73,9 +81,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
     if (!map) return;
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const ibgeName = event.feature.getProperty('nm_meso') || 
-                      event.feature.getProperty('NM_MESO') || 
-                      event.feature.getProperty('nome');
+      const ibgeName = getRegionNameFromFeature(event.feature);
       const regionKey = mapIBGENameToApp(ibgeName);
       
       onRegionSelect(regionKey);
@@ -85,6 +91,9 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         lng: event.latLng.lng(),
         name: ibgeName || regionKey
       });
+      
+      // Zoom suave na região
+      map.panTo(event.latLng);
     });
 
     return () => {
@@ -95,17 +104,15 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const ibgeName = feature.getProperty('nm_meso') || 
-                        feature.getProperty('NM_MESO') || 
-                        feature.getProperty('nome');
+        const ibgeName = getRegionNameFromFeature(feature);
         const regionKey = mapIBGENameToApp(ibgeName);
         
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.65;
-        let strokeWeight = 2;
+        let fillOpacity = 0.7;
+        let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
@@ -114,9 +121,9 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             strokeWeight = 4;
             strokeColor = '#ffffff';
           } else {
-            fillColor = '#cbd5e1'; 
-            fillOpacity = 0.05;
-            strokeWeight = 1;
+            fillColor = '#94a3b8'; // Cinza suave
+            fillOpacity = 0.05;    // Quase transparente (apagadinha)
+            strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
           }
         }
@@ -144,7 +151,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   }
 
   return (
-    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Polígonos por Mesorregião" className="relative p-0 overflow-hidden min-h-[600px]">
+    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden min-h-[600px]">
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
@@ -203,7 +210,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               <div>
                 <div className="flex items-center justify-between mb-8">
                   <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
-                    {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion}
+                    {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion} Maranhense
                   </span>
                   <button onClick={() => onRegionSelect('all')} className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
                     <ArrowUpRight size={18} className="text-zinc-400" />
