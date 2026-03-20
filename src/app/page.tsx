@@ -77,17 +77,6 @@ export default function Home() {
     return rawSurveyData.filter(item => !item.INFO).length;
   }, [rawSurveyData]);
 
-  const citiesCount = useMemo(() => {
-    if (!rawSurveyData) return 0;
-    const cities = new Set(
-      rawSurveyData
-        .filter(item => !item.INFO)
-        .map(item => String(item["Cidade:"] || "").trim())
-        .filter(city => city !== "")
-    );
-    return cities.size;
-  }, [rawSurveyData]);
-
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     const sample = rawSurveyData.find(d => !d.INFO) || {};
@@ -353,7 +342,6 @@ export default function Home() {
           </div>
 
           <div className="xl:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[240px]">
-            {/* CARD 1: BANCO DE DADOS (BLACK) */}
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -402,7 +390,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* CARD 2: COLETAS (WHITE) */}
             <div className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 group relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -433,7 +420,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* CARD 3: MUNICÍPIOS (ORANGE) */}
             <div className="bg-orange-600 rounded-[2rem] p-4 flex flex-col text-white shadow-xl border border-orange-500 group relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[40px] rounded-full pointer-events-none -mr-8 -mt-8"></div>
               
@@ -463,7 +449,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* CARD 4: PAINEL DE PESQUISAS (BLACK) */}
             <div className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -506,52 +491,50 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[420px]" />
-          <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[420px]" />
-          <StatCard 
-            label={mayorLabel}
-            value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-            imageUrl={flagUrl}
-            trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
-            variant="hero"
-            className="min-h-[420px]"
-            subValue={
-              <div className="relative w-full space-y-2">
-                <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
-                  <SelectTrigger className="h-8 bg-zinc-50/80 border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm px-2">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <MapPin size={10} className="text-orange-600 shrink-0" />
-                      <SelectValue placeholder="MÉDIA ESTADUAL" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
-                    <SelectItem value="all" className="text-[9px] font-black uppercase tracking-widest py-2 italic">MÉDIA ESTADUAL</SelectItem>
-                    {dynamicOptions.city.map(city => (
-                      <SelectItem key={city} value={city} className="text-[9px] font-bold uppercase py-2 border-t border-zinc-50 first:border-none">
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center gap-1.5 px-1">
-                  <Users size={10} className="text-zinc-400" />
-                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">N = {approvalStats.total.toLocaleString('pt-BR')}</span>
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          <div className="xl:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[260px]" />
+            <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[260px]" />
+            <StatCard 
+              label={mayorLabel}
+              value={`${approvalStats.mayorPct.toFixed(1)}%`} 
+              imageUrl={flagUrl}
+              trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
+              variant="hero"
+              className="min-h-[260px]"
+              subValue={
+                <div className="relative w-full space-y-2">
+                  <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
+                    <SelectTrigger className="h-8 bg-zinc-50/80 border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm px-2">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <MapPin size={10} className="text-orange-600 shrink-0" />
+                        <SelectValue placeholder="MÉDIA ESTADUAL" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
+                      <SelectItem value="all" className="text-[9px] font-black uppercase tracking-widest py-2 italic">MÉDIA ESTADUAL</SelectItem>
+                      {dynamicOptions.city.map(city => (
+                        <SelectItem key={city} value={city} className="text-[9px] font-bold uppercase py-2 border-t border-zinc-50 first:border-none">
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-            }
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <FilterBentoBox 
-            filters={filters} 
-            options={dynamicOptions} 
-            distribution={distributionStats}
-            onFilterChange={handleFilterChange} 
-            onClear={clearFilters} 
-            className="lg:col-span-4" 
-          />
+              }
+            />
+          </div>
+          
+          <div className="xl:col-span-1">
+            <FilterBentoBox 
+              filters={filters} 
+              options={dynamicOptions} 
+              distribution={distributionStats}
+              onFilterChange={handleFilterChange} 
+              onClear={clearFilters} 
+              className="h-full" 
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
