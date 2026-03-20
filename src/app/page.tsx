@@ -492,37 +492,60 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-          <div className="xl:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[180px]" />
-            <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[180px]" />
-            <StatCard 
-              label={mayorLabel}
-              value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-              imageUrl={flagUrl}
-              trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
-              variant="hero"
-              className="min-h-[180px]"
-              subValue={
-                <div className="relative w-full space-y-2">
-                  <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
-                    <SelectTrigger className="h-8 bg-zinc-50/80 border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm px-2">
-                      <div className="flex items-center gap-1.5 truncate">
-                        <MapPin size={10} className="text-orange-600 shrink-0" />
-                        <SelectValue placeholder="MÉDIA ESTADUAL" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
-                      <SelectItem value="all" className="text-[9px] font-black uppercase tracking-widest py-2 italic">MÉDIA ESTADUAL</SelectItem>
-                      {dynamicOptions.city.map(city => (
-                        <SelectItem key={city} value={city} className="text-[9px] font-bold uppercase py-2 border-t border-zinc-50 first:border-none">
-                          {city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+          <div className="xl:col-span-3 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[180px]" />
+              <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[180px]" />
+              <StatCard 
+                label={mayorLabel}
+                value={`${approvalStats.mayorPct.toFixed(1)}%`} 
+                imageUrl={flagUrl}
+                trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
+                variant="hero"
+                className="min-h-[180px]"
+                subValue={
+                  <div className="relative w-full space-y-2">
+                    <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
+                      <SelectTrigger className="h-8 bg-zinc-50/80 border-zinc-200 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-950 focus:ring-orange-500/20 shadow-sm px-2">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <MapPin size={10} className="text-orange-600 shrink-0" />
+                          <SelectValue placeholder="MÉDIA ESTADUAL" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-zinc-200 shadow-2xl max-h-[300px]">
+                        <SelectItem value="all" className="text-[9px] font-black uppercase tracking-widest py-2 italic">MÉDIA ESTADUAL</SelectItem>
+                        {dynamicOptions.city.map(city => (
+                          <SelectItem key={city} value={city} className="text-[9px] font-bold uppercase py-2 border-t border-zinc-50 first:border-none">
+                            {city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <ApprovalChart data={chartData.approvalData} />
+              <CandidateChart data={chartData.candidateData} />
+              <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="h-full">
+                <div className="h-[220px] mt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData.topProblems} layout="vertical" margin={{ left: 30, right: 30 }}>
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 9, fontWeight: 800 }} width={80} />
+                      <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
+                      <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={16}>
+                        {chartData.topProblems.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981'][index % 5]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-              }
-            />
+              </LuxuryCard>
+            </div>
           </div>
           
           <div className="xl:col-span-1">
@@ -537,27 +560,8 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
-          <ApprovalChart data={chartData.approvalData} />
-          
-          <CandidateChart data={chartData.candidateData} />
-          <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="lg:col-span-2">
-            <div className="h-[220px] mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData.topProblems} layout="vertical" margin={{ left: 30, right: 30 }}>
-                  <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 9, fontWeight: 800 }} width={80} />
-                  <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={16}>
-                    {chartData.topProblems.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981'][index % 5]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </LuxuryCard>
         </div>
       </div>
     </AppLayout>
