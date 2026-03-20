@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
@@ -37,8 +36,9 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-const mapIBGENameToApp = (ibgeName: string): MesoRegion => {
-  const name = ibgeName.toLowerCase();
+const mapIBGENameToApp = (ibgeName: string | undefined | null): MesoRegion => {
+  if (!ibgeName) return 'Norte';
+  const name = String(ibgeName).toLowerCase();
   if (name.includes('metropolitana')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
@@ -67,7 +67,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
     
-    // Carregar Malha do IBGE para Maranhão (ID 21) - Mesorregiões reais
     mapInstance.data.loadGeoJson(
       'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
     );

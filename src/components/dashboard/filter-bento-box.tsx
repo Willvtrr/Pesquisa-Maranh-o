@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
@@ -53,8 +52,9 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-const mapIBGENameToApp = (ibgeName: string): MesoRegion => {
-  const name = ibgeName.toLowerCase();
+const mapIBGENameToApp = (ibgeName: string | undefined | null): MesoRegion => {
+  if (!ibgeName) return 'Norte';
+  const name = String(ibgeName).toLowerCase();
   if (name.includes('metropolitana')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
