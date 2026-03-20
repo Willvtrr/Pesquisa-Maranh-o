@@ -47,7 +47,7 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO'];
+  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
   for (const prop of props) {
     const val = feature.getProperty(prop);
     if (val) return String(val);
@@ -110,19 +110,17 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.7;
-        let strokeWeight = 1.5;
+        let strokeWeight = 2;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
             strokeWeight = 4;
-            strokeColor = '#ffffff';
           } else {
-            fillColor = '#94a3b8';
             fillOpacity = 0.05;
             strokeWeight = 0.5;
-            strokeColor = '#f1f5f9';
+            strokeColor = '#e2e8f0';
           }
         }
         
@@ -207,9 +205,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             >
               <div>
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
-                    {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion} Maranhense
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: MESO_COLORS[activeRegion] }} />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
+                      {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion} Maranhense
+                    </span>
+                  </div>
                   <button onClick={() => onRegionSelect('all')} className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
                     <ArrowUpRight size={18} className="text-zinc-400" />
                   </button>

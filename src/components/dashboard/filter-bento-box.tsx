@@ -66,7 +66,7 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO'];
+  const props = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
   for (const prop of props) {
     const val = feature.getProperty(prop);
     if (val) return String(val);
@@ -123,7 +123,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.7;
-        let strokeWeight = 1;
+        let strokeWeight = 2;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
@@ -131,7 +131,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             fillOpacity = 0.95;
             strokeWeight = 3;
           } else {
-            fillColor = '#94a3b8'; 
             fillOpacity = 0.05;
             strokeWeight = 0.5;
             strokeColor = '#f1f5f9';
@@ -320,7 +319,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   )}
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[id] }} />
+                    <div className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: MESO_COLORS[id] }} />
                     <span className={cn(
                       "text-[8px] font-black uppercase truncate",
                       active ? "text-zinc-950" : "text-zinc-500"
