@@ -35,7 +35,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -337,7 +337,7 @@ export default function Home() {
             </div>
             
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">
-              Inteligência de dados estratégica.
+              App de Inteligência Política e Monitoramento Estratégico de Dados Eleitorais do Maranhão.
             </p>
           </div>
 
@@ -493,15 +493,15 @@ export default function Home() {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[260px]" />
-            <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[260px]" />
+            <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[180px]" />
+            <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[180px]" />
             <StatCard 
               label={mayorLabel}
               value={`${approvalStats.mayorPct.toFixed(1)}%`} 
               imageUrl={flagUrl}
               trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
               variant="hero"
-              className="min-h-[260px]"
+              className="min-h-[180px]"
               subValue={
                 <div className="relative w-full space-y-2">
                   <Select value={filters.city[0]} onValueChange={(val) => handleFilterChange('city', val)}>
