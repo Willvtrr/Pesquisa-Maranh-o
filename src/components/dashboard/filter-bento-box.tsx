@@ -38,8 +38,8 @@ interface FilterBentoBoxProps {
 const MESO_COLORS: Record<string, string> = {
   'Metrop.': '#f43f5e',
   'Norte': '#f97316',
-  'Oeste': '#eab308',
-  'Centro': '#22c55e',
+  'Oeste': '#22c55e',
+  'Centro': '#eab308',
   'Leste': '#3b82f6',
   'Sul': '#a855f7',
 };
@@ -113,14 +113,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#52525b';
-        let fillOpacity = 0.6;
-        let strokeWeight = 1;
+        let fillOpacity = 0.7;
+        let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
-            strokeWeight = 2;
+            strokeWeight = 2.5;
+            strokeColor = '#ffffff';
           } else {
             fillColor = '#cbd5e1';
             fillOpacity = 0.1;
@@ -152,15 +153,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   return (
     <LuxuryCard 
-      title="SEGMENTAÇÃO" 
-      subtitle="Recortes de Dados" 
+      title="SEGMENTAÇÃO DE DADOS" 
+      subtitle="Filtros Geográficos" 
       className={cn("flex flex-col h-full", className)}
     >
       <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
-            Municípios
+            Recorte por Município
           </label>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -183,33 +184,26 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                       {selectedCitiesCount > 0 
                         ? `${selectedCitiesCount} Selecionada${selectedCitiesCount > 1 ? 's' : ''}` 
-                        : "Selecionar no Mapa"}
+                        : "Selecionar na Base"}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {selectedCitiesCount > 0 && (
-                    <Badge variant="outline" className="bg-orange-600 text-white border-none rounded-full h-5 px-2">
-                      {selectedCitiesCount}
-                    </Badge>
-                  )}
-                  <ChevronRight size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
-                </div>
+                <ChevronRight size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
               </button>
             </DialogTrigger>
             
             <DialogContent className="max-w-2xl rounded-[2.5rem] border-zinc-200 p-0 overflow-hidden bg-white/95 backdrop-blur-2xl">
               <DialogHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
-                <DialogTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
+                <DialogTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter text-zinc-900">
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
                     <MapIcon size={24} />
                   </div>
-                  Escolha os Municípios
+                  Municípios do Maranhão
                 </DialogTitle>
                 <div className="relative mt-6">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 size-4" />
                   <Input 
-                    placeholder="Buscar cidade no Maranhão..." 
+                    placeholder="Buscar cidade..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-12 h-14 rounded-2xl border-zinc-100 bg-zinc-50 focus:ring-orange-500/20 text-sm font-bold"
@@ -224,16 +218,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     className={cn(
                       "flex items-center justify-between p-4 rounded-2xl border transition-all",
                       filters.city?.[0] === 'all' 
-                        ? "bg-orange-600 border-orange-600 text-white" 
+                        ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/20" 
                         : "bg-white border-zinc-100 hover:border-zinc-200"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="size-10 rounded-full bg-white/20 flex items-center justify-center font-black text-[10px]">
-                        BR
-                      </div>
-                      <span className="text-xs font-black uppercase tracking-widest">Todos os Municípios</span>
-                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest">Todos os Municípios</span>
                     {filters.city?.[0] === 'all' && <CheckCircle2 size={16} />}
                   </button>
 
@@ -250,27 +239,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                             : "bg-white border-zinc-100 hover:border-orange-200 hover:bg-orange-50/50"
                         )}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="relative size-10 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-zinc-100">
-                            <img 
-                              src={`https://picsum.photos/seed/${city.toLowerCase().replace(/\s+/g, '-')}/100/100`} 
-                              alt={city}
-                              className="size-full object-cover"
-                            />
-                          </div>
-                          <span className={cn(
-                            "text-[10px] font-black uppercase tracking-tight",
-                            active ? "text-white" : "text-zinc-700"
-                          )}>
-                            {city}
-                          </span>
-                        </div>
-                        <div className={cn(
-                          "size-5 rounded-full flex items-center justify-center border transition-all",
-                          active ? "bg-white border-white text-orange-600" : "bg-zinc-50 border-zinc-100 text-transparent"
+                        <span className={cn(
+                          "text-[10px] font-black uppercase tracking-tight",
+                          active ? "text-white" : "text-zinc-700"
                         )}>
-                          <CheckCircle2 size={14} />
-                        </div>
+                          {city}
+                        </span>
+                        {active && <CheckCircle2 size={14} />}
                       </button>
                     );
                   })}
@@ -279,13 +254,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               
               <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between">
                 <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-                  {selectedCitiesCount} Cidades Selecionadas
+                  {selectedCitiesCount} Selecionadas
                 </p>
                 <button 
                   onClick={() => setIsDialogOpen(false)}
-                  className="px-8 py-3 bg-zinc-950 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all"
+                  className="px-8 py-3 bg-zinc-950 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl"
                 >
-                  Confirmar Filtros
+                  Confirmar
                 </button>
               </div>
             </DialogContent>
@@ -295,11 +270,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         <div className="space-y-4 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
-            Mesorregião (Mapa Real)
+            Mesorregião (Malha Digital)
           </label>
           
-          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-md">
-            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100">
+          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl">
+            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100 bg-zinc-50">
               {isLoaded ? (
                 <GoogleMap
                   mapContainerStyle={{ width: '100%', height: '100%' }}
@@ -313,9 +288,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-3">
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
                   <Loader2 className="animate-spin text-orange-600 size-5" />
-                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Carregando Mapa...</span>
+                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Sincronizando...</span>
                 </div>
               )}
             </div>
@@ -327,7 +302,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               className={cn(
                 "flex items-center justify-between p-2 rounded-xl transition-all border",
                 filters.region?.[0] === 'all' 
-                  ? "bg-white border-zinc-200 shadow-sm" 
+                  ? "bg-white border-zinc-200 shadow-md ring-1 ring-zinc-100" 
                   : "bg-transparent border-transparent hover:bg-zinc-50"
               )}
             >
@@ -347,7 +322,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   className={cn(
                     "flex items-center justify-between p-2 rounded-xl transition-all border",
                     active 
-                      ? "bg-white border-zinc-200 shadow-sm" 
+                      ? "bg-white border-zinc-200 shadow-md ring-1 ring-zinc-100" 
                       : "bg-transparent border-transparent hover:bg-zinc-50"
                   )}
                 >
@@ -357,23 +332,23 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       "text-[8px] font-black uppercase truncate",
                       active ? "text-zinc-950" : "text-zinc-500"
                     )}>
-                      {id === 'Metrop.' ? 'Metropolitana' : id}
+                      {id === 'Metrop.' ? 'Metrop.' : id}
                     </span>
                   </div>
-                  <Badge variant="secondary" className="bg-zinc-100 text-[8px] font-bold px-1.5 h-4 min-w-[32px] justify-center">
+                  <span className="text-[8px] font-bold text-zinc-400">
                     {Math.round(percentage)}%
-                  </Badge>
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {['gender', 'age', 'income', 'education', 'religion'].map((key) => (
+        {['gender', 'age', 'income', 'education'].map((key) => (
           <div key={key} className="space-y-4">
             <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
-              {key === 'gender' ? 'Gênero' : key === 'age' ? 'Faixa Etária' : key === 'income' ? 'Renda' : key === 'education' ? 'Escolaridade' : 'Religião'}
+              {key === 'gender' ? 'Gênero' : key === 'age' ? 'Faixa Etária' : key === 'income' ? 'Renda' : 'Escolaridade'}
             </label>
             <div className="grid grid-cols-1 gap-2">
               <FilterChip 
@@ -398,10 +373,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       <div className="mt-8 pt-6 border-t border-zinc-100">
         <button 
           onClick={onClear}
-          className="w-full py-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all flex items-center justify-center gap-2 shadow-inner"
         >
           <X size={12} />
-          Resetar Segmentação
+          Limpar Filtros
         </button>
       </div>
     </LuxuryCard>
@@ -416,7 +391,7 @@ export const FilterChip = ({ label, active, percentage, onClick }: { label: stri
       "px-4 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center justify-between",
       active 
         ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/30" 
-        : "bg-white border-zinc-100 text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50"
+        : "bg-white border-zinc-100 text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50 shadow-sm"
     )}
   >
     <span className="truncate max-w-[150px]">{label}</span>

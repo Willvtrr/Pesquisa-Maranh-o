@@ -17,23 +17,20 @@ const mapContainerStyle = { width: '100%', height: '100%' };
 const center = { lat: -5.0, lng: -45.0 };
 
 const mapStyles = [
-  { "elementType": "geometry", "stylers": [{ "color": "#fdfdfd" }] },
+  { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
   { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-  { "featureType": "administrative.land_parcel", "stylers": [{ "visibility": "off" }] },
-  { "featureType": "administrative.neighborhood", "stylers": [{ "visibility": "off" }] },
   { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
   { "featureType": "road", "stylers": [{ "visibility": "off" }] },
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
 const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e',
-  'Norte': '#f97316',
-  'Oeste': '#eab308',
-  'Centro': '#22c55e',
-  'Leste': '#3b82f6',
-  'Sul': '#a855f7',
+  'Metrop.': '#f43f5e', // Rose
+  'Norte': '#f97316',   // Orange
+  'Oeste': '#22c55e',   // Green
+  'Centro': '#eab308',  // Yellow
+  'Leste': '#3b82f6',   // Blue
+  'Sul': '#a855f7',     // Purple
 };
 
 const mapIBGENameToApp = (ibgeName: string | undefined | null): MesoRegion => {
@@ -52,17 +49,16 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: apiKey || "", 
+    googleMapsApiKey: apiKey || "",
     libraries: ['maps'],
     language: 'pt-BR',
     region: 'BR'
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [hoverInfo, setHoverInfo] = useState<{ lat: number, lng: number, name: string } | null>(null);
+  const [infoWindowData, setInfoWindowData] = useState<{ lat: number, lng: number, name: string } | null>(null);
 
   const totalSamples = useMemo(() => Object.values(stats).reduce((a, b) => a + b, 0), [stats]);
-  const currentRegion = activeRegion !== 'all' ? activeRegion : null;
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
@@ -76,17 +72,23 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
       const ibgeName = event.feature.getProperty('nm_meso') || event.feature.getProperty('NM_MESO');
-      const region = mapIBGENameToApp(ibgeName);
-      onRegionSelect(region);
-      setHoverInfo({
+      const regionKey = mapIBGENameToApp(ibgeName);
+      
+      onRegionSelect(regionKey);
+      
+      // Zoom e centralização
+      map.panTo(event.latLng);
+      map.setZoom(7);
+
+      setInfoWindowData({
         lat: event.latLng.lat(),
         lng: event.latLng.lng(),
-        name: ibgeName || region
+        name: ibgeName || regionKey
       });
     });
 
     const overListener = map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
-      map.data.overrideStyle(event.feature, { fillOpacity: 0.9, strokeWeight: 3 });
+      map.data.overrideStyle(event.feature, { fillOpacity: 0.95, strokeWeight: 3 });
     });
 
     const outListener = map.data.addListener('mouseout', (event: google.maps.Data.MouseEvent) => {
@@ -110,20 +112,20 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         const isThisRegionActive = activeRegion === regionKey;
         
         let fillColor = MESO_COLORS[regionKey] || '#52525b';
-        let fillOpacity = 0.6;
-        let strokeWeight = 1;
+        let fillOpacity = 0.7;
+        let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
 
         if (isSelectionActive) {
           if (isThisRegionActive) {
-            fillOpacity = 0.9;
-            strokeWeight = 2.5;
+            fillOpacity = 0.95;
+            strokeWeight = 3;
             strokeColor = '#ffffff';
           } else {
             fillColor = '#cbd5e1'; 
-            fillOpacity = 0.15;
+            fillOpacity = 0.1;
             strokeWeight = 0.5;
-            strokeColor = '#e2e8f0';
+            strokeColor = '#f1f5f9';
           }
         }
         
@@ -140,33 +142,23 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   if (!apiKey || loadError) {
     return (
-      <LuxuryCard title="Geolocalização" subtitle="Engine de Mapas Profissional" className="lg:col-span-2 lg:row-span-2 min-h-[400px]">
-        <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-6">
-          <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100 shadow-inner">
-            {loadError ? <AlertTriangle className="w-10 h-10 text-rose-500" /> : <MapPin className="w-10 h-10 text-zinc-300" />}
+      <LuxuryCard title="Geolocalização" subtitle="Engine de Mapas" className="min-h-[500px]">
+        <div className="flex flex-col items-center justify-center h-full text-center gap-6">
+          <div className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100">
+            <AlertTriangle className="w-10 h-10 text-rose-500" />
           </div>
-          <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.3em]">
-              {loadError ? 'Erro de Autenticação' : 'Protocolo de Visualização'}
-            </p>
-            <p className="text-xs text-zinc-500 font-medium max-w-xs">
-              {loadError 
-                ? "Erro: Chave de API inválida ou domínio não autorizado."
-                : "Insira uma chave API do Google Maps para ativar a engine de geolocalização estratégica."
-              }
-            </p>
-          </div>
+          <p className="text-xs text-zinc-500 font-medium">Erro ao carregar mapa. Verifique sua chave API.</p>
         </div>
       </LuxuryCard>
     );
   }
 
   return (
-    <LuxuryCard title="Geolocalização" subtitle="Densidade Regional" className="lg:col-span-2 lg:row-span-2 relative p-0 overflow-hidden min-h-[500px]">
-      <div className="absolute top-6 left-6 z-20 flex flex-col gap-2 pointer-events-none">
+    <LuxuryCard title="GEOLOCALIZAÇÃO ESTRATÉGICA" subtitle="Densidade por Mesorregião" className="relative p-0 overflow-hidden min-h-[600px]">
+      <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-4 py-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
-          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-widest">Monitoramento Ativo: Maranhão</span>
+          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-widest">MAPA INTERATIVO: MARANHÃO</span>
         </div>
       </div>
 
@@ -179,18 +171,26 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             onLoad={onLoad}
             options={{
               styles: mapStyles,
-              disableDefaultUI: true,
-              zoomControl: false,
+              disableDefaultUI: false,
+              zoomControl: true,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: true,
               gestureHandling: 'cooperative'
             }}
           >
-            {hoverInfo && (
+            {infoWindowData && (
               <InfoWindow
-                position={{ lat: hoverInfo.lat, lng: hoverInfo.lng }}
-                onCloseClick={() => setHoverInfo(null)}
+                position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }}
+                onCloseClick={() => setInfoWindowData(null)}
               >
-                <div className="p-2">
-                  <p className="text-[10px] font-black uppercase text-orange-600">{hoverInfo.name}</p>
+                <div className="p-2 min-w-[120px]">
+                  <p className="text-[10px] font-black uppercase text-orange-600 mb-1">Mesorregião</p>
+                  <p className="text-sm font-bold text-zinc-900">{infoWindowData.name}</p>
+                  <div className="mt-2 pt-2 border-t border-zinc-100 flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-zinc-400">Status</span>
+                    <span className="text-[9px] font-black text-emerald-600 uppercase">Selecionada</span>
+                  </div>
                 </div>
               </InfoWindow>
             )}
@@ -198,12 +198,12 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-6">
             <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
-            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Sincronizando Satélites...</p>
+            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Iniciando Cartografia Digital...</p>
           </div>
         )}
 
         <AnimatePresence>
-          {currentRegion && (
+          {activeRegion !== 'all' && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -212,20 +212,20 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             >
               <div>
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[currentRegion] || '#f97316' }}>
-                    {currentRegion === 'Metrop.' ? 'Metropolitana' : currentRegion} Maranhense
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>
+                    {activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion}
                   </span>
-                  <div className="p-2 rounded-xl bg-zinc-50 border border-zinc-100" style={{ color: MESO_COLORS[currentRegion] }}>
-                    <ArrowUpRight size={16} />
-                  </div>
+                  <button onClick={() => onRegionSelect('all')} className="p-2 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors">
+                    <ArrowUpRight size={16} className="text-zinc-400" />
+                  </button>
                 </div>
 
                 <div className="space-y-8">
                   <div className="space-y-1">
-                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Amostragem Real</span>
+                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Amostra Regional</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-4xl font-black text-zinc-950 tracking-tighter">
-                        {(stats[currentRegion as MesoRegion] || 0).toLocaleString('pt-BR')}
+                        {(stats[activeRegion as MesoRegion] || 0).toLocaleString('pt-BR')}
                       </span>
                       <span className="text-xs font-bold text-zinc-400">Entrevistas</span>
                     </div>
@@ -234,27 +234,25 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
                   <div className="space-y-3">
                     <div className="flex justify-between items-end">
                       <span className="text-[9px] font-black text-zinc-500 uppercase">Representatividade</span>
-                      <span className="text-xl font-black font-mono" style={{ color: MESO_COLORS[currentRegion] }}>
-                        {totalSamples > 0 ? ((stats[currentRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
+                      <span className="text-xl font-black font-mono" style={{ color: MESO_COLORS[activeRegion] }}>
+                        {totalSamples > 0 ? ((stats[activeRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%
                       </span>
                     </div>
                     <div className="h-3 w-full bg-zinc-100 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${(stats[currentRegion as MesoRegion] / totalSamples) * 100}%` }}
+                        animate={{ width: `${(stats[activeRegion as MesoRegion] / totalSamples) * 100}%` }}
                         transition={{ duration: 1, ease: "circOut" }}
-                        className="h-full shadow-lg"
-                        style={{ backgroundColor: MESO_COLORS[currentRegion] }}
+                        className="h-full"
+                        style={{ backgroundColor: MESO_COLORS[activeRegion] }}
                       />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-100">
-                <p className="text-[9px] text-zinc-500 font-bold uppercase leading-relaxed text-center">
-                  Dados baseados na malha oficial do IBGE. Interface em Português.
-                </p>
+              <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-center">
+                <p className="text-[9px] text-zinc-400 font-black uppercase tracking-widest">Base de Dados: IBGE 2026</p>
               </div>
             </motion.div>
           )}
