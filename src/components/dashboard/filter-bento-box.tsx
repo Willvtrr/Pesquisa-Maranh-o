@@ -162,7 +162,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   return (
     <LuxuryCard 
       title="SEGMENTAÇÃO" 
-      subtitle="Recorte Territorial" 
+      subtitle="Recorte de Dados" 
       className={cn("flex flex-col h-full", className)}
     >
       <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
