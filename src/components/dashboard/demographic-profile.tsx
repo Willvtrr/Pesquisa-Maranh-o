@@ -1,15 +1,34 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { BarChart3 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useSpring, useTransform } from 'framer-motion';
 
 interface DemographicProfileProps {
   stats: Record<string, Record<string, number>>;
 }
 
+const Counter = ({ value, color, symbolColor }: { value: number, color: string, symbolColor: string }) => {
+  const springValue = useSpring(0, { stiffness: 40, damping: 20 });
+  const displayValue = useTransform(springValue, (latest) => Math.round(latest));
+
+  useEffect(() => {
+    springValue.set(value);
+  }, [value, springValue]);
+
+  return (
+    <h2 className={`text-[4rem] lg:text-[5rem] leading-none font-black tracking-tighter ${color} drop-shadow-sm flex items-baseline`}>
+      <motion.span>{displayValue}</motion.span>
+      <span className={`text-2xl lg:text-4xl ${symbolColor} ml-1`}>%</span>
+    </h2>
+  );
+};
+
 export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
+  const femalePct = stats.gender?.['Feminino'] || 0;
+  const malePct = stats.gender?.['Masculino'] || 0;
+
   return (
     <LuxuryCard className="w-full">
       <div className="flex items-center gap-3 mb-10 border-b border-zinc-100 pb-6">
@@ -25,7 +44,7 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-0 lg:divide-x divide-zinc-100">
         
         {/* Escolaridade */}
-        <div className="lg:col-span-4 lg:pr-8 flex flex-col min-h-[200px]">
+        <div className="lg:col-span-3 lg:pr-8 flex flex-col min-h-[200px]">
           <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-8 text-center">Escolaridade</h4>
           <div className="flex items-end justify-between flex-grow gap-2 h-48">
             {Object.entries(stats.education || {}).map(([label, pct], idx) => (
@@ -48,33 +67,60 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
           </div>
         </div>
 
-        {/* Sexo */}
-        <div className="lg:col-span-2 lg:px-8 flex flex-col justify-center min-h-[200px]">
-          <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-8 text-center">Sexo</h4>
-          <div className="flex flex-col gap-6">
-            {Object.entries(stats.gender || {}).map(([label, pct], idx) => (
-              <div key={idx}>
-                <div className="flex justify-between items-end mb-1.5">
-                  <span className="text-[10px] font-semibold text-zinc-700">{label}</span>
-                  <span className={`text-[12px] font-black ${idx === 0 ? 'text-orange-500' : 'text-zinc-800'}`}>{pct.toFixed(1)}%</span>
-                </div>
-                <div className="h-5 w-full bg-zinc-100 rounded-md overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${pct}%` }}
-                    className={`h-full ${idx === 0 ? 'bg-orange-500' : 'bg-zinc-800'}`}
-                  />
+        {/* Sexo (Gênero Premium Chart) */}
+        <div className="lg:col-span-4 lg:px-8 flex flex-col justify-center min-h-[350px] mesh-bg relative overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2">
+            <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-4 text-center">Gênero</h4>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 relative mt-4">
+            <div className="absolute left-1/2 top-10 bottom-10 w-px bg-gradient-to-b from-transparent via-zinc-200 to-transparent -translate-x-1/2 hidden md:block"></div>
+
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center gap-2">
+                <Counter value={femalePct} color="text-[#e83e8c]" symbolColor="text-[#f472b6]" />
+                <p className="text-[9px] font-black tracking-[0.15em] text-zinc-500 uppercase">Feminino</p>
+                <div className="glass-capsule w-20 h-40 lg:w-24 lg:h-48 p-4 relative flex items-center justify-center transform transition-transform hover:-translate-y-2 duration-500 mt-2">
+                  <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
+                    <motion.div 
+                      initial={{ height: 0 }}
+                      animate={{ height: `${femalePct}%` }}
+                      transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
+                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6] shadow-[0_-15px_30px_rgba(232,62,140,0.5)]"
+                    >
+                      <div className="absolute top-0 left-0 w-full h-1 bg-white/40 blur-[1px]"></div>
+                    </motion.div>
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center gap-2">
+                <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" />
+                <p className="text-[9px] font-black tracking-[0.15em] text-zinc-500 uppercase">Masculino</p>
+                <div className="glass-capsule w-20 h-40 lg:w-24 lg:h-48 p-4 relative flex items-center justify-center transform transition-transform hover:-translate-y-2 duration-500 mt-2">
+                  <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
+                    <motion.div 
+                      initial={{ height: 0 }}
+                      animate={{ height: `${malePct}%` }}
+                      transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
+                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa] shadow-[0_-15px_30px_rgba(29,112,184,0.5)]"
+                    >
+                      <div className="absolute top-0 left-0 w-full h-1 bg-white/40 blur-[1px]"></div>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Faixa Etária */}
-        <div className="lg:col-span-3 lg:px-8 flex flex-col min-h-[200px]">
+        <div className="lg:col-span-2 lg:px-8 flex flex-col min-h-[200px]">
           <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-8 text-center">Faixa Etária</h4>
           <div className="flex items-end justify-between flex-grow gap-3 h-48">
-            {Object.entries(stats.age || {}).slice(0, 5).map(([label, pct], idx) => (
+            {Object.entries(stats.age || {}).slice(0, 4).map(([label, pct], idx) => (
               <div key={idx} className="flex flex-col items-center flex-1 group">
                 <span className="text-[9px] font-bold text-zinc-800 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {pct.toFixed(1)}%

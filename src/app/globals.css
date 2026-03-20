@@ -39,7 +39,7 @@
 }
 
 @layer components {
-  /* Premium Card Themes from HTML */
+  /* Premium Card Themes */
   .card-white {
     @apply bg-white border border-zinc-200/80;
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
@@ -56,7 +56,6 @@
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
   }
 
-  /* Materialidade Sólida: Sombras 3D ultra-definidas */
   .bento-3d {
     @apply rounded-[2.5rem];
     transition: transform 0.1s ease-out, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -76,7 +75,6 @@
     @apply font-mono tracking-tighter;
   }
 
-  /* Scrollbar Minimalista Premium */
   .log-scroll::-webkit-scrollbar {
     width: 4px;
   }
@@ -85,5 +83,34 @@
   }
   .log-scroll::-webkit-scrollbar-thumb {
     @apply bg-zinc-800 rounded-full;
+  }
+
+  /* Premium Gender Chart Masks */
+  .mask-female {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 512'%3E%3Cpath d='M128 0c35.346 0 64 28.654 64 64s-28.654 64-64 64c-35.346 0-64-28.654-64-64S92.654 0 128 0m119.283 354.179l-48-192A24 24 0 0 0 176 144h-96a24 24 0 0 0-23.283 18.179l-48 192C4.935 369.305 16.383 384 32 384h56v104c0 13.255 10.745 24 24 24h32c13.255 0 24-10.745 24-24V384h56c15.591 0 27.071-14.671 23.283-29.821z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+  }
+
+  .mask-male {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 512'%3E%3Cpath d='M128 0c35.346 0 64 28.654 64 64s-28.654 64-64 64c-35.346 0-64-28.654-64-64S92.654 0 128 0m0 144c-39.764 0-72 32.236-72 72v128c0 13.255 10.745 24 24 24h16v120c0 13.255 10.745 24 24 24h32c13.255 0 24-10.745 24-24V368h16c13.255 0 24-10.745 24-24V216c0-39.764-32.236-72-72-72z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+  }
+
+  .glass-capsule {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 4px 10px rgba(255, 255, 255, 0.5);
+    border-radius: 2rem;
+  }
+
+  .mesh-bg {
+    background-image: radial-gradient(at 0% 0%, rgba(232, 62, 140, 0.05) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgba(29, 112, 184, 0.05) 0px, transparent 50%);
   }
 }
