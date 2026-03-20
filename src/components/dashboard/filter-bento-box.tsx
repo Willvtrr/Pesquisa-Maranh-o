@@ -44,7 +44,7 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#cbd5e1',
 };
 
-// Coordenadas aproximadas para desenhar as divisões regionais no Google Maps
+// Coordenadas para os polígonos de mesorregião
 const MESO_PATHS: Record<string, { lat: number, lng: number }[]> = {
   'Metrop.': [
     { lat: -2.3, lng: -44.5 }, { lat: -2.3, lng: -44.1 },
@@ -257,15 +257,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        {/* Mesorregião - GOOGLE MAPS ENGINE COM POLÍGONOS */}
-        <div className="space-y-6">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
+        {/* Mesorregião - ORGANIZAÇÃO CONFORME PROTÓTIPO */}
+        <div className="space-y-4 pt-2">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
             Mesorregião (Mapa Real)
           </label>
           
-          <div className="bg-zinc-50/50 rounded-[2.5rem] p-4 border border-zinc-100 shadow-inner overflow-hidden">
-            <div className="aspect-[4/3] relative mb-6 rounded-2xl overflow-hidden border border-zinc-200 shadow-xl">
+          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.04)] ring-1 ring-zinc-50/50">
+            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100 shadow-md">
               {isLoaded ? (
                 <GoogleMap
                   mapContainerStyle={{ width: '100%', height: '100%' }}
@@ -296,61 +296,60 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   })}
                 </GoogleMap>
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-100 gap-4">
-                  <Loader2 className="animate-spin text-orange-600 size-6" />
-                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Engine Ativa...</span>
+                <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-50 gap-3">
+                  <Loader2 className="animate-spin text-orange-600 size-5" />
+                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Carregando Mapa...</span>
                 </div>
               )}
             </div>
-            
-            {/* Legenda em 2 Colunas */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-              <button 
-                onClick={() => onFilterChange('region', 'all')}
-                className={cn(
-                  "flex items-center justify-between p-2 rounded-xl transition-all",
-                  filters.region?.[0] === 'all' 
-                    ? "bg-white shadow-md ring-1 ring-zinc-200" 
-                    : "hover:bg-white/50"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-zinc-400" />
-                  <span className="text-[9px] font-black uppercase text-zinc-500">TODAS</span>
-                </div>
-              </button>
+          </div>
 
-              {Object.keys(MESO_PATHS).map((id) => {
-                const percentage = distribution?.region?.[id] || 0;
-                const active = isSelected('region', id);
-                return (
-                  <button 
-                    key={id}
-                    onClick={() => onFilterChange('region', id)}
-                    className={cn(
-                      "flex items-center justify-between p-2 rounded-xl transition-all",
-                      active 
-                        ? "bg-white shadow-md ring-1 ring-zinc-200" 
-                        : "hover:bg-white/50"
-                    )}
-                  >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[id] }} />
-                      <span className={cn(
-                        "text-[8px] font-black uppercase truncate",
-                        active ? "text-orange-600" : "text-zinc-500"
-                      )}>
-                        {id.toUpperCase()}
-                      </span>
-                    </div>
+          {/* Legenda Organizada em 2 Colunas */}
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            <button 
+              onClick={() => onFilterChange('region', 'all')}
+              className={cn(
+                "flex items-center justify-between p-2 rounded-xl transition-all border",
+                filters.region?.[0] === 'all' 
+                  ? "bg-white border-zinc-200 shadow-sm" 
+                  : "bg-transparent border-transparent hover:bg-zinc-50"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-zinc-300" />
+                <span className="text-[9px] font-black uppercase text-zinc-500">Todas</span>
+              </div>
+            </button>
+
+            {Object.keys(MESO_PATHS).map((id) => {
+              const percentage = distribution?.region?.[id] || 0;
+              const active = isSelected('region', id);
+              return (
+                <button 
+                  key={id}
+                  onClick={() => onFilterChange('region', id)}
+                  className={cn(
+                    "flex items-center justify-between p-2 rounded-xl transition-all border",
+                    active 
+                      ? "bg-white border-zinc-200 shadow-sm" 
+                      : "bg-transparent border-transparent hover:bg-zinc-50"
+                  )}
+                >
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: MESO_COLORS[id] }} />
                     <span className={cn(
-                      "text-[8px] font-bold px-1.5 py-0.5 rounded-full",
-                      active ? "bg-orange-50 text-orange-600" : "bg-zinc-100 text-zinc-400"
-                    )}>{Math.round(percentage)}%</span>
-                  </button>
-                );
-              })}
-            </div>
+                      "text-[8px] font-black uppercase truncate",
+                      active ? "text-orange-600" : "text-zinc-500"
+                    )}>
+                      {id}
+                    </span>
+                  </div>
+                  <Badge variant="secondary" className="bg-zinc-100 text-[8px] font-bold px-1.5 h-4 min-w-[32px] justify-center">
+                    {Math.round(percentage)}%
+                  </Badge>
+                </button>
+              );
+            })}
           </div>
         </div>
 
