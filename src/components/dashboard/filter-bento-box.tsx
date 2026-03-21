@@ -321,7 +321,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* GÊNERO - PADRONIZADO E SELECIONADO POR PADRÃO */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
@@ -329,14 +328,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </label>
           <div className="mesh-bg p-5 rounded-[2rem] border border-zinc-100 shadow-sm bg-white relative overflow-hidden">
             <div className="flex flex-row items-center justify-center gap-8 relative">
-              {/* FEMININO */}
-              <motion.div 
-                whileTap={{ scale: 0.95 }}
+              <div 
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  (isSelected('gender', 'Feminino') || isSelected('gender', 'all'))
-                    ? "bg-gradient-to-br from-pink-50 to-rose-100/30 saturate-150 border-pink-200 shadow-md" 
-                    : "opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0"
+                  (isSelected('gender', 'Feminino') || isSelected('gender', 'all')) ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
                 )}
                 onClick={() => onFilterChange('gender', 'Feminino')}
               >
@@ -344,7 +339,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   <Counter value={femalePct} color="text-[#e83e8c]" symbolColor="text-[#f472b6]" size="text-2xl" symbolSize="text-xs" />
                   <p className="text-[8px] font-black tracking-[0.1em] text-zinc-400 uppercase">Feminino</p>
                 </div>
-                <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center shadow-lg border-white/80">
+                <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center">
                   <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
                     <motion.div 
                       initial={{ height: 0 }}
@@ -356,20 +351,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     </motion.div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
-              {/* MASCULINO */}
-              <motion.div 
-                whileTap={{ scale: 0.95 }}
+              <div 
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  (isSelected('gender', 'Masculino') || isSelected('gender', 'all'))
-                    ? "bg-gradient-to-br from-blue-50 to-indigo-100/30 saturate-150 border-blue-200 shadow-md" 
-                    : "opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0"
+                  (isSelected('gender', 'Masculino') || isSelected('gender', 'all')) ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
                 )}
                 onClick={() => onFilterChange('gender', 'Masculino')}
               >
-                <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center shadow-lg border-white/80">
+                <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center">
                   <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
                     <motion.div 
                       initial={{ height: 0 }}
@@ -385,18 +376,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" size="text-2xl" symbolSize="text-xs" />
                   <p className="text-[8px] font-black tracking-[0.15em] text-zinc-400 uppercase">Masculino</p>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* FAIXA ETÁRIA - NOVO VISUAL MINIMALISTA */}
-        <div className="space-y-6 pt-4">
-          <div className="text-left">
-            <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Raio-X Demográfico</h3>
-            <h2 className="text-xl font-black tracking-tighter text-zinc-900 uppercase">Faixa Etária</h2>
-          </div>
-
+        <div className="space-y-4 pt-2">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+            FAIXA ETÁRIA
+          </label>
           <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm">
             <div className="flex items-end justify-between h-[200px] gap-1">
               {(options.age || []).map((opt) => {
