@@ -8,6 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Loader2, AlertTriangle, MapPin } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 
+/**
+ * CONFIGURAÇÃO DO GEOJSON:
+ * Se você quiser usar um arquivo local, salve-o na pasta 'public'
+ * e mude esta URL para '/seu-arquivo.json'
+ */
+const GEOJSON_URL = 'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao';
+
 interface InteractiveMapProps {
   onRegionSelect: (region: MesoRegion | null) => void;
   stats: Record<MesoRegion, number>;
@@ -34,9 +41,12 @@ const MESO_COLORS: Record<string, string> = {
   'Sul': '#a855f7',
 };
 
+// Função robusta para mapear nomes do IBGE ou customizados para as chaves do App
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
-  const name = String(ibgeName).toLowerCase();
+  const name = String(ibgeName).toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove acentos
+    
   if (name.includes('metropol')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
@@ -46,8 +56,9 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   return 'Norte';
 };
 
+// Extração segura de propriedades do polígono (Sem usar .toObject())
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
+  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name', 'id'];
   for (const key of keys) {
     const val = feature.getProperty(key);
     if (val) return String(val);
@@ -71,9 +82,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    mapInstance.data.loadGeoJson(
-      'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
-    );
+    mapInstance.data.loadGeoJson(GEOJSON_URL);
   }, []);
 
   useEffect(() => {
@@ -81,7 +90,10 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
       const rawName = getRegionNameFromFeature(event.feature);
       const regionKey = mapIBGENameToApp(rawName);
+      
+      // Aplica o filtro global
       onRegionSelect(regionKey);
+      
       setInfoWindowData({
         lat: event.latLng.lat(),
         lng: event.latLng.lng(),
@@ -145,7 +157,21 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       </div>
       <div className="w-full h-full relative">
         {isLoaded ? (
-          <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={6} onLoad={onLoad} options={{ styles: mapStyles, disableDefaultUI: false, zoomControl: true, mapTypeControl: false, streetViewControl: false, fullscreenControl: true, gestureHandling: 'cooperative' }}>
+          <GoogleMap 
+            mapContainerStyle={mapContainerStyle} 
+            center={center} 
+            zoom={6} 
+            onLoad={onLoad} 
+            options={{ 
+              styles: mapStyles, 
+              disableDefaultUI: false, 
+              zoomControl: true, 
+              mapTypeControl: false, 
+              streetViewControl: false, 
+              fullscreenControl: true, 
+              gestureHandling: 'cooperative' 
+            }}
+          >
             {infoWindowData && (
               <InfoWindow position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }} onCloseClick={() => setInfoWindowData(null)}>
                 <div className="p-3 min-w-[160px]">

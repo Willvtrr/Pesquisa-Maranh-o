@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useSpring, useTransform } from 'framer-motion';
 import { 
   MapPin, 
   Search, 
@@ -25,6 +25,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MesoRegion } from '@/data/survey-data';
+
+const GEOJSON_URL = 'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao';
 
 interface FilterBentoBoxProps {
   filters: Record<string, string[]>;
@@ -53,7 +55,9 @@ const mapStyles = [
 
 const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   if (!ibgeName) return 'Norte';
-  const name = String(ibgeName).toLowerCase();
+  const name = String(ibgeName).toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    
   if (name.includes('metropol')) return 'Metrop.';
   if (name.includes('norte')) return 'Norte';
   if (name.includes('sul')) return 'Sul';
@@ -64,7 +68,7 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
 };
 
 const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name'];
+  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name', 'id'];
   for (const key of keys) {
     const val = feature.getProperty(key);
     if (val) return String(val);
@@ -110,9 +114,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    mapInstance.data.loadGeoJson(
-      'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao'
-    );
+    mapInstance.data.loadGeoJson(GEOJSON_URL);
   }, []);
 
   useEffect(() => {
@@ -134,10 +136,12 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         const regionKey = mapIBGENameToApp(rawName);
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
+        
         let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.75;
         let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
+
         if (isSelectionActive) {
           if (isThisRegionActive) {
             fillOpacity = 0.95;
