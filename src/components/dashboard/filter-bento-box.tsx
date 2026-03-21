@@ -339,7 +339,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 onClick={() => onFilterChange('gender', 'Feminino')}
               >
                 <div className="text-right flex flex-col items-end">
-                  <Counter value={femalePct} color="text-[#e83e8c]" symbolColor="text-[#f472b6]" size="text-2xl" symbolSize="text-xs" />
+                  <Counter value={femalePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
                   <p className="text-[8px] font-black tracking-[0.1em] text-zinc-400 uppercase">Feminino</p>
                 </div>
                 <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center">
@@ -376,7 +376,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   </div>
                 </div>
                 <div className="text-left flex flex-col items-start">
-                  <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" size="text-2xl" symbolSize="text-xs" />
+                  <Counter value={malePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
                   <p className="text-[8px] font-black tracking-[0.15em] text-zinc-400 uppercase">Masculino</p>
                 </div>
               </div>
@@ -394,7 +394,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <div className="flex items-end justify-between h-[140px] gap-1">
               {(options.age || []).map((opt) => {
                 const pct = distribution?.age?.[opt] || 0;
-                const active = isSelected('age', opt);
+                const isAnyAgeSelected = filters.age && filters.age[0] !== 'all';
+                const isThisAgeSelected = isSelected('age', opt);
+                const isOrangeByDefault = opt === '25-34' || opt === '45-59';
                 
                 return (
                   <div 
@@ -408,8 +410,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         decimals={1} 
                         size="text-[10px]" 
                         symbolSize="text-[7px]" 
-                        color={active ? "text-orange-600" : "text-zinc-800"} 
-                        symbolColor={active ? "text-orange-400" : "text-zinc-400"} 
+                        color="text-zinc-800"
+                        symbolColor="text-zinc-400" 
                       />
                     </div>
                     
@@ -419,17 +421,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         animate={{ height: `${(pct / maxAgePct) * 100}%` }}
                         transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                         className={cn(
-                          "w-full rounded-t-lg transition-all",
-                          active 
-                            ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]" 
-                            : "bg-zinc-800 group-hover:bg-zinc-700"
+                          "w-full rounded-t-lg transition-all duration-500",
+                          isAnyAgeSelected 
+                            ? (isThisAgeSelected ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "bg-zinc-200 opacity-30")
+                            : (isOrangeByDefault ? "bg-orange-500" : "bg-zinc-800 group-hover:bg-zinc-700")
                         )}
                       />
                     </div>
                     
                     <span className={cn(
-                      "mt-2 text-[7px] font-black uppercase tracking-tighter text-center leading-tight transition-colors",
-                      active ? "text-orange-600" : "text-zinc-400 group-hover:text-zinc-800"
+                      "mt-2 text-[7px] font-black uppercase tracking-tighter text-center leading-tight transition-colors text-zinc-800"
                     )}>
                       {opt.replace(' anos', '').replace('-', ' a ')}
                     </span>
