@@ -314,7 +314,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* GÊNERO REFINADO - VIBRANTE E COMPACTO */}
+        {/* GÊNERO - PADRONIZADO E SELECIONADO POR PADRÃO */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
@@ -327,7 +327,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 whileTap={{ scale: 0.95 }}
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  isSelected('gender', 'Feminino') 
+                  (isSelected('gender', 'Feminino') || isSelected('gender', 'all'))
                     ? "bg-gradient-to-br from-pink-50 to-rose-100/30 saturate-150 border-pink-200 shadow-md" 
                     : "opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0"
                 )}
@@ -356,7 +356,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 whileTap={{ scale: 0.95 }}
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  isSelected('gender', 'Masculino') 
+                  (isSelected('gender', 'Masculino') || isSelected('gender', 'all'))
                     ? "bg-gradient-to-br from-blue-50 to-indigo-100/30 saturate-150 border-blue-200 shadow-md" 
                     : "opacity-60 grayscale-[0.5] hover:opacity-100 hover:grayscale-0"
                 )}
@@ -376,7 +376,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
                 <div className="text-left flex flex-col items-start">
                   <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" size="text-2xl" symbolSize="text-xs" />
-                  <p className="text-[8px] font-black tracking-[0.1em] text-zinc-400 uppercase">Masculino</p>
+                  <p className="text-[8px] font-black tracking-[0.15em] text-zinc-400 uppercase">Masculino</p>
                 </div>
               </motion.div>
             </div>
