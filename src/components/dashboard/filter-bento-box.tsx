@@ -437,20 +437,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 );
               })}
             </div>
-            
-            <div className="mt-4 pt-3 border-t border-zinc-50 flex justify-center">
-              <button 
-                onClick={() => onFilterChange('age', 'all')}
-                className={cn(
-                  "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest transition-all",
-                  isSelected('age', 'all') 
-                    ? "bg-orange-600 text-white shadow-md shadow-orange-600/20" 
-                    : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
-                )}
-              >
-                Todas as Faixas
-              </button>
-            </div>
           </div>
         </div>
 
