@@ -76,9 +76,11 @@ const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | n
   return null;
 };
 
-const Counter = ({ value, color, symbolColor, size = "text-[3.5rem]", symbolSize = "text-2xl" }: { value: number, color: string, symbolColor: string, size?: string, symbolSize?: string }) => {
+const Counter = ({ value, color, symbolColor, size = "text-[3.5rem]", symbolSize = "text-2xl", decimals = 0 }: { value: number, color: string, symbolColor: string, size?: string, symbolSize?: string, decimals?: number }) => {
   const springValue = useSpring(0, { stiffness: 40, damping: 20 });
-  const displayValue = useTransform(springValue, (latest) => Math.round(latest));
+  const displayValue = useTransform(springValue, (latest) => 
+    decimals > 0 ? latest.toFixed(decimals).replace('.', ',') : Math.round(latest)
+  );
 
   useEffect(() => {
     springValue.set(value);
@@ -165,6 +167,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   }, [options.city, searchTerm]);
 
   const selectedCitiesCount = filters.city?.[0] === 'all' ? 0 : filters.city?.length || 0;
+
+  const maxAgePct = useMemo(() => {
+    const ageStats = distribution?.age || {};
+    return Math.max(...Object.values(ageStats), 0.1);
+  }, [distribution]);
 
   return (
     <LuxuryCard 
@@ -383,11 +390,82 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {['age', 'income', 'education'].map((key) => (
+        {/* FAIXA ETÁRIA - NOVO VISUAL MINIMALISTA */}
+        <div className="space-y-6 pt-4">
+          <div className="text-left">
+            <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Raio-X Demográfico</h3>
+            <h2 className="text-xl font-black tracking-tighter text-zinc-900 uppercase">Faixa Etária</h2>
+          </div>
+
+          <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm">
+            <div className="flex items-end justify-between h-[200px] gap-1">
+              {(options.age || []).map((opt) => {
+                const pct = distribution?.age?.[opt] || 0;
+                const active = isSelected('age', opt);
+                
+                return (
+                  <div 
+                    key={opt} 
+                    onClick={() => onFilterChange('age', opt)}
+                    className="flex flex-col items-center flex-1 h-full group cursor-pointer"
+                  >
+                    <div className="mb-2">
+                      <Counter 
+                        value={pct} 
+                        decimals={1} 
+                        size="text-[10px] md:text-sm" 
+                        symbolSize="text-[8px]" 
+                        color={active ? "text-orange-600" : "text-zinc-800"} 
+                        symbolColor={active ? "text-orange-400" : "text-zinc-400"} 
+                      />
+                    </div>
+                    
+                    <div className="w-full max-w-[40px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative transition-colors">
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${(pct / maxAgePct) * 100}%` }}
+                        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                        className={cn(
+                          "w-full rounded-t-lg transition-all",
+                          active 
+                            ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" 
+                            : "bg-zinc-800 group-hover:bg-zinc-700"
+                        )}
+                      />
+                    </div>
+                    
+                    <span className={cn(
+                      "mt-3 text-[7px] font-bold uppercase tracking-widest text-center leading-tight transition-colors",
+                      active ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800"
+                    )}>
+                      {opt.replace(' anos', '').replace('-', ' a ')}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="mt-6 pt-4 border-t border-zinc-50 flex justify-center">
+              <button 
+                onClick={() => onFilterChange('age', 'all')}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                  isSelected('age', 'all') 
+                    ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" 
+                    : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
+                )}
+              >
+                Todas as Faixas
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {['income', 'education'].map((key) => (
           <div key={key} className="space-y-4">
             <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
-              {key === 'age' ? 'Faixa Etária' : key === 'income' ? 'Renda' : 'Escolaridade'}
+              {key === 'income' ? 'Renda' : 'Escolaridade'}
             </label>
             <div className="grid grid-cols-1 gap-2">
               <FilterChip label="Todas" active={isSelected(key, 'all')} onClick={() => onFilterChange(key, 'all')} />

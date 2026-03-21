@@ -1,26 +1,30 @@
+
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { BarChart3 } from 'lucide-react';
 import { motion, useSpring, useTransform } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface DemographicProfileProps {
   stats: Record<string, Record<string, number>>;
 }
 
-const Counter = ({ value, color, symbolColor }: { value: number, color: string, symbolColor: string }) => {
+const Counter = ({ value, color, symbolColor, decimals = 0 }: { value: number, color: string, symbolColor: string, decimals?: number }) => {
   const springValue = useSpring(0, { stiffness: 40, damping: 20 });
-  const displayValue = useTransform(springValue, (latest) => Math.round(latest));
+  const displayValue = useTransform(springValue, (latest) => 
+    decimals > 0 ? latest.toFixed(decimals).replace('.', ',') : Math.round(latest)
+  );
 
   useEffect(() => {
     springValue.set(value);
   }, [value, springValue]);
 
   return (
-    <h2 className={`text-[4rem] lg:text-[5rem] leading-none font-black tracking-tighter ${color} drop-shadow-sm flex items-baseline`}>
+    <h2 className={cn("text-[3.5rem] lg:text-[4.5rem] leading-none font-black tracking-tighter drop-shadow-sm flex items-baseline", color)}>
       <motion.span>{displayValue}</motion.span>
-      <span className={`text-2xl lg:text-4xl ${symbolColor} ml-1`}>%</span>
+      <span className={cn("text-2xl lg:text-3xl ml-1", symbolColor)}>{decimals > 0 ? '%' : '%'}</span>
     </h2>
   );
 };
@@ -28,6 +32,11 @@ const Counter = ({ value, color, symbolColor }: { value: number, color: string, 
 export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
   const femalePct = stats.gender?.['Feminino'] || 0;
   const malePct = stats.gender?.['Masculino'] || 0;
+
+  const maxAgePct = useMemo(() => {
+    const ageStats = stats.age || {};
+    return Math.max(...Object.values(ageStats), 0.1);
+  }, [stats.age]);
 
   return (
     <LuxuryCard className="w-full">
@@ -116,27 +125,46 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
           </div>
         </div>
 
-        {/* Faixa Etária */}
-        <div className="lg:col-span-2 lg:px-8 flex flex-col min-h-[200px]">
+        {/* Faixa Etária - NOVO VISUAL MINIMALISTA */}
+        <div className="lg:col-span-2 lg:px-8 flex flex-col min-h-[300px]">
           <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-8 text-center">Faixa Etária</h4>
           <div className="flex items-end justify-between flex-grow gap-3 h-48">
-            {Object.entries(stats.age || {}).slice(0, 4).map(([label, pct], idx) => (
-              <div key={idx} className="flex flex-col items-center flex-1 group">
-                <span className="text-[9px] font-bold text-zinc-800 mb-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {pct.toFixed(1)}%
-                </span>
-                <div className="w-full bg-zinc-100 rounded-t-sm h-full flex items-end relative overflow-hidden">
-                  <motion.div 
-                    initial={{ height: 0 }}
-                    animate={{ height: `${pct}%` }}
-                    className={`w-full ${pct > 20 ? 'bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]' : 'bg-zinc-800'} rounded-t-sm`}
-                  />
+            {Object.entries(stats.age || {}).map(([label, pct], idx) => {
+              const isMax = pct === maxAgePct;
+              return (
+                <div key={idx} className="flex flex-col items-center flex-1 group h-full">
+                  <div className="mb-4 transition-transform group-hover:-translate-y-1">
+                    <Counter 
+                      value={pct} 
+                      decimals={1} 
+                      size="text-sm lg:text-xl" 
+                      symbolSize="text-[10px]" 
+                      color={isMax ? "text-orange-500" : "text-zinc-800"} 
+                      symbolColor={isMax ? "text-orange-400" : "text-zinc-400"} 
+                    />
+                  </div>
+                  <div className="w-full max-w-[40px] bg-zinc-100 rounded-t-xl h-full flex items-end overflow-hidden relative">
+                    <motion.div 
+                      initial={{ height: 0 }}
+                      animate={{ height: `${(pct / maxAgePct) * 100}%` }}
+                      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                      className={cn(
+                        "w-full rounded-t-xl transition-colors",
+                        isMax 
+                          ? "bg-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]" 
+                          : "bg-zinc-800 group-hover:bg-zinc-700"
+                      )}
+                    />
+                  </div>
+                  <span className={cn(
+                    "mt-6 text-[8px] font-bold uppercase tracking-widest text-center leading-tight transition-colors",
+                    isMax ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800"
+                  )}>
+                    {label.replace(' anos', '').replace('-', ' a ')}
+                  </span>
                 </div>
-                <span className="text-[8px] font-semibold text-zinc-400 mt-3 text-center leading-tight">
-                  {label.replace(' anos', '')}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
