@@ -179,9 +179,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       subtitle="Recorte de Dados" 
       className={cn("flex flex-col h-full", className)}
     >
-      <div className="flex flex-col gap-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
+      <div className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2 no-scrollbar">
         
-        <div className="space-y-4">
+        {/* Município */}
+        <div className="space-y-3">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
             Recorte por Município
@@ -274,7 +275,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Dialog>
         </div>
 
-        <div className="space-y-4 pt-2">
+        {/* Mesorregião */}
+        <div className="space-y-3 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
             Mesorregião
@@ -321,7 +323,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        <div className="space-y-4">
+        {/* Gênero */}
+        <div className="space-y-3 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
             GÊNERO
@@ -381,13 +384,14 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        <div className="space-y-4 pt-2">
+        {/* Faixa Etária Compacta */}
+        <div className="space-y-3 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
             FAIXA ETÁRIA
           </label>
-          <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 shadow-sm">
-            <div className="flex items-end justify-between h-[200px] gap-1">
+          <div className="bg-white p-4 rounded-[2rem] border border-zinc-100 shadow-sm">
+            <div className="flex items-end justify-between h-[140px] gap-1">
               {(options.age || []).map((opt) => {
                 const pct = distribution?.age?.[opt] || 0;
                 const active = isSelected('age', opt);
@@ -398,18 +402,18 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     onClick={() => onFilterChange('age', opt)}
                     className="flex flex-col items-center flex-1 h-full group cursor-pointer"
                   >
-                    <div className="mb-2">
+                    <div className="mb-1.5">
                       <Counter 
                         value={pct} 
                         decimals={1} 
-                        size="text-[10px] md:text-sm" 
-                        symbolSize="text-[8px]" 
+                        size="text-[10px]" 
+                        symbolSize="text-[7px]" 
                         color={active ? "text-orange-600" : "text-zinc-800"} 
                         symbolColor={active ? "text-orange-400" : "text-zinc-400"} 
                       />
                     </div>
                     
-                    <div className="w-full max-w-[40px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative transition-colors">
+                    <div className="w-full max-w-[32px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative transition-colors">
                       <motion.div 
                         initial={{ height: 0 }}
                         animate={{ height: `${(pct / maxAgePct) * 100}%` }}
@@ -417,15 +421,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         className={cn(
                           "w-full rounded-t-lg transition-all",
                           active 
-                            ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" 
+                            ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]" 
                             : "bg-zinc-800 group-hover:bg-zinc-700"
                         )}
                       />
                     </div>
                     
                     <span className={cn(
-                      "mt-3 text-[7px] font-bold uppercase tracking-widest text-center leading-tight transition-colors",
-                      active ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800"
+                      "mt-2 text-[7px] font-black uppercase tracking-tighter text-center leading-tight transition-colors",
+                      active ? "text-orange-600" : "text-zinc-400 group-hover:text-zinc-800"
                     )}>
                       {opt.replace(' anos', '').replace('-', ' a ')}
                     </span>
@@ -434,13 +438,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               })}
             </div>
             
-            <div className="mt-6 pt-4 border-t border-zinc-50 flex justify-center">
+            <div className="mt-4 pt-3 border-t border-zinc-50 flex justify-center">
               <button 
                 onClick={() => onFilterChange('age', 'all')}
                 className={cn(
-                  "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                  "px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest transition-all",
                   isSelected('age', 'all') 
-                    ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" 
+                    ? "bg-orange-600 text-white shadow-md shadow-orange-600/20" 
                     : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
                 )}
               >
@@ -450,8 +454,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
+        {/* Renda e Escolaridade */}
         {['income', 'education'].map((key) => (
-          <div key={key} className="space-y-4">
+          <div key={key} className="space-y-3 pt-2">
             <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
               {key === 'income' ? 'Renda' : 'Escolaridade'}
@@ -466,8 +471,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-zinc-100">
-        <button onClick={onClear} className="w-full py-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all flex items-center justify-center gap-2 shadow-inner">
+      <div className="mt-6 pt-4 border-t border-zinc-100">
+        <button onClick={onClear} className="w-full py-3 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all flex items-center justify-center gap-2 shadow-inner">
           <X size={12} />
           Resetar Recorte
         </button>
