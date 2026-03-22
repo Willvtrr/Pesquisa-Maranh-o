@@ -186,12 +186,24 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
   const displayPoliticPct = useMemo(() => {
-    const activeIdeology = filters.ideology?.[0];
-    const target = hoveredPolitic || (activeIdeology !== 'all' ? activeIdeology : null);
-    
-    if (target === 'direita' || target === dirKey) return pDir;
-    if (target === 'centro' || target === cenKey) return pCen;
-    if (target === 'esquerda' || target === esqKey) return pEsq;
+    // 1. Se estiver pairando (hover), mostra o valor individual
+    if (hoveredPolitic) {
+      if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) return pDir;
+      if (hoveredPolitic === 'centro' || hoveredPolitic === cenKey) return pCen;
+      if (hoveredPolitic === 'esquerda' || hoveredPolitic === esqKey) return pEsq;
+    }
+
+    // 2. Se houver seleções múltiplas, soma os valores
+    const selectedIdeologies = filters.ideology || [];
+    if (selectedIdeologies.length > 0 && !selectedIdeologies.includes('all')) {
+      let sum = 0;
+      if (selectedIdeologies.includes(dirKey)) sum += pDir;
+      if (selectedIdeologies.includes(cenKey)) sum += pCen;
+      if (selectedIdeologies.includes(esqKey)) sum += pEsq;
+      return sum;
+    }
+
+    // 3. Padrão: 100% (Amostra Total)
     return 100;
   }, [hoveredPolitic, filters.ideology, pDir, pCen, pEsq, dirKey, cenKey, esqKey]);
 
@@ -210,7 +222,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             Recorte por Município
           </label>
           
-          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <Sheet border="none" open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <button className={cn(
                 "w-full group relative flex items-center justify-between p-4 rounded-[1.5rem] border transition-all duration-300",
@@ -477,12 +489,12 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         </div>
 
         {/* Renda Familiar */}
-        <div className="space-y-4 pt-4">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
+        <div className="pt-4">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             RENDA FAMILIAR
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-6">
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-5">
             {(options.income || []).map((opt) => {
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
@@ -490,13 +502,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               return (
                 <div 
                   key={opt} 
-                  className="group cursor-pointer space-y-2"
+                  className="group cursor-pointer space-y-1.5"
                   onClick={() => onFilterChange('income', opt)}
                 >
-                  <div className="flex justify-between items-baseline">
+                  <div className="flex justify-between items-end">
                     <span className={cn(
                       "text-[9px] font-bold uppercase tracking-widest transition-colors",
-                      active ? "text-orange-600" : "text-zinc-400"
+                      active ? "text-orange-600" : "text-zinc-500"
                     )}>
                       {opt}
                     </span>
@@ -510,7 +522,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       <span className="text-[8px] font-bold text-zinc-400">%</span>
                     </div>
                   </div>
-                  <div className="w-full h-1.5 bg-zinc-50 rounded-full overflow-hidden relative border border-zinc-100/50">
+                  <div className="w-full h-2 bg-zinc-50 rounded-full overflow-hidden relative border border-zinc-100/50">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
@@ -542,7 +554,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
                   <circle cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#f4f4f5" strokeWidth="6"></circle>
 
-                  {/* Direita (Primeiro Segmento) */}
+                  {/* Direita */}
                   <circle 
                     className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'direita' || isSelected('ideology', dirKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
                     cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#eab308" strokeWidth="6" 
@@ -553,7 +565,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     onClick={() => onFilterChange('ideology', dirKey)}
                   ></circle>
 
-                  {/* Centro (Segundo Segmento) */}
+                  {/* Centro */}
                   <circle 
                     className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'centro' || isSelected('ideology', cenKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
                     cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#9ca3af" strokeWidth="6" 
@@ -564,7 +576,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     onClick={() => onFilterChange('ideology', cenKey)}
                   ></circle>
 
-                  {/* Esquerda (Terceiro Segmento) */}
+                  {/* Esquerda */}
                   <circle 
                     className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'esquerda' || isSelected('ideology', esqKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
                     cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#ef4444" strokeWidth="6" 
@@ -578,7 +590,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <span className="text-xl font-black text-zinc-800">{displayPoliticPct}%</span>
-                  <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest">Amostra</span>
+                  <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest">{hoveredPolitic || (filters.ideology?.length > 0 && !filters.ideology.includes('all')) ? 'Seleção' : 'Amostra'}</span>
                 </div>
               </div>
 
@@ -587,24 +599,29 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey },
                   { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
                   { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey }
-                ].map((item) => (
-                  <div 
-                    key={item.id}
-                    className={cn(
-                      "flex items-center justify-between cursor-pointer transition-all duration-300 p-1.5 rounded-xl",
-                      (hoveredPolitic === item.id || isSelected('ideology', item.key)) ? "bg-zinc-50 scale-[1.02]" : (hoveredPolitic && "opacity-40")
-                    )}
-                    onMouseEnter={() => setHoveredPolitic(item.id)}
-                    onMouseLeave={() => setHoveredPolitic(null)}
-                    onClick={() => onFilterChange('ideology', item.key)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                      <span className="text-[10px] font-black text-zinc-700 uppercase tracking-tight">{item.label}</span>
+                ].map((item) => {
+                  const active = isSelected('ideology', item.key);
+                  return (
+                    <div 
+                      key={item.id}
+                      className={cn(
+                        "flex items-center justify-between cursor-pointer transition-all duration-300 p-1.5 rounded-xl",
+                        (hoveredPolitic === item.id || active) ? "bg-zinc-50 scale-[1.02]" : (hoveredPolitic && "opacity-40")
+                      )}
+                      onMouseEnter={() => setHoveredPolitic(item.id)}
+                      onMouseLeave={() => setHoveredPolitic(null)}
+                      onClick={() => onFilterChange('ideology', item.key)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                        <span className="text-[10px] font-black text-zinc-700 uppercase tracking-tight">{item.label}</span>
+                      </div>
+                      <span className={cn("text-xs font-black transition-colors", active ? "text-orange-600" : "text-zinc-900")}>
+                        {item.pct}%
+                      </span>
                     </div>
-                    <span className="text-xs font-black" style={{ color: item.color }}>{item.pct}%</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
