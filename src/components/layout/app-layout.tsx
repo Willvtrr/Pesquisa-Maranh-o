@@ -4,7 +4,6 @@
 import React from 'react';
 import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 import { BottomNav } from './bottom-nav';
 
 interface AppLayoutProps {
@@ -19,14 +18,15 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       
       <header className="h-16 lg:h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
-          <div className="relative w-28 lg:w-[140px] h-8 lg:h-14">
-            <Image 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Bandeira_do_Maranh%C3%A3o.svg/1200px-Bandeira_do_Maranh%C3%A3o.svg.png"
-              alt="Focco Intelligence"
-              fill
-              priority
-              className="object-contain cursor-pointer"
-            />
+          {/* Logo FOCCO ANALYTICS Premium */}
+          <div className="flex items-center gap-3 cursor-pointer group">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black text-lg lg:text-xl shadow-2xl shadow-zinc-950/20 group-hover:scale-105 transition-transform duration-300">
+              F
+            </div>
+            <div className="flex flex-col -space-y-1 lg:-space-y-1.5">
+              <span className="text-lg lg:text-2xl font-black tracking-tighter text-zinc-950">FOCCO</span>
+              <span className="text-[7px] lg:text-[9px] font-black tracking-[0.4em] text-orange-600 uppercase">Analytics</span>
+            </div>
           </div>
           
           <nav className="hidden lg:flex items-center gap-3">
