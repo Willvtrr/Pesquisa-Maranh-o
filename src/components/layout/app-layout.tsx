@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -18,7 +19,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       
       <header className="h-16 lg:h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
-          {/* Logo Oficial FOCCO ANALYTICS */}
+          {/* Logo Oficial FOCCO ANALYTICS - Variante 3 */}
           <div className="flex items-center cursor-pointer group">
             <div className="relative w-[140px] h-[40px] lg:w-[180px] lg:h-[52px]">
               <Image 
@@ -26,7 +27,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 alt="Focco Analytics" 
                 fill
                 priority
-                className="object-contain transition-transform duration-300 group-hover:scale-105"
+                className="object-contain"
               />
             </div>
           </div>

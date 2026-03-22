@@ -180,7 +180,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pCen = Math.round(distribution?.ideology?.[cenKey] || 0);
   const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
-  // Lógica de Soma Reativa para o Centro do Gráfico
   const displayPoliticPct = useMemo(() => {
     if (hoveredPolitic) {
       if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) return pDir;
@@ -372,16 +371,58 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Escolaridade (Abaixo de Renda) */}
+        {/* Escolaridade (Estilo Profissional Sóbrio) */}
         <div className="space-y-3 pt-4">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             ESCOLARIDADE
           </label>
-          <div className="grid grid-cols-1 gap-2">
-            {(options.education || []).map(opt => (
-              <FilterChip key={opt} label={opt} percentage={distribution?.education?.[opt]} active={isSelected('education', opt)} onClick={() => onFilterChange('education', opt)} />
-            ))}
+          <div className="flex flex-col gap-3">
+            {(options.education || []).map((opt) => {
+              const pct = distribution?.education?.[opt] || 0;
+              const active = isSelected('education', opt);
+              return (
+                <motion.div
+                  key={opt}
+                  whileHover={{ x: 4, scale: 1.01 }}
+                  onClick={() => onFilterChange('education', opt)}
+                  className={cn(
+                    "flex flex-col gap-3 p-4 rounded-xl transition-all cursor-pointer border",
+                    active 
+                      ? "border-orange-500 bg-orange-50/30" 
+                      : "border-zinc-100 bg-white hover:border-zinc-200 hover:shadow-lg"
+                  )}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-0.5">
+                      <h3 className={cn("text-xs font-bold transition-colors", active ? "text-orange-600" : "text-zinc-800")}>
+                        {opt}
+                      </h3>
+                      <p className="text-[8px] text-zinc-400 uppercase tracking-widest">
+                        {pct > 40 ? 'Maioria' : pct > 20 ? 'Base' : 'Segmento'}
+                      </p>
+                    </div>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className={cn("text-xl font-black transition-colors", active ? "text-orange-600" : "text-zinc-800")}>
+                        {Math.round(pct)}
+                      </span>
+                      <span className="text-[10px] font-bold text-zinc-400">%</span>
+                    </div>
+                  </div>
+                  <div className="h-4 bg-zinc-100/70 border border-zinc-200/20 rounded-lg p-[3px] relative overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 1.5, ease: [0.2, 0.8, 0.2, 1] }}
+                      className={cn(
+                        "h-full rounded-[5px] transition-colors",
+                        active ? "bg-orange-500" : "bg-zinc-300"
+                      )}
+                    />
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 
@@ -437,21 +478,3 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     </LuxuryCard>
   );
 };
-
-export const FilterChip = ({ label, active, percentage, onClick }: { label: string, active: boolean, percentage?: number, onClick: () => void }) => (
-  <motion.button 
-    whileTap={{ scale: 0.96 }}
-    onClick={onClick}
-    className={cn(
-      "px-4 py-2.5 rounded-full text-[11px] font-bold transition-all border flex items-center justify-between",
-      active ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/30" : "bg-white border-zinc-100 text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50 shadow-sm"
-    )}
-  >
-    <span className="truncate max-w-[150px]">{label}</span>
-    {percentage !== undefined && (
-      <span className={cn("text-[8px] font-black px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[32px] ml-2", active ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-400")}>
-        {Math.round(percentage)}%
-      </span>
-    )}
-  </motion.button>
-);
