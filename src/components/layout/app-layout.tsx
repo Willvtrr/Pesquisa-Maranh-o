@@ -25,7 +25,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               alt="Focco Intelligence"
               fill
               priority
-              className="object-contain cursor-pointer grayscale brightness-50 contrast-125"
+              className="object-contain cursor-pointer"
             />
           </div>
           
@@ -55,7 +55,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
         <footer className="mt-12 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 border-t border-zinc-200 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 pb-10">
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg inner-relief flex items-center justify-center text-zinc-400">
+            <div className="w-7 h-7 sm:size-8 rounded-lg inner-relief flex items-center justify-center text-zinc-400">
               <Cpu size={12} className="sm:size-[14px]" />
             </div>
             <div className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center lg:text-left">

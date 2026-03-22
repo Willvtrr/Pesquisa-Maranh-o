@@ -110,12 +110,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   });
 
   const isSelected = (key: string, value: string) => filters[key]?.includes(value);
-  const isGenderActive = (val: string) => filters.gender?.includes('all') || filters.gender?.includes(val);
   
   const activeRegion = filters.region?.[0] || 'all';
 
   const femalePct = distribution?.gender?.['Feminino'] || 0;
   const malePct = distribution?.gender?.['Masculino'] || 0;
+
+  const isGenderActive = (val: string) => filters.gender?.includes('all') || filters.gender?.includes(val);
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
@@ -186,13 +187,11 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
   const displayPoliticPct = useMemo(() => {
-    // 1. Hover
     if (hoveredPolitic) {
       if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) return pDir;
       if (hoveredPolitic === 'centro' || hoveredPolitic === cenKey) return pCen;
       if (hoveredPolitic === 'esquerda' || hoveredPolitic === esqKey) return pEsq;
     }
-    // 2. Multi-seleção
     const selectedIdeologies = filters.ideology || [];
     if (selectedIdeologies.length > 0 && !selectedIdeologies.includes('all')) {
       let sum = 0;
@@ -364,8 +363,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
               return (
-                <div key={opt} className="cursor-pointer space-y-1" onClick={() => onFilterChange('income', opt)}>
-                  <div className="flex justify-between items-end">
+                <div key={opt} className="cursor-pointer group" onClick={() => onFilterChange('income', opt)}>
+                  <div className="flex justify-between items-end mb-1">
                     <span className={cn("text-[9px] font-bold uppercase tracking-widest", active ? "text-orange-600" : "text-zinc-500")}>{opt}</span>
                     <span className={cn("text-xl font-black", active ? "text-orange-600" : "text-zinc-800")}>{pct.toFixed(1)}%</span>
                   </div>
@@ -407,7 +406,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-xl font-black text-zinc-800">{displayPoliticPct}%</span>
-                <span className="text-[6px] font-bold text-zinc-400 uppercase">{hoveredPolitic || filters.ideology?.length > 0 ? 'Seleção' : 'Amostra'}</span>
+                <span className="text-[6px] font-bold text-zinc-400 uppercase">{(filters.ideology?.length > 0 && !filters.ideology?.includes('all')) ? 'Soma' : 'Amostra'}</span>
               </div>
             </div>
             <div className="flex flex-col gap-2 w-full">
