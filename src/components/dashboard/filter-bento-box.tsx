@@ -193,7 +193,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     >
       <div className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2 no-scrollbar">
         
-        {/* Município - Experiência App Nativa */}
+        {/* Município */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
@@ -228,7 +228,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </button>
             </SheetTrigger>
             
-            {/* Drawer Lateral Pro para Desktop, Drawer Inferior para Mobile */}
             <SheetContent side="right" className="h-full w-full sm:max-w-[500px] border-none p-0 bg-white/95 backdrop-blur-2xl overflow-hidden shadow-2xl">
               <SheetHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
                 <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter text-zinc-900">
@@ -347,7 +346,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Gênero - Design Simétrico */}
+        {/* Gênero */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -402,7 +401,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Faixa Etária - Barras Intercaladas */}
+        {/* Faixa Etária */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -467,20 +466,65 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda Familiar */}
-        <div className="space-y-3 pt-4">
+        {/* Renda Familiar - VISUAL RAIO-X MINIMALISTA */}
+        <div className="space-y-4 pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             RENDA FAMILIAR
           </label>
-          <div className="grid grid-cols-1 gap-2">
-            {(options.income || []).map(opt => (
-              <FilterChip key={opt} label={opt} percentage={distribution?.income?.[opt]} active={isSelected('income', opt)} onClick={() => onFilterChange('income', opt)} />
-            ))}
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-8">
+            {(options.income || []).map((opt, idx) => {
+              const pct = distribution?.income?.[opt] || 0;
+              const active = isSelected('income', opt);
+              const isFirst = idx === 0;
+              
+              return (
+                <div 
+                  key={opt} 
+                  className="group cursor-pointer"
+                  onClick={() => onFilterChange('income', opt)}
+                >
+                  <div className="flex justify-between items-end mb-2">
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase tracking-widest transition-colors",
+                      active || isFirst ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800"
+                    )}>
+                      {opt}
+                    </span>
+                    <div className="flex items-baseline">
+                      <Counter 
+                        value={pct} 
+                        decimals={1} 
+                        size="text-2xl" 
+                        symbolSize="text-xs" 
+                        color={active || isFirst ? "text-orange-500" : "text-zinc-800"} 
+                        symbolColor={active || isFirst ? "text-orange-400" : "text-zinc-400"} 
+                      />
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "w-full h-3 rounded-full overflow-hidden relative",
+                    active || isFirst ? "bg-orange-50" : "bg-zinc-100"
+                  )}>
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        active || isFirst 
+                          ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" 
+                          : "bg-zinc-800 group-hover:bg-zinc-700"
+                      )}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Visão Política - Donut Interativo */}
+        {/* Visão Política */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
