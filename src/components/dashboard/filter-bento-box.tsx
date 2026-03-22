@@ -185,7 +185,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pCen = Math.round(distribution?.ideology?.[cenKey] || 0);
   const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
-  // Lógica dinâmica para o centro do gráfico de donut
   const displayPoliticPct = useMemo(() => {
     const activeIdeology = filters.ideology?.[0];
     const target = hoveredPolitic || (activeIdeology !== 'all' ? activeIdeology : null);
@@ -483,49 +482,44 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             RENDA FAMILIAR
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-5">
-            {(options.income || []).map((opt, idx) => {
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-6">
+            {(options.income || []).map((opt) => {
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
-              const isFirst = idx === 0;
               
               return (
                 <div 
                   key={opt} 
-                  className="group cursor-pointer"
+                  className="group cursor-pointer space-y-2"
                   onClick={() => onFilterChange('income', opt)}
                 >
-                  <div className="flex justify-between items-end mb-1.5">
+                  <div className="flex justify-between items-baseline">
                     <span className={cn(
                       "text-[9px] font-bold uppercase tracking-widest transition-colors",
-                      active || isFirst ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800"
+                      active ? "text-orange-600" : "text-zinc-400"
                     )}>
                       {opt}
                     </span>
-                    <div className="flex items-baseline">
-                      <Counter 
-                        value={pct} 
-                        decimals={1} 
-                        size="text-lg" 
-                        symbolSize="text-[8px]" 
-                        color={active || isFirst ? "text-orange-500" : "text-zinc-800"} 
-                        symbolColor={active || isFirst ? "text-orange-400" : "text-zinc-400"} 
-                      />
+                    <div className="flex items-baseline gap-0.5">
+                      <span className={cn(
+                        "text-xl font-black transition-colors",
+                        active ? "text-orange-600" : "text-zinc-900"
+                      )}>
+                        {pct.toFixed(1).replace('.', ',')}
+                      </span>
+                      <span className="text-[8px] font-bold text-zinc-400">%</span>
                     </div>
                   </div>
-                  <div className={cn(
-                    "w-full h-2 rounded-full overflow-hidden relative",
-                    active || isFirst ? "bg-orange-50" : "bg-zinc-100"
-                  )}>
+                  <div className="w-full h-1.5 bg-zinc-50 rounded-full overflow-hidden relative border border-zinc-100/50">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
                       transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
-                        active || isFirst 
-                          ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]" 
-                          : "bg-zinc-800 group-hover:bg-zinc-700"
+                        active 
+                          ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.3)]" 
+                          : "bg-zinc-800"
                       )}
                     />
                   </div>
