@@ -18,7 +18,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       
       <header className="h-16 lg:h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
-          {/* Logo FOCCO ANALYTICS Premium */}
+          {/* Logo FOCCO ANALYTICS - VARIAÇÃO 3 */}
           <div className="flex items-center gap-3 cursor-pointer group">
             <div className="w-8 h-8 lg:w-10 lg:h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black text-lg lg:text-xl shadow-2xl shadow-zinc-950/20 group-hover:scale-105 transition-transform duration-300">
               F
