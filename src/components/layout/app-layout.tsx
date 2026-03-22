@@ -37,20 +37,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 lg:gap-8">
-          <div className="hidden xl:flex items-center inner-relief rounded-[1.25rem] px-6 py-3 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-64 group">
-            <Search size={18} />
+        <div className="flex items-center gap-4 flex-1 justify-end">
+          <div className="hidden xl:flex items-center inner-relief rounded-[1.25rem] px-6 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full max-w-xl group border border-zinc-100/50">
+            <Search size={20} className="text-zinc-300" />
             <input 
               type="text" 
-              placeholder="Busca Profunda..." 
-              className="bg-transparent border-none outline-none text-sm font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
+              placeholder="Busca" 
+              className="bg-transparent border-none outline-none text-base font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
             />
           </div>
-          <button className="p-2 sm:p-3 rounded-xl bg-white border border-zinc-200 text-zinc-400 hover:text-orange-600 transition-all">
-            <Bell size={18} className="sm:size-5" />
-          </button>
-          <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl border-2 border-white shadow-lg overflow-hidden ring-1 ring-zinc-200">
-            <img src="https://picsum.photos/seed/user-lxs/100/100" alt="Avatar" className="w-full h-full object-cover" />
+          <div className="flex items-center lg:hidden">
+            <button className="p-2 rounded-xl bg-white border border-zinc-200 text-zinc-400">
+              <Search size={18} />
+            </button>
           </div>
         </div>
       </header>
