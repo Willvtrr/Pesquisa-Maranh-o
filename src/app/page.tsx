@@ -77,6 +77,10 @@ export default function Home() {
     const keys = Object.keys(sample);
 
     const findKey = (keywords: string[], fallback: string, exclude: string[] = []) => {
+      // Prioridade máxima para nomes de coluna curtos e exatos
+      const exact = keys.find(k => k.toLowerCase() === keywords[0].toLowerCase());
+      if (exact) return exact;
+
       const found = keys.find(k => 
         keywords.every(kw => k.toLowerCase().includes(kw.toLowerCase())) &&
         !exclude.some(ex => k.toLowerCase().includes(ex.toLowerCase()))
@@ -85,7 +89,7 @@ export default function Home() {
     };
 
     return {
-      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY, ['aprova', 'desaprova', 'governo', 'presidente', 'votar']),
+      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY, ['aprova', 'desaprova', 'governo', 'presidente', 'votar', 'grave', 'problema', 'enfrentando']),
       REGION: findKey(['mesorregião'], DEFAULT_KEYS.REGION),
       GENDER: findKey(['gênero'], DEFAULT_KEYS.GENDER),
       AGE: findKey(['etária'], DEFAULT_KEYS.AGE),

@@ -569,5 +569,3 @@ export const FilterChip = ({ label, active, percentage, onClick }: { label: stri
     )}
   </motion.button>
 );
-
-    
