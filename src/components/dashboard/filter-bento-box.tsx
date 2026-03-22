@@ -185,6 +185,17 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pCen = Math.round(distribution?.ideology?.[cenKey] || 0);
   const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
+  // Lógica dinâmica para o centro do gráfico de donut
+  const displayPoliticPct = useMemo(() => {
+    const activeIdeology = filters.ideology?.[0];
+    const target = hoveredPolitic || (activeIdeology !== 'all' ? activeIdeology : null);
+    
+    if (target === 'direita' || target === dirKey) return pDir;
+    if (target === 'centro' || target === cenKey) return pCen;
+    if (target === 'esquerda' || target === esqKey) return pEsq;
+    return 100;
+  }, [hoveredPolitic, filters.ideology, pDir, pCen, pEsq, dirKey, cenKey, esqKey]);
+
   return (
     <LuxuryCard 
       title="SEGMENTAÇÃO" 
@@ -466,7 +477,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda Familiar - VISUAL RAIO-X MINIMALISTA */}
+        {/* Renda Familiar */}
         <div className="space-y-4 pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -537,6 +548,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
                   <circle cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#f4f4f5" strokeWidth="6"></circle>
 
+                  {/* Direita (Primeiro Segmento) */}
                   <circle 
                     className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'direita' || isSelected('ideology', dirKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
                     cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#eab308" strokeWidth="6" 
@@ -547,6 +559,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     onClick={() => onFilterChange('ideology', dirKey)}
                   ></circle>
 
+                  {/* Centro (Segundo Segmento) */}
                   <circle 
                     className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'centro' || isSelected('ideology', cenKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
                     cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#9ca3af" strokeWidth="6" 
@@ -557,6 +570,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     onClick={() => onFilterChange('ideology', cenKey)}
                   ></circle>
 
+                  {/* Esquerda (Terceiro Segmento) */}
                   <circle 
                     className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'esquerda' || isSelected('ideology', esqKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
                     cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#ef4444" strokeWidth="6" 
@@ -569,16 +583,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </svg>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-black text-zinc-800">100%</span>
+                  <span className="text-xl font-black text-zinc-800">{displayPoliticPct}%</span>
                   <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest">Amostra</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 w-full">
                 {[
-                  { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey },
+                  { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey },
                   { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
-                  { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey }
+                  { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey }
                 ].map((item) => (
                   <div 
                     key={item.id}
