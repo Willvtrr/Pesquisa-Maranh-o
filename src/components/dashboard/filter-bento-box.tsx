@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useSpring, useTransform } from 'framer-motion';
 import { 
   MapPin, 
   Search, 
@@ -140,7 +140,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
-        let fillColor = MES_COLORS[regionKey] || '#f97316';
+        let fillColor = MESO_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.75;
         let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
@@ -174,7 +174,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     return Math.max(...Object.values(ageStats), 0.1);
   }, [distribution]);
 
-  // Visão Política Data
+  // Visão Política Data calculation
   const getIdeologyKey = (term: string) => options.ideology?.find(o => o.toLowerCase().includes(term.toLowerCase())) || '';
   const esqKey = getIdeologyKey('esquerda');
   const cenKey = getIdeologyKey('centro');
@@ -334,18 +334,18 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Gênero */}
-        <div className="space-y-3 pt-2">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+        {/* GÊNERO */}
+        <div className="pt-4">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             GÊNERO
           </label>
-          <div className="mesh-bg p-5 rounded-[2rem] border border-zinc-100 shadow-sm bg-white relative overflow-hidden">
+          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 shadow-sm relative overflow-hidden">
             <div className="flex flex-row items-center justify-center gap-8 relative">
               <div 
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  (isSelected('gender', 'Feminino') || isSelected('gender', 'all') || filters.gender?.[0] === 'all') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
+                  (isSelected('gender', 'Feminino') || filters.gender?.[0] === 'all') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
                 )}
                 onClick={() => onFilterChange('gender', 'Feminino')}
               >
@@ -358,11 +358,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <motion.div 
                       initial={{ height: 0 }}
                       animate={{ height: `${femalePct}%` }}
-                      transition={{ duration: 1.5, ease: [0.2, 0.8, 0.2, 1] }}
                       className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6] shadow-[0_-10px_20px_rgba(232,62,140,0.6)]"
-                    >
-                      <div className="absolute top-0 left-0 w-full h-0.5 bg-white/50 blur-[1px]"></div>
-                    </motion.div>
+                    />
                   </div>
                 </div>
               </div>
@@ -370,7 +367,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               <div 
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  (isSelected('gender', 'Masculino') || isSelected('gender', 'all') || filters.gender?.[0] === 'all') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
+                  (isSelected('gender', 'Masculino') || filters.gender?.[0] === 'all') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
                 )}
                 onClick={() => onFilterChange('gender', 'Masculino')}
               >
@@ -379,11 +376,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <motion.div 
                       initial={{ height: 0 }}
                       animate={{ height: `${malePct}%` }}
-                      transition={{ duration: 1.5, ease: [0.2, 0.8, 0.2, 1] }}
                       className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa] shadow-[0_-10px_20px_rgba(29,112,184,0.6)]"
-                    >
-                      <div className="absolute top-0 left-0 w-full h-0.5 bg-white/50 blur-[1px]"></div>
-                    </motion.div>
+                    />
                   </div>
                 </div>
                 <div className="text-left flex flex-col items-start">
@@ -395,19 +389,19 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Faixa Etária Compacta */}
-        <div className="space-y-3 pt-2">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+        {/* FAIXA ETÁRIA */}
+        <div className="pt-4">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             FAIXA ETÁRIA
           </label>
           <div className="bg-white p-4 rounded-[2rem] border border-zinc-100 shadow-sm">
             <div className="flex items-end justify-between h-[140px] gap-1">
               {(options.age || []).map((opt) => {
                 const pct = distribution?.age?.[opt] || 0;
+                const isSelectedAge = isSelected('age', opt);
                 const isAnyAgeSelected = filters.age && filters.age[0] !== 'all';
-                const isThisAgeSelected = isSelected('age', opt);
-                const isIntercalatedOrange = opt.includes('25-34') || opt.includes('45-59');
+                const isOrangeBar = opt.includes('25-34') || opt.includes('45-59');
                 
                 return (
                   <div 
@@ -425,24 +419,19 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         symbolColor="text-zinc-400" 
                       />
                     </div>
-                    
-                    <div className="w-full max-w-[32px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative transition-colors">
+                    <div className="w-full max-w-[32px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative">
                       <motion.div 
                         initial={{ height: 0 }}
                         animate={{ height: `${(pct / maxAgePct) * 100}%` }}
-                        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                         className={cn(
-                          "w-full rounded-t-lg transition-all duration-500",
+                          "w-full rounded-t-lg transition-all duration-300",
                           isAnyAgeSelected 
-                            ? (isThisAgeSelected ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "bg-zinc-200 opacity-30")
-                            : (isIntercalatedOrange ? "bg-orange-500" : "bg-zinc-800 group-hover:bg-zinc-700")
+                            ? (isSelectedAge ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "bg-zinc-200 opacity-30")
+                            : (isOrangeBar ? "bg-orange-500" : "bg-zinc-800")
                         )}
                       />
                     </div>
-                    
-                    <span className={cn(
-                      "mt-2 text-[7px] font-black uppercase tracking-tighter text-center leading-tight transition-colors text-zinc-800"
-                    )}>
+                    <span className="mt-2 text-[7px] font-black uppercase tracking-tighter text-center leading-tight text-zinc-800">
                       {opt.replace(' anos', '').replace('-', ' a ')}
                     </span>
                   </div>
@@ -452,30 +441,28 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda e Escolaridade */}
-        {['income', 'education'].map((key) => (
-          <div key={key} className="space-y-3 pt-2">
-            <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
-              {key === 'income' ? 'Renda' : 'Escolaridade'}
-            </label>
-            <div className="grid grid-cols-1 gap-2">
-              <FilterChip label="Todas" active={isSelected(key, 'all')} onClick={() => onFilterChange(key, 'all')} />
-              {(options[key] || []).map(opt => (
-                <FilterChip key={opt} label={opt} percentage={distribution?.[key]?.[opt]} active={isSelected(key, opt)} onClick={() => onFilterChange(key, opt)} />
-              ))}
-            </div>
-          </div>
-        ))}
-
-        {/* VISÃO POLÍTICA */}
+        {/* Escolaridade */}
         <div className="space-y-3 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+            ESCOLARIDADE
+          </label>
+          <div className="grid grid-cols-1 gap-2">
+            <FilterChip label="Todas" active={isSelected('education', 'all')} onClick={() => onFilterChange('education', 'all')} />
+            {(options.education || []).map(opt => (
+              <FilterChip key={opt} label={opt} percentage={distribution?.education?.[opt]} active={isSelected('education', opt)} onClick={() => onFilterChange('education', opt)} />
+            ))}
+          </div>
+        </div>
+
+        {/* VISÃO POLÍTICA */}
+        <div className="pt-4">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             VISÃO POLÍTICA
           </label>
           <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm relative overflow-hidden">
-            <div className={cn("flex flex-col items-center justify-center gap-8 transition-all duration-300", hoveredPolitic && "has-hover")}>
+            <div className={cn("flex flex-col items-center justify-center gap-8 chart-container transition-all duration-300", hoveredPolitic && "has-hover")}>
               
               <div className="relative w-32 h-32 flex-shrink-0">
                 <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">

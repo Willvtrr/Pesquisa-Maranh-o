@@ -9,7 +9,6 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { DemographicProfile } from '@/components/dashboard/demographic-profile';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -93,14 +92,14 @@ export default function Home() {
       EDUCATION: findKey(['instrução'], DEFAULT_KEYS.EDUCATION),
       INCOME: findKey(['renda'], DEFAULT_KEYS.INCOME),
       RELIGION: findKey(['religião'], DEFAULT_KEYS.RELIGION),
-      IDEOLOGY: findKey(['esquerda', 'direita'], DEFAULT_KEYS.IDEOLOGY),
+      IDEOLOGY: findKey(['esquerda', 'direita', 'considera'], DEFAULT_KEYS.IDEOLOGY),
       GOV_APPROVAL: findKey(['aprova', 'governador'], DEFAULT_KEYS.GOV_APPROVAL),
       PRESIDENT_APPROVAL: findKey(['aprova', 'presidente'], DEFAULT_KEYS.PRESIDENT_APPROVAL),
       MAYOR_APPROVAL: findKey(['aprova', 'prefeito'], DEFAULT_KEYS.MAYOR_APPROVAL),
       PROBLEMS: findKey(['problema', 'grave'], DEFAULT_KEYS.PROBLEMS),
       PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
     };
-  }, [rawSurveyData, DEFAULT_KEYS]);
+  }, [rawSurveyData]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
@@ -522,8 +521,6 @@ export default function Home() {
                 </div>
               </LuxuryCard>
             </div>
-
-            <DemographicProfile stats={distributionStats} />
           </div>
           
           <div className="xl:col-span-1">
