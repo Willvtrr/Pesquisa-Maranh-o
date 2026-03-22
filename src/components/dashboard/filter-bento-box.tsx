@@ -225,8 +225,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 <ChevronRight size={14} className="text-zinc-300" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="h-full w-full sm:max-w-[500px] p-0 bg-white/95 backdrop-blur-2xl">
-              <SheetHeader className="p-8 pb-4 bg-white">
+            <SheetContent side="right" className="h-full w-full sm:max-w-[600px] p-0 bg-white/95 backdrop-blur-2xl flex flex-col">
+              <SheetHeader className="p-8 pb-4 bg-white border-b border-zinc-100">
                 <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600"><MapIcon size={24} /></div>
                   Base Territorial
@@ -237,25 +237,38 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     placeholder="Buscar cidade..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-14 rounded-2xl bg-zinc-50"
+                    className="pl-12 h-14 rounded-2xl bg-zinc-50 focus:ring-orange-500/20 focus:border-orange-500"
                   />
                 </div>
               </SheetHeader>
-              <ScrollArea className="h-[calc(100%-250px)] p-6">
-                <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => onFilterChange('city', 'all')} className={cn("col-span-2 p-4 rounded-2xl border transition-all flex justify-between items-center", filters.city?.[0] === 'all' ? "bg-orange-600 text-white" : "bg-white")}>
-                    <span className="text-xs font-black uppercase">Todos</span>
+              <ScrollArea className="flex-grow p-8">
+                <div className="grid grid-cols-2 gap-3 pb-24">
+                  <button onClick={() => onFilterChange('city', 'all')} className={cn("col-span-2 p-5 rounded-2xl border transition-all flex justify-between items-center font-black uppercase text-xs tracking-widest", filters.city?.[0] === 'all' ? "bg-orange-600 text-white border-orange-500" : "bg-white border-zinc-100")}>
+                    <span>Todos</span>
                   </button>
                   {filteredCities.map((city) => (
-                    <button key={city} onClick={() => onFilterChange('city', city)} className={cn("p-4 rounded-2xl border transition-all flex justify-between items-center", isSelected('city', city) ? "bg-orange-600 text-white" : "bg-white")}>
-                      <span className="text-[10px] font-black uppercase">{city}</span>
+                    <button key={city} onClick={() => onFilterChange('city', city)} className={cn("p-4 rounded-2xl border transition-all flex justify-between items-center text-left", isSelected('city', city) ? "bg-orange-600 text-white border-orange-500" : "bg-white border-zinc-100 hover:border-zinc-200")}>
+                      <span className="text-[10px] font-black uppercase tracking-tight">{city}</span>
                     </button>
                   ))}
                 </div>
               </ScrollArea>
-              <div className="absolute bottom-0 w-full p-8 bg-white border-t border-zinc-100 flex items-center justify-between">
-                <span className="text-lg font-black">{selectedCitiesCount} Municípios</span>
-                <button onClick={() => setIsSheetOpen(false)} className="px-10 py-4 bg-zinc-950 text-white rounded-2xl font-black text-[10px] uppercase">Aplicar</button>
+              <div className="absolute bottom-0 w-full p-8 bg-white border-t border-zinc-100 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+                <span className="text-lg font-black tracking-tighter">{selectedCitiesCount} Municípios</span>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => onFilterChange('city', 'all')}
+                    className="px-8 py-4 bg-zinc-100 text-zinc-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-200 transition-colors"
+                  >
+                    Limpar
+                  </button>
+                  <button 
+                    onClick={() => setIsSheetOpen(false)} 
+                    className="px-12 py-4 bg-zinc-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-950/20 active:scale-95"
+                  >
+                    Aplicar
+                  </button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -342,28 +355,32 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda Familiar (Raio-X Minimalista) */}
+        {/* Renda Familiar (Raio-X Horizontal Minimalista) */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             RENDA FAMILIAR
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-5">
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-4">
             {(options.income || []).map((opt) => {
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
               return (
                 <div key={opt} className="cursor-pointer group flex flex-col gap-1.5" onClick={() => onFilterChange('income', opt)}>
                   <div className="flex justify-between items-end">
-                    <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800")}>
+                    <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
                       {opt}
                     </span>
-                    <span className={cn("text-xl font-black transition-transform", active ? "text-orange-600" : "text-zinc-800 group-hover:-translate-y-0.5")}>
+                    <span className={cn("text-xl font-black transition-colors", active ? "text-orange-600" : "text-zinc-800")}>
                       {pct.toFixed(1)}%
                     </span>
                   </div>
                   <div className="w-full h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} className={cn("h-full transition-all", active ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.4)]" : "bg-zinc-800")} />
+                    <motion.div 
+                      initial={{ width: 0 }} 
+                      animate={{ width: `${pct}%` }} 
+                      className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
+                    />
                   </div>
                 </div>
               );
@@ -390,7 +407,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     "flex flex-col gap-3 p-4 rounded-xl transition-all cursor-pointer border",
                     active 
                       ? "border-orange-500 bg-orange-50/30" 
-                      : "border-zinc-100 bg-white hover:border-zinc-200 hover:shadow-lg"
+                      : "border-zinc-100 bg-white hover:border-zinc-200"
                   )}
                 >
                   <div className="flex justify-between items-center">
