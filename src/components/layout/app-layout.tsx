@@ -37,8 +37,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </nav>
         </div>
 
-        {/* Busca Ampliada e Centralizada - Estilo App Nativo */}
-        <div className="flex items-center gap-4 flex-1 justify-end max-w-3xl ml-auto">
+        {/* Busca Ampliada e Centralizada */}
+        <div className="flex items-center gap-4 flex-1 justify-end max-w-xl ml-auto">
           <div className="flex items-center inner-relief rounded-[1.5rem] px-8 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full group border border-zinc-100/50 shadow-inner bg-zinc-50/50">
             <Search size={22} className="text-zinc-300 group-focus-within:text-orange-500 transition-colors" />
             <input 

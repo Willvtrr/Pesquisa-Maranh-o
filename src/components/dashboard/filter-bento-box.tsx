@@ -186,14 +186,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
   const displayPoliticPct = useMemo(() => {
-    // 1. Se estiver pairando (hover), mostra o valor individual
+    // 1. Hover
     if (hoveredPolitic) {
       if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) return pDir;
       if (hoveredPolitic === 'centro' || hoveredPolitic === cenKey) return pCen;
       if (hoveredPolitic === 'esquerda' || hoveredPolitic === esqKey) return pEsq;
     }
-
-    // 2. Se houver seleções múltiplas, soma os valores
+    // 2. Multi-seleção
     const selectedIdeologies = filters.ideology || [];
     if (selectedIdeologies.length > 0 && !selectedIdeologies.includes('all')) {
       let sum = 0;
@@ -202,8 +201,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
       if (selectedIdeologies.includes(esqKey)) sum += pEsq;
       return sum;
     }
-
-    // 3. Padrão: 100% (Amostra Total)
     return 100;
   }, [hoveredPolitic, filters.ideology, pDir, pCen, pEsq, dirKey, cenKey, esqKey]);
 
@@ -221,41 +218,28 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
             Recorte por Município
           </label>
-          
-          <Sheet border="none" open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
               <button className={cn(
-                "w-full group relative flex items-center justify-between p-4 rounded-[1.5rem] border transition-all duration-300",
-                selectedCitiesCount > 0 
-                  ? "bg-orange-50 border-orange-200 shadow-lg shadow-orange-500/10" 
-                  : "bg-white border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50"
+                "w-full flex items-center justify-between p-4 rounded-[1.5rem] border transition-all duration-300",
+                selectedCitiesCount > 0 ? "bg-orange-50 border-orange-200" : "bg-white border-zinc-100 hover:bg-zinc-50"
               )}>
                 <div className="flex items-center gap-4">
-                  <div className={cn(
-                    "p-3 rounded-2xl transition-colors duration-300",
-                    selectedCitiesCount > 0 ? "bg-orange-600 text-white" : "bg-zinc-50 text-zinc-400 group-hover:text-orange-600"
-                  )}>
+                  <div className={cn("p-3 rounded-2xl", selectedCitiesCount > 0 ? "bg-orange-600 text-white" : "bg-zinc-50 text-zinc-400")}>
                     <MapPin size={18} />
                   </div>
                   <div className="text-left">
                     <h4 className="text-xs font-black text-zinc-950 uppercase tracking-tighter">Cidades Alvo</h4>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                      {selectedCitiesCount > 0 
-                        ? `${selectedCitiesCount} Ativa${selectedCitiesCount > 1 ? 's' : ''}` 
-                        : "Selecionar Municípios"}
-                    </p>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{selectedCitiesCount > 0 ? `${selectedCitiesCount} Ativas` : "Selecionar Municípios"}</p>
                   </div>
                 </div>
-                <ChevronRight size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
+                <ChevronRight size={14} className="text-zinc-300" />
               </button>
             </SheetTrigger>
-            
-            <SheetContent side="right" className="h-full w-full sm:max-w-[500px] border-none p-0 bg-white/95 backdrop-blur-2xl overflow-hidden shadow-2xl">
-              <SheetHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
-                <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter text-zinc-900">
-                  <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
-                    <MapIcon size={24} />
-                  </div>
+            <SheetContent side="right" className="h-full w-full sm:max-w-[500px] p-0 bg-white/95 backdrop-blur-2xl">
+              <SheetHeader className="p-8 pb-4 bg-white">
+                <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter">
+                  <div className="p-2 rounded-xl bg-orange-50 text-orange-600"><MapIcon size={24} /></div>
                   Base Territorial
                 </SheetTitle>
                 <div className="relative mt-6">
@@ -264,57 +248,25 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     placeholder="Buscar cidade..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-14 rounded-2xl border-zinc-100 bg-zinc-50 focus:ring-orange-500/20 text-sm font-bold shadow-inner"
+                    className="pl-12 h-14 rounded-2xl bg-zinc-50"
                   />
                 </div>
               </SheetHeader>
-              
               <ScrollArea className="h-[calc(100%-250px)] p-6">
-                <div className="grid grid-cols-1 gap-3">
-                  <button 
-                    onClick={() => onFilterChange('city', 'all')}
-                    className={cn(
-                      "flex items-center justify-between p-4 rounded-2xl border transition-all",
-                      filters.city?.[0] === 'all' 
-                        ? "bg-orange-600 border-orange-600 text-white shadow-xl shadow-orange-600/20" 
-                        : "bg-white border-zinc-100 hover:border-zinc-200"
-                    )}
-                  >
-                    <span className="text-xs font-black uppercase tracking-widest">Todos os Municípios</span>
-                    {filters.city?.[0] === 'all' && <CheckCircle2 size={16} />}
+                <div className="grid grid-cols-2 gap-3">
+                  <button onClick={() => onFilterChange('city', 'all')} className={cn("col-span-2 p-4 rounded-2xl border transition-all flex justify-between items-center", filters.city?.[0] === 'all' ? "bg-orange-600 text-white" : "bg-white")}>
+                    <span className="text-xs font-black uppercase">Todos</span>
                   </button>
-                  <div className="grid grid-cols-2 gap-3 mt-2">
-                    {filteredCities.map((city) => {
-                      const active = isSelected('city', city);
-                      return (
-                        <button 
-                          key={city}
-                          onClick={() => onFilterChange('city', city)}
-                          className={cn(
-                            "flex items-center justify-between p-4 rounded-2xl border transition-all group",
-                            active ? "bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-600/20" : "bg-white border-zinc-100 hover:border-orange-200 hover:bg-orange-50/50"
-                          )}
-                        >
-                          <span className={cn("text-[10px] font-black uppercase tracking-tight", active ? "text-white" : "text-zinc-700")}>{city}</span>
-                          {active && <CheckCircle2 size={14} />}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {filteredCities.map((city) => (
+                    <button key={city} onClick={() => onFilterChange('city', city)} className={cn("p-4 rounded-2xl border transition-all flex justify-between items-center", isSelected('city', city) ? "bg-orange-600 text-white" : "bg-white")}>
+                      <span className="text-[10px] font-black uppercase">{city}</span>
+                    </button>
+                  ))}
                 </div>
               </ScrollArea>
-              
-              <div className="absolute bottom-0 left-0 right-0 p-8 bg-white border-t border-zinc-100 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Amostra Ativa</span>
-                  <span className="text-lg font-black text-zinc-900">{selectedCitiesCount} Municípios</span>
-                </div>
-                <button 
-                  onClick={() => setIsSheetOpen(false)} 
-                  className="px-10 py-4 bg-zinc-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl active:scale-95"
-                >
-                  Aplicar Recorte
-                </button>
+              <div className="absolute bottom-0 w-full p-8 bg-white border-t border-zinc-100 flex items-center justify-between">
+                <span className="text-lg font-black">{selectedCitiesCount} Municípios</span>
+                <button onClick={() => setIsSheetOpen(false)} className="px-10 py-4 bg-zinc-950 text-white rounded-2xl font-black text-[10px] uppercase">Aplicar</button>
               </div>
             </SheetContent>
           </Sheet>
@@ -327,44 +279,17 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             Mesorregião
           </label>
           <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl overflow-hidden">
-            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden border border-zinc-100 bg-zinc-50">
-              {isLoaded ? (
+            <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-zinc-50">
+              {isLoaded && (
                 <GoogleMap
                   mapContainerStyle={{ width: '100%', height: '100%' }}
                   center={{ lat: -5.3, lng: -45.0 }}
                   zoom={5}
                   onLoad={onLoad}
-                  options={{ styles: mapStyles, disableDefaultUI: true, gestureHandling: 'cooperative' }}
+                  options={{ styles: mapStyles, disableDefaultUI: true }}
                 />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                  <Loader2 className="animate-spin text-orange-600 size-5" />
-                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Sincronizando...</span>
-                </div>
               )}
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {Object.keys(MESO_COLORS).map((id) => {
-              const percentage = distribution?.region?.[id] || 0;
-              const active = isSelected('region', id);
-              return (
-                <button 
-                  key={id}
-                  onClick={() => onFilterChange('region', id)}
-                  className={cn(
-                    "flex items-center justify-between p-2 rounded-xl transition-all border",
-                    active ? "bg-white border-zinc-200 shadow-md ring-1 ring-zinc-100" : "bg-transparent border-transparent hover:bg-zinc-50"
-                  )}
-                >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: MESO_COLORS[id] }} />
-                    <span className={cn("text-[8px] font-black uppercase truncate", active ? "text-zinc-950" : "text-zinc-500")}>{id}</span>
-                  </div>
-                  <span className="text-[8px] font-bold text-zinc-400">{Math.round(percentage)}%</span>
-                </button>
-              );
-            })}
           </div>
         </div>
 
@@ -374,50 +299,27 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             GÊNERO
           </label>
-          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 shadow-sm relative overflow-hidden">
-            <div className="flex flex-row items-center justify-center gap-8 relative">
-              <div 
-                className={cn(
-                  "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  isGenderActive('Feminino') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
-                )}
-                onClick={() => onFilterChange('gender', 'Feminino')}
-              >
-                <div className="text-right flex flex-col items-end">
-                  <Counter value={femalePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
-                  <p className="text-[8px] font-black tracking-[0.15em] text-zinc-400 uppercase">Feminino</p>
-                </div>
-                <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center">
-                  <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
-                    <motion.div 
-                      initial={{ height: 0 }}
-                      animate={{ height: `${femalePct}%` }}
-                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6] shadow-[0_-10px_20px_rgba(232,62,140,0.6)]"
-                    />
-                  </div>
+          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 flex justify-center gap-8">
+            <div className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Feminino') ? "opacity-100" : "opacity-40")} onClick={() => onFilterChange('gender', 'Feminino')}>
+              <div className="text-right">
+                <Counter value={femalePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
+                <p className="text-[8px] font-black text-zinc-400 uppercase">Feminino</p>
+              </div>
+              <div className="glass-capsule w-10 h-20 p-2 relative flex items-center justify-center">
+                <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
+                  <motion.div initial={{ height: 0 }} animate={{ height: `${femalePct}%` }} className="absolute bottom-0 w-full bg-[#e83e8c]" />
                 </div>
               </div>
-
-              <div 
-                className={cn(
-                  "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  isGenderActive('Masculino') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
-                )}
-                onClick={() => onFilterChange('gender', 'Masculino')}
-              >
-                <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center">
-                  <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
-                    <motion.div 
-                      initial={{ height: 0 }}
-                      animate={{ height: `${malePct}%` }}
-                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa] shadow-[0_-10px_20px_rgba(29,112,184,0.6)]"
-                    />
-                  </div>
+            </div>
+            <div className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Masculino') ? "opacity-100" : "opacity-40")} onClick={() => onFilterChange('gender', 'Masculino')}>
+              <div className="glass-capsule w-10 h-20 p-2 relative flex items-center justify-center">
+                <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
+                  <motion.div initial={{ height: 0 }} animate={{ height: `${malePct}%` }} className="absolute bottom-0 w-full bg-[#1d70b8]" />
                 </div>
-                <div className="text-left flex flex-col items-start">
-                  <Counter value={malePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
-                  <p className="text-[8px] font-black tracking-[0.15em] text-zinc-400 uppercase">Masculino</p>
-                </div>
+              </div>
+              <div className="text-left">
+                <Counter value={malePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
+                <p className="text-[8px] font-black text-zinc-400 uppercase">Masculino</p>
               </div>
             </div>
           </div>
@@ -429,49 +331,50 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             FAIXA ETÁRIA
           </label>
-          <div className="bg-white p-4 rounded-[2rem] border border-zinc-100 shadow-sm">
-            <div className="flex items-end justify-between h-[140px] gap-1">
-              {(options.age || []).map((opt) => {
-                const pct = distribution?.age?.[opt] || 0;
-                const isSelectedAge = isSelected('age', opt);
-                const isAnyAgeSelected = filters.age && filters.age[0] !== 'all';
-                const isOrangeBar = opt.includes('25-34') || opt.includes('45-59');
-                
-                return (
-                  <div 
-                    key={opt} 
-                    onClick={() => onFilterChange('age', opt)}
-                    className="flex flex-col items-center flex-1 h-full group cursor-pointer"
-                  >
-                    <div className="mb-1.5">
-                      <Counter 
-                        value={pct} 
-                        decimals={1} 
-                        size="text-[10px]" 
-                        symbolSize="text-[7px]" 
-                        color="text-zinc-800"
-                        symbolColor="text-zinc-400" 
-                      />
-                    </div>
-                    <div className="w-full max-w-[32px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative">
-                      <motion.div 
-                        initial={{ height: 0 }}
-                        animate={{ height: `${(pct / maxAgePct) * 100}%` }}
-                        className={cn(
-                          "w-full rounded-t-lg transition-all duration-300",
-                          isAnyAgeSelected 
-                            ? (isSelectedAge ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "bg-zinc-200 opacity-30")
-                            : (isOrangeBar ? "bg-orange-500" : "bg-zinc-800")
-                        )}
-                      />
-                    </div>
-                    <span className="mt-2 text-[7px] font-black uppercase tracking-tighter text-center leading-tight text-zinc-800">
-                      {opt.replace(' anos', '').replace('-', ' a ')}
-                    </span>
+          <div className="bg-white p-4 rounded-[2rem] border border-zinc-100 flex items-end justify-between h-[120px] gap-1">
+            {(options.age || []).map((opt) => {
+              const pct = distribution?.age?.[opt] || 0;
+              const isSelectedAge = isSelected('age', opt);
+              const isOrange = opt.includes('25-34') || opt.includes('45-59');
+              return (
+                <div key={opt} onClick={() => onFilterChange('age', opt)} className="flex flex-col items-center flex-1 h-full cursor-pointer group">
+                  <span className="text-[8px] font-black text-zinc-800">{pct.toFixed(1)}%</span>
+                  <div className="w-full max-w-[28px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative">
+                    <motion.div 
+                      initial={{ height: 0 }} 
+                      animate={{ height: `${(pct / maxAgePct) * 100}%` }} 
+                      className={cn("w-full rounded-t-lg transition-all", isSelectedAge ? "bg-orange-500" : (isOrange ? "bg-orange-500/60" : "bg-zinc-800"))} 
+                    />
                   </div>
-                );
-              })}
-            </div>
+                  <span className="mt-1 text-[6px] font-black uppercase text-zinc-600">{opt.replace(' anos', '')}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Renda Familiar */}
+        <div className="pt-4">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
+            RENDA FAMILIAR
+          </label>
+          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 space-y-4">
+            {(options.income || []).map((opt) => {
+              const pct = distribution?.income?.[opt] || 0;
+              const active = isSelected('income', opt);
+              return (
+                <div key={opt} className="cursor-pointer space-y-1" onClick={() => onFilterChange('income', opt)}>
+                  <div className="flex justify-between items-end">
+                    <span className={cn("text-[9px] font-bold uppercase tracking-widest", active ? "text-orange-600" : "text-zinc-500")}>{opt}</span>
+                    <span className={cn("text-xl font-black", active ? "text-orange-600" : "text-zinc-800")}>{pct.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -488,148 +391,47 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda Familiar */}
-        <div className="pt-4">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
-            RENDA FAMILIAR
-          </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-5">
-            {(options.income || []).map((opt) => {
-              const pct = distribution?.income?.[opt] || 0;
-              const active = isSelected('income', opt);
-              
-              return (
-                <div 
-                  key={opt} 
-                  className="group cursor-pointer space-y-1.5"
-                  onClick={() => onFilterChange('income', opt)}
-                >
-                  <div className="flex justify-between items-end">
-                    <span className={cn(
-                      "text-[9px] font-bold uppercase tracking-widest transition-colors",
-                      active ? "text-orange-600" : "text-zinc-500"
-                    )}>
-                      {opt}
-                    </span>
-                    <div className="flex items-baseline gap-0.5">
-                      <span className={cn(
-                        "text-xl font-black transition-colors",
-                        active ? "text-orange-600" : "text-zinc-900"
-                      )}>
-                        {pct.toFixed(1).replace('.', ',')}
-                      </span>
-                      <span className="text-[8px] font-bold text-zinc-400">%</span>
-                    </div>
-                  </div>
-                  <div className="w-full h-2 bg-zinc-50 rounded-full overflow-hidden relative border border-zinc-100/50">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                      className={cn(
-                        "h-full rounded-full transition-all duration-500",
-                        active 
-                          ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.3)]" 
-                          : "bg-zinc-800"
-                      )}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Visão Política */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             VISÃO POLÍTICA
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm relative overflow-hidden">
-            <div className={cn("flex flex-col items-center justify-center gap-8 chart-container transition-all duration-300", hoveredPolitic && "has-hover")}>
-              
-              <div className="relative w-32 h-32 flex-shrink-0">
-                <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
-                  <circle cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#f4f4f5" strokeWidth="6"></circle>
-
-                  {/* Direita */}
-                  <circle 
-                    className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'direita' || isSelected('ideology', dirKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
-                    cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#eab308" strokeWidth="6" 
-                    strokeDasharray={`${pDir} ${100 - pDir}`} 
-                    strokeDashoffset={100}
-                    onMouseEnter={() => setHoveredPolitic('direita')}
-                    onMouseLeave={() => setHoveredPolitic(null)}
-                    onClick={() => onFilterChange('ideology', dirKey)}
-                  ></circle>
-
-                  {/* Centro */}
-                  <circle 
-                    className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'centro' || isSelected('ideology', cenKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
-                    cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#9ca3af" strokeWidth="6" 
-                    strokeDasharray={`${pCen} ${100 - pCen}`} 
-                    strokeDashoffset={100 - pDir}
-                    onMouseEnter={() => setHoveredPolitic('centro')}
-                    onMouseLeave={() => setHoveredPolitic(null)}
-                    onClick={() => onFilterChange('ideology', cenKey)}
-                  ></circle>
-
-                  {/* Esquerda */}
-                  <circle 
-                    className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'esquerda' || isSelected('ideology', esqKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
-                    cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#ef4444" strokeWidth="6" 
-                    strokeDasharray={`${pEsq} ${100 - pEsq}`} 
-                    strokeDashoffset={100 - pDir - pCen}
-                    onMouseEnter={() => setHoveredPolitic('esquerda')}
-                    onMouseLeave={() => setHoveredPolitic(null)}
-                    onClick={() => onFilterChange('ideology', esqKey)}
-                  ></circle>
-                </svg>
-
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-black text-zinc-800">{displayPoliticPct}%</span>
-                  <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest">{hoveredPolitic || (filters.ideology?.length > 0 && !filters.ideology.includes('all')) ? 'Seleção' : 'Amostra'}</span>
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-6">
+            <div className="relative w-28 h-28">
+              <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" />
+                <circle className="cursor-pointer transition-all" cx="21" cy="21" r="15.9" fill="transparent" stroke="#eab308" strokeWidth="6" strokeDasharray={`${pDir} ${100 - pDir}`} strokeDashoffset={100} onMouseEnter={() => setHoveredPolitic('direita')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', dirKey)} />
+                <circle className="cursor-pointer transition-all" cx="21" cy="21" r="15.9" fill="transparent" stroke="#9ca3af" strokeWidth="6" strokeDasharray={`${pCen} ${100 - pCen}`} strokeDashoffset={100 - pDir} onMouseEnter={() => setHoveredPolitic('centro')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', cenKey)} />
+                <circle className="cursor-pointer transition-all" cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" strokeWidth="6" strokeDasharray={`${pEsq} ${100 - pEsq}`} strokeDashoffset={100 - pDir - pCen} onMouseEnter={() => setHoveredPolitic('esquerda')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', esqKey)} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-black text-zinc-800">{displayPoliticPct}%</span>
+                <span className="text-[6px] font-bold text-zinc-400 uppercase">{hoveredPolitic || filters.ideology?.length > 0 ? 'Seleção' : 'Amostra'}</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              {[
+                { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey },
+                { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
+                { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey }
+              ].map((item) => (
+                <div key={item.id} className={cn("flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all", isSelected('ideology', item.key) ? "bg-zinc-50" : "hover:bg-zinc-50/50")} onClick={() => onFilterChange('ideology', item.key)}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-[10px] font-black text-zinc-700 uppercase">{item.label}</span>
+                  </div>
+                  <span className="text-xs font-black">{item.pct}%</span>
                 </div>
-              </div>
-
-              <div className="flex flex-col gap-3 w-full">
-                {[
-                  { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey },
-                  { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
-                  { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey }
-                ].map((item) => {
-                  const active = isSelected('ideology', item.key);
-                  return (
-                    <div 
-                      key={item.id}
-                      className={cn(
-                        "flex items-center justify-between cursor-pointer transition-all duration-300 p-1.5 rounded-xl",
-                        (hoveredPolitic === item.id || active) ? "bg-zinc-50 scale-[1.02]" : (hoveredPolitic && "opacity-40")
-                      )}
-                      onMouseEnter={() => setHoveredPolitic(item.id)}
-                      onMouseLeave={() => setHoveredPolitic(null)}
-                      onClick={() => onFilterChange('ideology', item.key)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                        <span className="text-[10px] font-black text-zinc-700 uppercase tracking-tight">{item.label}</span>
-                      </div>
-                      <span className={cn("text-xs font-black transition-colors", active ? "text-orange-600" : "text-zinc-900")}>
-                        {item.pct}%
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              ))}
             </div>
           </div>
         </div>
+
       </div>
 
       <div className="mt-6 pt-4 border-t border-zinc-100">
-        <button onClick={onClear} className="w-full py-3 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-zinc-100 hover:text-zinc-600 transition-all flex items-center justify-center gap-2 shadow-inner">
+        <button onClick={onClear} className="w-full py-3 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:text-zinc-600 flex items-center justify-center gap-2">
           <X size={12} />
           Resetar Recorte
         </button>
