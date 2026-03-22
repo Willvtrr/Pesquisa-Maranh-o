@@ -243,18 +243,35 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </SheetHeader>
               <ScrollArea className="flex-grow p-8">
                 <div className="grid grid-cols-2 gap-3 pb-24">
-                  <button onClick={() => onFilterChange('city', 'all')} className={cn("col-span-2 p-5 rounded-2xl border transition-all flex justify-between items-center font-black uppercase text-xs tracking-widest", filters.city?.[0] === 'all' ? "bg-orange-600 text-white border-orange-500" : "bg-white border-zinc-100")}>
-                    <span>Todos</span>
+                  <button 
+                    onClick={() => onFilterChange('city', 'all')} 
+                    className={cn(
+                      "col-span-2 p-5 rounded-2xl border transition-all flex justify-center items-center font-black uppercase text-xs tracking-widest h-16", 
+                      filters.city?.[0] === 'all' 
+                        ? "bg-orange-600 text-white border-orange-500 shadow-lg shadow-orange-600/20" 
+                        : "bg-white border-zinc-100 text-zinc-800"
+                    )}
+                  >
+                    Todos
                   </button>
                   {filteredCities.map((city) => (
-                    <button key={city} onClick={() => onFilterChange('city', city)} className={cn("p-4 rounded-2xl border transition-all flex justify-between items-center text-left", isSelected('city', city) ? "bg-orange-600 text-white border-orange-500" : "bg-white border-zinc-100 hover:border-zinc-200")}>
-                      <span className="text-[10px] font-black uppercase tracking-tight">{city}</span>
+                    <button 
+                      key={city} 
+                      onClick={() => onFilterChange('city', city)} 
+                      className={cn(
+                        "p-4 rounded-xl border transition-all flex justify-center items-center text-center h-14 font-black uppercase text-[10px] tracking-tight", 
+                        isSelected('city', city) 
+                          ? "bg-orange-600 text-white border-orange-500 shadow-md shadow-orange-600/20" 
+                          : "bg-white border-zinc-100 text-zinc-800 hover:border-zinc-200"
+                      )}
+                    >
+                      {city}
                     </button>
                   ))}
                 </div>
               </ScrollArea>
               <div className="absolute bottom-0 w-full p-8 bg-white border-t border-zinc-100 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
-                <span className="text-lg font-black tracking-tighter">{selectedCitiesCount} Municípios</span>
+                <span className="text-xl font-black tracking-tighter">{selectedCitiesCount} Municípios</span>
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => onFilterChange('city', 'all')}
@@ -355,7 +372,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda Familiar (Raio-X Horizontal Minimalista) */}
+        {/* Renda Familiar */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -388,7 +405,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Escolaridade (Estilo Profissional Sóbrio) */}
+        {/* Escolaridade */}
         <div className="space-y-3 pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -443,7 +460,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política (Donut Inteligente) */}
+        {/* Visão Política */}
         <div className="pt-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
