@@ -1,10 +1,10 @@
-
 "use client";
 
 import React from 'react';
 import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from './bottom-nav';
+import Image from 'next/image';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -18,14 +18,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       
       <header className="h-16 lg:h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
-          {/* Logo FOCCO ANALYTICS - VARIAÇÃO 3 */}
-          <div className="flex items-center gap-3 cursor-pointer group">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-white font-black text-lg lg:text-xl shadow-2xl shadow-zinc-950/20 group-hover:scale-105 transition-transform duration-300">
-              F
-            </div>
-            <div className="flex flex-col -space-y-1 lg:-space-y-1.5">
-              <span className="text-lg lg:text-2xl font-black tracking-tighter text-zinc-950">FOCCO</span>
-              <span className="text-[7px] lg:text-[9px] font-black tracking-[0.4em] text-orange-600 uppercase">Analytics</span>
+          {/* Logo Oficial FOCCO ANALYTICS */}
+          <div className="flex items-center cursor-pointer group">
+            <div className="relative w-[140px] h-[40px] lg:w-[180px] lg:h-[52px]">
+              <Image 
+                src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
+                alt="Focco Analytics" 
+                fill
+                priority
+                className="object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
           </div>
           
