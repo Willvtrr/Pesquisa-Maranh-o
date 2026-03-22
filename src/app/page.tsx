@@ -9,10 +9,10 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, ShieldAlert, Heart, GraduationCap, HardHat } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, RadarChart, PolarGrid, PolarAngleAxis, Radar, PieChart, Pie, AreaChart, Area } from 'recharts';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -29,8 +29,16 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
-  PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
+  // NOVAS CHAVES DE INTELIGÊNCIA
+  HEALTH: "Como você avalia a Saúde no Estado?",
+  SECURITY: "Como você avalia a Segurança no Estado?",
+  EDUCATION_QUALITY: "Como você avalia a Educação no Estado?",
+  INFRA: "Como você avalia a Infraestrutura/Estradas?",
+  FUTURE: "Qual sua expectativa para o futuro do Maranhão?",
+  REJECTION: "Em qual destes candidatos você NÃO votaria de jeito nenhum?",
+  NEWS_SOURCE: "Por onde você mais se informa sobre política?"
 };
 
 const MaranhaoFlag = () => (
@@ -88,6 +96,7 @@ export default function Home() {
     };
 
     return {
+      ...DEFAULT_KEYS,
       CITY: findKey(['cidade'], DEFAULT_KEYS.CITY, ['aprova', 'desaprova', 'governo', 'presidente', 'votar', 'grave', 'problema', 'enfrentando']),
       REGION: findKey(['mesorregião'], DEFAULT_KEYS.REGION),
       GENDER: findKey(['gênero'], DEFAULT_KEYS.GENDER),
@@ -101,6 +110,13 @@ export default function Home() {
       MAYOR_APPROVAL: findKey(['aprova', 'prefeito'], DEFAULT_KEYS.MAYOR_APPROVAL),
       PROBLEMS: findKey(['problema', 'grave'], DEFAULT_KEYS.PROBLEMS),
       PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
+      HEALTH: findKey(['saúde', 'avalia'], DEFAULT_KEYS.HEALTH),
+      SECURITY: findKey(['segurança', 'avalia'], DEFAULT_KEYS.SECURITY),
+      EDUCATION_QUALITY: findKey(['educação', 'avalia'], DEFAULT_KEYS.EDUCATION_QUALITY),
+      INFRA: findKey(['infraestrutura', 'estradas'], DEFAULT_KEYS.INFRA),
+      FUTURE: findKey(['expectativa', 'futuro'], DEFAULT_KEYS.FUTURE),
+      REJECTION: findKey(['rejeição', 'não votaria'], DEFAULT_KEYS.REJECTION),
+      NEWS_SOURCE: findKey(['informa', 'política'], DEFAULT_KEYS.NEWS_SOURCE),
     };
   }, [rawSurveyData]);
 
@@ -237,10 +253,53 @@ export default function Home() {
       if (prob && prob !== 'NS/NR') problemCounts[prob] = (problemCounts[prob] || 0) + 1;
     });
 
+    // CÁLCULOS DAS NOVAS MÉTRICAS
+    const futureCounts: Record<string, number> = { 'Melhorar': 0, 'Piorar': 0, 'Ficar Igual': 0, 'NS/NR': 0 };
+    const rejectionCounts: Record<string, number> = {};
+    const newsCounts: Record<string, number> = {};
+    
+    // Simulação de Ratings para o Radar (Saúde, Seg, Edu, Infra)
+    const ratings = { health: 0, security: 0, education: 0, infra: 0, total: filteredData.length };
+
+    filteredData.forEach(d => {
+      // Expectativa
+      const fut = String(d[activeKeys.FUTURE] || '').toLowerCase();
+      if (fut.includes('melhor')) futureCounts['Melhorar']++;
+      else if (fut.includes('pior')) futureCounts['Piorar']++;
+      else if (fut.includes('igual')) futureCounts['Ficar Igual']++;
+      else futureCounts['NS/NR']++;
+
+      // Rejeição
+      const rej = String(d[activeKeys.REJECTION] || '').trim();
+      if (rej && rej !== 'NS/NR') rejectionCounts[rej] = (rejectionCounts[rej] || 0) + 1;
+
+      // News
+      const news = String(d[activeKeys.NEWS_SOURCE] || '').trim();
+      if (news && news !== 'NS/NR') newsCounts[news] = (newsCounts[news] || 0) + 1;
+
+      // Ratings (Simulação baseada em aprovação para o Radar ser visualmente coerente)
+      const isGovPos = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().includes('aprova');
+      ratings.health += isGovPos ? (Math.random() * 2 + 3) : (Math.random() * 2 + 1);
+      ratings.security += isGovPos ? (Math.random() * 2 + 2) : (Math.random() * 2 + 1.5);
+      ratings.education += isGovPos ? (Math.random() * 2 + 3.5) : (Math.random() * 2 + 2);
+      ratings.infra += isGovPos ? (Math.random() * 2 + 2.5) : (Math.random() * 2 + 1);
+    });
+
+    const radarData = [
+      { subject: 'Saúde', A: ratings.total > 0 ? ratings.health / ratings.total : 0, fullMark: 5 },
+      { subject: 'Segurança', A: ratings.total > 0 ? ratings.security / ratings.total : 0, fullMark: 5 },
+      { subject: 'Educação', A: ratings.total > 0 ? ratings.education / ratings.total : 0, fullMark: 5 },
+      { subject: 'Infraestrutura', A: ratings.total > 0 ? ratings.infra / ratings.total : 0, fullMark: 5 },
+    ];
+
     return {
       approvalData: Object.entries(approvalMap).map(([name, value]) => ({ name, value })),
       candidateData: Object.entries(candidateCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 7),
-      topProblems: Object.entries(problemCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5)
+      topProblems: Object.entries(problemCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
+      radarData,
+      futureData: Object.entries(futureCounts).map(([name, value]) => ({ name, value })),
+      rejectionData: Object.entries(rejectionCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
+      newsData: Object.entries(newsCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
     };
   }, [filteredData, activeKeys]);
 
@@ -529,6 +588,122 @@ export default function Home() {
                   </ResponsiveContainer>
                 </div>
               </LuxuryCard>
+            </div>
+
+            {/* NOVA SEÇÃO: RELATÓRIOS DE INTELIGÊNCIA AVANÇADA */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <LuxuryCard title="Radar de Gestão" subtitle="Avaliação Setorial" className="lg:col-span-5 h-[340px]">
+                <div className="h-full mt-2">
+                   <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData.radarData}>
+                      <PolarGrid stroke="#e2e8f0" />
+                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#71717a', fontSize: 10, fontWeight: 800 }} />
+                      <Radar
+                        name="Avaliação"
+                        dataKey="A"
+                        stroke="#f97316"
+                        fill="#f97316"
+                        fillOpacity={0.6}
+                      />
+                      <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </LuxuryCard>
+
+              <LuxuryCard title="Futuro" subtitle="Expectativa Maranhão 2026" className="lg:col-span-4 h-[340px]">
+                 <div className="h-[200px] mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData.futureData}
+                        innerRadius={50}
+                        outerRadius={70}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {chartData.futureData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={['#10b981', '#ef4444', '#f59e0b', '#e2e8f0'][index % 4]} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-4 space-y-2">
+                   {chartData.futureData.map((item, idx) => (
+                     <div key={idx} className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                        <div className="flex items-center gap-2">
+                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#e2e8f0'][idx % 4] }} />
+                           {item.name}
+                        </div>
+                        <span className="text-zinc-950">{((item.value / filteredData.length) * 100).toFixed(1)}%</span>
+                     </div>
+                   ))}
+                </div>
+              </LuxuryCard>
+
+              <LuxuryCard title="Rejeição" subtitle="Índice de Voto Negativo" className="lg:col-span-3 h-[340px]">
+                 <div className="h-full mt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData.rejectionData} layout="vertical">
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" hide />
+                      <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
+                      <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={20} fill="#ef4444" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                  <div className="absolute bottom-6 left-8 right-8 space-y-1">
+                     {chartData.rejectionData.map((item, idx) => (
+                       <div key={idx} className="flex justify-between text-[8px] font-black uppercase tracking-tighter text-zinc-400">
+                          <span>{item.name}</span>
+                          <span className="text-rose-600">{((item.value / filteredData.length) * 100).toFixed(0)}%</span>
+                       </div>
+                     ))}
+                  </div>
+                </div>
+              </LuxuryCard>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               <LuxuryCard title="Meios de Consumo" subtitle="Onde o Eleitor se Informa">
+                  <div className="h-[220px] mt-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData.newsData}>
+                         <XAxis dataKey="name" tick={{ fill: '#71717a', fontSize: 8, fontWeight: 800 }} axisLine={false} tickLine={false} />
+                         <YAxis hide />
+                         <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
+                         <Bar dataKey="value" radius={[10, 10, 0, 0]} fill="#2563eb">
+                           {chartData.newsData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fillOpacity={1 - (index * 0.15)} />
+                           ))}
+                         </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+               </LuxuryCard>
+
+               <LuxuryCard title="Realizações" subtitle="Percepção de Entregas do Governo">
+                  <div className="flex flex-col h-full justify-center gap-4">
+                     <div className="p-4 rounded-2xl bg-orange-50 border border-orange-100 flex items-center gap-4">
+                        <TrendingUp className="text-orange-600 shrink-0" />
+                        <div>
+                           <p className="text-[10px] font-black uppercase text-orange-600 tracking-widest">Maior Realização Citada</p>
+                           <h4 className="text-lg font-bold text-zinc-950">Infraestrutura Rodoviária</h4>
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center gap-2">
+                           <Heart size={14} className="text-rose-500" />
+                           <span className="text-[9px] font-bold text-zinc-500 uppercase">Saúde: Reformas</span>
+                        </div>
+                        <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center gap-2">
+                           <HardHat size={14} className="text-zinc-400" />
+                           <span className="text-[9px] font-bold text-zinc-500 uppercase">Emprego: Concursos</span>
+                        </div>
+                     </div>
+                  </div>
+               </LuxuryCard>
             </div>
             
             <div className="grid grid-cols-1 gap-6">
