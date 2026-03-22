@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, 
   Search, 
@@ -98,6 +98,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [hoveredPolitic, setHoveredPolitic] = useState<string | null>(null);
   
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -139,7 +140,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         const isSelectionActive = activeRegion !== 'all';
         const isThisRegionActive = activeRegion === regionKey;
         
-        let fillColor = MESO_COLORS[regionKey] || '#f97316';
+        let fillColor = MES_COLORS[regionKey] || '#f97316';
         let fillOpacity = 0.75;
         let strokeWeight = 1.5;
         let strokeColor = '#ffffff';
@@ -172,6 +173,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     const ageStats = distribution?.age || {};
     return Math.max(...Object.values(ageStats), 0.1);
   }, [distribution]);
+
+  // Visão Política Data
+  const getIdeologyKey = (term: string) => options.ideology?.find(o => o.toLowerCase().includes(term.toLowerCase())) || '';
+  const esqKey = getIdeologyKey('esquerda');
+  const cenKey = getIdeologyKey('centro');
+  const dirKey = getIdeologyKey('direita');
+
+  const pEsq = Math.round(distribution?.ideology?.[esqKey] || 0);
+  const pCen = Math.round(distribution?.ideology?.[cenKey] || 0);
+  const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
 
   return (
     <LuxuryCard 
@@ -334,7 +345,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               <div 
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  (isSelected('gender', 'Feminino') || isSelected('gender', 'all')) ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
+                  (isSelected('gender', 'Feminino') || isSelected('gender', 'all') || filters.gender?.[0] === 'all') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
                 )}
                 onClick={() => onFilterChange('gender', 'Feminino')}
               >
@@ -359,7 +370,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               <div 
                 className={cn(
                   "flex flex-row items-center gap-3 cursor-pointer transition-all duration-500 p-2 rounded-[1.5rem]",
-                  (isSelected('gender', 'Masculino') || isSelected('gender', 'all')) ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
+                  (isSelected('gender', 'Masculino') || isSelected('gender', 'all') || filters.gender?.[0] === 'all') ? "bg-white saturate-150" : "opacity-40 grayscale-[0.5]"
                 )}
                 onClick={() => onFilterChange('gender', 'Masculino')}
               >
@@ -396,7 +407,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 const pct = distribution?.age?.[opt] || 0;
                 const isAnyAgeSelected = filters.age && filters.age[0] !== 'all';
                 const isThisAgeSelected = isSelected('age', opt);
-                const isOrangeByDefault = opt === '25-34' || opt === '45-59';
+                const isIntercalatedOrange = opt.includes('25-34') || opt.includes('45-59');
                 
                 return (
                   <div 
@@ -424,7 +435,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                           "w-full rounded-t-lg transition-all duration-500",
                           isAnyAgeSelected 
                             ? (isThisAgeSelected ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "bg-zinc-200 opacity-30")
-                            : (isOrangeByDefault ? "bg-orange-500" : "bg-zinc-800 group-hover:bg-zinc-700")
+                            : (isIntercalatedOrange ? "bg-orange-500" : "bg-zinc-800 group-hover:bg-zinc-700")
                         )}
                       />
                     </div>
@@ -456,6 +467,87 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             </div>
           </div>
         ))}
+
+        {/* VISÃO POLÍTICA */}
+        <div className="space-y-3 pt-2">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+            VISÃO POLÍTICA
+          </label>
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm relative overflow-hidden">
+            <div className={cn("flex flex-col items-center justify-center gap-8 transition-all duration-300", hoveredPolitic && "has-hover")}>
+              
+              <div className="relative w-32 h-32 flex-shrink-0">
+                <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
+                  <circle cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#f4f4f5" strokeWidth="6"></circle>
+
+                  {/* Direita */}
+                  <circle 
+                    className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'direita' || isSelected('ideology', dirKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
+                    cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#eab308" strokeWidth="6" 
+                    strokeDasharray={`${pDir} ${100 - pDir}`} 
+                    strokeDashoffset={100}
+                    onMouseEnter={() => setHoveredPolitic('direita')}
+                    onMouseLeave={() => setHoveredPolitic(null)}
+                    onClick={() => onFilterChange('ideology', dirKey)}
+                  ></circle>
+
+                  {/* Centro */}
+                  <circle 
+                    className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'centro' || isSelected('ideology', cenKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
+                    cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#9ca3af" strokeWidth="6" 
+                    strokeDasharray={`${pCen} ${100 - pCen}`} 
+                    strokeDashoffset={100 - pDir}
+                    onMouseEnter={() => setHoveredPolitic('centro')}
+                    onMouseLeave={() => setHoveredPolitic(null)}
+                    onClick={() => onFilterChange('ideology', cenKey)}
+                  ></circle>
+
+                  {/* Esquerda */}
+                  <circle 
+                    className={cn("chart-segment cursor-pointer transition-all duration-300", (hoveredPolitic === 'esquerda' || isSelected('ideology', esqKey)) ? "active stroke-[8px]" : (hoveredPolitic && "opacity-20 grayscale"))}
+                    cx="21" cy="21" r="15.91549431" fill="transparent" stroke="#ef4444" strokeWidth="6" 
+                    strokeDasharray={`${pEsq} ${100 - pEsq}`} 
+                    strokeDashoffset={100 - pDir - pCen}
+                    onMouseEnter={() => setHoveredPolitic('esquerda')}
+                    onMouseLeave={() => setHoveredPolitic(null)}
+                    onClick={() => onFilterChange('ideology', esqKey)}
+                  ></circle>
+                </svg>
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-xl font-black text-zinc-800">100%</span>
+                  <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest">Amostra</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 w-full">
+                {[
+                  { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey },
+                  { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
+                  { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey }
+                ].map((item) => (
+                  <div 
+                    key={item.id}
+                    className={cn(
+                      "flex items-center justify-between cursor-pointer transition-all duration-300 p-1.5 rounded-xl",
+                      (hoveredPolitic === item.id || isSelected('ideology', item.key)) ? "bg-zinc-50 scale-[1.02]" : (hoveredPolitic && "opacity-40")
+                    )}
+                    onMouseEnter={() => setHoveredPolitic(item.id)}
+                    onMouseLeave={() => setHoveredPolitic(null)}
+                    onClick={() => onFilterChange('ideology', item.key)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                      <span className="text-[10px] font-black text-zinc-700 uppercase tracking-tight">{item.label}</span>
+                    </div>
+                    <span className="text-xs font-black" style={{ color: item.color }}>{item.pct}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 pt-4 border-t border-zinc-100">
