@@ -29,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -77,7 +77,6 @@ export default function Home() {
     const keys = Object.keys(sample);
 
     const findKey = (keywords: string[], fallback: string, exclude: string[] = []) => {
-      // Prioridade máxima para nomes de coluna curtos e exatos
       const exact = keys.find(k => k.toLowerCase() === keywords[0].toLowerCase());
       if (exact) return exact;
 

@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, 
   Search, 
@@ -16,12 +16,12 @@ import {
 } from 'lucide-react';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MesoRegion } from '@/data/survey-data';
@@ -96,7 +96,7 @@ const Counter = ({ value, color, symbolColor, size = "text-[3.5rem]", symbolSize
 
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [hoveredPolitic, setHoveredPolitic] = useState<string | null>(null);
   
@@ -199,8 +199,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             Recorte por Município
           </label>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
               <button className={cn(
                 "w-full group relative flex items-center justify-between p-4 rounded-[1.5rem] border transition-all duration-300",
                 selectedCitiesCount > 0 
@@ -225,29 +225,29 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
                 <ChevronRight size={14} className="text-zinc-300 group-hover:text-orange-600 transition-colors" />
               </button>
-            </DialogTrigger>
+            </SheetTrigger>
             
-            <DialogContent className="max-w-2xl rounded-[2.5rem] border-zinc-200 p-0 overflow-hidden bg-white/95 backdrop-blur-2xl">
-              <DialogHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
-                <DialogTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter text-zinc-900">
+            <SheetContent side="bottom" className="h-[90vh] sm:h-full sm:w-[450px] sm:side-right rounded-t-[3rem] sm:rounded-none border-none p-0 bg-white/95 backdrop-blur-2xl overflow-hidden shadow-2xl">
+              <SheetHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
+                <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter text-zinc-900">
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
                     <MapIcon size={24} />
                   </div>
-                  Base Territorial Maranhense
-                </DialogTitle>
+                  Base Territorial
+                </SheetTitle>
                 <div className="relative mt-6">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 size-4" />
                   <Input 
                     placeholder="Buscar cidade..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-14 rounded-2xl border-zinc-100 bg-zinc-50 focus:ring-orange-500/20 text-sm font-bold"
+                    className="pl-12 h-14 rounded-2xl border-zinc-100 bg-zinc-50 focus:ring-orange-500/20 text-sm font-bold shadow-inner"
                   />
                 </div>
-              </DialogHeader>
+              </SheetHeader>
               
-              <ScrollArea className="h-[400px] p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <ScrollArea className="h-[calc(100%-250px)] p-6">
+                <div className="grid grid-cols-1 gap-3">
                   <button 
                     onClick={() => onFilterChange('city', 'all')}
                     className={cn(
@@ -260,30 +260,41 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <span className="text-xs font-black uppercase tracking-widest">Todos os Municípios</span>
                     {filters.city?.[0] === 'all' && <CheckCircle2 size={16} />}
                   </button>
-                  {filteredCities.map((city) => {
-                    const active = isSelected('city', city);
-                    return (
-                      <button 
-                        key={city}
-                        onClick={() => onFilterChange('city', city)}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-2xl border transition-all group",
-                          active ? "bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-600/20" : "bg-white border-zinc-100 hover:border-orange-200 hover:bg-orange-50/50"
-                        )}
-                      >
-                        <span className={cn("text-[10px] font-black uppercase tracking-tight", active ? "text-white" : "text-zinc-700")}>{city}</span>
-                        {active && <CheckCircle2 size={14} />}
-                      </button>
-                    );
-                  })}
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    {filteredCities.map((city) => {
+                      const active = isSelected('city', city);
+                      return (
+                        <button 
+                          key={city}
+                          onClick={() => onFilterChange('city', city)}
+                          className={cn(
+                            "flex items-center justify-between p-4 rounded-2xl border transition-all group",
+                            active ? "bg-orange-600 border-orange-600 text-white shadow-lg shadow-orange-600/20" : "bg-white border-zinc-100 hover:border-orange-200 hover:bg-orange-50/50"
+                          )}
+                        >
+                          <span className={cn("text-[10px] font-black uppercase tracking-tight", active ? "text-white" : "text-zinc-700")}>{city}</span>
+                          {active && <CheckCircle2 size={14} />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </ScrollArea>
-              <div className="p-6 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between">
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{selectedCitiesCount} Municípios no Recorte</p>
-                <button onClick={() => setIsDialogOpen(false)} className="px-8 py-3 bg-zinc-950 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl">Aplicar Filtros</button>
+              
+              <div className="absolute bottom-0 left-0 right-0 p-8 bg-white border-t border-zinc-100 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Amostra Ativa</span>
+                  <span className="text-lg font-black text-zinc-900">{selectedCitiesCount} Municípios</span>
+                </div>
+                <button 
+                  onClick={() => setIsSheetOpen(false)} 
+                  className="px-10 py-4 bg-zinc-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl active:scale-95"
+                >
+                  Aplicar Recorte
+                </button>
               </div>
-            </DialogContent>
-          </Dialog>
+            </SheetContent>
+          </Sheet>
         </div>
 
         <div className="space-y-3 pt-2">

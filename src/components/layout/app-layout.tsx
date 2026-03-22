@@ -2,9 +2,8 @@
 "use client";
 
 import React from 'react';
-import { LayoutDashboard, BarChart3, Users, Settings, Search, Bell, Cpu } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { BottomNav } from './bottom-nav';
 
@@ -37,19 +36,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4 flex-1 justify-end">
-          <div className="hidden xl:flex items-center inner-relief rounded-[1.25rem] px-6 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full max-w-xl group border border-zinc-100/50">
-            <Search size={20} className="text-zinc-300" />
+        <div className="flex items-center gap-4 flex-1 justify-end max-w-2xl ml-auto">
+          <div className="flex items-center inner-relief rounded-[1.5rem] px-6 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full group border border-zinc-100/50 shadow-inner">
+            <Search size={22} className="text-zinc-300 group-focus-within:text-orange-500 transition-colors" />
             <input 
               type="text" 
               placeholder="Busca" 
               className="bg-transparent border-none outline-none text-base font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
             />
-          </div>
-          <div className="flex items-center lg:hidden">
-            <button className="p-2 rounded-xl bg-white border border-zinc-200 text-zinc-400">
-              <Search size={18} />
-            </button>
           </div>
         </div>
       </header>
