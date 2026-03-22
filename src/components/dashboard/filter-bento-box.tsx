@@ -455,6 +455,20 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
+        {/* RENDA FAMILIAR */}
+        <div className="space-y-3 pt-4">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
+            RENDA FAMILIAR
+          </label>
+          <div className="grid grid-cols-1 gap-2">
+            <FilterChip label="Todas" active={isSelected('income', 'all')} onClick={() => onFilterChange('income', 'all')} />
+            {(options.income || []).map(opt => (
+              <FilterChip key={opt} label={opt} percentage={distribution?.income?.[opt]} active={isSelected('income', opt)} onClick={() => onFilterChange('income', opt)} />
+            ))}
+          </div>
+        </div>
+
         {/* VISÃO POLÍTICA */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
