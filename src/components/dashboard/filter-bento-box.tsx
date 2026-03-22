@@ -472,7 +472,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             RENDA FAMILIAR
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-8">
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 shadow-sm space-y-5">
             {(options.income || []).map((opt, idx) => {
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
@@ -484,9 +484,9 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   className="group cursor-pointer"
                   onClick={() => onFilterChange('income', opt)}
                 >
-                  <div className="flex justify-between items-end mb-2">
+                  <div className="flex justify-between items-end mb-1.5">
                     <span className={cn(
-                      "text-[10px] font-bold uppercase tracking-widest transition-colors",
+                      "text-[9px] font-bold uppercase tracking-widest transition-colors",
                       active || isFirst ? "text-orange-600" : "text-zinc-500 group-hover:text-zinc-800"
                     )}>
                       {opt}
@@ -495,15 +495,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       <Counter 
                         value={pct} 
                         decimals={1} 
-                        size="text-2xl" 
-                        symbolSize="text-xs" 
+                        size="text-lg" 
+                        symbolSize="text-[8px]" 
                         color={active || isFirst ? "text-orange-500" : "text-zinc-800"} 
                         symbolColor={active || isFirst ? "text-orange-400" : "text-zinc-400"} 
                       />
                     </div>
                   </div>
                   <div className={cn(
-                    "w-full h-3 rounded-full overflow-hidden relative",
+                    "w-full h-2 rounded-full overflow-hidden relative",
                     active || isFirst ? "bg-orange-50" : "bg-zinc-100"
                   )}>
                     <motion.div 
@@ -513,7 +513,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
                         active || isFirst 
-                          ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]" 
+                          ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.3)]" 
                           : "bg-zinc-800 group-hover:bg-zinc-700"
                       )}
                     />
