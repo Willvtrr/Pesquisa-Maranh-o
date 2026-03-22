@@ -29,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)"
 };
 
@@ -294,6 +294,7 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
+        {/* Header Hero Section */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           
           <div className="xl:col-span-5 space-y-4 lg:pt-2">
@@ -342,6 +343,7 @@ export default function Home() {
           </div>
 
           <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[240px]">
+            {/* Database Cloud Card */}
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -390,6 +392,7 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Total Coletas Card */}
             <div className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 group relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -420,6 +423,7 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Municípios Coverage Card */}
             <div className="bg-orange-600 rounded-[2rem] p-4 flex flex-col text-white shadow-xl border border-orange-500 group relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[40px] rounded-full pointer-events-none -mr-8 -mt-8"></div>
               
@@ -449,6 +453,7 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Operational Status Card */}
             <div className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -483,6 +488,7 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Dashboard Grid and Segmentação */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -524,6 +530,18 @@ export default function Home() {
                 </div>
               </LuxuryCard>
             </div>
+            
+            <div className="grid grid-cols-1 gap-6">
+              <InteractiveMap 
+                stats={filteredData.reduce((acc, curr) => { 
+                  const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; 
+                  if (r) acc[r] = (acc[r] || 0) + 1; 
+                  return acc; 
+                }, {} as Record<MesoRegion, number>)} 
+                activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} 
+                onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
+              />
+            </div>
           </div>
           
           <div className="xl:col-span-1">
@@ -536,10 +554,6 @@ export default function Home() {
               className="h-full" 
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
         </div>
       </div>
     </AppLayout>

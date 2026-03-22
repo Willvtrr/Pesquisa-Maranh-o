@@ -193,6 +193,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     >
       <div className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2 no-scrollbar">
         
+        {/* Município - Experiência App Nativa */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
@@ -227,7 +228,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </button>
             </SheetTrigger>
             
-            <SheetContent side="bottom" className="h-[90vh] sm:h-full sm:w-[450px] sm:side-right rounded-t-[3rem] sm:rounded-none border-none p-0 bg-white/95 backdrop-blur-2xl overflow-hidden shadow-2xl">
+            {/* Drawer Lateral Pro para Desktop, Drawer Inferior para Mobile */}
+            <SheetContent side="right" className="h-full w-full sm:max-w-[500px] border-none p-0 bg-white/95 backdrop-blur-2xl overflow-hidden shadow-2xl">
               <SheetHeader className="p-8 pb-4 border-b border-zinc-50 bg-white">
                 <SheetTitle className="flex items-center gap-3 text-2xl font-black tracking-tighter text-zinc-900">
                   <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
@@ -297,6 +299,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Sheet>
         </div>
 
+        {/* Mesorregião */}
         <div className="space-y-3 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
@@ -344,6 +347,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
+        {/* Gênero - Design Simétrico */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -398,6 +402,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
+        {/* Faixa Etária - Barras Intercaladas */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -449,32 +454,33 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
+        {/* Escolaridade */}
         <div className="space-y-3 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
             ESCOLARIDADE
           </label>
           <div className="grid grid-cols-1 gap-2">
-            <FilterChip label="Todas" active={isSelected('education', 'all')} onClick={() => onFilterChange('education', 'all')} />
             {(options.education || []).map(opt => (
               <FilterChip key={opt} label={opt} percentage={distribution?.education?.[opt]} active={isSelected('education', opt)} onClick={() => onFilterChange('education', opt)} />
             ))}
           </div>
         </div>
 
+        {/* Renda Familiar */}
         <div className="space-y-3 pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
             RENDA FAMILIAR
           </label>
           <div className="grid grid-cols-1 gap-2">
-            <FilterChip label="Todas" active={isSelected('income', 'all')} onClick={() => onFilterChange('income', 'all')} />
             {(options.income || []).map(opt => (
               <FilterChip key={opt} label={opt} percentage={distribution?.income?.[opt]} active={isSelected('income', opt)} onClick={() => onFilterChange('income', opt)} />
             ))}
           </div>
         </div>
 
+        {/* Visão Política - Donut Interativo */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />

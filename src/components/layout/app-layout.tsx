@@ -14,17 +14,18 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0">
+      {/* Background Grid Sutil */}
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
       
       <header className="h-16 lg:h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
           <div className="relative w-28 lg:w-[140px] h-8 lg:h-14">
             <Image 
-              src="/LOGOTIPO 1 - VARIAÇÃO 3.svg"
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Bandeira_do_Maranh%C3%A3o.svg/1200px-Bandeira_do_Maranh%C3%A3o.svg.png"
               alt="Focco Intelligence"
               fill
               priority
-              className="object-contain cursor-pointer"
+              className="object-contain cursor-pointer grayscale brightness-50 contrast-125"
             />
           </div>
           
@@ -36,8 +37,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </nav>
         </div>
 
-        <div className="flex items-center gap-4 flex-1 justify-end max-w-2xl ml-auto">
-          <div className="flex items-center inner-relief rounded-[1.5rem] px-6 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full group border border-zinc-100/50 shadow-inner">
+        {/* Busca Ampliada e Centralizada - Estilo App Nativo */}
+        <div className="flex items-center gap-4 flex-1 justify-end max-w-3xl ml-auto">
+          <div className="flex items-center inner-relief rounded-[1.5rem] px-8 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full group border border-zinc-100/50 shadow-inner bg-zinc-50/50">
             <Search size={22} className="text-zinc-300 group-focus-within:text-orange-500 transition-colors" />
             <input 
               type="text" 
