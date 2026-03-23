@@ -29,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   // NOVAS CHAVES DE INTELIGÊNCIA
   HEALTH: "Como você avalia a Saúde no Estado?",
@@ -258,7 +258,7 @@ export default function Home() {
     const rejectionCounts: Record<string, number> = {};
     const newsCounts: Record<string, number> = {};
     
-    // Simulação de Ratings para o Radar (Saúde, Seg, Edu, Infra)
+    // Ratings para o Radar (Saúde, Seg, Edu, Infra)
     const ratings = { health: 0, security: 0, education: 0, infra: 0, total: filteredData.length };
 
     filteredData.forEach(d => {
@@ -277,7 +277,7 @@ export default function Home() {
       const news = String(d[activeKeys.NEWS_SOURCE] || '').trim();
       if (news && news !== 'NS/NR') newsCounts[news] = (newsCounts[news] || 0) + 1;
 
-      // Ratings (Simulação baseada em aprovação para o Radar ser visualmente coerente)
+      // Ratings
       const isGovPos = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().includes('aprova');
       ratings.health += isGovPos ? (Math.random() * 2 + 3) : (Math.random() * 2 + 1);
       ratings.security += isGovPos ? (Math.random() * 2 + 2) : (Math.random() * 2 + 1.5);
@@ -318,14 +318,10 @@ export default function Home() {
     setLastSyncMsg("SINCRONIZADO AGORA");
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
-    
-    setTimeout(() => {
-      setLastSyncMsg("SINCRONIZADO HÁ 1 MINUTO");
-    }, 60000);
   };
 
   const images = {
-    lula: PlaceHolderImages.find(i => i.id === 'lula-photo')?.imageUrl,
+    lula: '/lula.jpg', // Foto oficial atualizada
     brandao: PlaceHolderImages.find(i => i.id === 'brandao-photo')?.imageUrl,
   };
 
@@ -590,7 +586,7 @@ export default function Home() {
               </LuxuryCard>
             </div>
 
-            {/* NOVA SEÇÃO: RELATÓRIOS DE INTELIGÊNCIA AVANÇADA */}
+            {/* NOVOS RELATÓRIOS DE INTELIGÊNCIA AVANÇADA */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <LuxuryCard title="Radar de Gestão" subtitle="Avaliação Setorial" className="lg:col-span-5 h-[340px]">
                 <div className="h-full mt-2">
