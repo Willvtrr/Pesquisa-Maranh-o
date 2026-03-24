@@ -51,11 +51,6 @@ export const StatCard = ({
   const desaprovaData = breakdown?.find(b => b.name === 'Desaprova')?.value || 0;
   const nsnrData = breakdown?.find(b => b.name === 'NS/NR')?.value || 0;
 
-  // Cálculo do anel SVG (Circunferência = 2 * PI * R) -> R=45, C=282.7
-  const radius = 46;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (circumference * aprovaData) / 100;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -67,9 +62,6 @@ export const StatCard = ({
         className
       )}
     >
-      {/* Glow de fundo */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-emerald-50/50 blur-[60px] rounded-full z-0 pointer-events-none" />
-
       {/* Header */}
       <div className="flex items-center justify-between mb-8 relative z-10">
         <h3 className="text-[10px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em]">{label}</h3>
@@ -80,25 +72,8 @@ export const StatCard = ({
         </div>
       </div>
 
-      {/* Foto com Anel Animado */}
+      {/* Foto Centralizada */}
       <div className="relative flex justify-center mb-6 z-10">
-        <svg className="absolute inset-0 w-[140px] h-[140px] md:w-[150px] md:h-[150px] mx-auto -top-2 -left-2 md:-top-2.5 md:-left-2.5 transform -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r={radius} fill="transparent" stroke="#f4f4f5" strokeWidth="2.5" />
-          <motion.circle 
-            cx="50" 
-            cy="50" 
-            r={radius} 
-            fill="transparent" 
-            stroke={colors.aprova} 
-            strokeWidth="3.5" 
-            strokeLinecap="round"
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset }}
-            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-            style={{ strokeDasharray: circumference }}
-          />
-        </svg>
-        
         <div className="w-32 h-32 md:w-[130px] md:h-[130px] rounded-[2rem] overflow-hidden shadow-lg border-4 border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
           {imageUrl ? (
             <Image 
