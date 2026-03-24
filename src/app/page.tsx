@@ -29,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -96,7 +96,29 @@ const CITY_MAYORS: Record<string, string> = {
   "São Raimundo das Mangabeiras": "Accioly",
   "Loreto": "Germano Coelho",
   "Sambaíba": "Fátima Dantas",
-  "Alto Parnaíba": "Rubens Japonês"
+  "Alto Parnaíba": "Rubens Japonês",
+  "Alto Alegre do Maranhão": "Nilsilene do Liorne",
+  "Araioses": "Neto Carvalho",
+  "Arame": "Pedro Fernandes",
+  "Arari": "Simplesmente Maria",
+  "Bom Jardim": "Cristiane Varão",
+  "Brejo": "Thâmara Castro",
+  "Buriti": "André Gaúcho",
+  "Icatu": "Wallace",
+  "Lago da Pedra": "Maura Jorge",
+  "Miranda do Norte": "Ivaldo Ribeiro",
+  "Penalva": "Guerra",
+  "Pindaré-Mirim": "Dr. Alexandre",
+  "Santa Inês": "Felipe dos Pneus",
+  "Santa Luzia": "Jucelino Marreca",
+  "Santa Quitéria do Maranhão": "Sâmia Moreira",
+  "São Bernardo": "Chico Carvalho",
+  "São Domingos do Maranhão": "Kleber Tratorzão",
+  "Timbiras": "Paulo Vinicius",
+  "Urbano Santos": "Professor Clemilton Barros",
+  "Vargem Grande": "Preto",
+  "Vitória do Mearim": "Nato da Nordestina",
+  "Zé Doca": "Flavinha Cunha"
 };
 
 const FEMALE_MAYORS = new Set([
@@ -105,7 +127,14 @@ const FEMALE_MAYORS = new Set([
   "Suane Dias", 
   "Professora Leide", 
   "Paula Coelho", 
-  "Fátima Dantas"
+  "Fátima Dantas",
+  "Nilsilene do Liorne",
+  "Simplesmente Maria",
+  "Cristiane Varão",
+  "Thâmara Castro",
+  "Maura Jorge",
+  "Sâmia Moreira",
+  "Flavinha Cunha"
 ]);
 
 // Utilitário para busca de prefeitos com normalização
@@ -404,7 +433,7 @@ export default function Home() {
     
     const { name, isFemale } = getMayorData(filters.city[0]);
     if (name) {
-      return `Pref. ${name}`;
+      return `${isFemale ? 'Prefeita' : 'Pref.'} ${name}`;
     }
     
     return "Prefeito(a)";
