@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -29,9 +28,8 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
-  // NOVAS CHAVES DE INTELIGÊNCIA
   HEALTH: "Como você avalia a Saúde no Estado?",
   SECURITY: "Como você avalia a Segurança no Estado?",
   EDUCATION_QUALITY: "Como você avalia a Educação no Estado?",
@@ -253,31 +251,25 @@ export default function Home() {
       if (prob && prob !== 'NS/NR') problemCounts[prob] = (problemCounts[prob] || 0) + 1;
     });
 
-    // CÁLCULOS DAS NOVAS MÉTRICAS
     const futureCounts: Record<string, number> = { 'Melhorar': 0, 'Piorar': 0, 'Ficar Igual': 0, 'NS/NR': 0 };
     const rejectionCounts: Record<string, number> = {};
     const newsCounts: Record<string, number> = {};
     
-    // Ratings para o Radar (Saúde, Seg, Edu, Infra)
     const ratings = { health: 0, security: 0, education: 0, infra: 0, total: filteredData.length };
 
     filteredData.forEach(d => {
-      // Expectativa
       const fut = String(d[activeKeys.FUTURE] || '').toLowerCase();
       if (fut.includes('melhor')) futureCounts['Melhorar']++;
       else if (fut.includes('pior')) futureCounts['Piorar']++;
       else if (fut.includes('igual')) futureCounts['Ficar Igual']++;
       else futureCounts['NS/NR']++;
 
-      // Rejeição
       const rej = String(d[activeKeys.REJECTION] || '').trim();
       if (rej && rej !== 'NS/NR') rejectionCounts[rej] = (rejectionCounts[rej] || 0) + 1;
 
-      // News
       const news = String(d[activeKeys.NEWS_SOURCE] || '').trim();
       if (news && news !== 'NS/NR') newsCounts[news] = (newsCounts[news] || 0) + 1;
 
-      // Ratings
       const isGovPos = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().includes('aprova');
       ratings.health += isGovPos ? (Math.random() * 2 + 3) : (Math.random() * 2 + 1);
       ratings.security += isGovPos ? (Math.random() * 2 + 2) : (Math.random() * 2 + 1.5);
@@ -321,7 +313,7 @@ export default function Home() {
   };
 
   const images = {
-    lula: '/lula.jpg', // Foto oficial atualizada
+    lula: '/lula.jpg',
     brandao: PlaceHolderImages.find(i => i.id === 'brandao-photo')?.imageUrl,
   };
 
@@ -349,7 +341,6 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header Hero Section */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           
           <div className="xl:col-span-5 space-y-4 lg:pt-2">
@@ -398,7 +389,6 @@ export default function Home() {
           </div>
 
           <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[240px]">
-            {/* Database Cloud Card */}
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -447,7 +437,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Total Coletas Card */}
             <div className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 group relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -478,7 +467,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Municípios Coverage Card */}
             <div className="bg-orange-600 rounded-[2rem] p-4 flex flex-col text-white shadow-xl border border-orange-500 group relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[40px] rounded-full pointer-events-none -mr-8 -mt-8"></div>
               
@@ -508,7 +496,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Operational Status Card */}
             <div className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
@@ -543,18 +530,16 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Dashboard Grid and Segmentação */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" className="min-h-[180px]" />
+              <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" variant="hero" className="min-h-[180px]" />
               <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[180px]" />
               <StatCard 
                 label={mayorLabel}
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
                 imageUrl={flagUrl}
                 trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
-                variant="hero"
                 className="min-h-[180px]"
                 subValue={
                   <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-zinc-500 mt-1">
@@ -586,7 +571,6 @@ export default function Home() {
               </LuxuryCard>
             </div>
 
-            {/* NOVOS RELATÓRIOS DE INTELIGÊNCIA AVANÇADA */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <LuxuryCard title="Radar de Gestão" subtitle="Avaliação Setorial" className="lg:col-span-5 h-[340px]">
                 <div className="h-full mt-2">
