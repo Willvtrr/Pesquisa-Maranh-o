@@ -9,10 +9,10 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, Heart, HardHat, MessageSquare, ArrowDownRight } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, RadarChart, PolarGrid, PolarAngleAxis, Radar, PieChart, Pie } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 
@@ -28,16 +28,73 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
-  HEALTH: "Como você avalia a Saúde no Estado?",
-  SECURITY: "Como você avalia a Segurança no Estado?",
-  EDUCATION_QUALITY: "Como você avalia a Educação no Estado?",
-  INFRA: "Como você avalia a Infraestrutura/Estradas?",
-  FUTURE: "Qual sua expectativa para o futuro do Maranhão?",
-  REJECTION: "Em qual destes candidatos você NÃO votaria de jeito nenhum?",
-  NEWS_SOURCE: "Por onde você mais se informa sobre política?"
+};
+
+const CITY_MAYORS: Record<string, string> = {
+  "São Luís": "Eduardo Braide",
+  "São José de Ribamar": "Dr. Julinho",
+  "Paço do Lumiar": "Fred Campos",
+  "Raposa": "Eudes Barros",
+  "Alcântara": "Nivaldo Araújo",
+  "Bacabeira": "Naíra Gonçalo",
+  "Santa Rita": "Dr. Milton Gonçalo",
+  "Rosário": "Jonas Magno",
+  "Pinheiro": "André da Ralpnet",
+  "Cururupu": "Aldo Lopes",
+  "Viana": "Carrinho Cidreira",
+  "Itapecuru Mirim": "Filipe Marreca",
+  "Chapadinha": "Belezinha",
+  "Barreirinhas": "Vinicius Vale",
+  "Tutóia": "Viriato Cardoso",
+  "Humberto de Campos": "Luis Fernando",
+  "Guimarães": "Magno",
+  "Mirinzal": "Deyvison do Posto",
+  "Peri Mirim": "Heliezer do Povo",
+  "Santa Helena": "Joãozinho Pavão",
+  "São Bento": "Dino Penha",
+  "Turiaçu": "Edésio Cavalcante",
+  "Anajatuba": "Helder Aragão",
+  "Imperatriz": "Rildo Amaral",
+  "Açailândia": "Dr. Benjamim",
+  "Grajaú": "Dr. Gilson Guerreiro",
+  "Barra do Corda": "Rigo Teles",
+  "Buriticupu": "João Carlos",
+  "Estreito": "Léo Cunha",
+  "Porto Franco": "Deoclídes",
+  "Amarante do Maranhão": "Vanderly",
+  "Montes Altos": "Domingos França",
+  "João Lisboa": "Dr. Fábio Holanda",
+  "Senador La Rocque": "Professor Bartolomeu",
+  "Davinópolis": "Zé Pequeno",
+  "Governador Edison Lobão": "Fábio Soares",
+  "Pedreiras": "Vanessa Maia",
+  "Presidente Dutra": "Raimundinho da Audiolar",
+  "Colinas": "Renato Santos",
+  "São Mateus do Maranhão": "Miltinho Aragão",
+  "Dom Pedro": "Galego Mota",
+  "Tuntum": "Fernando Pessoa",
+  "Gonçalves Dias": "Suane Dias",
+  "Governador Archer": "Professora Leide",
+  "Caxias": "Gentil Neto",
+  "Timon": "Rafael",
+  "Codó": "Chiquinho FC",
+  "Coelho Neto": "Bruno Silva",
+  "Aldeias Altas": "Kedson",
+  "Parnarama": "Juvenal Silva",
+  "Matões": "Nonatinho",
+  "São Francisco do Maranhão": "Francisco do Posto",
+  "Bacabal": "Roberto Costa",
+  "Coroatá": "Edimar Vaqueiro",
+  "Balsas": "Allan da Marissol",
+  "Carolina": "Jayme Fonseca",
+  "Riachão": "Paula Coelho",
+  "São Raimundo das Mangabeiras": "Accioly",
+  "Loreto": "Germano Coelho",
+  "Sambaíba": "Fátima Dantas",
+  "Alto Parnaíba": "Rubens Japonês"
 };
 
 const MaranhaoFlag = () => (
@@ -60,7 +117,6 @@ export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncDate, setLastSyncDate] = useState<string>("21/03/2026 - 09:45");
-  const [lastSyncMsg, setLastSyncMsg] = useState<string>("SINCRONIZADO AGORA");
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
@@ -105,13 +161,6 @@ export default function Home() {
       PROBLEMS: findKey(['problema', 'grave'], DEFAULT_KEYS.PROBLEMS),
       WORKS: findKey(['obra', 'serviço', 'gostaria'], DEFAULT_KEYS.WORKS),
       PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
-      HEALTH: findKey(['saúde', 'avalia'], DEFAULT_KEYS.HEALTH),
-      SECURITY: findKey(['segurança', 'avalia'], DEFAULT_KEYS.SECURITY),
-      EDUCATION_QUALITY: findKey(['educação', 'avalia'], DEFAULT_KEYS.EDUCATION_QUALITY),
-      INFRA: findKey(['infraestrutura', 'estradas'], DEFAULT_KEYS.INFRA),
-      FUTURE: findKey(['expectativa', 'futuro'], DEFAULT_KEYS.FUTURE),
-      REJECTION: findKey(['rejeição', 'não votaria'], DEFAULT_KEYS.REJECTION),
-      NEWS_SOURCE: findKey(['informa', 'política'], DEFAULT_KEYS.NEWS_SOURCE),
     };
   }, [rawSurveyData]);
 
@@ -301,22 +350,24 @@ export default function Home() {
     await new Promise(resolve => setTimeout(resolve, 2000));
     const now = new Date();
     setLastSyncDate(`${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} - ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
-    setLastSyncMsg("SINCRONIZADO AGORA");
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
   };
 
   const images = {
-    lula: '/lula.jpg',
-    brandao: '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg',
+    lula: 'https://picsum.photos/seed/lula-ma/200/200',
+    brandao: 'https://picsum.photos/seed/brandao-ma/200/200',
   };
 
   const isAllCities = filters.city.includes('all');
-  const flagUrl = isAllCities 
-    ? "/bandeiracerta.jpg" 
-    : `https://picsum.photos/seed/flag-${filters.city[0].toLowerCase().replace(/\s+/g, '-')}/800/600`;
+  const flagUrl = "/bandeiracerta.jpg";
 
-  const mayorLabel = isAllCities ? "Prefeito" : filters.city.length === 1 ? filters.city[0] : "Prefeito";
+  // Lógica para nome do prefeito dinâmico
+  const mayorName = useMemo(() => {
+    if (isAllCities || filters.city.length !== 1) return "Prefeito";
+    const selectedCity = filters.city[0];
+    return CITY_MAYORS[selectedCity] || "Prefeito";
+  }, [filters.city, isAllCities]);
 
   if (isLoading && rawSurveyData.length === 0) {
     return (
@@ -475,7 +526,7 @@ export default function Home() {
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
-                subtitle={mayorLabel} 
+                subtitle={mayorName} 
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
                 imageUrl={flagUrl} 
                 subValue="MUNICIPAL" 
@@ -494,7 +545,6 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Card de Problemas */}
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none transition-opacity group-hover/card:opacity-100"></div>
                 <div className="relative z-10">
@@ -540,7 +590,6 @@ export default function Home() {
                 </div>
               </LuxuryCard>
 
-              {/* Card de Obras/Serviços */}
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none transition-opacity group-hover/card:opacity-100"></div>
                 <div className="relative z-10">
@@ -623,3 +672,4 @@ export default function Home() {
     </AppLayout>
   );
 }
+
