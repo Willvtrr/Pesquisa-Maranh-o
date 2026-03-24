@@ -108,6 +108,20 @@ const FEMALE_MAYORS = new Set([
   "Fátima Dantas"
 ]);
 
+// Utilitário para busca de prefeitos com normalização
+const normalizeText = (text: string) => 
+  text.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+const getMayorData = (city: string) => {
+  const search = normalizeText(city);
+  const cityKey = Object.keys(CITY_MAYORS).find(k => normalizeText(k) === search);
+  const name = cityKey ? CITY_MAYORS[cityKey] : null;
+  return {
+    name,
+    isFemale: name ? FEMALE_MAYORS.has(name) : false
+  };
+};
+
 const MaranhaoFlag = () => (
   <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
@@ -183,8 +197,8 @@ export default function Home() {
     });
     
     return Array.from(citiesInData).filter(city => {
-      const normalizedCity = city.toLowerCase().trim();
-      return !Object.keys(CITY_MAYORS).some(k => k.toLowerCase().trim() === normalizedCity);
+      const { name } = getMayorData(city);
+      return !name;
     }).sort();
   }, [rawSurveyData, activeKeys.CITY]);
 
@@ -388,12 +402,8 @@ export default function Home() {
     const isAllCities = filters.city.includes('all');
     if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
     
-    const selectedCity = filters.city[0].trim().toLowerCase();
-    const cityKey = Object.keys(CITY_MAYORS).find(k => k.toLowerCase().trim() === selectedCity);
-    const name = cityKey ? CITY_MAYORS[cityKey] : null;
-    
+    const { name, isFemale } = getMayorData(filters.city[0]);
     if (name) {
-      const isFemale = FEMALE_MAYORS.has(name);
       return `${isFemale ? 'Prefeita' : 'Pref.'} ${name}`;
     }
     
