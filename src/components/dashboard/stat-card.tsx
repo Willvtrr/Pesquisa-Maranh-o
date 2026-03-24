@@ -62,18 +62,19 @@ export const StatCard = ({
     >
       {/* Header Centralizado */}
       <div className="flex items-center justify-center mb-8 relative z-10 w-full">
-        <h3 className="text-[10px] md:text-[11px] font-black text-zinc-950 uppercase tracking-[0.2em]">{label}</h3>
+        <h3 className="text-[10px] md:text-[11px] font-black text-zinc-950 uppercase tracking-[0.2em] text-center">{label}</h3>
       </div>
 
-      {/* Foto com Tamanho Ajustado */}
+      {/* Foto com Tamanho Ajustado (190x190 ideal) */}
       <div className="relative flex justify-center mb-8 z-10 w-full">
-        <div className="w-52 h-52 md:w-[210px] md:h-[210px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white relative z-10 transition-transform duration-500 group-hover:scale-105 bg-white">
+        <div className="w-48 h-48 md:w-[190px] md:h-[190px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white relative z-10 transition-transform duration-500 group-hover:scale-105 bg-white">
           {imageUrl ? (
             <Image 
               src={imageUrl} 
               alt={label} 
               fill 
               className="object-cover object-top"
+              sizes="(max-width: 768px) 192px, 190px"
             />
           ) : (
             <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-300 font-black">N/A</div>
