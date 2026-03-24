@@ -65,9 +65,9 @@ export const StatCard = ({
         <h3 className="text-[10px] md:text-[11px] font-black text-zinc-950 uppercase tracking-[0.2em]">{label}</h3>
       </div>
 
-      {/* Foto Ampliada e Limpa */}
-      <div className="relative flex justify-center mb-10 z-10 w-full">
-        <div className="w-64 h-64 md:w-[260px] md:h-[260px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
+      {/* Foto com Tamanho Ajustado */}
+      <div className="relative flex justify-center mb-8 z-10 w-full">
+        <div className="w-52 h-52 md:w-[210px] md:h-[210px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white relative z-10 transition-transform duration-500 group-hover:scale-105 bg-white">
           {imageUrl ? (
             <Image 
               src={imageUrl} 
