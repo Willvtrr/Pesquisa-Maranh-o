@@ -28,7 +28,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   HEALTH: "Como você avalia a Saúde no Estado?",
   SECURITY: "Como você avalia a Segurança no Estado?",
@@ -534,13 +534,14 @@ export default function Home() {
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" variant="hero" className="min-h-[180px]" />
-              <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" className="min-h-[180px]" />
+              <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" variant="hero" className="min-h-[180px]" />
               <StatCard 
                 label={mayorLabel}
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
                 imageUrl={flagUrl}
                 trend={approvalStats.mayorPct > 50 ? "up" : "down"} 
                 className="min-h-[180px]"
+                variant="hero"
                 subValue={
                   <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-zinc-500 mt-1">
                     <MapPin size={10} className="text-orange-600" />

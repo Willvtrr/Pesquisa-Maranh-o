@@ -21,11 +21,11 @@ export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, 
   return (
     <LuxuryCard className={cn(
       "group overflow-hidden transition-all duration-500", 
-      variant === 'hero' ? "rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)]" : "",
+      "rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)]",
       className
     )}>
       <div className="flex flex-col h-full relative z-10">
-        <div className="flex items-start justify-between mb-2">
+        <div className="flex items-start justify-between mb-4">
           {trend && (
             <div className={cn(
                 "text-[8px] font-black px-2 py-1 rounded-lg flex items-center gap-1 uppercase tracking-widest border shadow-sm",
@@ -40,16 +40,11 @@ export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, 
           )}
         </div>
 
-        <div className={cn(
-          "flex items-center justify-center flex-1 mb-4",
-          variant === 'hero' ? "w-full" : "justify-start"
-        )}>
+        <div className="flex items-center justify-center mb-6 w-full px-2">
           {imageUrl ? (
             <div className={cn(
-              "relative overflow-hidden transition-all duration-1000",
-              variant === 'hero' 
-                ? "w-40 h-40 rounded-full border-[6px] border-white shadow-2xl ring-4 ring-orange-500/10" 
-                : "w-12 h-12 rounded-2xl border border-white shadow-md ring-1 ring-zinc-100"
+              "relative overflow-hidden transition-all duration-1000 aspect-[16/10] w-full",
+              "rounded-[2.5rem] border-[4px] border-white shadow-2xl ring-1 ring-zinc-100"
             )}>
               <Image 
                 src={imageUrl} 
@@ -59,25 +54,28 @@ export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, 
               />
             </div>
           ) : Icon ? (
-            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-600 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
-              <Icon size={20} strokeWidth={2.5} />
+            <div className="p-6 rounded-3xl bg-zinc-50 border border-zinc-100 text-zinc-600 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500">
+              <Icon size={24} strokeWidth={2.5} />
             </div>
-          ) : null}
+          ) : (
+            <div className="aspect-[16/10] w-full bg-zinc-50 rounded-[2.5rem] border border-dashed border-zinc-200 flex items-center justify-center">
+               <span className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">Sem Imagem</span>
+            </div>
+          )}
         </div>
 
-        <div className="space-y-3 mt-auto text-center">
+        <div className="space-y-4 mt-auto text-center pb-2">
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">{label}</p>
             <h2 className={cn(
-              "font-mono font-black tracking-tighter leading-none text-zinc-950",
-              variant === 'hero' ? "text-5xl" : "text-2xl"
+              "font-mono font-black tracking-tighter leading-none text-zinc-950 text-4xl"
             )}>
               {value}
             </h2>
           </div>
           
           {subValue && (
-            <div className="pt-2 border-t border-zinc-100/50 flex justify-center">
+            <div className="pt-3 border-t border-zinc-100/50 flex justify-center">
               <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                 {subValue}
               </div>
