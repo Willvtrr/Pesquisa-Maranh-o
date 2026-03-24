@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -7,7 +6,9 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 interface StatCardProps {
-  label: string;
+  label?: string;
+  title?: string;
+  subtitle?: string;
   value: string | number; // Ex: "64.1%"
   subValue?: React.ReactNode;
   imageUrl?: string;
@@ -32,6 +33,8 @@ const NumberCounter = ({ value, className }: { value: number; className?: string
 
 export const StatCard = ({ 
   label, 
+  title,
+  subtitle,
   value, 
   subValue, 
   imageUrl, 
@@ -49,6 +52,9 @@ export const StatCard = ({
   const desaprovaData = breakdown?.find(b => b.name === 'Desaprova')?.value || 0;
   const nsnrData = breakdown?.find(b => b.name === 'NS/NR')?.value || 0;
 
+  const displayTitle = title;
+  const displaySubtitle = subtitle || label;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -56,14 +62,20 @@ export const StatCard = ({
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
       className={cn(
-        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center",
+        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col",
         className
       )}
     >
-      {/* Header Centralizado com Tipografia 18px Desktop conforme solicitado */}
-      <div className="flex items-center justify-center mb-8 relative z-10 w-full min-h-[3.5rem]">
-        <h3 className="text-base lg:text-[18px] font-black text-zinc-950 uppercase tracking-tight text-center leading-tight">
-          {label}
+      {/* Header Alinhado à Esquerda conforme Print */}
+      <div className="flex flex-col items-start mb-8 relative z-10 w-full min-h-[4rem] space-y-1">
+        {displayTitle && (
+          <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <span className="w-1 h-3 bg-orange-600 rounded-full" />
+            {displayTitle}
+          </h4>
+        )}
+        <h3 className="text-xl lg:text-[18px] font-black text-zinc-950 leading-tight tracking-tight">
+          {displaySubtitle}
         </h3>
       </div>
 
@@ -73,7 +85,7 @@ export const StatCard = ({
           {imageUrl ? (
             <Image 
               src={imageUrl} 
-              alt={label} 
+              alt={displaySubtitle || "Foto"} 
               fill 
               className="object-cover object-top"
               sizes="(max-width: 768px) 192px, 190px"

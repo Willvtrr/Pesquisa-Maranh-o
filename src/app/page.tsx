@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -28,7 +27,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   HEALTH: "Como você avalia a Saúde no Estado?",
@@ -316,7 +315,7 @@ export default function Home() {
     ? "/bandeiracerta.jpg" 
     : `https://picsum.photos/seed/flag-${filters.city[0].toLowerCase().replace(/\s+/g, '-')}/800/600`;
 
-  const mayorLabel = isAllCities ? "APROVAÇÃO PREFEITO" : filters.city.length === 1 ? `Prefeito de ${filters.city[0]}` : "Média de Municípios";
+  const mayorLabel = isAllCities ? "Aprovação Prefeito" : filters.city.length === 1 ? `Prefeito de ${filters.city[0]}` : "Média de Municípios";
   const subValueLabel = isAllCities ? "MÉDIA ESTADUAL" : filters.city.length === 1 ? filters.city[0] : `${filters.city.length} Cidades`;
 
   if (isLoading && rawSurveyData.length === 0) {
@@ -459,21 +458,24 @@ export default function Home() {
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <StatCard 
-                label="APROVAÇÃO PRESIDENTE" 
+                title="GESTÃO FEDERAL"
+                subtitle="Aprovação Presidente" 
                 value={`${approvalStats.presPct.toFixed(1)}%`} 
                 imageUrl={images.lula} 
                 subValue="GESTÃO LULA" 
                 breakdown={approvalBreakdown.pres} 
               />
               <StatCard 
-                label="APROVAÇÃO GOVERNADOR" 
+                title="GESTÃO ESTADUAL"
+                subtitle="Aprovação Governador" 
                 value={`${approvalStats.govPct.toFixed(1)}%`} 
                 imageUrl={images.brandao} 
                 subValue="GESTÃO CARLOS BRANDÃO" 
                 breakdown={approvalBreakdown.gov} 
               />
               <StatCard 
-                label={mayorLabel} 
+                title="GESTÃO MUNICIPAL"
+                subtitle={mayorLabel} 
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
                 imageUrl={flagUrl} 
                 subValue={subValueLabel} 
