@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -41,7 +42,6 @@ export const StatCard = ({
   className, 
   breakdown 
 }: StatCardProps) => {
-  // Cores padronizadas do modelo
   const colors = {
     aprova: '#10b981', // emerald-500
     desaprova: '#f43f5e', // rose-500
@@ -62,11 +62,10 @@ export const StatCard = ({
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
       className={cn(
-        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-[0_20px_50px_rgba(234,88,12,0.06)] transition-all hover:shadow-[0_30px_60px_rgba(234,88,12,0.1)] hover:-translate-y-1 flex flex-col",
+        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-[0_20px_50px_rgba(234,88,12,0.08)] transition-all hover:shadow-[0_30px_60px_rgba(234,88,12,0.12)] hover:-translate-y-1 flex flex-col",
         className
       )}
     >
-      {/* Header Alinhado à Esquerda conforme Print */}
       <div className="flex flex-col items-start mb-8 relative z-10 w-full min-h-[4rem] space-y-1">
         {displayTitle && (
           <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -79,7 +78,6 @@ export const StatCard = ({
         </h3>
       </div>
 
-      {/* Foto com Tamanho Ajustado (190x190 ideal) */}
       <div className="relative flex justify-center mb-8 z-10 w-full">
         <div className="w-48 h-48 md:w-[190px] md:h-[190px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white relative z-10 transition-transform duration-500 group-hover:scale-105 bg-white">
           {imageUrl ? (
@@ -96,7 +94,6 @@ export const StatCard = ({
         </div>
       </div>
 
-      {/* Barra de Progresso Segmentada */}
       <div className="w-full h-2.5 bg-zinc-100 rounded-full flex overflow-hidden mb-8 relative z-10 shadow-inner">
         <motion.div 
           initial={{ width: 0 }}
@@ -121,7 +118,6 @@ export const StatCard = ({
         />
       </div>
 
-      {/* Grid de Estatísticas Detalhadas */}
       <div className="grid grid-cols-3 gap-2 text-center relative z-10 border-b border-zinc-100/80 pb-6 mb-6 w-full">
         <div className="flex flex-col items-center">
           <NumberCounter value={aprovaData} className="text-xl font-black text-zinc-900 mb-1" />
@@ -148,7 +144,6 @@ export const StatCard = ({
         </div>
       </div>
 
-      {/* Footer */}
       <div className="text-center relative z-10 w-full">
         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">{subValue}</span>
       </div>

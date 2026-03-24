@@ -29,13 +29,12 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
 
 const CITY_MAYORS: Record<string, string> = {
-  // REGIÃO METROPOLITANA DE SÃO LUÍS
   "São Luís": "Eduardo Braide",
   "São José de Ribamar": "Dr. Julinho",
   "Paço do Lumiar": "Fred Campos",
@@ -44,7 +43,6 @@ const CITY_MAYORS: Record<string, string> = {
   "Bacabeira": "Naíra Gonçalo",
   "Santa Rita": "Dr. Milton Gonçalo",
   "Rosário": "Jonas Magno",
-  // REGIÃO NORTE
   "Pinheiro": "André da Ralpnet",
   "Cururupu": "Aldo Lopes",
   "Viana": "Carrinho Cidreira",
@@ -61,7 +59,6 @@ const CITY_MAYORS: Record<string, string> = {
   "São Bento": "Dino Penha",
   "Turiaçu": "Edésio Cavalcante",
   "Anajatuba": "Helder Aragão",
-  // REGIÃO OESTE
   "Imperatriz": "Rildo Amaral",
   "Açailândia": "Dr. Benjamim",
   "Grajaú": "Dr. Gilson Guerreiro",
@@ -75,7 +72,6 @@ const CITY_MAYORS: Record<string, string> = {
   "Senador La Rocque": "Professor Bartolomeu",
   "Davinópolis": "Zé Pequeno",
   "Governador Edison Lobão": "Fábio Soares",
-  // REGIÃO CENTRO
   "Pedreiras": "Vanessa Maia",
   "Presidente Dutra": "Raimundinho da Audiolar",
   "Colinas": "Renato Santos",
@@ -84,7 +80,6 @@ const CITY_MAYORS: Record<string, string> = {
   "Tuntum": "Fernando Pessoa",
   "Gonçalves Dias": "Suane Dias",
   "Governador Archer": "Professora Leide",
-  // REGIÃO LESTE
   "Caxias": "Gentil Neto",
   "Timon": "Rafael",
   "Codó": "Chiquinho FC",
@@ -95,7 +90,6 @@ const CITY_MAYORS: Record<string, string> = {
   "São Francisco do Maranhão": "Francisco do Posto",
   "Bacabal": "Roberto Costa",
   "Coroatá": "Edimar Vaqueiro",
-  // REGIÃO SUL
   "Balsas": "Allan da Marissol",
   "Carolina": "Jayme Fonseca",
   "Riachão": "Paula Coelho",
@@ -103,7 +97,6 @@ const CITY_MAYORS: Record<string, string> = {
   "Loreto": "Germano Coelho",
   "Sambaíba": "Fátima Dantas",
   "Alto Parnaíba": "Rubens Japonês",
-  // NOVOS MUNICÍPIOS ADICIONADOS
   "Alto Alegre do Maranhão": "Nilsilene do Liorne",
   "Araioses": "Neto Carvalho",
   "Arame": "Pedro Fernandes",
@@ -634,16 +627,6 @@ export default function Home() {
                 </div>
               </LuxuryCard>
             )}
-
-            <div className="mb-10 flex items-center gap-5">
-              <div className="bg-gradient-to-br from-[#ea580c] to-[#c2410c] rounded-2xl p-3 shadow-lg shadow-orange-500/20 flex items-center justify-center border border-orange-400/50">
-                <MessageSquare className="w-6 h-6 text-white drop-shadow-sm" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-zinc-900 tracking-tight leading-none mb-1.5">Voz da População</h1>
-                <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">Dados Qualitativos e Espontâneos</p>
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <LuxuryCard className="group/card">
