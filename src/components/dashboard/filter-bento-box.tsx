@@ -292,12 +292,12 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         </div>
 
         {/* Mesorregião */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-4 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
             Mesorregião
           </label>
-          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl overflow-hidden">
+          <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl overflow-hidden mb-4">
             <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-zinc-50">
               {isLoaded && (
                 <GoogleMap
@@ -309,6 +309,44 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 />
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            {Object.entries(MESO_COLORS).map(([region, color]) => {
+              const pct = distribution?.region?.[region] || 0;
+              const active = isSelected('region', region);
+              return (
+                <motion.div
+                  key={region}
+                  whileHover={{ x: 4 }}
+                  onClick={() => onFilterChange('region', region)}
+                  className={cn(
+                    "flex flex-col gap-2 p-3 rounded-xl transition-all cursor-pointer border",
+                    active 
+                      ? "border-zinc-950 bg-zinc-50" 
+                      : "border-transparent bg-white hover:bg-zinc-50"
+                  )}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+                      <span className={cn("text-[10px] font-black uppercase tracking-widest", active ? "text-zinc-950" : "text-zinc-500")}>
+                        {region === 'Metrop.' ? 'Metropolitana' : region}
+                      </span>
+                    </div>
+                    <span className="text-xs font-black font-mono">{pct.toFixed(1)}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 
