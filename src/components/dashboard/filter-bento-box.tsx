@@ -311,32 +311,32 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {Object.entries(MESO_COLORS).map(([region, color]) => {
               const pct = distribution?.region?.[region] || 0;
               const active = isSelected('region', region);
               return (
                 <motion.div
                   key={region}
-                  whileHover={{ x: 4 }}
+                  whileHover={{ scale: 1.02 }}
                   onClick={() => onFilterChange('region', region)}
                   className={cn(
-                    "flex flex-col gap-2 p-3 rounded-xl transition-all cursor-pointer border",
+                    "flex flex-col gap-1.5 p-2.5 rounded-xl transition-all cursor-pointer border",
                     active 
-                      ? "border-zinc-950 bg-zinc-50" 
-                      : "border-transparent bg-white hover:bg-zinc-50"
+                      ? "border-zinc-950 bg-zinc-50 shadow-sm" 
+                      : "border-zinc-100 bg-white hover:border-zinc-200"
                   )}
                 >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                      <span className={cn("text-[10px] font-black uppercase tracking-widest", active ? "text-zinc-950" : "text-zinc-500")}>
-                        {region === 'Metrop.' ? 'Metropolitana' : region}
+                  <div className="flex justify-between items-center px-0.5">
+                    <div className="flex items-center gap-1.5 overflow-hidden">
+                      <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      <span className={cn("text-[8px] font-black uppercase tracking-tighter truncate", active ? "text-zinc-950" : "text-zinc-500")}>
+                        {region === 'Metrop.' ? 'Metro' : region}
                       </span>
                     </div>
-                    <span className="text-xs font-black font-mono">{pct.toFixed(1)}%</span>
+                    <span className="text-[9px] font-black font-mono shrink-0">{pct.toFixed(0)}%</span>
                   </div>
-                  <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
+                  <div className="h-1 w-full bg-zinc-100 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
