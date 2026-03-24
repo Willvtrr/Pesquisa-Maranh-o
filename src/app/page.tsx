@@ -97,6 +97,17 @@ const CITY_MAYORS: Record<string, string> = {
   "Alto Parnaíba": "Rubens Japonês"
 };
 
+// Lista de prefeitas para ajuste de gênero dinâmico
+const FEMALE_MAYORS = new Set([
+  "Naíra Gonçalo", 
+  "Belezinha", 
+  "Vanessa Maia", 
+  "Suane Dias", 
+  "Professora Leide", 
+  "Paula Coelho", 
+  "Fátima Dantas"
+]);
+
 const MaranhaoFlag = () => (
   <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
     <rect width="27" height="2" y="0" fill="#E20613" />
@@ -359,15 +370,23 @@ export default function Home() {
     brandao: 'https://picsum.photos/seed/brandao-ma/200/200',
   };
 
-  const isAllCities = filters.city.includes('all');
   const flagUrl = "/bandeiracerta.jpg";
 
-  // Lógica para nome do prefeito dinâmico
-  const mayorName = useMemo(() => {
-    if (isAllCities || filters.city.length !== 1) return "Prefeito";
+  // Lógica para nome e título dinâmico (Prefeito/Prefeita)
+  const mayorDisplay = useMemo(() => {
+    const isAllCities = filters.city.includes('all');
+    if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
+    
     const selectedCity = filters.city[0];
-    return CITY_MAYORS[selectedCity] || "Prefeito";
-  }, [filters.city, isAllCities]);
+    const name = CITY_MAYORS[selectedCity];
+    
+    if (name) {
+      const title = FEMALE_MAYORS.has(name) ? "Prefeita" : "Prefeito";
+      return `${title} ${name}`;
+    }
+    
+    return "Prefeito(a)";
+  }, [filters.city]);
 
   if (isLoading && rawSurveyData.length === 0) {
     return (
@@ -526,7 +545,7 @@ export default function Home() {
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
-                subtitle={mayorName} 
+                subtitle={mayorDisplay} 
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
                 imageUrl={flagUrl} 
                 subValue="MUNICIPAL" 
@@ -672,4 +691,3 @@ export default function Home() {
     </AppLayout>
   );
 }
-
