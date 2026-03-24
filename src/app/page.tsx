@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -29,7 +28,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -540,10 +539,10 @@ export default function Home() {
               </div>
               <div className="flex-1 flex flex-col justify-center relative z-10">
                 <div className="flex items-baseline gap-1">
-                  <h2 className="text-2xl font-black tracking-tighter leading-none">61</h2>
+                  <h2 className="text-2xl font-black tracking-tighter leading-none">83</h2>
                   <span className="text-lg font-black opacity-60">/217</span>
                 </div>
-                <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura 28.1%</p>
+                <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura 38.2%</p>
               </div>
               <div className="mt-auto flex items-center justify-between relative z-10">
                 <span className="text-[6px] font-black text-white uppercase tracking-widest">Concluindo • Faltam 3</span>
@@ -609,13 +608,12 @@ export default function Home() {
               />
             </div>
 
-            {/* Auditoria de Prefeitos (Apenas se houver cidades sem vínculo) */}
+            {/* Auditoria de Prefeitos */}
             {missingMayors.length > 0 && (
               <LuxuryCard title="AUDITORIA DE DADOS" subtitle="Municípios sem Prefeito Vinculado" className="border-amber-200 bg-amber-50/30">
                 <div className="space-y-4">
                   <p className="text-[10px] font-bold text-amber-700 uppercase leading-relaxed">
                     Os seguintes municípios foram encontrados na sua base de dados, mas ainda não possuem um prefeito mapeado no sistema. 
-                    Por favor, forneça os nomes para completar o dashboard.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {missingMayors.map(city => (
@@ -630,33 +628,33 @@ export default function Home() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <LuxuryCard className="group/card">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none transition-opacity group-hover/card:opacity-100"></div>
-                <div className="relative z-10">
-                  <div className="inline-flex items-center gap-2 mb-4 bg-rose-50/80 border border-rose-100/50 px-3 py-1.5 rounded-full">
-                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(244,63,94,0.5)]"></div>
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="inline-flex items-center gap-2 mb-4 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
+                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div>
                     <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
-                  <div className="space-y-4">
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
+                  <div className="space-y-6 flex-1">
                     {chartData.topProblems.map((item, idx) => (
                       <div key={item.name} className="group/row">
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-md bg-white border border-zinc-200 flex items-center justify-center shadow-sm group-hover/row:border-rose-200 transition-colors">
-                              <span className="text-[10px] font-black text-zinc-400 group-hover/row:text-rose-50">#{idx + 1}</span>
+                            <div className="w-6 h-6 rounded-md bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                              <span className="text-[10px] font-black text-zinc-400">#{idx + 1}</span>
                             </div>
-                            <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
+                            <span className="text-[11px] font-bold text-zinc-800 uppercase tracking-wide">{item.name}</span>
                           </div>
-                          <span className="text-sm font-black text-rose-500">
+                          <span className="text-[11px] font-black text-rose-500">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1.5 shadow-inner overflow-hidden">
+                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
                             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                            className="bg-gradient-to-r from-rose-400 to-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.3)]"
+                            className="bg-rose-500 h-full rounded-full"
                           />
                         </div>
                       </div>
@@ -664,44 +662,44 @@ export default function Home() {
                   </div>
                   <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
                     <div className="flex items-center gap-2">
-                      <ArrowDownRight className="w-4 h-4 opacity-70" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Sentimento de Urgência</span>
+                      <ArrowDownRight className="w-3 h-3" />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Sentimento de Urgência</span>
                     </div>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-50">
-                      <ArrowDownRight className="w-4 h-4 text-rose-500" />
+                    <div className="w-6 h-6 rounded-full bg-rose-50 flex items-center justify-center">
+                      <ArrowDownRight className="w-3 h-3 text-rose-500" />
                     </div>
                   </div>
                 </div>
               </LuxuryCard>
 
               <LuxuryCard className="group/card">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none transition-opacity group-hover/card:opacity-100"></div>
-                <div className="relative z-10">
-                  <div className="inline-flex items-center gap-2 mb-4 bg-emerald-50/80 border border-emerald-100/50 px-3 py-1.5 rounded-full">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]"></div>
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="inline-flex items-center gap-2 mb-4 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                     <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
-                  <div className="space-y-4">
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
+                  <div className="space-y-6 flex-1">
                     {chartData.topWorks.map((item, idx) => (
                       <div key={item.name} className="group/row">
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-md bg-white border border-zinc-200 flex items-center justify-center shadow-sm group-hover/row:border-emerald-200 transition-colors">
-                              <span className="text-[10px] font-black text-zinc-400 group-hover/row:text-emerald-500">#{idx + 1}</span>
+                            <div className="w-6 h-6 rounded-md bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                              <span className="text-[10px] font-black text-zinc-400">#{idx + 1}</span>
                             </div>
-                            <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
+                            <span className="text-[11px] font-bold text-zinc-800 uppercase tracking-wide">{item.name}</span>
                           </div>
-                          <span className="text-sm font-black text-emerald-500">
+                          <span className="text-[11px] font-black text-emerald-500">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1.5 shadow-inner overflow-hidden">
+                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
                             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                            className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                            className="bg-emerald-500 h-full rounded-full"
                           />
                         </div>
                       </div>
@@ -709,11 +707,11 @@ export default function Home() {
                   </div>
                   <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 opacity-70" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Expectativa de Entrega</span>
+                      <TrendingUp className="w-3 h-3" />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Expectativa de Entrega</span>
                     </div>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50">
-                      <TrendingUp className="w-4 h-4 text-emerald-500" />
+                    <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center">
+                      <TrendingUp className="w-3 h-3 text-emerald-500" />
                     </div>
                   </div>
                 </div>
@@ -723,20 +721,6 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <ApprovalChart data={chartData.approvalData} />
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-              <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="h-full">
-                <div className="h-[220px] mt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.topProblems} layout="vertical" margin={{ left: 30, right: 30 }}>
-                      <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#71717a', fontSize: 9, fontWeight: 800 }} width={80} />
-                      <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
-                      <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={16}>
-                        {chartData.topProblems.map((entry, index) => (<Cell key={`cell-${index}`} fill={['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981'][index % 5]} />))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </LuxuryCard>
             </div>
             
             <div className="grid grid-cols-1 gap-6">
