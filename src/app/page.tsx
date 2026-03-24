@@ -28,7 +28,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -363,6 +363,7 @@ export default function Home() {
   const images = {
     lula: 'https://picsum.photos/seed/lula-ma/200/200',
     brandao: 'https://picsum.photos/seed/brandao-ma/200/200',
+    genericMayor: 'https://picsum.photos/seed/prefeito-ma/200/200'
   };
 
   const flagUrl = "/bandeiracerta.jpg";
@@ -371,16 +372,24 @@ export default function Home() {
     const isAllCities = filters.city.includes('all');
     if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
     
+    // Busca normalizada para evitar erros de case ou espaços
     const selectedCity = filters.city[0].trim();
-    const name = CITY_MAYORS[selectedCity];
+    const cityKey = Object.keys(CITY_MAYORS).find(k => k.toLowerCase() === selectedCity.toLowerCase());
+    const name = cityKey ? CITY_MAYORS[cityKey] : null;
     
     if (name) {
-      // Reduzido para Pref. conforme solicitado
-      return `Pref. ${name}`;
+      const isFemale = FEMALE_MAYORS.has(name);
+      return `${isFemale ? 'Prefeita' : 'Pref.'} ${name}`;
     }
     
     return "Prefeito(a)";
   }, [filters.city]);
+
+  const mayorPhoto = useMemo(() => {
+    const isAllCities = filters.city.includes('all');
+    if (isAllCities || filters.city.length !== 1) return flagUrl;
+    return images.genericMayor;
+  }, [filters.city, flagUrl, images.genericMayor]);
 
   if (isLoading && rawSurveyData.length === 0) {
     return (
@@ -541,7 +550,7 @@ export default function Home() {
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle={mayorDisplay} 
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-                imageUrl={flagUrl} 
+                imageUrl={mayorPhoto} 
                 subValue="MUNICIPAL" 
                 breakdown={approvalBreakdown.mayor} 
               />
@@ -577,13 +586,13 @@ export default function Home() {
                             <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
                           </div>
                           <span className="text-sm font-black text-rose-500">
-                            {((item.value / filteredData.length) * 100).toFixed(1)}%
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
                         <div className="w-full bg-zinc-100 rounded-full h-1.5 shadow-inner overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
-                            animate={{ width: `${(item.value / filteredData.length) * 100}%` }}
+                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
                             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                             className="bg-gradient-to-r from-rose-400 to-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.3)]"
                           />
@@ -622,13 +631,13 @@ export default function Home() {
                             <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
                           </div>
                           <span className="text-sm font-black text-emerald-500">
-                            {((item.value / filteredData.length) * 100).toFixed(1)}%
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
                         <div className="w-full bg-zinc-100 rounded-full h-1.5 shadow-inner overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
-                            animate={{ width: `${(item.value / filteredData.length) * 100}%` }}
+                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
                             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                             className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                           />
