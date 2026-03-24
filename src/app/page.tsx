@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -28,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   HEALTH: "Como você avalia a Saúde no Estado?",
   SECURITY: "Como você avalia a Segurança no Estado?",
@@ -72,6 +73,7 @@ export default function Home() {
     ideology: ['all']
   });
 
+  // 1. Total Count e Chaves Ativas
   const totalCount = useMemo(() => {
     if (!rawSurveyData) return 0;
     return rawSurveyData.filter(item => !item.INFO).length;
@@ -118,82 +120,7 @@ export default function Home() {
     };
   }, [rawSurveyData]);
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => {
-      const currentValues = prev[key] || [];
-      if (value === 'all') return { ...prev, [key]: ['all'] };
-      let newValues;
-      if (currentValues.includes(value)) {
-        newValues = currentValues.filter(v => v !== value);
-        if (newValues.length === 0) newValues = ['all'];
-      } else {
-        newValues = [...currentValues.filter(v => v !== 'all'), value];
-      }
-      return { ...prev, [key]: newValues };
-    });
-  };
-
-  const clearFilters = () => setFilters({ 
-    region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all']
-  });
-
-  const dynamicOptions = useMemo(() => {
-    const options: Record<string, string[]> = {
-      region: [], city: [], age: [], gender: [], education: [], income: [], religion: [], ideology: []
-    };
-    if (!rawSurveyData) return options;
-
-    const getUniques = (key: string) => {
-      const vals = new Set<string>();
-      rawSurveyData.forEach(item => {
-        const val = String(item[key] || '').trim();
-        if (val && val !== 'all' && val !== 'NS/NR' && !item.INFO) vals.add(val);
-      });
-      return Array.from(vals).sort();
-    };
-
-    options.region = getUniques(activeKeys.REGION);
-    options.city = getUniques(activeKeys.CITY);
-    options.age = getUniques(activeKeys.AGE);
-    options.gender = getUniques(activeKeys.GENDER);
-    options.education = getUniques(activeKeys.EDUCATION);
-    options.income = getUniques(activeKeys.INCOME);
-    options.religion = getUniques(activeKeys.RELIGION);
-    options.ideology = getUniques(activeKeys.IDEOLOGY);
-    return options;
-  }, [rawSurveyData, activeKeys]);
-
-  const distributionStats = useMemo(() => {
-    const stats: Record<string, Record<string, number>> = {};
-    if (!rawSurveyData || totalCount === 0) return stats;
-
-    const keys = {
-      region: activeKeys.REGION,
-      gender: activeKeys.GENDER,
-      age: activeKeys.AGE,
-      income: activeKeys.INCOME,
-      ideology: activeKeys.IDEOLOGY,
-      education: activeKeys.EDUCATION,
-      religion: activeKeys.RELIGION,
-    };
-
-    Object.entries(keys).forEach(([filterKey, dataKey]) => {
-      const counts: Record<string, number> = {};
-      rawSurveyData.forEach(item => {
-        if (item.INFO) return;
-        const val = String(item[dataKey] || '').trim();
-        if (val) counts[val] = (counts[val] || 0) + 1;
-      });
-      
-      stats[filterKey] = {};
-      Object.entries(counts).forEach(([val, count]) => {
-        stats[filterKey][val] = (count / totalCount) * 100;
-      });
-    });
-
-    return stats;
-  }, [rawSurveyData, activeKeys, totalCount]);
-
+  // 2. Dados Filtrados (Base para todos os outros cálculos)
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
     return rawSurveyData.filter(item => {
@@ -217,6 +144,7 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
+  // 3. Estatísticas e Detalhamento (Dependem de filteredData)
   const approvalStats = useMemo(() => {
     const total = filteredData.length;
     const calculatePct = (key: string) => {
@@ -227,7 +155,35 @@ export default function Home() {
       }).length;
       return (approvalCount / total) * 100;
     };
-    return { total, govPct: calculatePct(activeKeys.GOV_APPROVAL), presPct: calculatePct(activeKeys.PRESIDENT_APPROVAL), mayorPct: calculatePct(activeKeys.MAYOR_APPROVAL) };
+    return { 
+      total, 
+      govPct: calculatePct(activeKeys.GOV_APPROVAL), 
+      presPct: calculatePct(activeKeys.PRESIDENT_APPROVAL), 
+      mayorPct: calculatePct(activeKeys.MAYOR_APPROVAL) 
+    };
+  }, [filteredData, activeKeys]);
+
+  const approvalBreakdown = useMemo(() => {
+    const calculate = (key: string) => {
+      const counts = { aprova: 0, desaprova: 0, nsnr: 0 };
+      filteredData.forEach(d => {
+        const val = String(d[key] || '').toLowerCase().trim();
+        if (val === 'aprova' || val === 'aprovado' || val === 'sim') counts.aprova++;
+        else if (val === 'desaprova' || val === 'desaprovado' || val === 'não' || val === 'nao') counts.desaprova++;
+        else counts.nsnr++;
+      });
+      const total = filteredData.length || 1;
+      return [
+        { name: 'Aprova', value: (counts.aprova / total) * 100 },
+        { name: 'Desaprova', value: (counts.desaprova / total) * 100 },
+        { name: 'NS/NR', value: (counts.nsnr / total) * 100 }
+      ];
+    };
+    return {
+      pres: calculate(activeKeys.PRESIDENT_APPROVAL),
+      gov: calculate(activeKeys.GOV_APPROVAL),
+      mayor: calculate(activeKeys.MAYOR_APPROVAL)
+    };
   }, [filteredData, activeKeys]);
 
   const chartData = useMemo(() => {
@@ -294,6 +250,83 @@ export default function Home() {
       newsData: Object.entries(newsCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
     };
   }, [filteredData, activeKeys]);
+
+  // 4. Opções de Filtro e Distribuição
+  const dynamicOptions = useMemo(() => {
+    const options: Record<string, string[]> = {
+      region: [], city: [], age: [], gender: [], education: [], income: [], religion: [], ideology: []
+    };
+    if (!rawSurveyData) return options;
+
+    const getUniques = (key: string) => {
+      const vals = new Set<string>();
+      rawSurveyData.forEach(item => {
+        const val = String(item[key] || '').trim();
+        if (val && val !== 'all' && val !== 'NS/NR' && !item.INFO) vals.add(val);
+      });
+      return Array.from(vals).sort();
+    };
+
+    options.region = getUniques(activeKeys.REGION);
+    options.city = getUniques(activeKeys.CITY);
+    options.age = getUniques(activeKeys.AGE);
+    options.gender = getUniques(activeKeys.GENDER);
+    options.education = getUniques(activeKeys.EDUCATION);
+    options.income = getUniques(activeKeys.INCOME);
+    options.religion = getUniques(activeKeys.RELIGION);
+    options.ideology = getUniques(activeKeys.IDEOLOGY);
+    return options;
+  }, [rawSurveyData, activeKeys]);
+
+  const distributionStats = useMemo(() => {
+    const stats: Record<string, Record<string, number>> = {};
+    if (!rawSurveyData || totalCount === 0) return stats;
+
+    const keys = {
+      region: activeKeys.REGION,
+      gender: activeKeys.GENDER,
+      age: activeKeys.AGE,
+      income: activeKeys.INCOME,
+      ideology: activeKeys.IDEOLOGY,
+      education: activeKeys.EDUCATION,
+      religion: activeKeys.RELIGION,
+    };
+
+    Object.entries(keys).forEach(([filterKey, dataKey]) => {
+      const counts: Record<string, number> = {};
+      rawSurveyData.forEach(item => {
+        if (item.INFO) return;
+        const val = String(item[dataKey] || '').trim();
+        if (val) counts[val] = (counts[val] || 0) + 1;
+      });
+      
+      stats[filterKey] = {};
+      Object.entries(counts).forEach(([val, count]) => {
+        stats[filterKey][val] = (count / totalCount) * 100;
+      });
+    });
+
+    return stats;
+  }, [rawSurveyData, activeKeys, totalCount]);
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => {
+      const currentValues = prev[key] || [];
+      if (value === 'all') return { ...prev, [key]: ['all'] };
+      let newValues;
+      if (currentValues.includes(value)) {
+        newValues = currentValues.filter(v => v !== value);
+        if (newValues.length === 0) newValues = ['all'];
+      } else {
+        newValues = [...currentValues.filter(v => v !== 'all'), value];
+      }
+      return { ...prev, [key]: newValues };
+    });
+  };
+
+  const clearFilters = () => setFilters({ 
+    region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all']
+  });
 
   const handleManualSync = async () => {
     if (isSyncing) return;
@@ -533,8 +566,26 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} trend={approvalStats.presPct > 50 ? "up" : "down"} subValue="Governo Federal" variant="hero" className="min-h-[180px]" />
-              <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} trend={approvalStats.govPct > 50 ? "up" : "down"} subValue="Gestão Carlos Brandão" variant="hero" className="min-h-[180px]" />
+              <StatCard 
+                label="APROVAÇÃO PRESIDENTE" 
+                value={`${approvalStats.presPct.toFixed(1)}%`} 
+                imageUrl={images.lula} 
+                trend={approvalStats.presPct > 50 ? "up" : "down"} 
+                subValue="Governo Federal" 
+                variant="hero" 
+                className="min-h-[180px]"
+                breakdown={approvalBreakdown.pres}
+              />
+              <StatCard 
+                label="APROVAÇÃO GOVERNADOR" 
+                value={`${approvalStats.govPct.toFixed(1)}%`} 
+                imageUrl={images.brandao} 
+                trend={approvalStats.govPct > 50 ? "up" : "down"} 
+                subValue="Gestão Carlos Brandão" 
+                variant="hero" 
+                className="min-h-[180px]"
+                breakdown={approvalBreakdown.gov}
+              />
               <StatCard 
                 label={mayorLabel}
                 value={`${approvalStats.mayorPct.toFixed(1)}%`} 
@@ -548,6 +599,7 @@ export default function Home() {
                     {subValueLabel}
                   </div>
                 }
+                breakdown={approvalBreakdown.mayor}
               />
             </div>
 
