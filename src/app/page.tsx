@@ -494,7 +494,7 @@ export default function Home() {
                 label="APROVAÇÃO PRESIDENTE" 
                 value={`${approvalStats.presPct.toFixed(1)}%`} 
                 imageUrl={images.lula} 
-                subValue="Governo Federal" 
+                subValue="GESTÃO LULA" 
                 breakdown={approvalBreakdown.pres} 
               />
               <StatCard 
