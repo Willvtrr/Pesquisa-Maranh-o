@@ -313,7 +313,7 @@ export default function Home() {
 
   const isAllCities = filters.city.includes('all');
   const flagUrl = isAllCities 
-    ? "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Bandeira_do_Maranh%C3%A3o.svg/1200px-Bandeira_do_Maranh%C3%A3o.svg.png" 
+    ? "/maranhão.png" 
     : `https://picsum.photos/seed/flag-${filters.city[0].toLowerCase().replace(/\s+/g, '-')}/800/600`;
 
   const mayorLabel = isAllCities ? "APROVAÇÃO PREFEITO" : filters.city.length === 1 ? `Prefeito de ${filters.city[0]}` : "Média de Municípios";
