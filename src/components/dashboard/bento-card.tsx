@@ -18,15 +18,14 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       whileHover={{ 
-        y: -8,
-        scale: 1.01,
+        y: -5,
+        scale: 1.005,
         transition: { duration: 0.15, ease: "circOut" } 
       }}
       transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
-        "bg-white rounded-3xl p-6 lg:p-8 flex flex-col gap-4 overflow-hidden relative",
-        "border border-zinc-200/80 bento-3d",
-        "before:absolute before:inset-0 before:rounded-3xl before:ring-1 before:ring-inset before:ring-white before:pointer-events-none before:z-20",
+        "bg-white rounded-[2rem] p-6 lg:p-7 flex flex-col gap-4 overflow-hidden relative",
+        "border border-zinc-200/80 bento-3d shadow-sm",
         "group transition-shadow duration-300",
         className
       )}
@@ -39,7 +38,7 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
               {title}
             </h3>
           )}
-          {subtitle && <p className="text-xl lg:text-2xl font-bold text-zinc-950 tracking-tight">{subtitle}</p>}
+          {subtitle && <p className="text-[18px] font-black text-zinc-950 tracking-tight">{subtitle}</p>}
         </div>
       )}
       
@@ -47,8 +46,7 @@ export const BentoCard = ({ children, className, title, subtitle }: BentoCardPro
         {children}
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 h-[6px] bg-zinc-100/60 border-t border-zinc-200/30 z-0" />
-      <div className="absolute inset-0 pointer-events-none rounded-3xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.01)] z-0" />
+      <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-zinc-100/40 z-0" />
     </motion.div>
   );
 };

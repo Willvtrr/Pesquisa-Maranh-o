@@ -19,10 +19,10 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       viewport={{ once: true }}
       transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
-        "bg-white rounded-[2.5rem] p-6 lg:p-8 flex flex-col gap-4 overflow-hidden relative",
-        "border border-zinc-100 ring-1 ring-white/60",
-        "shadow-[0_20px_50px_rgba(234,88,12,0.08),0_2px_10px_rgba(0,0,0,0.04)]",
-        "transition-all duration-300 hover:shadow-[0_30px_60px_rgba(234,88,12,0.12),0_4px_20px_rgba(234,88,12,0.08)]",
+        "bg-white rounded-[2rem] p-6 lg:p-7 flex flex-col gap-4 overflow-hidden relative",
+        "border border-zinc-200/60 ring-1 ring-white/60",
+        "shadow-[0_15px_40px_rgba(234,88,12,0.04),0_1px_3px_rgba(0,0,0,0.01)]",
+        "transition-all duration-300 hover:shadow-[0_25px_50px_rgba(234,88,12,0.08)]",
         className
       )}
     >
@@ -46,7 +46,7 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
         {children}
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-zinc-50/50 border-t border-zinc-100/30 z-0" />
+      <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-zinc-50/30 border-t border-zinc-100/20 z-0" />
     </motion.div>
   );
 };
