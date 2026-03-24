@@ -313,7 +313,7 @@ export default function Home() {
 
   const isAllCities = filters.city.includes('all');
   const flagUrl = isAllCities 
-    ? "/maranhão.png" 
+    ? "/bandeiracerta.jpg" 
     : `https://picsum.photos/seed/flag-${filters.city[0].toLowerCase().replace(/\s+/g, '-')}/800/600`;
 
   const mayorLabel = isAllCities ? "APROVAÇÃO PREFEITO" : filters.city.length === 1 ? `Prefeito de ${filters.city[0]}` : "Média de Municípios";
