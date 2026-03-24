@@ -28,7 +28,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -48,8 +48,8 @@ const CITY_MAYORS: Record<string, string> = {
   "Itapecuru Mirim": "Filipe Marreca",
   "Chapadinha": "Belezinha",
   "Barreirinhas": "Vinicius Vale",
-  "Barreiginhas": "Vinicius Vale", // Fallback para variação de escrita
-  "Barreirinhas – Vinicius Vale": "Vinicius Vale",
+  "Barreiginhas": "Vinicius Vale",
+  "Tutóia": "Viriato Cardoso",
   "Humberto de Campos": "Luis Fernando",
   "Guimarães": "Magno",
   "Mirinzal": "Deyvison do Posto",
@@ -98,10 +98,8 @@ const CITY_MAYORS: Record<string, string> = {
   "Alto Parnaíba": "Rubens Japonês"
 };
 
-// Lista de prefeitas para ajuste de gênero dinâmico
 const FEMALE_MAYORS = new Set([
   "Naíra Gonçalo", 
-  "Belezinha", 
   "Vanessa Maia", 
   "Suane Dias", 
   "Professora Leide", 
@@ -373,16 +371,12 @@ export default function Home() {
 
   const flagUrl = "/bandeiracerta.jpg";
 
-  // Lógica para nome e título dinâmico (Prefeito/Prefeita)
   const mayorDisplay = useMemo(() => {
     const isAllCities = filters.city.includes('all');
     if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
     
     const selectedCity = filters.city[0].trim();
-    // Tenta encontrar o nome no mapeamento
-    const name = CITY_MAYORS[selectedCity] || 
-                 CITY_MAYORS[selectedCity.replace(' – ', ' – ')] || 
-                 CITY_MAYORS[selectedCity.normalize("NFD").replace(/[\u0300-\u036f]/g, "")];
+    const name = CITY_MAYORS[selectedCity] || CITY_MAYORS[selectedCity.replace(' – ', ' – ')];
     
     if (name) {
       const title = FEMALE_MAYORS.has(name) ? "Prefeita" : "Prefeito";
