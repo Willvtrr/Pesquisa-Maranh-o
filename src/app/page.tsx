@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -27,7 +28,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   HEALTH: "Como você avalia a Saúde no Estado?",
   SECURITY: "Como você avalia a Segurança no Estado?",
@@ -89,7 +90,7 @@ export default function Home() {
 
     return {
       ...DEFAULT_KEYS,
-      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY, ['aprova', 'desaprova', 'governo', 'presidente', 'votar', 'grave', 'problema', 'enfrentando']),
+      CITY: findKey(['cidade'], DEFAULT_KEYS.CITY, ['aprova', 'desaprova', 'governo', 'presidente', 'votar', 'grave', 'problema', 'enfrentando', 'obra', 'serviço', 'gostaria', 'feito']),
       REGION: findKey(['mesorregião'], DEFAULT_KEYS.REGION),
       GENDER: findKey(['gênero'], DEFAULT_KEYS.GENDER),
       AGE: findKey(['etária'], DEFAULT_KEYS.AGE),
@@ -559,7 +560,7 @@ export default function Home() {
                 </div>
                 <div className="mt-4 space-y-2">
                    {chartData.futureData.map((item, idx) => (
-                     <div key={idx} className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+                     <div key={item.name} className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                         <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#e2e8f0'][idx % 4] }} />{item.name}</div>
                         <span className="text-zinc-950">{((item.value / filteredData.length) * 100).toFixed(1)}%</span>
                      </div>
@@ -579,7 +580,7 @@ export default function Home() {
                   </ResponsiveContainer>
                   <div className="absolute bottom-6 left-8 right-8 space-y-1">
                      {chartData.rejectionData.map((item, idx) => (
-                       <div key={idx} className="flex justify-between text-[8px] font-black uppercase tracking-tighter text-zinc-400">
+                       <div key={item.name} className="flex justify-between text-[8px] font-black uppercase tracking-tighter text-zinc-400">
                           <span>{item.name}</span>
                           <span className="text-rose-600">{((item.value / filteredData.length) * 100).toFixed(0)}%</span>
                        </div>
