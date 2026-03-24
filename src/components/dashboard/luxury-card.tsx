@@ -34,7 +34,11 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
               {title}
             </h3>
           )}
-          {subtitle && <p className="text-xl lg:text-2xl font-bold text-zinc-950 tracking-tight">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xl lg:text-2xl font-bold text-zinc-950 tracking-tight leading-tight">
+              {subtitle}
+            </p>
+          )}
         </div>
       )}
       
