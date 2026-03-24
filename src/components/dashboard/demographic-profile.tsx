@@ -87,15 +87,15 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
 
             <div className="flex flex-col items-center justify-center">
               <div className="flex flex-col items-center gap-2">
-                <Counter value={femalePct} color="text-[#e83e8c]" symbolColor="text-[#f472b6]" />
+                <Counter value={femalePct} color="text-zinc-900" symbolColor="text-zinc-400" />
                 <p className="text-[9px] font-black tracking-[0.15em] text-zinc-500 uppercase">Feminino</p>
-                <div className="glass-capsule w-20 h-40 lg:w-24 lg:h-48 p-4 relative flex items-center justify-center transform transition-transform hover:-translate-y-2 duration-500 mt-2">
+                <div className="glass-capsule w-20 h-40 lg:w-24 lg:h-48 p-4 relative flex items-center justify-center transform transition-transform hover:-translate-y-2 duration-500 mt-2 shadow-[0_0_40px_rgba(232,62,140,0.15)]">
                   <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
                     <motion.div 
                       initial={{ height: 0 }}
                       animate={{ height: `${femalePct}%` }}
                       transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
-                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6] shadow-[0_-15px_30px_rgba(232,62,140,0.5)]"
+                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#e83e8c] to-[#f472b6]"
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-white/40 blur-[1px]"></div>
                     </motion.div>
@@ -106,15 +106,15 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
 
             <div className="flex flex-col items-center justify-center">
               <div className="flex flex-col items-center gap-2">
-                <Counter value={malePct} color="text-[#1d70b8]" symbolColor="text-[#60a5fa]" />
+                <Counter value={malePct} color="text-zinc-900" symbolColor="text-zinc-400" />
                 <p className="text-[9px] font-black tracking-[0.15em] text-zinc-500 uppercase">Masculino</p>
-                <div className="glass-capsule w-20 h-40 lg:w-24 lg:h-48 p-4 relative flex items-center justify-center transform transition-transform hover:-translate-y-2 duration-500 mt-2">
+                <div className="glass-capsule w-20 h-40 lg:w-24 lg:h-48 p-4 relative flex items-center justify-center transform transition-transform hover:-translate-y-2 duration-500 mt-2 shadow-[0_0_40px_rgba(29,112,184,0.15)]">
                   <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
                     <motion.div 
                       initial={{ height: 0 }}
                       animate={{ height: `${malePct}%` }}
                       transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
-                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa] shadow-[0_-15px_30px_rgba(29,112,184,0.5)]"
+                      className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#1d70b8] to-[#60a5fa]"
                     >
                       <div className="absolute top-0 left-0 w-full h-1 bg-white/40 blur-[1px]"></div>
                     </motion.div>
@@ -125,7 +125,7 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
           </div>
         </div>
 
-        {/* Faixa Etária - NOVO VISUAL MINIMALISTA */}
+        {/* Faixa Etária */}
         <div className="lg:col-span-2 lg:px-8 flex flex-col min-h-[300px]">
           <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest mb-8 text-center">Faixa Etária</h4>
           <div className="flex items-end justify-between flex-grow gap-3 h-48">
@@ -178,8 +178,8 @@ export const DemographicProfile = ({ stats }: DemographicProfileProps) => {
                   <span className="text-[9px] font-semibold text-zinc-700 w-16 text-right truncate">{label}</span>
                   <div className="flex-grow h-2 bg-zinc-100 rounded-full overflow-hidden">
                     <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
+                      initial={{ width: 0 }} 
+                      animate={{ width: `${pct}%` }} 
                       className={`h-full ${idx === 0 ? 'bg-orange-500' : idx === 1 ? 'bg-zinc-800' : 'bg-zinc-400'}`}
                     />
                   </div>

@@ -319,7 +319,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 <motion.div
                   key={region}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => onFilterChange('region', region)}
+                  onClick={() => onRegionSelect('region', region)}
                   className={cn(
                     "flex flex-col gap-1.5 p-2.5 rounded-xl transition-all cursor-pointer border",
                     active 
@@ -352,31 +352,32 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
         {/* Gênero */}
         <div className="pt-4">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
+          <label className="text-[10px] font-black uppercase text-zinc-900 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-2 h-4 bg-orange-600 rounded-full" />
             GÊNERO
           </label>
-          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 flex justify-center gap-8">
-            <div className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Feminino') ? "opacity-100" : "opacity-40")} onClick={() => onFilterChange('gender', 'Feminino')}>
+          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 flex items-center justify-center gap-10">
+            <div className={cn("flex items-center gap-4 cursor-pointer transition-all", isGenderActive('Feminino') ? "opacity-100" : "opacity-40")} onClick={() => onFilterChange('gender', 'Feminino')}>
               <div className="text-right">
-                <Counter value={femalePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
-                <p className="text-[8px] font-black text-zinc-400 uppercase">Feminino</p>
+                <Counter value={femalePct} color="text-zinc-900" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
+                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">FEMININO</p>
               </div>
-              <div className="glass-capsule w-10 h-20 p-2 relative flex items-center justify-center">
+              <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center shadow-[0_0_30px_rgba(232,62,140,0.1)] transition-shadow hover:shadow-[0_0_40px_rgba(232,62,140,0.15)]">
                 <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
-                  <motion.div initial={{ height: 0 }} animate={{ height: `${femalePct}%` }} className="absolute bottom-0 w-full bg-[#e83e8c]" />
+                  <motion.div initial={{ height: 0 }} animate={{ height: `${femalePct}%` }} transition={{ duration: 1.5 }} className="absolute bottom-0 w-full bg-[#e83e8c]" />
                 </div>
               </div>
             </div>
-            <div className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Masculino') ? "opacity-100" : "opacity-40")} onClick={() => onFilterChange('gender', 'Masculino')}>
-              <div className="glass-capsule w-10 h-20 p-2 relative flex items-center justify-center">
+            
+            <div className={cn("flex items-center gap-4 cursor-pointer transition-all", isGenderActive('Masculino') ? "opacity-100" : "opacity-40")} onClick={() => onFilterChange('gender', 'Masculino')}>
+              <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center shadow-[0_0_30px_rgba(29,112,184,0.1)] transition-shadow hover:shadow-[0_0_40px_rgba(29,112,184,0.15)]">
                 <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
-                  <motion.div initial={{ height: 0 }} animate={{ height: `${malePct}%` }} className="absolute bottom-0 w-full bg-[#1d70b8]" />
+                  <motion.div initial={{ height: 0 }} animate={{ height: `${malePct}%` }} transition={{ duration: 1.5 }} className="absolute bottom-0 w-full bg-[#1d70b8]" />
                 </div>
               </div>
               <div className="text-left">
-                <Counter value={malePct} color="text-zinc-800" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
-                <p className="text-[8px] font-black text-zinc-400 uppercase">Masculino</p>
+                <Counter value={malePct} color="text-zinc-900" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-xs" />
+                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">MASCULINO</p>
               </div>
             </div>
           </div>
