@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -41,7 +41,7 @@ export const StatCard = ({
           </div>
         </div>
 
-        {/* Foto Retangular com Glow */}
+        {/* Foto Retangular Vertical com Glow */}
         <div className="flex items-center justify-center mb-6">
           <div className="relative group/img">
             <div className="absolute -inset-4 bg-white/40 blur-2xl rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity duration-700" />
@@ -73,7 +73,7 @@ export const StatCard = ({
         {/* Linha Divisora Sutil */}
         <div className="w-full h-px bg-zinc-100 mb-8" />
 
-        {/* Gráfico de Barras Analítico */}
+        {/* Gráfico de Barras Analítico (Estilo Print) */}
         {breakdown && (
           <div className="mb-8">
             <div className="relative flex justify-between items-end gap-4 h-24 px-4">
@@ -98,12 +98,12 @@ export const StatCard = ({
           </div>
         )}
         
-        {/* Footer: Contexto */}
+        {/* Footer: Contexto - Alterado para div para evitar erro de hidratação */}
         {subValue && (
           <div className="mt-auto text-center">
-            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">
+            <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">
               {subValue}
-            </p>
+            </div>
           </div>
         )}
       </div>
