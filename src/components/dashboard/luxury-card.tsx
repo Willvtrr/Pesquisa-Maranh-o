@@ -11,10 +11,6 @@ interface LuxuryCardProps {
   subtitle?: string;
 }
 
-/**
- * LuxuryCard - Componente universal com sombreamento 3D composto.
- * Simula material sólido com oclusão de ambiente e bisel tátil.
- */
 export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardProps) => {
   return (
     <motion.div
@@ -23,14 +19,10 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       viewport={{ once: true }}
       transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
-        // Definição de Material (Sólido)
         "bg-white rounded-[2.5rem] p-6 lg:p-8 flex flex-col gap-4 overflow-hidden relative",
-        // Bisel Tátil e Brilho de Topo
         "border border-zinc-100 ring-1 ring-white/60",
-        // Engenharia da Sombra (Sombra Composta)
         "shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)]",
-        // Interação de Elevação
-        "transition-all duration-300 hover:shadow-[0_30px_60px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.05)] hover:-translate-y-1",
+        "transition-all duration-300 hover:shadow-[0_30px_60px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.05)]",
         className
       )}
     >
@@ -50,7 +42,6 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
         {children}
       </div>
       
-      {/* Sutil detalhe de base para reforçar o volume */}
       <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-zinc-50/50 border-t border-zinc-100/30 z-0" />
     </motion.div>
   );

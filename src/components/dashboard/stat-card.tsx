@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { LucideIcon, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -10,11 +10,9 @@ interface StatCardProps {
   label: string;
   value: string | number;
   subValue?: React.ReactNode;
-  icon?: LucideIcon;
   imageUrl?: string;
   trend?: 'up' | 'down';
   className?: string;
-  variant?: 'default' | 'hero';
   breakdown?: { name: string; value: number }[];
 }
 
@@ -22,84 +20,76 @@ export const StatCard = ({
   label, 
   value, 
   subValue, 
-  icon: Icon, 
   imageUrl, 
   trend, 
   className, 
-  variant = 'default',
   breakdown
 }: StatCardProps) => {
   return (
     <LuxuryCard className={cn(
       "group overflow-hidden transition-all duration-500", 
-      "rounded-[2.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.12)]",
+      "rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] p-10",
       className
     )}>
       <div className="flex flex-col h-full relative z-10">
-        {/* Título Acima da Foto */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.25em]">{label}</p>
+        {/* Header: Label e Badge 2026 */}
+        <div className="flex items-center justify-between mb-8">
+          <p className="text-[11px] font-black uppercase text-zinc-400 tracking-[0.3em]">{label}</p>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#ecfdf5] border border-[#d1fae5] text-[#065f46] shadow-sm">
+            <ArrowUpRight size={10} strokeWidth={3} />
+            <span className="text-[10px] font-black tracking-widest">2026</span>
           </div>
-          {trend && (
-            <div className={cn(
-                "text-[8px] font-black px-2 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest border shadow-sm",
-                trend === 'up' 
-                  ? "bg-emerald-50/50 text-emerald-600 border-emerald-100" 
-                  : "bg-rose-50/50 text-rose-600 border-rose-100"
-              )}
-            >
-              {trend === 'up' ? <ArrowUpRight size={8} /> : <ArrowDownRight size={8} />}
-              2026
-            </div>
-          )}
         </div>
 
-        {/* Foto Retangular Vertical */}
-        <div className="flex items-center justify-center mb-6 w-full">
-          {imageUrl ? (
+        {/* Foto Retangular com Glow */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="relative group/img">
+            <div className="absolute -inset-4 bg-white/40 blur-2xl rounded-full opacity-0 group-hover/img:opacity-100 transition-opacity duration-700" />
             <div className={cn(
               "relative overflow-hidden transition-all duration-1000",
-              "aspect-[3/4] w-32 rounded-2xl border-[5px] border-white shadow-[0_20px_40px_rgba(0,0,0,0.15)] ring-1 ring-zinc-200/50"
+              "aspect-[3/4] w-36 rounded-[2rem] border-[6px] border-white shadow-[0_30px_60px_rgba(0,0,0,0.12)] ring-1 ring-zinc-100"
             )}>
-              <Image 
-                src={imageUrl} 
-                alt={label} 
-                fill 
-                className="object-cover group-hover:scale-110 transition-transform duration-1000"
-              />
+              {imageUrl ? (
+                <Image 
+                  src={imageUrl} 
+                  alt={label} 
+                  fill 
+                  className="object-cover group-hover:scale-110 transition-transform duration-1000"
+                />
+              ) : (
+                <div className="w-full h-full bg-zinc-50 flex items-center justify-center text-zinc-200 uppercase text-[10px] font-black">N/A</div>
+              )}
             </div>
-          ) : (
-            <div className="aspect-[3/4] w-32 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200 flex items-center justify-center">
-               <span className="text-[10px] font-black text-zinc-300 uppercase tracking-widest">N/A</span>
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* Valor Principal */}
-        <div className="text-center mb-6">
-          <h2 className="text-5xl font-black tracking-tighter leading-none text-zinc-950">
+        {/* Valor Principal Gigante */}
+        <div className="text-center mb-8">
+          <h2 className="text-6xl font-black tracking-tighter text-zinc-950">
             {value}
           </h2>
         </div>
 
-        {/* Gráfico de Barras Analítico (Estilo Print) */}
+        {/* Linha Divisora Sutil */}
+        <div className="w-full h-px bg-zinc-100 mb-8" />
+
+        {/* Gráfico de Barras Analítico */}
         {breakdown && (
-          <div className="mt-auto pt-4 border-t border-zinc-100">
-            <div className="relative flex justify-between items-end gap-2 h-20 px-2 pb-5">
-              {/* Linha de Base Pontilhada Azul */}
-              <div className="absolute bottom-[20px] left-0 right-0 border-b border-dotted border-blue-400/40 z-0" />
+          <div className="mb-8">
+            <div className="relative flex justify-between items-end gap-4 h-24 px-4">
+              {/* Linha de Base Pontilhada (Dashed) */}
+              <div className="absolute bottom-[32px] left-0 right-0 border-b border-dashed border-blue-400/30 z-0" />
               
               {breakdown.map((item, idx) => (
-                <div key={idx} className="flex-1 flex flex-col items-center gap-1 z-10">
-                  <span className="text-[9px] font-black text-zinc-900 leading-none">
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2 z-10">
+                  <span className="text-[11px] font-black text-zinc-900 leading-none">
                     {item.value.toFixed(1)}%
                   </span>
                   <div 
-                    className="w-full max-w-[24px] bg-[#fbbf24] transition-all duration-1000 delay-300"
-                    style={{ height: `${Math.max(item.value, 2)}%`, minHeight: '2px' }}
+                    className="w-full max-w-[32px] bg-[#fbbf24] rounded-sm transition-all duration-1000 shadow-sm"
+                    style={{ height: `${Math.max(item.value, 4)}%` }}
                   />
-                  <span className="text-[7px] font-black uppercase text-zinc-400 tracking-tighter whitespace-nowrap">
+                  <span className="text-[9px] font-black uppercase text-zinc-400 tracking-widest whitespace-nowrap">
                     {item.name}
                   </span>
                 </div>
@@ -108,11 +98,12 @@ export const StatCard = ({
           </div>
         )}
         
+        {/* Footer: Contexto */}
         {subValue && (
-          <div className="pt-3 border-t border-zinc-100 flex justify-center mt-2">
-            <div className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+          <div className="mt-auto text-center">
+            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">
               {subValue}
-            </div>
+            </p>
           </div>
         )}
       </div>
