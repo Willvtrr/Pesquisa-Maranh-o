@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, animate } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -61,18 +60,13 @@ export const StatCard = ({
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 relative z-10 w-full">
+      <div className="flex items-center justify-center mb-8 relative z-10 w-full">
         <h3 className="text-[10px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em]">{label}</h3>
-        
-        <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-          <ArrowUpRight size={12} className="text-emerald-500" strokeWidth={3} />
-          <span className="text-[10px] font-black text-emerald-600 tracking-wider">2026</span>
-        </div>
       </div>
 
       {/* Foto Centralizada e Ampliada */}
       <div className="relative flex justify-center mb-10 z-10 w-full">
-        <div className="w-48 h-48 md:w-[190px] md:h-[190px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
+        <div className="w-56 h-56 md:w-[220px] md:h-[220px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
           {imageUrl ? (
             <Image 
               src={imageUrl} 
