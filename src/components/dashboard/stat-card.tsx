@@ -19,7 +19,11 @@ interface StatCardProps {
 
 export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, className, variant = 'default' }: StatCardProps) => {
   return (
-    <LuxuryCard className={cn("group overflow-hidden", className)}>
+    <LuxuryCard className={cn(
+      "group overflow-hidden transition-all duration-500", 
+      variant === 'hero' ? "rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)]" : "",
+      className
+    )}>
       <div className="flex flex-col h-full relative z-10">
         <div className="flex items-start justify-between mb-2">
           {trend && (
@@ -42,9 +46,9 @@ export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, 
         )}>
           {imageUrl ? (
             <div className={cn(
-              "relative overflow-hidden transition-all duration-700",
+              "relative overflow-hidden transition-all duration-1000",
               variant === 'hero' 
-                ? "w-full aspect-[4/3] rounded-[2.5rem] border-4 border-white shadow-2xl ring-1 ring-zinc-200/50" 
+                ? "w-40 h-40 rounded-full border-[6px] border-white shadow-2xl ring-4 ring-orange-500/10" 
                 : "w-12 h-12 rounded-2xl border border-white shadow-md ring-1 ring-zinc-100"
             )}>
               <Image 
@@ -66,7 +70,7 @@ export const StatCard = ({ label, value, subValue, icon: Icon, imageUrl, trend, 
             <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em]">{label}</p>
             <h2 className={cn(
               "font-mono font-black tracking-tighter leading-none text-zinc-950",
-              variant === 'hero' ? "text-4xl" : "text-2xl"
+              variant === 'hero' ? "text-5xl" : "text-2xl"
             )}>
               {value}
             </h2>
