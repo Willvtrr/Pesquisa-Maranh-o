@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { motion, useSpring, useTransform, animate } from 'framer-motion';
+import { motion, animate } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -38,8 +38,6 @@ export const StatCard = ({
   className, 
   breakdown 
 }: StatCardProps) => {
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
-  
   // Cores padronizadas do modelo
   const colors = {
     aprova: '#10b981', // emerald-500
@@ -58,12 +56,12 @@ export const StatCard = ({
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
       className={cn(
-        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-sm transition-all hover:shadow-xl hover:-translate-y-1",
+        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center",
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 relative z-10">
+      <div className="flex items-center justify-between mb-8 relative z-10 w-full">
         <h3 className="text-[10px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em]">{label}</h3>
         
         <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
@@ -72,9 +70,9 @@ export const StatCard = ({
         </div>
       </div>
 
-      {/* Foto Centralizada */}
-      <div className="relative flex justify-center mb-6 z-10">
-        <div className="w-32 h-32 md:w-[130px] md:h-[130px] rounded-[2rem] overflow-hidden shadow-lg border-4 border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
+      {/* Foto Centralizada e Ampliada */}
+      <div className="relative flex justify-center mb-10 z-10 w-full">
+        <div className="w-48 h-48 md:w-[190px] md:h-[190px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
           {imageUrl ? (
             <Image 
               src={imageUrl} 
@@ -86,14 +84,6 @@ export const StatCard = ({
             <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-zinc-300 font-black">N/A</div>
           )}
         </div>
-      </div>
-
-      {/* Valor Principal */}
-      <div className="text-center relative z-10 mb-5">
-        <h2 className="text-6xl md:text-[4.5rem] font-black text-zinc-900 tracking-tighter leading-none">
-          <NumberCounter value={aprovaData} />
-          <span className="text-4xl md:text-5xl">%</span>
-        </h2>
       </div>
 
       {/* Barra de Progresso Segmentada */}
@@ -122,7 +112,7 @@ export const StatCard = ({
       </div>
 
       {/* Grid de Estatísticas */}
-      <div className="grid grid-cols-3 gap-2 text-center relative z-10 border-b border-zinc-100/80 pb-6 mb-6">
+      <div className="grid grid-cols-3 gap-2 text-center relative z-10 border-b border-zinc-100/80 pb-6 mb-6 w-full">
         <div className="flex flex-col items-center">
           <NumberCounter value={aprovaData} className="text-lg font-black text-zinc-800 mb-1" />
           <div className="flex items-center gap-1.5">
@@ -149,7 +139,7 @@ export const StatCard = ({
       </div>
 
       {/* Footer */}
-      <div className="text-center relative z-10">
+      <div className="text-center relative z-10 w-full">
         <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">{subValue}</span>
       </div>
     </motion.div>
