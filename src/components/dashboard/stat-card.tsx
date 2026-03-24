@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -59,14 +60,14 @@ export const StatCard = ({
         className
       )}
     >
-      {/* Header */}
+      {/* Header Centralizado */}
       <div className="flex items-center justify-center mb-8 relative z-10 w-full">
-        <h3 className="text-[10px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em]">{label}</h3>
+        <h3 className="text-[10px] md:text-[11px] font-black text-zinc-950 uppercase tracking-[0.2em]">{label}</h3>
       </div>
 
-      {/* Foto Centralizada e Ampliada */}
+      {/* Foto Ampliada e Limpa */}
       <div className="relative flex justify-center mb-10 z-10 w-full">
-        <div className="w-56 h-56 md:w-[220px] md:h-[220px] rounded-[2.5rem] overflow-hidden shadow-lg border-4 border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
+        <div className="w-64 h-64 md:w-[260px] md:h-[260px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[6px] border-white relative z-10 transition-transform duration-500 group-hover:scale-105">
           {imageUrl ? (
             <Image 
               src={imageUrl} 
@@ -81,7 +82,7 @@ export const StatCard = ({
       </div>
 
       {/* Barra de Progresso Segmentada */}
-      <div className="w-full h-2 bg-zinc-100 rounded-full flex overflow-hidden mb-8 relative z-10 shadow-inner">
+      <div className="w-full h-2.5 bg-zinc-100 rounded-full flex overflow-hidden mb-8 relative z-10 shadow-inner">
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${aprovaData}%` }}
@@ -105,10 +106,10 @@ export const StatCard = ({
         />
       </div>
 
-      {/* Grid de Estatísticas */}
+      {/* Grid de Estatísticas Detalhadas */}
       <div className="grid grid-cols-3 gap-2 text-center relative z-10 border-b border-zinc-100/80 pb-6 mb-6 w-full">
         <div className="flex flex-col items-center">
-          <NumberCounter value={aprovaData} className="text-lg font-black text-zinc-800 mb-1" />
+          <NumberCounter value={aprovaData} className="text-xl font-black text-zinc-900 mb-1" />
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.aprova }} />
             <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Aprova</span>
@@ -116,7 +117,7 @@ export const StatCard = ({
         </div>
         
         <div className="flex flex-col items-center">
-          <NumberCounter value={desaprovaData} className="text-lg font-black text-zinc-800 mb-1" />
+          <NumberCounter value={desaprovaData} className="text-xl font-black text-zinc-900 mb-1" />
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.desaprova }} />
             <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Desaprova</span>
@@ -124,7 +125,7 @@ export const StatCard = ({
         </div>
         
         <div className="flex flex-col items-center">
-          <NumberCounter value={nsnrData} className="text-lg font-black text-zinc-800 mb-1" />
+          <NumberCounter value={nsnrData} className="text-xl font-black text-zinc-900 mb-1" />
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.nsnr }} />
             <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">NS/NR</span>

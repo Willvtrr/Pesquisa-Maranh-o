@@ -9,7 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, Heart, HardHat } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, Heart, HardHat, MessageSquare, ArrowDownRight } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, RadarChart, PolarGrid, PolarAngleAxis, Radar, PieChart, Pie } from 'recharts';
@@ -29,6 +29,7 @@ const DEFAULT_KEYS = {
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
   PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   HEALTH: "Como você avalia a Saúde no Estado?",
   SECURITY: "Como você avalia a Segurança no Estado?",
@@ -102,6 +103,7 @@ export default function Home() {
       PRESIDENT_APPROVAL: findKey(['aprova', 'presidente'], DEFAULT_KEYS.PRESIDENT_APPROVAL),
       MAYOR_APPROVAL: findKey(['aprova', 'prefeito'], DEFAULT_KEYS.MAYOR_APPROVAL),
       PROBLEMS: findKey(['problema', 'grave'], DEFAULT_KEYS.PROBLEMS),
+      WORKS: findKey(['obra', 'serviço', 'gostaria'], DEFAULT_KEYS.WORKS),
       PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
       HEALTH: findKey(['saúde', 'avalia'], DEFAULT_KEYS.HEALTH),
       SECURITY: findKey(['segurança', 'avalia'], DEFAULT_KEYS.SECURITY),
@@ -191,63 +193,29 @@ export default function Home() {
       else approvalMap['NS/NR']++;
     });
 
-    const candidateCounts: Record<string, number> = {};
-    filteredData.forEach(d => {
-      const cand = String(d[activeKeys.PRESIDENT_VOTE] || 'Não Citado').trim();
-      if (cand) candidateCounts[cand] = (candidateCounts[cand] || 0) + 1;
-    });
-
     const problemCounts: Record<string, number> = {};
     filteredData.forEach(d => {
       const prob = String(d[activeKeys.PROBLEMS] || '').trim();
       if (prob && prob !== 'NS/NR') problemCounts[prob] = (problemCounts[prob] || 0) + 1;
     });
 
-    const ratings = { health: 0, security: 0, education: 0, infra: 0, total: filteredData.length };
+    const workCounts: Record<string, number> = {};
     filteredData.forEach(d => {
-      const isGovPos = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().includes('aprova');
-      ratings.health += isGovPos ? (Math.random() * 2 + 3) : (Math.random() * 2 + 1);
-      ratings.security += isGovPos ? (Math.random() * 2 + 2) : (Math.random() * 2 + 1.5);
-      ratings.education += isGovPos ? (Math.random() * 2 + 3.5) : (Math.random() * 2 + 2);
-      ratings.infra += isGovPos ? (Math.random() * 2 + 2.5) : (Math.random() * 2 + 1);
+      const work = String(d[activeKeys.WORKS] || '').trim();
+      if (work && work !== 'NS/NR') workCounts[work] = (workCounts[work] || 0) + 1;
     });
 
-    const radarData = [
-      { subject: 'Saúde', A: ratings.total > 0 ? ratings.health / ratings.total : 0, fullMark: 5 },
-      { subject: 'Segurança', A: ratings.total > 0 ? ratings.security / ratings.total : 0, fullMark: 5 },
-      { subject: 'Educação', A: ratings.total > 0 ? ratings.education / ratings.total : 0, fullMark: 5 },
-      { subject: 'Infraestrutura', A: ratings.total > 0 ? ratings.infra / ratings.total : 0, fullMark: 5 },
-    ];
-
-    const futureCounts: Record<string, number> = { 'Melhorar': 0, 'Piorar': 0, 'Ficar Igual': 0, 'NS/NR': 0 };
+    const candidateCounts: Record<string, number> = {};
     filteredData.forEach(d => {
-      const fut = String(d[activeKeys.FUTURE] || '').toLowerCase();
-      if (fut.includes('melhor')) futureCounts['Melhorar']++;
-      else if (fut.includes('pior')) futureCounts['Piorar']++;
-      else if (fut.includes('igual')) futureCounts['Ficar Igual']++;
-      else futureCounts['NS/NR']++;
-    });
-
-    const rejectionCounts: Record<string, number> = {};
-    filteredData.forEach(d => {
-      const rej = String(d[activeKeys.REJECTION] || '').trim();
-      if (rej && rej !== 'NS/NR') rejectionCounts[rej] = (rejectionCounts[rej] || 0) + 1;
-    });
-
-    const newsCounts: Record<string, number> = {};
-    filteredData.forEach(d => {
-      const news = String(d[activeKeys.NEWS_SOURCE] || '').trim();
-      if (news && news !== 'NS/NR') newsCounts[news] = (newsCounts[news] || 0) + 1;
+      const cand = String(d[activeKeys.PRESIDENT_VOTE] || 'Não Citado').trim();
+      if (cand) candidateCounts[cand] = (candidateCounts[cand] || 0) + 1;
     });
 
     return {
       approvalData: Object.entries(approvalMap).map(([name, value]) => ({ name, value })),
       candidateData: Object.entries(candidateCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 7),
       topProblems: Object.entries(problemCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
-      radarData,
-      futureData: Object.entries(futureCounts).map(([name, value]) => ({ name, value })),
-      rejectionData: Object.entries(rejectionCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
-      newsData: Object.entries(newsCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
+      topWorks: Object.entries(workCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
     };
   }, [filteredData, activeKeys]);
 
@@ -380,7 +348,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">Monitoramento em tempo real • 2026</div>
+              <div className="text-[10px] font-black text-orange-600 uppercase tracking-[0.4em]">Monitoramento em tempo real</div>
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-4 flex-wrap whitespace-nowrap">
@@ -415,7 +383,6 @@ export default function Home() {
                 {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5" /> : <RefreshCw size={10} />}
                 <span>Sincronizar Agora</span>
               </button>
-              <div className="mt-2 text-center"><p className="text-[6px] font-black text-zinc-600 uppercase tracking-widest">{lastSyncDate} | {lastSyncMsg}</p></div>
             </div>
             <div className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 relative">
               <div className="flex items-center justify-between mb-4">
@@ -502,7 +469,7 @@ export default function Home() {
                 label="APROVAÇÃO GOVERNADOR" 
                 value={`${approvalStats.govPct.toFixed(1)}%`} 
                 imageUrl={images.brandao} 
-                subValue="Gestão Carlos Brandão" 
+                subValue="GESTÃO CARLOS BRANDÃO" 
                 breakdown={approvalBreakdown.gov} 
               />
               <StatCard 
@@ -512,6 +479,110 @@ export default function Home() {
                 subValue={subValueLabel} 
                 breakdown={approvalBreakdown.mayor} 
               />
+            </div>
+
+            <div className="mb-10 flex items-center gap-5">
+              <div className="bg-gradient-to-br from-[#ea580c] to-[#c2410c] rounded-2xl p-3 shadow-lg shadow-orange-500/20 flex items-center justify-center border border-orange-400/50">
+                <MessageSquare className="w-6 h-6 text-white drop-shadow-sm" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black text-zinc-900 tracking-tight leading-none mb-1.5">Voz da População</h1>
+                <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">Dados Qualitativos e Espontâneos</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Card de Problemas */}
+              <LuxuryCard className="group/card">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none transition-opacity group-hover/card:opacity-100"></div>
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 mb-4 bg-rose-50/80 border border-rose-100/50 px-3 py-1.5 rounded-full">
+                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(244,63,94,0.5)]"></div>
+                    <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
+                  <div className="space-y-4">
+                    {chartData.topProblems.map((item, idx) => (
+                      <div key={item.name} className="group/row">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 rounded-md bg-white border border-zinc-200 flex items-center justify-center shadow-sm group-hover/row:border-rose-200 transition-colors">
+                              <span className="text-[10px] font-black text-zinc-400 group-hover/row:text-rose-500">#{idx + 1}</span>
+                            </div>
+                            <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
+                          </div>
+                          <span className="text-sm font-black text-rose-500">
+                            {((item.value / filteredData.length) * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-1.5 shadow-inner overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(item.value / filteredData.length) * 100}%` }}
+                            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                            className="bg-gradient-to-r from-rose-400 to-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.3)]"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
+                    <div className="flex items-center gap-2">
+                      <ArrowDownRight className="w-4 h-4 opacity-70" />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Sentimento de Urgência</span>
+                    </div>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-rose-50">
+                      <ArrowDownRight className="w-4 h-4 text-rose-500" />
+                    </div>
+                  </div>
+                </div>
+              </LuxuryCard>
+
+              {/* Card de Obras/Serviços */}
+              <LuxuryCard className="group/card">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none transition-opacity group-hover/card:opacity-100"></div>
+                <div className="relative z-10">
+                  <div className="inline-flex items-center gap-2 mb-4 bg-emerald-50/80 border border-emerald-100/50 px-3 py-1.5 rounded-full">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.5)]"></div>
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
+                  <div className="space-y-4">
+                    {chartData.topWorks.map((item, idx) => (
+                      <div key={item.name} className="group/row">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 rounded-md bg-white border border-zinc-200 flex items-center justify-center shadow-sm group-hover/row:border-emerald-200 transition-colors">
+                              <span className="text-[10px] font-black text-zinc-400 group-hover/row:text-emerald-500">#{idx + 1}</span>
+                            </div>
+                            <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
+                          </div>
+                          <span className="text-sm font-black text-emerald-500">
+                            {((item.value / filteredData.length) * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-1.5 shadow-inner overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(item.value / filteredData.length) * 100}%` }}
+                            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                            className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 opacity-70" />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Expectativa de Entrega</span>
+                    </div>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50">
+                      <TrendingUp className="w-4 h-4 text-emerald-500" />
+                    </div>
+                  </div>
+                </div>
+              </LuxuryCard>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -531,90 +602,6 @@ export default function Home() {
                   </ResponsiveContainer>
                 </div>
               </LuxuryCard>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <LuxuryCard title="Radar de Gestão" subtitle="Avaliação Setorial" className="lg:col-span-5 h-[340px]">
-                <div className="h-full mt-2">
-                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData.radarData}>
-                      <PolarGrid stroke="#e2e8f0" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#71717a', fontSize: 10, fontWeight: 800 }} />
-                      <Radar name="Avaliação" dataKey="A" stroke="#f97316" fill="#f97316" fillOpacity={0.6} />
-                      <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </LuxuryCard>
-
-              <LuxuryCard title="Futuro" subtitle="Expectativa Maranhão 2026" className="lg:col-span-4 h-[340px]">
-                 <div className="h-[200px] mt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={chartData.futureData} innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">
-                        {chartData.futureData.map((entry, index) => (<Cell key={`cell-${index}`} fill={['#10b981', '#ef4444', '#f59e0b', '#e2e8f0'][index % 4]} />))}
-                      </Pie>
-                      <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="mt-4 space-y-2">
-                   {chartData.futureData.map((item, idx) => (
-                     <div key={item.name} className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-                        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#e2e8f0'][idx % 4] }} />{item.name}</div>
-                        <span className="text-zinc-950">{((item.value / filteredData.length) * 100).toFixed(1)}%</span>
-                     </div>
-                   ))}
-                </div>
-              </LuxuryCard>
-
-              <LuxuryCard title="Rejeição" subtitle="Índice de Voto Negativo" className="lg:col-span-3 h-[340px]">
-                 <div className="h-full mt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData.rejectionData} layout="vertical">
-                      <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" hide />
-                      <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
-                      <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={20} fill="#ef4444" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                  <div className="absolute bottom-6 left-8 right-8 space-y-1">
-                     {chartData.rejectionData.map((item, idx) => (
-                       <div key={item.name} className="flex justify-between text-[8px] font-black uppercase tracking-tighter text-zinc-400">
-                          <span>{item.name}</span>
-                          <span className="text-rose-600">{((item.value / filteredData.length) * 100).toFixed(0)}%</span>
-                       </div>
-                     ))}
-                  </div>
-                </div>
-              </LuxuryCard>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-               <LuxuryCard title="Meios de Consumo" subtitle="Onde o Eleitor se Informa">
-                  <div className="h-[220px] mt-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData.newsData}>
-                         <XAxis dataKey="name" tick={{ fill: '#71717a', fontSize: 8, fontWeight: 800 }} axisLine={false} tickLine={false} />
-                         <YAxis hide />
-                         <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', fontSize: '10px' }} />
-                         <Bar dataKey="value" radius={[10, 10, 0, 0]} fill="#2563eb">{chartData.newsData.map((entry, index) => (<Cell key={`cell-${index}`} fillOpacity={1 - (index * 0.15)} />))}</Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-               </LuxuryCard>
-               <LuxuryCard title="Realizações" subtitle="Percepção de Entregas do Governo">
-                  <div className="flex flex-col h-full justify-center gap-4">
-                     <div className="p-4 rounded-2xl bg-orange-50 border border-orange-100 flex items-center gap-4">
-                        <TrendingUp className="text-orange-600 shrink-0" />
-                        <div><p className="text-[10px] font-black uppercase text-orange-600 tracking-widest">Maior Realização Citada</p><h4 className="text-lg font-bold text-zinc-950">Infraestrutura Rodoviária</h4></div>
-                     </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center gap-2"><Heart size={14} className="text-rose-500" /><span className="text-[9px] font-bold text-zinc-500 uppercase">Saúde: Reformas</span></div>
-                        <div className="p-3 rounded-2xl bg-zinc-50 border border-zinc-100 flex items-center gap-2"><HardHat size={14} className="text-zinc-400" /><span className="text-[9px] font-bold text-zinc-500 uppercase">Emprego: Concursos</span></div>
-                     </div>
-                  </div>
-               </LuxuryCard>
             </div>
             
             <div className="grid grid-cols-1 gap-6">
