@@ -48,7 +48,8 @@ const CITY_MAYORS: Record<string, string> = {
   "Itapecuru Mirim": "Filipe Marreca",
   "Chapadinha": "Belezinha",
   "Barreirinhas": "Vinicius Vale",
-  "Tutóia": "Viriato Cardoso",
+  "Barreiginhas": "Vinicius Vale", // Fallback para variação de escrita
+  "Barreirinhas – Vinicius Vale": "Vinicius Vale",
   "Humberto de Campos": "Luis Fernando",
   "Guimarães": "Magno",
   "Mirinzal": "Deyvison do Posto",
@@ -377,8 +378,11 @@ export default function Home() {
     const isAllCities = filters.city.includes('all');
     if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
     
-    const selectedCity = filters.city[0];
-    const name = CITY_MAYORS[selectedCity];
+    const selectedCity = filters.city[0].trim();
+    // Tenta encontrar o nome no mapeamento
+    const name = CITY_MAYORS[selectedCity] || 
+                 CITY_MAYORS[selectedCity.replace(' – ', ' – ')] || 
+                 CITY_MAYORS[selectedCity.normalize("NFD").replace(/[\u0300-\u036f]/g, "")];
     
     if (name) {
       const title = FEMALE_MAYORS.has(name) ? "Prefeita" : "Prefeito";
