@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -72,11 +71,6 @@ export default function Home() {
     ideology: ['all']
   });
 
-  const totalCount = useMemo(() => {
-    if (!rawSurveyData) return 0;
-    return rawSurveyData.filter(item => !item.INFO).length;
-  }, [rawSurveyData]);
-
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     const sample = rawSurveyData.find(d => !d.INFO) || {};
@@ -140,6 +134,11 @@ export default function Home() {
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
+
+  const totalCount = useMemo(() => {
+    if (!rawSurveyData) return 0;
+    return rawSurveyData.filter(item => !item.INFO).length;
+  }, [rawSurveyData]);
 
   const approvalStats = useMemo(() => {
     const total = filteredData.length;
@@ -491,9 +490,27 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <StatCard label="APROVAÇÃO PRESIDENTE" value={`${approvalStats.presPct.toFixed(1)}%`} imageUrl={images.lula} subValue="Governo Federal" breakdown={approvalBreakdown.pres} className="min-h-[400px]" />
-              <StatCard label="APROVAÇÃO GOVERNADOR" value={`${approvalStats.govPct.toFixed(1)}%`} imageUrl={images.brandao} subValue="Gestão Carlos Brandão" breakdown={approvalBreakdown.gov} className="min-h-[400px]" />
-              <StatCard label={mayorLabel} value={`${approvalStats.mayorPct.toFixed(1)}%`} imageUrl={flagUrl} subValue={<div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-zinc-500 mt-1"><MapPin size={10} className="text-orange-600" />{subValueLabel}</div>} breakdown={approvalBreakdown.mayor} className="min-h-[400px]" />
+              <StatCard 
+                label="APROVAÇÃO PRESIDENTE" 
+                value={`${approvalStats.presPct.toFixed(1)}%`} 
+                imageUrl={images.lula} 
+                subValue="Governo Federal" 
+                breakdown={approvalBreakdown.pres} 
+              />
+              <StatCard 
+                label="APROVAÇÃO GOVERNADOR" 
+                value={`${approvalStats.govPct.toFixed(1)}%`} 
+                imageUrl={images.brandao} 
+                subValue="Gestão Carlos Brandão" 
+                breakdown={approvalBreakdown.gov} 
+              />
+              <StatCard 
+                label={mayorLabel} 
+                value={`${approvalStats.mayorPct.toFixed(1)}%`} 
+                imageUrl={flagUrl} 
+                subValue={subValueLabel} 
+                breakdown={approvalBreakdown.mayor} 
+              />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
