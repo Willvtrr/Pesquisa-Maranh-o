@@ -29,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -520,7 +520,7 @@ export default function Home() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-lg bg-zinc-50 text-zinc-400"><FileText size={14} /></div>
-                  <h4 className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase">Número de Coletas</h4>
+                  <h4 className="text-[7px] font-black tracking-0.2em text-zinc-500 uppercase">Número de Coletas</h4>
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-center">
@@ -542,7 +542,7 @@ export default function Home() {
               <div className="relative z-10 flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-lg bg-white/20 border border-white/30 text-white backdrop-blur-md"><MapIcon size={14} /></div>
-                  <h4 className="text-[7px] font-black tracking-[0.2em] text-orange-100 uppercase">Número de Municípios</h4>
+                  <h4 className="text-[7px] font-black tracking-0.2em text-orange-100 uppercase">Número de Municípios</h4>
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-center relative z-10">
@@ -739,7 +739,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <ApprovalChart data={chartData.approvalData} />
-              <CandidateChart data={chartData.candidateData} />
+              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <LuxuryCard title="Demandas Sociais" subtitle="Maiores Problemas" className="h-full">
                 <div className="h-[220px] mt-2">
                   <ResponsiveContainer width="100%" height="100%">
