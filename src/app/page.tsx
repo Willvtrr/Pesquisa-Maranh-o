@@ -8,13 +8,14 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
@@ -28,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -177,7 +178,9 @@ export default function Home() {
     education: ['all'],
     income: ['all'],
     religion: ['all'],
-    ideology: ['all']
+    ideology: ['all'],
+    problem: ['all'],
+    work: ['all']
   });
 
   const activeKeys = useMemo(() => {
@@ -235,7 +238,7 @@ export default function Home() {
       if (item.INFO) return false;
       const checkMatch = (filterKey: string, dataKey: string) => {
         const currentFilters = filters[filterKey];
-        if (currentFilters.includes('all')) return true;
+        if (!currentFilters || currentFilters.includes('all')) return true;
         const itemVal = String(item[dataKey] || '').trim();
         return currentFilters.includes(itemVal);
       };
@@ -247,7 +250,9 @@ export default function Home() {
         checkMatch('education', activeKeys.EDUCATION) &&
         checkMatch('income', activeKeys.INCOME) &&
         checkMatch('religion', activeKeys.RELIGION) &&
-        checkMatch('ideology', activeKeys.IDEOLOGY)
+        checkMatch('ideology', activeKeys.IDEOLOGY) &&
+        checkMatch('problem', activeKeys.PROBLEMS) &&
+        checkMatch('work', activeKeys.WORKS)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -406,7 +411,8 @@ export default function Home() {
   };
 
   const clearFilters = () => setFilters({ 
-    region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all']
+    region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
+    problem: ['all'], work: ['all']
   });
 
   const handleManualSync = async () => {
@@ -630,35 +636,64 @@ export default function Home() {
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 <div className="relative z-10 h-full flex flex-col">
-                  <div className="inline-flex items-center gap-2 mb-4 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
-                    <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div>
-                    <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
+                      <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div>
+                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
+                    </div>
+                    {filters.problem[0] !== 'all' && (
+                      <button 
+                        onClick={() => handleFilterChange('problem', 'all')}
+                        className="flex items-center gap-1 text-[9px] font-black text-rose-600 uppercase tracking-widest bg-rose-100/50 hover:bg-rose-100 px-2 py-1 rounded-md transition-colors"
+                      >
+                        <X size={10} /> Limpar Filtro
+                      </button>
+                    )}
                   </div>
                   <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
                   <div className="space-y-6 flex-1">
-                    {chartData.topProblems.map((item, idx) => (
-                      <div key={item.name} className="group/row">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-md bg-zinc-50 border border-zinc-100 flex items-center justify-center">
-                              <span className="text-[10px] font-black text-zinc-400">#{idx + 1}</span>
+                    {chartData.topProblems.map((item, idx) => {
+                      const isSelected = filters.problem.includes(item.name);
+                      return (
+                        <div 
+                          key={item.name} 
+                          onClick={() => handleFilterChange('problem', item.name)}
+                          className={cn(
+                            "group/row cursor-pointer p-2 -m-2 rounded-xl transition-all duration-300",
+                            isSelected ? "bg-rose-50 ring-1 ring-rose-200" : "hover:bg-zinc-50"
+                          )}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "w-6 h-6 rounded-md flex items-center justify-center transition-colors",
+                                isSelected ? "bg-rose-500 text-white" : "bg-zinc-50 border border-zinc-100 text-zinc-400"
+                              )}>
+                                <span className="text-[10px] font-black">#{idx + 1}</span>
+                              </div>
+                              <span className={cn(
+                                "text-[11px] font-bold uppercase tracking-wide transition-colors",
+                                isSelected ? "text-rose-700" : "text-zinc-800"
+                              )}>{item.name}</span>
                             </div>
-                            <span className="text-[11px] font-bold text-zinc-800 uppercase tracking-wide">{item.name}</span>
+                            <span className={cn(
+                              "text-[11px] font-black",
+                              isSelected ? "text-rose-600" : "text-rose-500"
+                            )}>
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
                           </div>
-                          <span className="text-[11px] font-black text-rose-500">
-                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                          </span>
+                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                              className={cn("h-full rounded-full transition-colors", isSelected ? "bg-rose-600" : "bg-rose-500")}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                            className="bg-rose-500 h-full rounded-full"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
                     <div className="flex items-center gap-2">
@@ -675,35 +710,64 @@ export default function Home() {
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 <div className="relative z-10 h-full flex flex-col">
-                  <div className="inline-flex items-center gap-2 mb-4 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
+                    </div>
+                    {filters.work[0] !== 'all' && (
+                      <button 
+                        onClick={() => handleFilterChange('work', 'all')}
+                        className="flex items-center gap-1 text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-100/50 hover:bg-emerald-100 px-2 py-1 rounded-md transition-colors"
+                      >
+                        <X size={10} /> Limpar Filtro
+                      </button>
+                    )}
                   </div>
                   <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
                   <div className="space-y-6 flex-1">
-                    {chartData.topWorks.map((item, idx) => (
-                      <div key={item.name} className="group/row">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-md bg-zinc-50 border border-zinc-100 flex items-center justify-center">
-                              <span className="text-[10px] font-black text-zinc-400">#{idx + 1}</span>
+                    {chartData.topWorks.map((item, idx) => {
+                      const isSelected = filters.work.includes(item.name);
+                      return (
+                        <div 
+                          key={item.name} 
+                          onClick={() => handleFilterChange('work', item.name)}
+                          className={cn(
+                            "group/row cursor-pointer p-2 -m-2 rounded-xl transition-all duration-300",
+                            isSelected ? "bg-emerald-50 ring-1 ring-emerald-200" : "hover:bg-zinc-50"
+                          )}
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "w-6 h-6 rounded-md flex items-center justify-center transition-colors",
+                                isSelected ? "bg-emerald-500 text-white" : "bg-zinc-50 border border-zinc-100 text-zinc-400"
+                              )}>
+                                <span className="text-[10px] font-black">#{idx + 1}</span>
+                              </div>
+                              <span className={cn(
+                                "text-[11px] font-bold uppercase tracking-wide transition-colors",
+                                isSelected ? "text-emerald-700" : "text-zinc-800"
+                              )}>{item.name}</span>
                             </div>
-                            <span className="text-[11px] font-bold text-zinc-800 uppercase tracking-wide">{item.name}</span>
+                            <span className={cn(
+                              "text-[11px] font-black",
+                              isSelected ? "text-emerald-600" : "text-emerald-500"
+                            )}>
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
                           </div>
-                          <span className="text-[11px] font-black text-emerald-500">
-                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                          </span>
+                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                              className={cn("h-full rounded-full transition-colors", isSelected ? "bg-emerald-600" : "bg-emerald-500")}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                            className="bg-emerald-500 h-full rounded-full"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
                     <div className="flex items-center gap-2">
