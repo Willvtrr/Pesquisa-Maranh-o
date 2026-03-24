@@ -22,7 +22,7 @@ interface Scenario {
 const SCENARIOS: Scenario[] = [
   {
     id: 'cenario1',
-    label: 'Cenário 1',
+    label: 'CENÁRIO 1',
     question: 'Se os candidatos a Governador fossem estes, em quem você votaria?',
     candidates: [
       { name: 'Felipe Camarão', value: 34.2, party: 'PT', color: 'bg-orange-600' },
@@ -35,7 +35,7 @@ const SCENARIOS: Scenario[] = [
   },
   {
     id: 'cenario2',
-    label: 'Cenário 2',
+    label: 'CENÁRIO 2',
     question: 'E se fossem estes, em quem você votaria?',
     candidates: [
       { name: 'Felipe Camarão', value: 41.5, party: 'PT', color: 'bg-orange-600' },
@@ -61,21 +61,21 @@ export const GovernorScenarioChart = () => {
       className="lg:col-span-2 h-full"
     >
       <div className="space-y-8 mt-2">
-        {/* Toggle Interativo Estilo Print */}
-        <div className="bg-[#09090b] p-1.5 rounded-[1.5rem] flex items-center relative overflow-hidden border border-zinc-800 shadow-inner">
+        {/* Toggle Interativo Estilo Premium Orange */}
+        <div className="bg-[#09090b] p-1.5 rounded-full flex items-center relative overflow-hidden border border-zinc-800 shadow-inner">
           {SCENARIOS.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveScenarioId(s.id)}
               className={cn(
                 "relative z-10 flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500",
-                activeScenarioId === s.id ? "text-zinc-950" : "text-zinc-500 hover:text-zinc-400"
+                activeScenarioId === s.id ? "text-white" : "text-zinc-500 hover:text-zinc-400"
               )}
             >
               {activeScenarioId === s.id && (
                 <motion.div
                   layoutId="activeTabScenario"
-                  className="absolute inset-0 bg-[#60a5fa] rounded-2xl shadow-[0_0_20px_rgba(96,165,250,0.4)]"
+                  className="absolute inset-0 bg-orange-600 rounded-full shadow-[0_0_25px_rgba(234,88,12,0.4)]"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
