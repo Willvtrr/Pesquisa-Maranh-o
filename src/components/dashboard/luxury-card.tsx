@@ -21,8 +21,8 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       className={cn(
         "bg-white rounded-[2.5rem] p-6 lg:p-8 flex flex-col gap-4 overflow-hidden relative",
         "border border-zinc-100 ring-1 ring-white/60",
-        "shadow-[0_20px_50px_rgba(0,0,0,0.03),0_2px_10px_rgba(0,0,0,0.04)]",
-        "transition-all duration-300 hover:shadow-[0_30px_60px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.05)]",
+        "shadow-[0_20px_50px_rgba(234,88,12,0.08),0_2px_10px_rgba(0,0,0,0.04)]", // Sombra laranja sutil
+        "transition-all duration-300 hover:shadow-[0_30px_60px_rgba(234,88,12,0.12),0_4px_20px_rgba(234,88,12,0.08)]",
         className
       )}
     >

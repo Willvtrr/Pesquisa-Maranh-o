@@ -62,7 +62,7 @@ export const StatCard = ({
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
       className={cn(
-        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col",
+        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-8 md:p-10 w-full relative overflow-hidden group shadow-[0_20px_50px_rgba(234,88,12,0.06)] transition-all hover:shadow-[0_30px_60px_rgba(234,88,12,0.1)] hover:-translate-y-1 flex flex-col",
         className
       )}
     >

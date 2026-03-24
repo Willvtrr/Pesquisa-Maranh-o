@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -40,7 +39,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
   }, [data, total]);
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-12 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] transition-all lg:col-span-2">
+    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-12 shadow-[0_20px_50px_rgba(234,88,12,0.08)] hover:shadow-[0_30px_60px_rgba(234,88,12,0.12)] transition-all lg:col-span-2 group/container">
       <div className="mb-10">
         <div className="flex items-center gap-2.5 mb-2">
           <div className="w-1.5 h-4 bg-[#ea580c] rounded-full"></div>
@@ -67,7 +66,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
             <div 
               key={item.name} 
               className={cn(
-                "flex items-center gap-4 h-9 md:h-11 cursor-default transition-all duration-300",
+                "flex items-center gap-4 h-9 md:h-11 cursor-default transition-all duration-300 chart-row",
                 hoveredIndex === idx && "translate-x-1"
               )}
               onMouseEnter={() => setHoveredIndex(idx)}
@@ -96,7 +95,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                   animate={{ 
                     width: `${pct}%`,
                     filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
-                    boxShadow: hoveredIndex === idx ? '0 4px 12px -2px rgba(0,0,0,0.15)' : 'none'
+                    boxShadow: hoveredIndex === idx ? '0 4px 12px -2px rgba(234,88,12,0.3)' : 'none'
                   }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
