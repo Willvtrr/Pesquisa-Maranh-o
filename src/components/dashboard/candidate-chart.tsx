@@ -50,14 +50,6 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
           <h2 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight">
             Intenção de Voto <span className="text-zinc-400 font-semibold">(Estimulada)</span>
           </h2>
-          
-          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full w-fit">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Cenário Principal</span>
-          </div>
         </div>
       </div>
 
@@ -127,27 +119,6 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
             </div>
           );
         })}
-      </div>
-
-      <div className="mt-12 pt-6 border-t border-zinc-100 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Amostra Global</span>
-            <span className="text-xs font-bold text-zinc-700">{(total || totalVotes).toLocaleString('pt-BR')} Entrevistas</span>
-          </div>
-          <div className="w-px h-6 bg-zinc-200"></div>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-0.5">Margem de Erro</span>
-            <span className="text-xs font-bold text-zinc-700">± 2.0 p.p.</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Atualizado: Março 2026</span>
-        </div>
       </div>
     </div>
   );
