@@ -60,9 +60,9 @@ export const StatCard = ({
         className
       )}
     >
-      {/* Header Centralizado */}
+      {/* Header Centralizado com Nova Tipografia */}
       <div className="flex items-center justify-center mb-8 relative z-10 w-full">
-        <h3 className="text-[10px] md:text-[11px] font-black text-zinc-950 uppercase tracking-[0.2em] text-center">{label}</h3>
+        <h3 className="text-xl lg:text-2xl font-black text-zinc-950 uppercase tracking-tight text-center">{label}</h3>
       </div>
 
       {/* Foto com Tamanho Ajustado (190x190 ideal) */}
