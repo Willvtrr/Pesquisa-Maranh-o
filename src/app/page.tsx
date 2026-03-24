@@ -29,12 +29,13 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
 
 const CITY_MAYORS: Record<string, string> = {
+  // REGIÃO METROPOLITANA DE SÃO LUÍS
   "São Luís": "Eduardo Braide",
   "São José de Ribamar": "Dr. Julinho",
   "Paço do Lumiar": "Fred Campos",
@@ -43,6 +44,7 @@ const CITY_MAYORS: Record<string, string> = {
   "Bacabeira": "Naíra Gonçalo",
   "Santa Rita": "Dr. Milton Gonçalo",
   "Rosário": "Jonas Magno",
+  // REGIÃO NORTE
   "Pinheiro": "André da Ralpnet",
   "Cururupu": "Aldo Lopes",
   "Viana": "Carrinho Cidreira",
@@ -59,6 +61,7 @@ const CITY_MAYORS: Record<string, string> = {
   "São Bento": "Dino Penha",
   "Turiaçu": "Edésio Cavalcante",
   "Anajatuba": "Helder Aragão",
+  // REGIÃO OESTE
   "Imperatriz": "Rildo Amaral",
   "Açailândia": "Dr. Benjamim",
   "Grajaú": "Dr. Gilson Guerreiro",
@@ -72,6 +75,7 @@ const CITY_MAYORS: Record<string, string> = {
   "Senador La Rocque": "Professor Bartolomeu",
   "Davinópolis": "Zé Pequeno",
   "Governador Edison Lobão": "Fábio Soares",
+  // REGIÃO CENTRO
   "Pedreiras": "Vanessa Maia",
   "Presidente Dutra": "Raimundinho da Audiolar",
   "Colinas": "Renato Santos",
@@ -80,6 +84,7 @@ const CITY_MAYORS: Record<string, string> = {
   "Tuntum": "Fernando Pessoa",
   "Gonçalves Dias": "Suane Dias",
   "Governador Archer": "Professora Leide",
+  // REGIÃO LESTE
   "Caxias": "Gentil Neto",
   "Timon": "Rafael",
   "Codó": "Chiquinho FC",
@@ -90,6 +95,7 @@ const CITY_MAYORS: Record<string, string> = {
   "São Francisco do Maranhão": "Francisco do Posto",
   "Bacabal": "Roberto Costa",
   "Coroatá": "Edimar Vaqueiro",
+  // REGIÃO SUL
   "Balsas": "Allan da Marissol",
   "Carolina": "Jayme Fonseca",
   "Riachão": "Paula Coelho",
@@ -97,6 +103,7 @@ const CITY_MAYORS: Record<string, string> = {
   "Loreto": "Germano Coelho",
   "Sambaíba": "Fátima Dantas",
   "Alto Parnaíba": "Rubens Japonês",
+  // NOVOS MUNICÍPIOS ADICIONADOS
   "Alto Alegre do Maranhão": "Nilsilene do Liorne",
   "Araioses": "Neto Carvalho",
   "Arame": "Pedro Fernandes",
@@ -137,7 +144,6 @@ const FEMALE_MAYORS = new Set([
   "Flavinha Cunha"
 ]);
 
-// Utilitário para busca de prefeitos com normalização
 const normalizeText = (text: string) => 
   text.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -420,8 +426,8 @@ export default function Home() {
   };
 
   const images = {
-    lula: 'https://picsum.photos/seed/lula-ma/200/200',
-    brandao: 'https://picsum.photos/seed/brandao-ma/200/200',
+    lula: '/lula.jpg',
+    brandao: '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg',
     genericMayor: 'https://picsum.photos/seed/prefeito-ma/200/200'
   };
 
