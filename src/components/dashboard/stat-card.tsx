@@ -98,7 +98,7 @@ export const StatCard = ({
           </div>
         )}
         
-        {/* Footer: Contexto - Alterado para div para evitar erro de hidratação */}
+        {/* Footer: Contexto */}
         {subValue && (
           <div className="mt-auto text-center">
             <div className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">
