@@ -28,7 +28,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -48,7 +48,6 @@ const CITY_MAYORS: Record<string, string> = {
   "Itapecuru Mirim": "Filipe Marreca",
   "Chapadinha": "Belezinha",
   "Barreirinhas": "Vinicius Vale",
-  "Barreiginhas": "Vinicius Vale",
   "Tutóia": "Viriato Cardoso",
   "Humberto de Campos": "Luis Fernando",
   "Guimarães": "Magno",
@@ -126,7 +125,6 @@ const MaranhaoFlag = () => (
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncDate, setLastSyncDate] = useState<string>("21/03/2026 - 09:45");
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
@@ -358,8 +356,6 @@ export default function Home() {
     if (isSyncing) return;
     setIsSyncing(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
-    const now = new Date();
-    setLastSyncDate(`${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} - ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
   };
@@ -376,11 +372,11 @@ export default function Home() {
     if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
     
     const selectedCity = filters.city[0].trim();
-    const name = CITY_MAYORS[selectedCity] || CITY_MAYORS[selectedCity.replace(' – ', ' – ')];
+    const name = CITY_MAYORS[selectedCity];
     
     if (name) {
-      const title = FEMALE_MAYORS.has(name) ? "Prefeita" : "Prefeito";
-      return `${title} ${name}`;
+      // Reduzido para Pref. conforme solicitado
+      return `Pref. ${name}`;
     }
     
     return "Prefeito(a)";
