@@ -9,12 +9,13 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
@@ -28,7 +29,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -48,6 +49,7 @@ const CITY_MAYORS: Record<string, string> = {
   "Itapecuru Mirim": "Filipe Marreca",
   "Chapadinha": "Belezinha",
   "Barreirinhas": "Vinicius Vale",
+  "barreiginhas": "Vinicius Vale",
   "Tutóia": "Viriato Cardoso",
   "Humberto de Campos": "Luis Fernando",
   "Guimarães": "Magno",
@@ -171,6 +173,20 @@ export default function Home() {
       PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
     };
   }, [rawSurveyData]);
+
+  const missingMayors = useMemo(() => {
+    if (!rawSurveyData || rawSurveyData.length === 0) return [];
+    const citiesInData = new Set<string>();
+    rawSurveyData.forEach(item => {
+      const city = String(item[activeKeys.CITY] || '').trim();
+      if (city && city !== 'all' && !item.INFO) citiesInData.add(city);
+    });
+    
+    return Array.from(citiesInData).filter(city => {
+      const normalizedCity = city.toLowerCase().trim();
+      return !Object.keys(CITY_MAYORS).some(k => k.toLowerCase().trim() === normalizedCity);
+    }).sort();
+  }, [rawSurveyData, activeKeys.CITY]);
 
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
@@ -372,9 +388,8 @@ export default function Home() {
     const isAllCities = filters.city.includes('all');
     if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
     
-    // Busca normalizada para evitar erros de case ou espaços
-    const selectedCity = filters.city[0].trim();
-    const cityKey = Object.keys(CITY_MAYORS).find(k => k.toLowerCase() === selectedCity.toLowerCase());
+    const selectedCity = filters.city[0].trim().toLowerCase();
+    const cityKey = Object.keys(CITY_MAYORS).find(k => k.toLowerCase().trim() === selectedCity);
     const name = cityKey ? CITY_MAYORS[cityKey] : null;
     
     if (name) {
@@ -451,7 +466,7 @@ export default function Home() {
                   <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>ID:4520 Entrevista: #0318-011</span></li>
                 </ul>
               </div>
-              <button onClick={handleManualSync} disabled={isSyncing} className="mt-auto w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest bg-white hover:bg-zinc-100 text-zinc-900 shadow-xl transition-all active:scale-95">
+              <button onClick={handleManualSync} disabled={isSyncing} className="mt-auto w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest bg-white hover:bg-zinc-100 text-zinc-950 shadow-xl transition-all active:scale-95">
                 {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5" /> : <RefreshCw size={10} />}
                 <span>Sincronizar Agora</span>
               </button>
@@ -556,6 +571,25 @@ export default function Home() {
               />
             </div>
 
+            {/* Auditoria de Prefeitos (Apenas se houver cidades sem vínculo) */}
+            {missingMayors.length > 0 && (
+              <LuxuryCard title="AUDITORIA DE DADOS" subtitle="Municípios sem Prefeito Vinculado" className="border-amber-200 bg-amber-50/30">
+                <div className="space-y-4">
+                  <p className="text-[10px] font-bold text-amber-700 uppercase leading-relaxed">
+                    Os seguintes municípios foram encontrados na sua base de dados, mas ainda não possuem um prefeito mapeado no sistema. 
+                    Por favor, forneça os nomes para completar o dashboard.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {missingMayors.map(city => (
+                      <Badge key={city} variant="outline" className="bg-white border-amber-200 text-amber-700 font-bold uppercase text-[9px] px-3 py-1">
+                        {city}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </LuxuryCard>
+            )}
+
             <div className="mb-10 flex items-center gap-5">
               <div className="bg-gradient-to-br from-[#ea580c] to-[#c2410c] rounded-2xl p-3 shadow-lg shadow-orange-500/20 flex items-center justify-center border border-orange-400/50">
                 <MessageSquare className="w-6 h-6 text-white drop-shadow-sm" />
@@ -581,7 +615,7 @@ export default function Home() {
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6 rounded-md bg-white border border-zinc-200 flex items-center justify-center shadow-sm group-hover/row:border-rose-200 transition-colors">
-                              <span className="text-[10px] font-black text-zinc-400 group-hover/row:text-rose-500">#{idx + 1}</span>
+                              <span className="text-[10px] font-black text-zinc-400 group-hover/row:text-rose-50">#{idx + 1}</span>
                             </div>
                             <span className="text-[13px] md:text-sm font-bold text-zinc-800 uppercase tracking-wide group-hover/row:text-zinc-950 transition-colors">{item.name}</span>
                           </div>
