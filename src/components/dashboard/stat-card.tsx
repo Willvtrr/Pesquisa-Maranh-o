@@ -9,7 +9,7 @@ interface StatCardProps {
   label?: string;
   title?: string;
   subtitle?: string;
-  value: string | number; // Ex: "64.1%"
+  value: string | number; // Ex: "64.1"
   subValue?: React.ReactNode;
   imageUrl?: string;
   className?: string;
