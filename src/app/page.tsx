@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -269,19 +268,22 @@ export default function Home() {
   const totalFilteredCount = filteredData.length;
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
-  // Inteligência de Exibição do Prefeito com Tratamento de Gênero
-  const selectedMayorName = useMemo(() => {
+  // Inteligência de Exibição do Prefeito com Tratamento de Gênero e Partido
+  const mayorInfo = useMemo(() => {
     const activeCities = filters.city;
     if (activeCities.length === 1 && activeCities[0] !== 'all') {
       const cityUpper = activeCities[0].toUpperCase().trim();
-      const mayorInfo = CITY_MAYORS[cityUpper];
-      if (mayorInfo) {
-        const prefix = mayorInfo.gender === 'F' ? 'Prefa.' : 'Pref.';
-        return `${prefix} ${mayorInfo.name}`;
+      const info = CITY_MAYORS[cityUpper];
+      if (info) {
+        const prefix = info.gender === 'F' ? 'Prefa.' : 'Pref.';
+        return {
+          displayName: `${prefix} ${info.name}`,
+          party: PARTY_MAP[info.name] || null
+        };
       }
-      return `Prefeito(a) de ${activeCities[0]}`;
+      return { displayName: `Prefeito(a) de ${activeCities[0]}`, party: null };
     }
-    return "Prefeito(a)";
+    return { displayName: "Prefeito(a)", party: null };
   }, [filters.city]);
 
   const chartData = useMemo(() => {
@@ -555,6 +557,7 @@ export default function Home() {
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle="Pres. Lula" 
+                party="PT"
                 value={`${statsLula.aprova}%`} 
                 imageUrl={images.lula} 
                 subValue="FEDERAL" 
@@ -567,6 +570,7 @@ export default function Home() {
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle="Gov. Carlos Brandão" 
+                party="PSB"
                 value={`${statsBrandao.aprova}%`} 
                 imageUrl={images.brandao} 
                 subValue="ESTADUAL" 
@@ -578,7 +582,8 @@ export default function Home() {
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
-                subtitle={selectedMayorName} 
+                subtitle={mayorInfo.displayName} 
+                party={mayorInfo.party}
                 value={`${statsPrefeito.aprova}%`} 
                 imageUrl={images.genericMayor} 
                 subValue="MUNICIPAL" 

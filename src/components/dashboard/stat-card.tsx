@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -15,6 +14,7 @@ interface StatCardProps {
   imageUrl?: string;
   className?: string;
   breakdown?: { name: string; value: number }[];
+  party?: string;
 }
 
 const NumberCounter = ({ value, className }: { value: number; className?: string }) => {
@@ -40,7 +40,8 @@ export const StatCard = ({
   subValue, 
   imageUrl, 
   className, 
-  breakdown 
+  breakdown,
+  party
 }: StatCardProps) => {
   const colors = {
     aprova: '#10b981', // emerald-500
@@ -74,7 +75,7 @@ export const StatCard = ({
           </h4>
         )}
         <h3 className="text-xl lg:text-[18px] font-black text-zinc-950 leading-tight tracking-tight">
-          {displaySubtitle}
+          {displaySubtitle} {party && <span className="text-zinc-400 font-black text-[10px]">({party})</span>}
         </h3>
       </div>
 
