@@ -28,11 +28,11 @@ const NumberCounter = ({ value, isSmall = false }: { value: number; isSmall?: bo
 export const GovernorSpontaneousChart = ({ data, total }: GovernorSpontaneousChartProps) => {
   // Processamento dos dados reais do banco de dados
   const processed = useMemo(() => {
-    if (!data || data.length === 0) return { ranking: [], indecisos: 0, brancos: 0 };
+    if (!data || data.length === 0 || total === 0) return { ranking: [], indecisos: 0, brancos: 0 };
 
-    const totalValid = data.reduce((acc, curr) => acc + curr.value, 0);
-    const indecisionKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou"];
-    const brancoKeywords = ["branco", "nulo", "nenhum"];
+    // Palavras-chave abrangentes para capturar variações do banco
+    const indecisionKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr"];
+    const brancoKeywords = ["branco", "nulo", "nenhum", "ninguém"];
 
     const indecisosCount = data
       .filter(item => indecisionKeywords.some(kw => item.name.toLowerCase().includes(kw)))
@@ -42,6 +42,7 @@ export const GovernorSpontaneousChart = ({ data, total }: GovernorSpontaneousCha
       .filter(item => brancoKeywords.some(kw => item.name.toLowerCase().includes(kw)))
       .reduce((acc, curr) => acc + curr.value, 0);
 
+    // O ranking exclui apenas os grupos de indecisão e brancos já processados
     const ranking = data
       .filter(item => 
         !indecisionKeywords.some(kw => item.name.toLowerCase().includes(kw)) &&
@@ -49,16 +50,16 @@ export const GovernorSpontaneousChart = ({ data, total }: GovernorSpontaneousCha
       )
       .map(item => ({
         nome: item.name.trim(),
-        porcentagem: (item.value / totalValid) * 100
+        porcentagem: (item.value / total) * 100
       }))
       .sort((a, b) => b.porcentagem - a.porcentagem);
 
     return {
       ranking,
-      indecisos: (indecisosCount / totalValid) * 100,
-      brancos: (brancosCount / totalValid) * 100
+      indecisos: (indecisosCount / total) * 100,
+      brancos: (brancosCount / total) * 100
     };
-  }, [data]);
+  }, [data, total]);
 
   const { ranking, indecisos, brancos } = processed;
 
@@ -101,7 +102,7 @@ export const GovernorSpontaneousChart = ({ data, total }: GovernorSpontaneousCha
               <div className="w-full bg-orange-100/50 rounded-xl relative overflow-hidden flex-1 mt-2">
                 <motion.div 
                   initial={{ height: 0 }}
-                  animate={{ height: "100%" }}
+                  animate={{ height: `${ranking[0] ? (ranking[0].porcentagem / Math.max(ranking[0].porcentagem, 10)) * 100 : 0}%` }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#c2410c] to-[#ea580c] shadow-[0_0_15px_rgba(234,88,12,0.3)]" 
                 />
@@ -118,7 +119,7 @@ export const GovernorSpontaneousChart = ({ data, total }: GovernorSpontaneousCha
               <div className="w-full bg-zinc-100 rounded-xl relative overflow-hidden flex-1 mt-2">
                 <motion.div 
                   initial={{ height: 0 }}
-                  animate={{ height: `${ranking[1] ? (ranking[1].porcentagem / ranking[0].porcentagem) * 100 : 0}%` }}
+                  animate={{ height: `${ranking[1] ? (ranking[1].porcentagem / Math.max(ranking[0]?.porcentagem || 1, 10)) * 100 : 0}%` }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-zinc-400 to-zinc-300" 
                 />
@@ -135,7 +136,7 @@ export const GovernorSpontaneousChart = ({ data, total }: GovernorSpontaneousCha
               <div className="w-full bg-zinc-100 rounded-xl relative overflow-hidden flex-1 mt-2">
                 <motion.div 
                   initial={{ height: 0 }}
-                  animate={{ height: `${ranking[2] ? (ranking[2].porcentagem / ranking[0].porcentagem) * 100 : 0}%` }}
+                  animate={{ height: `${ranking[2] ? (ranking[2].porcentagem / Math.max(ranking[0]?.porcentagem || 1, 10)) * 100 : 0}%` }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-zinc-400 to-zinc-300" 
                 />

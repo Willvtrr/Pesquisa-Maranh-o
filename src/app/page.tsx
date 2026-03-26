@@ -118,7 +118,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -253,11 +253,14 @@ export default function Home() {
   }, [filters.city]);
 
   const chartData = useMemo(() => {
-    const processRanking = (key: string) => {
+    const processRanking = (key: string, excludeNSNR = true) => {
       const counts: Record<string, number> = {};
       filteredData.forEach(d => {
         const val = String(d[key] || '').trim();
-        if (val && val !== 'all' && val !== 'NS/NR' && val !== 'Não sabe / Não responde') {
+        if (val && val !== 'all') {
+          if (excludeNSNR && (val.toLowerCase().includes('ns/nr') || val.toLowerCase().includes('não sabe'))) {
+            return;
+          }
           counts[val] = (counts[val] || 0) + 1;
         }
       });
@@ -279,7 +282,7 @@ export default function Home() {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
-      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS),
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), // Não exclui NS/NR para a Espontânea tratar
       govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 7),
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
