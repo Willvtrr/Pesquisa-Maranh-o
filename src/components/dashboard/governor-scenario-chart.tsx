@@ -30,8 +30,6 @@ const SCENARIOS: Scenario[] = [
       { name: 'Weverton Rocha', value: 26.5, party: 'PDT', color: 'bg-zinc-800' },
       { name: 'Josimar de Maranhãozinho', value: 15.8, party: 'PL', color: 'bg-zinc-700' },
       { name: 'Roberto Rocha', value: 10.4, party: 'PSDB', color: 'bg-zinc-500' },
-      { name: 'Nenhum/Branco/Nulo', value: 8.2, party: '-', color: 'bg-zinc-300' },
-      { name: 'NS/NR', value: 4.9, party: '-', color: 'bg-zinc-200' },
     ]
   },
   {
@@ -43,8 +41,6 @@ const SCENARIOS: Scenario[] = [
       { name: 'Josimar de Maranhãozinho', value: 24.1, party: 'PL', color: 'bg-zinc-700' },
       { name: 'Edivaldo Holanda Jr.', value: 14.2, party: 'PSD', color: 'bg-zinc-600' },
       { name: 'Lahésio Bonfim', value: 9.8, party: 'NOVO', color: 'bg-zinc-500' },
-      { name: 'Nenhum/Branco/Nulo', value: 6.5, party: '-', color: 'bg-zinc-300' },
-      { name: 'NS/NR', value: 3.9, party: '-', color: 'bg-zinc-200' },
     ]
   }
 ];
@@ -56,10 +52,10 @@ export const GovernorScenarioChart = () => {
   , [activeScenarioId]);
 
   return (
-    <LuxuryCard className="h-full">
-      <div className="space-y-6">
+    <LuxuryCard className="flex-1 p-5 min-h-[380px]">
+      <div className="space-y-4">
         <div className="flex flex-col gap-1">
-          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
             DISPUTA ESTADUAL
           </h4>
@@ -68,21 +64,21 @@ export const GovernorScenarioChart = () => {
           </h3>
         </div>
 
-        {/* Toggle Interativo Estilo Pill Dark */}
-        <div className="bg-[#09090b] p-1 rounded-full flex items-center relative overflow-hidden border border-zinc-800 shadow-inner">
+        {/* Toggle Interativo Estilo Pill Dark - Versão Compacta */}
+        <div className="bg-[#09090b] p-1 rounded-full flex items-center relative overflow-hidden border border-zinc-800">
           {SCENARIOS.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveScenarioId(s.id)}
               className={cn(
-                "relative z-10 flex-1 py-2 text-[8px] font-black uppercase tracking-[0.2em] transition-all duration-500",
+                "relative z-10 flex-1 py-1.5 text-[8px] font-black uppercase tracking-[0.15em] transition-all",
                 activeScenarioId === s.id ? "text-white" : "text-zinc-500"
               )}
             >
               {activeScenarioId === s.id && (
                 <motion.div
                   layoutId="activeTabScenario"
-                  className="absolute inset-0 bg-orange-600 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)]"
+                  className="absolute inset-0 bg-orange-600 rounded-full"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -91,21 +87,11 @@ export const GovernorScenarioChart = () => {
           ))}
         </div>
 
-        <div className="min-h-[30px]">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={activeScenario.id}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="text-[10px] font-bold text-zinc-400 leading-tight italic"
-            >
-              "{activeScenario.question}"
-            </motion.p>
-          </AnimatePresence>
-        </div>
+        <p className="text-[9px] font-bold text-zinc-400 leading-tight italic">
+          "{activeScenario.question}"
+        </p>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeScenario.id}
@@ -115,25 +101,25 @@ export const GovernorScenarioChart = () => {
               className="space-y-3"
             >
               {activeScenario.candidates.map((c, idx) => (
-                <div key={c.name} className="flex items-center gap-3 group">
-                  <div className="w-24 text-right shrink-0">
+                <div key={c.name} className="flex items-center gap-2.5">
+                  <div className="w-20 text-right shrink-0">
                     <p className={cn(
-                      "text-[10px] transition-colors truncate",
+                      "text-[9px] truncate transition-colors",
                       idx === 0 ? "font-black text-zinc-900" : "font-bold text-zinc-500"
                     )}>
                       {c.name}
                     </p>
-                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">({c.party})</span>
+                    <span className="text-[7px] font-black text-zinc-400 uppercase">({c.party})</span>
                   </div>
                   
-                  <div className="flex-1 h-6 bg-zinc-50 rounded-full border border-zinc-100/50 overflow-hidden relative">
+                  <div className="flex-1 h-5 bg-zinc-50 rounded-full border border-zinc-100/50 overflow-hidden relative">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${c.value}%` }}
-                      transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: idx * 0.05 }}
+                      transition={{ duration: 1, delay: idx * 0.05 }}
                       className={cn("h-full rounded-full transition-all flex items-center justify-end pr-2", c.color)}
                     >
-                      <span className="text-[8px] font-black text-white drop-shadow-sm">
+                      <span className="text-[7px] font-black text-white">
                         {c.value.toFixed(1)}%
                       </span>
                     </motion.div>

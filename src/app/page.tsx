@@ -307,11 +307,11 @@ export default function Home() {
     return {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), 
-      govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 5),
+      govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 4),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
       topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
-      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 6),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
     };
   }, [filteredData, activeKeys]);
@@ -590,7 +590,7 @@ export default function Home() {
             </div>
 
             {/* SEÇÃO PRINCIPAL DE VOTOS - EMPILHADOS VERTICALMENTE */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <GovernorSpontaneousChart 
                 data={chartData.govSpontaneousData} 
@@ -600,15 +600,19 @@ export default function Home() {
               />
             </div>
 
-            {/* GRADE DE 4 CARDS - CENÁRIOS E REJEIÇÃO */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <GovernorScenarioChart />
-              <GovernorRejectionChart 
-                data={chartData.govRejectionData} 
-                total={filteredData.length} 
-              />
+            {/* GRADE DE INTELIGÊNCIA - CENÁRIOS E REJEIÇÃO */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* COLUNA 1: STACK DE CENÁRIOS E REJEIÇÃO ESTADUAL */}
+              <div className="flex flex-col gap-4">
+                <GovernorScenarioChart />
+                <GovernorRejectionChart 
+                  data={chartData.govRejectionData} 
+                  total={filteredData.length} 
+                />
+              </div>
               
-              <LuxuryCard className="group/card">
+              {/* COLUNA 2: 2º TURNO PRESIDENTE */}
+              <LuxuryCard className="group/card h-full">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 <div className="relative z-10 h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
@@ -616,11 +620,15 @@ export default function Home() {
                       <Vote className="w-3 h-3 text-orange-600" />
                       <span className="text-[9px] font-bold text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                     </div>
+                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                    </div>
                   </div>
-                  <h2 className="text-[16px] font-black text-zinc-900 mb-6 tracking-tight">Intenção de Voto (2º Turno)</h2>
-                  <div className="space-y-4 flex-1">
-                    {chartData.secondRoundData.slice(0, 3).map((item, idx) => (
-                      <div key={item.name} className="group/row p-1.5 -m-1.5 rounded-xl transition-all duration-300">
+                  <h2 className="text-[16px] font-black text-zinc-900 mb-2 tracking-tight">Intenção de Voto (2º Turno)</h2>
+                  <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno para Presidente..."</p>
+                  <div className="space-y-6 flex-1">
+                    {chartData.secondRoundData.slice(0, 5).map((item, idx) => (
+                      <div key={item.name} className="group/row">
                         <div className="flex justify-between items-center mb-1.5">
                           <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-800">
                             {item.name} {item.party && <span className="text-zinc-400 font-black text-[8px]">({item.party})</span>}
@@ -629,7 +637,7 @@ export default function Home() {
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                        <div className="w-full bg-zinc-100 rounded-full h-1.5 relative overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
@@ -643,7 +651,8 @@ export default function Home() {
                 </div>
               </LuxuryCard>
 
-              <LuxuryCard className="group/card">
+              {/* COLUNA 3: REJEIÇÃO PRESIDENTE */}
+              <LuxuryCard className="group/card h-full">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 <div className="relative z-10 h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
@@ -651,11 +660,15 @@ export default function Home() {
                       <ShieldAlert className="w-3 h-3 text-rose-600" />
                       <span className="text-[9px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
                     </div>
+                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                    </div>
                   </div>
-                  <h2 className="text-[16px] font-black text-zinc-900 mb-6 tracking-tight">Rejeição (Presidente)</h2>
-                  <div className="space-y-4 flex-1">
+                  <h2 className="text-[16px] font-black text-zinc-900 mb-2 tracking-tight">Índice de Rejeição (Presidente)</h2>
+                  <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Em quem você NÃO votaria de jeito nenhum?"</p>
+                  <div className="space-y-6 flex-1">
                     {chartData.rejectionData.slice(0, 6).map((item, idx) => (
-                      <div key={item.name} className="group/row p-1.5 -m-1.5 rounded-xl transition-all duration-300">
+                      <div key={item.name} className="group/row">
                         <div className="flex justify-between items-center mb-1.5">
                           <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-800">
                             {item.name} {item.party && <span className="text-zinc-400 font-black text-[8px]">({item.party})</span>}
@@ -664,7 +677,7 @@ export default function Home() {
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                        <div className="w-full bg-zinc-100 rounded-full h-1.5 relative overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
