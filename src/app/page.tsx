@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -17,6 +18,9 @@ import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+
+// Importação cirúrgica do banco de dados de referência
+import surveyData from '@/data/Estadual_fev26_certo.json';
 
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
@@ -184,6 +188,32 @@ export default function Home() {
     work: ['all']
   });
 
+  // Função auxiliar para cálculo de porcentagens dinâmicas
+  const getApprovalPercentage = (dataArray: any[], questionKey: string, targetValue: string) => {
+    if (!dataArray || dataArray.length === 0) return "0.0";
+    const count = dataArray.filter(item => 
+      item[questionKey] && String(item[questionKey]).trim().toLowerCase() === targetValue.toLowerCase()
+    ).length;
+    return ((count / dataArray.length) * 100).toFixed(1);
+  };
+
+  // Função auxiliar para montagem do breakdown (barras de progresso)
+  const getBreakdown = (dataArray: any[], questionKey: string) => {
+    const aprova = Number(getApprovalPercentage(dataArray, questionKey, 'Aprova'));
+    const desaprova = Number(getApprovalPercentage(dataArray, questionKey, 'Desaprova'));
+    const nsnr = Number((100 - aprova - desaprova).toFixed(1));
+    return [
+      { name: 'Aprova', value: aprova },
+      { name: 'Desaprova', value: desaprova },
+      { name: 'NS/NR', value: nsnr }
+    ];
+  };
+
+  // Chaves exatas conforme orientação SURGICAL_DATA_BINDING
+  const qLula = 'De modo geral, você aprova ou desaprova o Governo do Presidente Lula?';
+  const qBrandao = 'De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?';
+  const qPrefeito = 'De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ';
+
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     const sample = rawSurveyData.find(d => !d.INFO) || {};
@@ -262,47 +292,6 @@ export default function Home() {
     if (!rawSurveyData) return 0;
     return rawSurveyData.filter(item => !item.INFO).length;
   }, [rawSurveyData]);
-
-  const approvalStats = useMemo(() => {
-    const total = filteredData.length;
-    const calculatePct = (key: string) => {
-      if (total === 0) return 0;
-      const approvalCount = filteredData.filter(d => {
-        const val = String(d[key] || '').toLowerCase().trim();
-        return val === 'aprova' || val === 'aprovado' || val === 'sim';
-      }).length;
-      return (approvalCount / total) * 100;
-    };
-    return { 
-      total, 
-      govPct: calculatePct(activeKeys.GOV_APPROVAL), 
-      presPct: calculatePct(activeKeys.PRESIDENT_APPROVAL), 
-      mayorPct: calculatePct(activeKeys.MAYOR_APPROVAL) 
-    };
-  }, [filteredData, activeKeys]);
-
-  const approvalBreakdown = useMemo(() => {
-    const calculate = (key: string) => {
-      const counts = { aprova: 0, desaprova: 0, nsnr: 0 };
-      filteredData.forEach(d => {
-        const val = String(d[key] || '').toLowerCase().trim();
-        if (val === 'aprova' || val === 'aprovado' || val === 'sim') counts.aprova++;
-        else if (val === 'desaprova' || val === 'desaprovado' || val === 'não' || val === 'nao') counts.desaprova++;
-        else counts.nsnr++;
-      });
-      const total = filteredData.length || 1;
-      return [
-        { name: 'Aprova', value: (counts.aprova / total) * 100 },
-        { name: 'Desaprova', value: (counts.desaprova / total) * 100 },
-        { name: 'NS/NR', value: (counts.nsnr / total) * 100 }
-      ];
-    };
-    return {
-      pres: calculate(activeKeys.PRESIDENT_APPROVAL),
-      gov: calculate(activeKeys.GOV_APPROVAL),
-      mayor: calculate(activeKeys.MAYOR_APPROVAL)
-    };
-  }, [filteredData, activeKeys]);
 
   const chartData = useMemo(() => {
     const approvalMap: Record<string, number> = { 'Aprova': 0, 'Desaprova': 0, 'NS/NR': 0 };
@@ -427,10 +416,8 @@ export default function Home() {
   const images = {
     lula: '/lula.jpg',
     brandao: '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg',
-    genericMayor: 'https://picsum.photos/seed/prefeito-ma/200/200'
+    genericMayor: '/bandeiracerta.jpg'
   };
-
-  const flagUrl = "/bandeiracerta.jpg";
 
   const mayorDisplay = useMemo(() => {
     const isAllCities = filters.city.includes('all');
@@ -443,12 +430,6 @@ export default function Home() {
     
     return "Prefeito(a)";
   }, [filters.city]);
-
-  const mayorPhoto = useMemo(() => {
-    const isAllCities = filters.city.includes('all');
-    if (isAllCities || filters.city.length !== 1) return flagUrl;
-    return images.genericMayor;
-  }, [filters.city, flagUrl, images.genericMayor]);
 
   if (isLoading && rawSurveyData.length === 0) {
     return (
@@ -592,26 +573,26 @@ export default function Home() {
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle="Pres. Lula" 
-                value={`${approvalStats.presPct.toFixed(1)}%`} 
+                value={`${getApprovalPercentage(surveyData, qLula, 'Aprova')}%`} 
                 imageUrl={images.lula} 
                 subValue="FEDERAL" 
-                breakdown={approvalBreakdown.pres} 
+                breakdown={getBreakdown(surveyData, qLula)} 
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle="Gov. Carlos Brandão" 
-                value={`${approvalStats.govPct.toFixed(1)}%`} 
+                value={`${getApprovalPercentage(surveyData, qBrandao, 'Aprova')}%`} 
                 imageUrl={images.brandao} 
                 subValue="ESTADUAL" 
-                breakdown={approvalBreakdown.gov} 
+                breakdown={getBreakdown(surveyData, qBrandao)} 
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle={mayorDisplay} 
-                value={`${approvalStats.mayorPct.toFixed(1)}%`} 
-                imageUrl={mayorPhoto} 
+                value={`${getApprovalPercentage(surveyData, qPrefeito, 'Aprova')}%`} 
+                imageUrl={images.genericMayor} 
                 subValue="MUNICIPAL" 
-                breakdown={approvalBreakdown.mayor} 
+                breakdown={getBreakdown(surveyData, qPrefeito)} 
               />
             </div>
 
