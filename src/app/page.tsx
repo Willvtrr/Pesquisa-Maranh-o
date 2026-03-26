@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -34,7 +33,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
 };
@@ -188,12 +187,10 @@ export default function Home() {
     work: ['all']
   });
 
-  // Chaves exatas conforme orientação SURGICAL_DATA_BINDING
   const qLula = 'De modo geral, você aprova ou desaprova o Governo do Presidente Lula?';
   const qBrandao = 'De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?';
   const qPrefeito = 'De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ';
 
-  // --- MOTOR DE DADOS POWER BI ---
   const calculateApproval = (data: any[], questionKey: string) => {
     if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
     
@@ -201,7 +198,6 @@ export default function Home() {
     const total = data.length;
 
     data.forEach(row => {
-      // Pega o valor, remove espaços extras e transforma em minúsculo para evitar erros
       const answer = row[questionKey] ? row[questionKey].toString().trim().toLowerCase() : "";
       
       if (answer === "aprova") aprova++;
@@ -216,7 +212,6 @@ export default function Home() {
     };
   };
 
-  // Processando os dados como no Power BI
   const statsLula = calculateApproval(surveyData, qLula);
   const statsBrandao = calculateApproval(surveyData, qBrandao);
   const statsPrefeito = calculateApproval(surveyData, qPrefeito);
@@ -246,7 +241,7 @@ export default function Home() {
       EDUCATION: findKey(['instrução'], DEFAULT_KEYS.EDUCATION),
       INCOME: findKey(['renda'], DEFAULT_KEYS.INCOME),
       RELIGION: findKey(['religião'], DEFAULT_KEYS.RELIGION),
-      IDEOLOGY: findKey(['esquerda', 'direita', 'considera'], DEFAULT_KEYS.IDEOLOGY),
+      IDEOLOGY: findKey(['esquerda', 'centro', 'direita', 'considera'], DEFAULT_KEYS.IDEOLOGY),
       GOV_APPROVAL: findKey(['aprova', 'governador'], DEFAULT_KEYS.GOV_APPROVAL),
       PRESIDENT_APPROVAL: findKey(['aprova', 'presidente'], DEFAULT_KEYS.PRESIDENT_APPROVAL),
       MAYOR_APPROVAL: findKey(['aprova', 'prefeito'], DEFAULT_KEYS.MAYOR_APPROVAL),
@@ -449,6 +444,9 @@ export default function Home() {
     );
   }
 
+  const actualCityCount = dynamicOptions.city.length;
+  const coveragePercent = ((actualCityCount / 217) * 100).toFixed(1);
+
   return (
     <AppLayout>
       <div className="space-y-8">
@@ -534,16 +532,16 @@ export default function Home() {
               </div>
               <div className="flex-1 flex flex-col justify-center relative z-10">
                 <div className="flex items-baseline gap-1">
-                  <h2 className="text-2xl font-black tracking-tighter leading-none">83</h2>
+                  <h2 className="text-2xl font-black tracking-tighter leading-none">{actualCityCount}</h2>
                   <span className="text-lg font-black opacity-60">/217</span>
                 </div>
-                <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura 38.2%</p>
+                <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura {coveragePercent}%</p>
               </div>
               <div className="mt-auto flex items-center justify-between relative z-10">
-                <span className="text-[6px] font-black text-white uppercase tracking-widest">Concluindo • Faltam 3</span>
+                <span className="text-[6px] font-black text-white uppercase tracking-widest">Status da Base</span>
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white text-orange-600 shadow-lg">
                   <div className="w-1 h-1 rounded-full bg-orange-600 animate-pulse" />
-                  <span className="text-[6px] font-black uppercase tracking-widest">Em Campo</span>
+                  <span className="text-[6px] font-black uppercase tracking-widest">Sincronizado</span>
                 </div>
               </div>
             </div>
