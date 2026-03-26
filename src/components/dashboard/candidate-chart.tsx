@@ -47,19 +47,31 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
   }, [data, total]);
 
   return (
-    <div className="bg-white rounded-[2rem] border border-zinc-200/80 p-6 lg:p-8 shadow-[0_20px_50px_rgba(234,88,12,0.04)] hover:shadow-[0_30px_60px_rgba(234,88,12,0.08)] transition-all lg:col-span-2 group/container overflow-hidden">
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-1 h-3.5 bg-[#ea580c] rounded-full"></div>
-          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Corrida Presidencial</span>
+    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-14 relative overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] lg:col-span-2 group/container">
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+
+      <div className="relative z-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="w-1.5 h-4 bg-[#ea580c] rounded-full"></div>
+            <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-[0.2em]">Corrida Presidencial</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight leading-none">
+            Intenção de Voto Federal
+          </h1>
         </div>
-        <h2 className="text-[22px] font-black text-zinc-900 tracking-tight leading-none">
-          Intenção de Voto <span className="text-zinc-400 font-medium">(Estimulada)</span>
-        </h2>
+        
+        <div className="flex items-center gap-2 bg-white border border-zinc-200 shadow-sm px-4 py-2 rounded-full w-fit">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ea580c]"></span>
+          </span>
+          <span className="text-[11px] font-black text-zinc-700 uppercase tracking-widest">Estimulada</span>
+        </div>
       </div>
 
       <div 
-        className="flex flex-col gap-4 relative z-10 chart-container"
+        className="flex flex-col gap-5 relative z-10 chart-container"
         onMouseLeave={() => setHoveredIndex(null)}
       >
         {data.map((item, idx) => {
@@ -72,14 +84,14 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
             <div 
               key={item.name} 
               className={cn(
-                "flex items-center gap-4 h-9 cursor-default transition-all duration-300 chart-row",
+                "flex items-center gap-5 h-10 cursor-default transition-all duration-300 chart-row",
                 hoveredIndex === idx && "translate-x-1"
               )}
               onMouseEnter={() => setHoveredIndex(idx)}
             >
-              <div className="w-32 lg:w-40 text-right flex flex-col justify-center flex-shrink-0">
+              <div className="w-32 lg:w-48 text-right flex flex-col justify-center flex-shrink-0">
                 <span className={cn(
-                  "text-[13px] transition-colors leading-tight",
+                  "text-[14px] transition-colors leading-tight truncate",
                   idx < 2 ? "font-black text-zinc-800" : "font-bold text-zinc-500",
                   isFaded && "text-zinc-300"
                 )}>
@@ -87,7 +99,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                 </span>
                 {party && (
                   <span className={cn(
-                    "text-[10px] font-bold text-zinc-400 transition-colors",
+                    "text-[10px] font-black text-zinc-400 transition-colors uppercase tracking-widest",
                     isFaded && "text-zinc-200"
                   )}>
                     ({party})
@@ -95,7 +107,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                 )}
               </div>
 
-              <div className="flex-1 h-[26px] bg-zinc-50 rounded-full relative overflow-visible border border-zinc-100/50">
+              <div className="flex-1 h-[32px] bg-zinc-50 rounded-full relative overflow-visible border border-zinc-100/50 shadow-inner">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ 
@@ -105,12 +117,12 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                   }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
-                    "h-full rounded-full relative transition-all flex items-center justify-end pr-2",
+                    "h-full rounded-full relative transition-all flex items-center justify-end pr-3",
                     barColor
                   )}
                 >
                   <span className={cn(
-                    "absolute -right-14 top-1/2 -translate-y-1/2 text-[14px] font-black transition-all duration-300",
+                    "absolute -right-16 top-1/2 -translate-y-1/2 text-[15px] font-black transition-all duration-300",
                     isFaded ? "text-zinc-300" : "text-zinc-700",
                     hoveredIndex === idx && "scale-105 text-zinc-950"
                   )}>
@@ -118,7 +130,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                   </span>
                 </motion.div>
               </div>
-              <div className="w-12 flex-shrink-0"></div>
+              <div className="w-14 flex-shrink-0"></div>
             </div>
           );
         })}
