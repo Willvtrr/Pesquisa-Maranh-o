@@ -10,7 +10,6 @@ import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor-scenario-chart';
 import { GovernorSpontaneousChart } from '@/components/dashboard/governor-spontaneous-chart';
-import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -148,7 +147,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -161,6 +160,11 @@ const DEFAULT_KEYS = {
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
@@ -244,7 +248,7 @@ export default function Home() {
 
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
-  // REJEIÇÃO ABSOLUTA ESTADUAL
+  // REJEIÇÃO ABSOLUTA ESTADUAL (Sem Filtros)
   const rawGovRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -268,7 +272,7 @@ export default function Home() {
       .slice(0, 5);
   }, [rawSurveyData, activeKeys.GOV_REJECTION]);
 
-  // REJEIÇÃO ABSOLUTA FEDERAL
+  // REJEIÇÃO ABSOLUTA FEDERAL (Sem Filtros)
   const rawPresidentRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -601,7 +605,7 @@ export default function Home() {
               <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
-            {/* LINHA DE CENÁRIOS E 2º TURNO */}
+            {/* LINHA DE 3 CARDS: CENÁRIO 1, CENÁRIO 2 E 2º TURNO */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
@@ -639,9 +643,9 @@ export default function Home() {
               </LuxuryCard>
             </div>
 
-            {/* LINHA DE REJEIÇÃO LADO A LADO (ABSOLUTO) */}
+            {/* LINHA DE REJEIÇÃO LADO A LADO (ABSOLUTO E PROPORCIONAL) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GovernorRejectionChart 
+              <RejectionPillChart 
                 data={rawGovRejectionData} 
                 total={totalDatabaseCount} 
                 overline="Teto Eleitoral Estadual"
@@ -649,8 +653,9 @@ export default function Home() {
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
                 badge="Estimulada"
                 color="red"
+                isMounted={isMounted}
               />
-              <GovernorRejectionChart 
+              <RejectionPillChart 
                 data={rawPresidentRejectionData} 
                 total={totalDatabaseCount} 
                 overline="Teto Eleitoral Federal"
@@ -658,6 +663,7 @@ export default function Home() {
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
                 badge="Estimulada"
                 color="rose"
+                isMounted={isMounted}
               />
             </div>
 
@@ -674,6 +680,84 @@ export default function Home() {
     </AppLayout>
   );
 }
+
+// COMPONENTE DE REJEIÇÃO REVISADO (CLONE EXATO COM ALTURA PROPORCIONAL)
+const RejectionPillChart = ({ 
+  data, total, title, overline, subtitle, badge, color, isMounted 
+}: any) => {
+  const overlineColor = color === 'red' ? 'bg-[#dc2626]' : 'bg-[#e11d48]';
+  const gradColor = color === 'red' 
+    ? 'from-[#ef4444] to-[#b91c1c]' 
+    : 'from-[#f43f5e] to-[#be123c]';
+
+  return (
+    <div className="bg-white rounded-[2.5rem] p-8 lg:p-10 flex flex-col h-full shadow-sm border border-zinc-100">
+      <header className="flex justify-between items-start mb-10">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className={cn("w-1 h-4 rounded-full", overlineColor)} />
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">{overline}</span>
+          </div>
+          <h1 className="text-3xl font-black text-zinc-950 tracking-tighter">{title}</h1>
+          <p className="text-[11px] font-medium text-zinc-400 italic">{subtitle}</p>
+        </div>
+        <div className="px-4 py-1.5 rounded-full bg-[#f8fafc] border border-zinc-100">
+          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">{badge}</span>
+        </div>
+      </header>
+
+      <div className="flex justify-between items-start gap-4 flex-1 border-b border-zinc-50 pb-6">
+        {data.map((item: any, idx: number) => {
+          const pct = total > 0 ? (item.value / total) * 100 : 0;
+          const isAbstention = item.name.toLowerCase().includes('nulo') || 
+                               item.name.toLowerCase().includes('branco') || 
+                               item.name.toLowerCase().includes('nenhum');
+
+          return (
+            <div key={idx} className="flex flex-col items-center flex-1">
+              {/* TRILHA DA BARRA - ALTURA PROPORCIONAL SEM MIN-HEIGHT FLOOR EXAGERADO */}
+              <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner overflow-hidden">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: isMounted ? `${pct}%` : 0 }}
+                  transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
+                  className={cn(
+                    "w-full rounded-full transition-all bg-gradient-to-b",
+                    // Mantemos apenas 4px de min-height para garantir o formato circular na base, sem afetar a proporção visível
+                    "min-height-[4px]", 
+                    isAbstention ? "from-slate-200 to-slate-400" : gradColor
+                  )}
+                />
+              </div>
+
+              {/* PORCENTAGEM ABAIXO DA TRILHA */}
+              <span className="text-[13px] font-black text-zinc-950 mb-4">{pct.toFixed(1)}%</span>
+
+              {/* INFO DO CANDIDATO */}
+              <div className="flex flex-col items-center text-center gap-2">
+                <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
+                  <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} className="object-cover" />
+                  <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400 uppercase">
+                    {isAbstention ? "N/B" : item.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-h-[2.5rem] flex flex-col justify-center">
+                  <p className="text-[9px] font-black text-zinc-900 leading-tight uppercase tracking-tight">
+                    {item.name.split(' ')[0]}<br />
+                    {item.name.split(' ')[1] || ''}
+                  </p>
+                  {item.party && (
+                    <p className="text-[8px] font-bold text-zinc-400 uppercase mt-0.5">({item.party})</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const MaranhaoFlag = () => (
   <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
