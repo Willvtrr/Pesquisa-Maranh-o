@@ -15,6 +15,8 @@ import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 // Mapeamento de Prefeitos (Inteligência de Dados Atualizada com Gênero)
 const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
@@ -145,7 +147,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -239,7 +241,7 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
-  // REJEIÇÃO ABSOLUTA (SEM FILTROS)
+  // REJEIÇÃO ABSOLUTA ESTADUAL
   const rawGovRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -262,6 +264,30 @@ export default function Home() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   }, [rawSurveyData, activeKeys.GOV_REJECTION]);
+
+  // REJEIÇÃO ABSOLUTA FEDERAL
+  const rawPresidentRejectionData = useMemo(() => {
+    if (!rawSurveyData || rawSurveyData.length === 0) return [];
+    const counts: Record<string, number> = {};
+    const key = activeKeys.PRESIDENT_REJECTION;
+    
+    rawSurveyData.forEach(item => {
+      if (item.INFO) return;
+      const val = String(item[key] || '').trim();
+      if (val && val !== 'all') {
+        counts[val] = (counts[val] || 0) + 1;
+      }
+    });
+
+    return Object.entries(counts)
+      .map(([name, value]) => ({ 
+        name, 
+        value,
+        party: PARTY_MAP[name] || null
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+  }, [rawSurveyData, activeKeys.PRESIDENT_REJECTION]);
 
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
@@ -438,6 +464,7 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
+        {/* TOPO: BANCO DE DADOS E STATUS (PERFEITO) */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           <div className="xl:col-span-5 space-y-4 lg:pt-2">
             <div className="flex items-center gap-3 mb-1">
@@ -559,68 +586,27 @@ export default function Home() {
           </div>
         </div>
 
+        {/* DASHBOARD PRINCIPAL */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <StatCard 
-                title="APROVAÇÃO DE GESTÃO"
-                subtitle="Pres. Lula" 
-                party="PT"
-                value={`${statsLula.aprova}%`} 
-                imageUrl="/lula.jpg" 
-                subValue="FEDERAL" 
-                breakdown={[
-                  { name: 'Aprova', value: Number(statsLula.aprova) },
-                  { name: 'Desaprova', value: Number(statsLula.desaprova) },
-                  { name: 'NS/NR', value: Number(statsLula.nsnr) }
-                ]} 
-              />
-              <StatCard 
-                title="APROVAÇÃO DE GESTÃO"
-                subtitle="Gov. Carlos Brandão" 
-                party="PSB"
-                value={`${statsBrandao.aprova}%`} 
-                imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" 
-                subValue="ESTADUAL" 
-                breakdown={[
-                  { name: 'Aprova', value: Number(statsBrandao.aprova) },
-                  { name: 'Desaprova', value: Number(statsBrandao.desaprova) },
-                  { name: 'NS/NR', value: Number(statsBrandao.nsnr) }
-                ]} 
-              />
-              <StatCard 
-                title="APROVAÇÃO DE GESTÃO"
-                subtitle={mayorInfo.displayName} 
-                party={mayorInfo.party}
-                value={`${statsPrefeito.aprova}%`} 
-                imageUrl="/bandeiracerta.jpg" 
-                subValue="MUNICIPAL" 
-                breakdown={[
-                  { name: 'Aprova', value: Number(statsPrefeito.aprova) },
-                  { name: 'Desaprova', value: Number(statsPrefeito.desaprova) },
-                  { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }
-                ]} 
-              />
+              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle="Pres. Lula" party="PT" value={`${statsLula.aprova}%`} imageUrl="/lula.jpg" subValue="FEDERAL" breakdown={[{ name: 'Aprova', value: Number(statsLula.aprova) }, { name: 'Desaprova', value: Number(statsLula.desaprova) }, { name: 'NS/NR', value: Number(statsLula.nsnr) }]} />
+              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle="Gov. Carlos Brandão" party="PSB" value={`${statsBrandao.aprova}%`} imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" subValue="ESTADUAL" breakdown={[{ name: 'Aprova', value: Number(statsBrandao.aprova) }, { name: 'Desaprova', value: Number(statsBrandao.desaprova) }, { name: 'NS/NR', value: Number(statsBrandao.nsnr) }]} />
+              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle={mayorInfo.displayName} party={mayorInfo.party} value={`${statsPrefeito.aprova}%`} imageUrl="/bandeiracerta.jpg" subValue="MUNICIPAL" breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} />
             </div>
 
+            {/* GRÁFICOS LADO A LADO */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-              <GovernorSpontaneousChart 
-                data={chartData.govSpontaneousData} 
-                total={filteredData.length}
-                filters={filters}
-                onFilterChange={handleFilterChange}
-              />
+              <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
+            {/* COLUNAS EMPILHADAS (ESTADUAL VS FEDERAL) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* COLUNA 1: ESTADUAL EMPILHADO */}
               <div className="flex flex-col gap-6">
                 <GovernorScenarioChart />
-                <GovernorRejectionChart 
-                  data={rawGovRejectionData} 
-                  total={totalDatabaseCount} 
-                />
+                <GovernorRejectionChart data={rawGovRejectionData} total={totalDatabaseCount} />
               </div>
               
               {/* COLUNA 2: FEDERAL EMPILHADO */}
@@ -658,47 +644,61 @@ export default function Home() {
                   </div>
                 </LuxuryCard>
 
-                <LuxuryCard className="h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="space-y-1">
+                {/* REJEIÇÃO FEDERAL - ESTILO PILL BAR (REUSANDO ESTÉTICA ESTADUAL) */}
+                <div className="bg-white rounded-[2rem] p-6 lg:p-7 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <div className="w-1 h-3 bg-rose-600 rounded-full" />
-                        <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Teto Federal</span>
+                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.15em]">
+                          Teto Eleitoral Federal
+                        </span>
                       </div>
-                      <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Rejeição (Presidente)</h2>
+                      <h2 className="text-xl font-black text-zinc-900 tracking-tight">
+                        Rejeição (Presidente)
+                      </h2>
+                      <p className="text-[10px] text-zinc-400 italic font-medium">
+                        "Em quem você NÃO votaria de jeito nenhum?"
+                      </p>
                     </div>
-                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                    <div className="px-3 py-1 rounded-full bg-[#f8fafc] border border-zinc-100">
+                      <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">
+                        Estimulada
+                      </span>
                     </div>
                   </div>
-                  <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Em quem você NÃO votaria de jeito nenhum?"</p>
-                  <div className="space-y-6">
-                    {chartData.rejectionData.slice(0, 5).map((item) => (
-                      <div key={item.name}>
-                        <div className="flex justify-between items-end mb-2">
-                          <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
-                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                          </span>
-                          <span className="text-[12px] font-black text-rose-600">
-                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                          </span>
+
+                  <div className="flex justify-between items-start gap-2 mt-auto">
+                    {rawPresidentRejectionData.map((item, idx) => {
+                      const pct = totalDatabaseCount > 0 ? (item.value / totalDatabaseCount) * 100 : 0;
+                      const isAbstention = item.name.toLowerCase().includes('nulo') || item.name.toLowerCase().includes('branco') || item.name.toLowerCase().includes('nenhum');
+
+                      return (
+                        <div key={`${item.name}-${idx}`} className="flex flex-col items-center flex-1 group">
+                          <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner">
+                            <motion.div initial={{ height: 0 }} animate={{ height: `${pct}%` }} transition={{ duration: 1.5, delay: idx * 0.1 }} className={cn("w-full rounded-full transition-all min-h-[16px]", isAbstention ? "bg-gradient-to-b from-slate-300 to-slate-500" : "bg-gradient-to-b from-rose-500 to-rose-700 shadow-[0_4px_10px_-2px_rgba(225,29,72,0.3)]")} />
+                          </div>
+                          <span className="text-[11px] font-black text-zinc-900 mb-3">{pct.toFixed(1)}%</span>
+                          <div className="flex flex-col items-center text-center space-y-2">
+                            <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
+                              <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                              <AvatarFallback className="text-[8px] font-bold text-zinc-400">{isAbstention ? "N/B" : item.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className="space-y-0">
+                              <p className="text-[9px] font-black text-zinc-900 leading-tight uppercase truncate w-16">{item.name.split(' ')[0]}</p>
+                              {item.party && <p className="text-[8px] font-bold text-zinc-400">({item.party})</p>}
+                            </div>
+                          </div>
                         </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} transition={{ duration: 1.5 }} className="h-full bg-rose-500" />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                </LuxuryCard>
+                </div>
               </div>
             </div>
 
             <div className="w-full">
-              <InteractiveMap 
-                stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} 
-                activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} 
-                onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
-              />
+              <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
             </div>
           </div>
           
