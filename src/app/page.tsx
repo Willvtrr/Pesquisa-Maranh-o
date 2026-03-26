@@ -10,7 +10,7 @@ import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor-scenario-chart';
 import { GovernorSpontaneousChart } from '@/components/dashboard/governor-spontaneous-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
@@ -605,8 +605,9 @@ export default function Home() {
               <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
-            {/* LINHA DE 3 CARDS: 2º TURNO (ESQUERDA), CENÁRIO 1, CENÁRIO 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* LINHA DE 4 CARDS: 2º TURNO, PERCEPÇÃO DE VITÓRIA, CENÁRIO 1, CENÁRIO 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Card 1: 2º Turno */}
               <LuxuryCard className="h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="space-y-1">
@@ -639,7 +640,44 @@ export default function Home() {
                   ))}
                 </div>
               </LuxuryCard>
+
+              {/* Card 2: Percepção de Vitória */}
+              <LuxuryCard className="h-full">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-3 bg-orange-600 rounded-full" />
+                      <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Expectativa Real</span>
+                    </div>
+                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Percepção de Vitória</h2>
+                  </div>
+                  <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                  </div>
+                </div>
+                <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Quem você acha que ganhará a eleição...?"</p>
+                <div className="space-y-6">
+                  {chartData.govVictoryData.slice(0, 3).map((item) => (
+                    <div key={item.name}>
+                      <div className="flex justify-between items-end mb-2">
+                        <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
+                          {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                        </span>
+                        <span className="text-[12px] font-black text-orange-600">
+                          {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} transition={{ duration: 1.5 }} className="h-full bg-orange-500" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </LuxuryCard>
+
+              {/* Card 3: Cenário 1 */}
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
+              {/* Card 4: Cenário 2 */}
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
             </div>
 
