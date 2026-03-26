@@ -61,11 +61,9 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                      brancoKeywords.some(kw => item.name.toLowerCase().includes(kw))
     }));
 
-    // Separa candidatos reais de abstenções
     const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
     const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-    // Pega o Top 5 candidatos + abstenções
     return [...candidates.slice(0, 5), ...abstentions];
   }, [data, total]);
 

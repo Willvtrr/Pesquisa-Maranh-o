@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -47,7 +48,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
   }, [data, total]);
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-14 relative overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] lg:col-span-2 group/container">
+    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-14 relative overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] group/container">
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
 
       <div className="relative z-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">

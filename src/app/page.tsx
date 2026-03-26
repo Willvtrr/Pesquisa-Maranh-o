@@ -269,7 +269,6 @@ export default function Home() {
   const totalFilteredCount = filteredData.length;
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
-  // Inteligência de Exibição do Prefeito com Tratamento de Gênero e Partido
   const mayorInfo = useMemo(() => {
     const activeCities = filters.city;
     if (activeCities.length === 1 && activeCities[0] !== 'all') {
@@ -620,8 +619,7 @@ export default function Home() {
                 onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
               />
             </div>
-
-            {/* RANKINGS PRESIDENCIAIS */}
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
@@ -863,4 +861,3 @@ const MaranhaoFlag = () => (
     <path d="M5.5 1.5l.7 2h2.1l-1.7 1.2.7 2.1-1.8-1.3-1.8 1.3.7-2.1-1.7-1.2h2.1z" fill="#fff" />
   </svg>
 );
-
