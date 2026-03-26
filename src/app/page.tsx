@@ -10,6 +10,7 @@ import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioChart } from '@/components/dashboard/governor-scenario-chart';
+import { GovernorSpontaneousChart } from '@/components/dashboard/governor-spontaneous-chart';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -118,11 +119,12 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
-  PRESIDENT_REJECTION: "6. REJEIÇÃO: En quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
+  PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
+  GOV_VOTE_SPONTANEOUS: "GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
 };
 
 export default function Home() {
@@ -176,6 +178,7 @@ export default function Home() {
       PRESIDENT_VOTE: findKey(['4. PRESIDENTE', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
       PRESIDENT_SECOND_ROUND: findKey(['5. Num eventual segundo turno'], DEFAULT_KEYS.PRESIDENT_SECOND_ROUND),
       PRESIDENT_REJECTION: findKey(['6. REJEIÇÃO'], DEFAULT_KEYS.PRESIDENT_REJECTION),
+      GOV_VOTE_SPONTANEOUS: findKey(['governador', 'espontânea'], DEFAULT_KEYS.GOV_VOTE_SPONTANEOUS),
     };
   }, [rawSurveyData]);
 
@@ -273,6 +276,7 @@ export default function Home() {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
       topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
     };
@@ -542,8 +546,15 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <GovernorScenarioChart />
             </div>
 
