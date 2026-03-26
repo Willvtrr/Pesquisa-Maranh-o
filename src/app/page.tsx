@@ -146,7 +146,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -600,10 +600,10 @@ export default function Home() {
               />
             </div>
 
-            {/* GRADE DE INTELIGÊNCIA - CENÁRIOS E REJEIÇÃO */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* COLUNA 1: STACK DE CENÁRIOS E REJEIÇÃO ESTADUAL */}
-              <div className="flex flex-col gap-4">
+            {/* GRADE DE INTELIGÊNCIA - EMPILHADA POR NÍVEL (ESTADUAL VS FEDERAL) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* COLUNA 1: ESTADUAL (CENÁRIOS + REJEIÇÃO) */}
+              <div className="flex flex-col gap-6">
                 <GovernorScenarioChart />
                 <GovernorRejectionChart 
                   data={chartData.govRejectionData} 
@@ -611,85 +611,88 @@ export default function Home() {
                 />
               </div>
               
-              {/* COLUNA 2: 2º TURNO PRESIDENTE */}
-              <LuxuryCard className="group/card h-full">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-3 py-1 rounded-full w-fit">
-                      <Vote className="w-3 h-3 text-orange-600" />
-                      <span className="text-[9px] font-bold text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
-                    </div>
-                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
-                    </div>
-                  </div>
-                  <h2 className="text-[16px] font-black text-zinc-900 mb-2 tracking-tight">Intenção de Voto (2º Turno)</h2>
-                  <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno para Presidente..."</p>
-                  <div className="space-y-6 flex-1">
-                    {chartData.secondRoundData.slice(0, 5).map((item, idx) => (
-                      <div key={item.name} className="group/row">
-                        <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-800">
-                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[8px]">({item.party})</span>}
-                          </span>
-                          <span className="text-[10px] font-black text-orange-600">
-                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1.5 relative overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                            transition={{ duration: 1.5, ease: "circOut" }}
-                            className="h-full bg-orange-500 rounded-full"
-                          />
-                        </div>
+              {/* COLUNA 2: FEDERAL (2º TURNO + REJEIÇÃO) */}
+              <div className="flex flex-col gap-6">
+                {/* 2º TURNO PRESIDENTE */}
+                <LuxuryCard className="group/card h-full">
+                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                  <div className="relative z-10 h-full flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-3 py-1.5 rounded-xl w-fit">
+                        <Vote className="w-3.5 h-3.5 text-orange-600" />
+                        <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                       </div>
-                    ))}
+                      <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                      </div>
+                    </div>
+                    <h2 className="text-[18px] font-black text-zinc-900 mb-2 tracking-tight">Intenção de Voto (2º Turno)</h2>
+                    <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Num eventual segundo turno para Presidente..."</p>
+                    <div className="space-y-6 flex-1">
+                      {chartData.secondRoundData.slice(0, 3).map((item) => (
+                        <div key={item.name} className="group/row">
+                          <div className="flex justify-between items-end mb-2">
+                            <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
+                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                            </span>
+                            <span className="text-[12px] font-black text-orange-600">
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-zinc-100 rounded-full h-2 relative overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className="h-full bg-orange-500 rounded-full"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </LuxuryCard>
+                </LuxuryCard>
 
-              {/* COLUNA 3: REJEIÇÃO PRESIDENTE */}
-              <LuxuryCard className="group/card h-full">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
-                      <ShieldAlert className="w-3 h-3 text-rose-600" />
-                      <span className="text-[9px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
-                    </div>
-                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
-                    </div>
-                  </div>
-                  <h2 className="text-[16px] font-black text-zinc-900 mb-2 tracking-tight">Índice de Rejeição (Presidente)</h2>
-                  <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Em quem você NÃO votaria de jeito nenhum?"</p>
-                  <div className="space-y-6 flex-1">
-                    {chartData.rejectionData.slice(0, 6).map((item, idx) => (
-                      <div key={item.name} className="group/row">
-                        <div className="flex justify-between items-center mb-1.5">
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-800">
-                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[8px]">({item.party})</span>}
-                          </span>
-                          <span className="text-[10px] font-black text-rose-600">
-                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1.5 relative overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                            transition={{ duration: 1.5, ease: "circOut" }}
-                            className="h-full bg-rose-500 rounded-full"
-                          />
-                        </div>
+                {/* REJEIÇÃO PRESIDENTE */}
+                <LuxuryCard className="group/card h-full">
+                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                  <div className="relative z-10 h-full flex flex-col">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1.5 rounded-xl w-fit">
+                        <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
+                        <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
                       </div>
-                    ))}
+                      <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                      </div>
+                    </div>
+                    <h2 className="text-[18px] font-black text-zinc-900 mb-2 tracking-tight">Índice de Rejeição (Presidente)</h2>
+                    <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Em quem você NÃO votaria de jeito nenhum?"</p>
+                    <div className="space-y-6 flex-1">
+                      {chartData.rejectionData.slice(0, 5).map((item) => (
+                        <div key={item.name} className="group/row">
+                          <div className="flex justify-between items-end mb-2">
+                            <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
+                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                            </span>
+                            <span className="text-[12px] font-black text-rose-600">
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-zinc-100 rounded-full h-2 relative overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className="h-full bg-rose-500 rounded-full"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </LuxuryCard>
+                </LuxuryCard>
+              </div>
             </div>
 
             <div className="w-full">
