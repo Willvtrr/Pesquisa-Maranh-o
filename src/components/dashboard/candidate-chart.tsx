@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -52,8 +51,14 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
         <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
       </div>
 
+      <div className="mt-1 mb-6">
+        <p className="text-[11px] font-medium text-zinc-500 italic leading-tight">
+          "Se as eleições para Presidente da República fossem hoje, em quem você votaria?"
+        </p>
+      </div>
+
       <div 
-        className="flex-1 flex flex-col gap-5 mt-6 relative z-10"
+        className="flex-1 flex flex-col gap-5 relative z-10"
         onMouseLeave={() => setHoveredIndex(null)}
       >
         {data.map((item, idx) => {
