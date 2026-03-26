@@ -307,7 +307,7 @@ export default function Home() {
     return {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), 
-      govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 7),
+      govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 5),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
       topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
@@ -589,8 +589,8 @@ export default function Home() {
               />
             </div>
 
-            {/* SEÇÃO PRINCIPAL DE VOTOS - 2 CARDS GRANDES (CLONES) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* SEÇÃO PRINCIPAL DE VOTOS - EMPILHADOS VERTICALMENTE */}
+            <div className="flex flex-col gap-8">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <GovernorSpontaneousChart 
                 data={chartData.govSpontaneousData} 
