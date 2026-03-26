@@ -1,10 +1,9 @@
 
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 
 interface GovernorSpontaneousChartProps {
   data: { name: string; value: number }[];
@@ -32,235 +31,134 @@ const PARTY_MAP: Record<string, string> = {
   'Dino': 'PSB'
 };
 
-const PHOTO_MAP: Record<string, string> = {
-  'Carlos Brandão': '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg',
-  'Eduardo Braide': 'https://picsum.photos/seed/braide/500/500',
-  'Orleans Brandão': 'https://picsum.photos/seed/orleans/500/500',
-  'Felipe Camarão': 'https://picsum.photos/seed/camarao/500/500',
-  'Weverton Rocha': 'https://picsum.photos/seed/weverton/500/500',
-  'Josimar de Maranhãozinho': 'https://picsum.photos/seed/josimar/500/500',
-  'Roberto Rocha': 'https://picsum.photos/seed/roberto/500/500',
-  'Lahésio Bonfim': 'https://picsum.photos/seed/lahesio/500/500',
-  'Roseana Sarney': 'https://picsum.photos/seed/roseana/500/500',
+const COLORS: Record<string, string> = {
+  'Carlos Brandão': 'bg-[#c2410c]',
+  'Felipe Camarão': 'bg-[#ea580c]',
+  'Weverton Rocha': 'bg-[#ea580c]',
+  'Branco/Nulo': 'bg-[#fdba74]',
+  'NS/NR': 'bg-[#fed7aa]',
+  'Outros': 'bg-[#cbd5e1]',
 };
 
 export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange }: GovernorSpontaneousChartProps) => {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const isSelected = (nome: string) => filters.gov_spontaneous?.includes(nome);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const processed = useMemo(() => {
-    if (!data || data.length === 0 || total === 0) return { ranking: [], indecisos: 0, brancos: 0 };
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const processedData = useMemo(() => {
+    if (!data || data.length === 0 || total === 0) return [];
 
     const indecisionKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr"];
     const brancoKeywords = ["branco", "nulo", "nenhum", "ninguém"];
 
-    const indecisosCount = data
-      .filter(item => indecisionKeywords.some(kw => item.name.toLowerCase().includes(kw)))
-      .reduce((acc, curr) => acc + curr.value, 0);
+    let items = data.map(item => ({
+      name: item.name.trim(),
+      value: item.value,
+      isAbstention: indecisionKeywords.some(kw => item.name.toLowerCase().includes(kw)) || 
+                     brancoKeywords.some(kw => item.name.toLowerCase().includes(kw))
+    }));
 
-    const brancosCount = data
-      .filter(item => brancoKeywords.some(kw => item.name.toLowerCase().includes(kw)))
-      .reduce((acc, curr) => acc + curr.value, 0);
+    // Separa candidatos reais de abstenções
+    const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
+    const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-    const ranking = data
-      .filter(item => 
-        !indecisionKeywords.some(kw => item.name.toLowerCase().includes(kw)) &&
-        !brancoKeywords.some(kw => item.name.toLowerCase().includes(kw))
-      )
-      .map(item => ({
-        nome: item.name.trim(),
-        porcentagem: (item.value / total) * 100,
-        party: PARTY_MAP[item.name.trim()] || null
-      }))
-      .sort((a, b) => b.porcentagem - a.porcentagem);
-
-    return {
-      ranking,
-      indecisos: (indecisosCount / total) * 100,
-      brancos: (brancosCount / total) * 100
-    };
+    // Pega o Top 5 candidatos + abstenções
+    return [...candidates.slice(0, 5), ...abstentions];
   }, [data, total]);
 
-  const { ranking, indecisos, brancos } = processed;
-
   return (
-    <div className="bg-white rounded-[3rem] border border-zinc-200/60 p-10 lg:p-14 relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.04)] h-full flex flex-col">
-      {/* Header Estilo Referência */}
-      <div className="relative z-10 mb-12 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="w-1.5 h-4 bg-orange-600 rounded-full" />
-            <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Monitoramento Estadual</h4>
+    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-14 relative overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] group/container h-full">
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+
+      <div className="relative z-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="w-1.5 h-4 bg-[#ea580c] rounded-full"></div>
+            <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-[0.2em]">Monitoramento Estadual</span>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-zinc-950 tracking-tighter leading-[0.9] max-w-sm">
+          <h1 className="text-3xl md:text-4xl font-black text-zinc-950 tracking-tight leading-none">
             Intenção de Voto Governador
           </h1>
         </div>
         
-        <div className="flex items-center gap-2 bg-white border border-zinc-100 shadow-sm px-5 py-2.5 rounded-full w-fit self-start sm:self-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.4)]" />
-          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Espontânea</span>
+        <div className="flex items-center gap-2 bg-white border border-zinc-200 shadow-sm px-4 py-2 rounded-full w-fit">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ea580c]"></span>
+          </span>
+          <span className="text-[11px] font-black text-zinc-700 uppercase tracking-widest">Espontânea</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
-        {/* Destaques (Top 3 Cápsulas Verticais) */}
-        <div className="lg:col-span-8 flex flex-col">
-          <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-12">Destaques Espontâneos</h4>
-          
-          <div className="grid grid-cols-3 gap-6 flex-1 items-start">
-            {[0, 1, 2].map((pos) => {
-              const item = ranking[pos];
-              const active = item ? isSelected(item.nome) : false;
-              const photoUrl = item ? PHOTO_MAP[item.nome] : null;
-              const isFaded = hoveredIdx !== null && hoveredIdx !== pos;
-              
-              return (
+      <div 
+        className="flex flex-col gap-5 relative z-10 chart-container"
+        onMouseLeave={() => setHoveredIndex(null)}
+      >
+        {processedData.map((item, idx) => {
+          const pct = total > 0 ? (item.value / total) * 100 : 0;
+          const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
+          const party = PARTY_MAP[item.name];
+          const barColor = COLORS[item.name] || (item.isAbstention ? 'bg-zinc-200' : 'bg-zinc-200');
+
+          return (
+            <div 
+              key={`${item.name}-${idx}`} 
+              className={cn(
+                "flex items-center gap-5 h-10 cursor-pointer transition-all duration-300 chart-row",
+                hoveredIndex === idx && "translate-x-1"
+              )}
+              onMouseEnter={() => setHoveredIndex(idx)}
+              onClick={() => onFilterChange('gov_spontaneous', item.name)}
+            >
+              <div className="w-32 lg:w-48 text-right flex flex-col justify-center flex-shrink-0">
+                <span className={cn(
+                  "text-[14px] transition-colors leading-tight truncate",
+                  idx < 2 && !item.isAbstention ? "font-black text-zinc-800" : "font-bold text-zinc-500",
+                  isFaded && "text-zinc-300"
+                )}>
+                  {item.name}
+                </span>
+                {party && (
+                  <span className={cn(
+                    "text-[10px] font-black text-zinc-400 transition-colors uppercase tracking-widest",
+                    isFaded && "text-zinc-200"
+                  )}>
+                    ({party})
+                  </span>
+                )}
+              </div>
+
+              <div className="flex-1 h-[32px] bg-zinc-50 rounded-full relative overflow-visible border border-zinc-100/50 shadow-inner">
                 <motion.div 
-                  key={pos}
-                  onMouseEnter={() => setHoveredIdx(pos)}
-                  onMouseLeave={() => setHoveredIdx(null)}
-                  onClick={() => item && onFilterChange('gov_spontaneous', item.nome)}
+                  initial={{ width: 0 }}
+                  animate={{ 
+                    width: isMounted ? `${pct}%` : 0,
+                    filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
+                    boxShadow: hoveredIndex === idx ? '0 4px 12px -2px rgba(234,88,12,0.2)' : 'none'
+                  }}
+                  transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
-                    "bg-white border rounded-[5rem] p-4 pt-10 pb-12 flex flex-col items-center gap-8 relative transition-all duration-500 cursor-pointer shadow-sm min-h-[400px]",
-                    active ? "border-orange-500 bg-orange-50/20" : "border-zinc-100",
-                    isFaded && "opacity-40 grayscale-[0.5] scale-95"
+                    "h-full rounded-full relative transition-all flex items-center justify-end pr-3",
+                    idx === 0 && !item.isAbstention ? "bg-[#c2410c]" : 
+                    !item.isAbstention ? "bg-[#ea580c]" : "bg-zinc-300"
                   )}
                 >
-                  <div className="relative">
-                    <div className="size-24 lg:size-28 rounded-full bg-zinc-50 relative overflow-hidden border-4 border-white shadow-2xl">
-                      {photoUrl ? (
-                        <Image src={photoUrl} alt={item?.nome || "Candidato"} fill className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-zinc-200 uppercase">500x500</div>
-                      )}
-                    </div>
-                    {/* Badge de Posição Circular */}
-                    <div className={cn(
-                      "absolute top-0 -right-2 size-10 rounded-full font-black flex items-center justify-center text-xs shadow-xl border-4 border-white",
-                      pos === 0 ? "bg-orange-600 text-white" : "bg-zinc-950 text-white"
-                    )}>
-                      {pos + 1}º
-                    </div>
-                  </div>
-
-                  <div className="text-center space-y-4 w-full">
-                    <div className="flex flex-col items-center">
-                      <span className={cn(
-                        "text-2xl font-black transition-colors leading-none mb-2",
-                        active ? "text-orange-950" : "text-zinc-950"
-                      )}>
-                        {item ? `${item.nome.split(' ')[0][0]}.` : '-'}
-                      </span>
-                      <div className="flex items-baseline gap-1 justify-center">
-                        <span className={cn("text-3xl font-black", active ? "text-orange-600" : "text-zinc-950")}>
-                          {item?.porcentagem.toFixed(1) || '0.0'}
-                        </span>
-                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">%</span>
-                      </div>
-                      {item?.party && (
-                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">
-                          ({item.party})
-                        </span>
-                      )}
-                    </div>
-                    {/* Barra Horizontal Estilo Referência */}
-                    <div className="w-14 h-1.5 bg-zinc-100 rounded-full mx-auto overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${item?.porcentagem || 0}%` }}
-                        className={cn("h-full", pos === 0 ? "bg-orange-600" : "bg-zinc-400")} 
-                      />
-                    </div>
-                  </div>
+                  <span className={cn(
+                    "absolute -right-16 top-1/2 -translate-y-1/2 text-[15px] font-black transition-all duration-300",
+                    isFaded ? "text-zinc-300" : "text-zinc-700",
+                    hoveredIndex === idx && "scale-105 text-zinc-950"
+                  )}>
+                    {pct.toFixed(1)}%
+                  </span>
                 </motion.div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Sidebar de Inteligência Estilo Image Referência */}
-        <div className="lg:col-span-4 flex flex-col pt-20">
-          {/* Controle de Indecisão - Box flutuante arredondado */}
-          <div className="bg-zinc-50/50 p-8 rounded-[3rem] border border-zinc-100 mb-14 shadow-inner">
-            <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-10">Controle de Indecisão</h4>
-            
-            <div className="space-y-10">
-              <div 
-                className="cursor-pointer group"
-                onClick={() => onFilterChange('gov_spontaneous', 'NS/NR')}
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-[11px] font-bold text-zinc-700 uppercase tracking-tight">Não Sabe / NS/NR</span>
-                </div>
-                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden border border-zinc-100">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${indecisos}%` }}
-                    className="h-full bg-zinc-400" 
-                  />
-                </div>
               </div>
-
-              <div 
-                className="cursor-pointer group"
-                onClick={() => onFilterChange('gov_spontaneous', 'Branco/Nulo')}
-              >
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-[11px] font-bold text-zinc-700 uppercase tracking-tight">Branco / Nulo</span>
-                </div>
-                <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-zinc-100/50">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${brancos}%` }}
-                    className="h-full bg-zinc-200" 
-                  />
-                </div>
-              </div>
+              <div className="w-14 flex-shrink-0"></div>
             </div>
-          </div>
-
-          {/* Outros Nomes - Lista Vertical Compacta */}
-          <div>
-            <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-10">Outros Nomes Citados</h4>
-            <div className="space-y-8 max-h-[400px] overflow-y-auto no-scrollbar pr-2">
-              {ranking.slice(3, 10).map((item) => {
-                const active = isSelected(item.nome);
-                const photoUrl = PHOTO_MAP[item.nome];
-                return (
-                  <div 
-                    key={item.nome} 
-                    onClick={() => onFilterChange('gov_spontaneous', item.nome)}
-                    className="cursor-pointer group flex items-center gap-4"
-                  >
-                    <div className="size-12 rounded-full bg-zinc-50 relative overflow-hidden shrink-0 border-2 border-white shadow-lg">
-                      {photoUrl ? (
-                        <Image src={photoUrl} alt={item.nome} fill className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[8px] font-black text-zinc-300">IMG</div>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col min-w-0">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={cn("text-[13px] font-black truncate", active ? "text-orange-600" : "text-zinc-900")}>
-                          {item.nome}
-                        </span>
-                        <span className="text-[11px] font-black text-zinc-400">{item.porcentagem.toFixed(1)}%</span>
-                      </div>
-                      <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${item.porcentagem}%` }}
-                          className={cn("h-full", active ? "bg-orange-600" : "bg-zinc-300")}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
