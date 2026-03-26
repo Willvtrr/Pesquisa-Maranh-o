@@ -242,6 +242,8 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
+  const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
+
   // REJEIÇÃO ABSOLUTA ESTADUAL
   const rawGovRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
@@ -287,10 +289,8 @@ export default function Home() {
         party: PARTY_MAP[name] || null
       }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 6);
+      .slice(0, 5);
   }, [rawSurveyData, activeKeys.PRESIDENT_REJECTION]);
-
-  const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
   const calculateApproval = (data: any[], questionKey: string) => {
     if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
@@ -601,33 +601,10 @@ export default function Home() {
               <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
-            {/* LINHA ESTADUAL: CENÁRIOS E REJEIÇÃO */}
+            {/* LINHA DE CENÁRIOS E 2º TURNO */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
-              <GovernorRejectionChart 
-                data={rawGovRejectionData} 
-                total={totalDatabaseCount} 
-                overline="TETO ELEITORAL ESTADUAL"
-                title="Índice de Rejeição"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="red"
-              />
-            </div>
-
-            {/* LINHA FEDERAL: REJEIÇÃO E 2º TURNO (INVERTIDOS) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GovernorRejectionChart 
-                data={rawPresidentRejectionData} 
-                total={totalDatabaseCount} 
-                overline="TETO ELEITORAL FEDERAL"
-                title="Índice de Rejeição"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="rose"
-              />
-
               <LuxuryCard className="h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="space-y-1">
@@ -660,6 +637,28 @@ export default function Home() {
                   ))}
                 </div>
               </LuxuryCard>
+            </div>
+
+            {/* LINHA DE REJEIÇÃO LADO A LADO (ABSOLUTO) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <GovernorRejectionChart 
+                data={rawGovRejectionData} 
+                total={totalDatabaseCount} 
+                overline="Teto Eleitoral Estadual"
+                title="Índice de Rejeição"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="red"
+              />
+              <GovernorRejectionChart 
+                data={rawPresidentRejectionData} 
+                total={totalDatabaseCount} 
+                overline="Teto Eleitoral Federal"
+                title="Índice de Rejeição"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="rose"
+              />
             </div>
 
             <div className="w-full">

@@ -32,13 +32,13 @@ export const GovernorRejectionChart = ({
   }, []);
 
   const barColorClass = color === 'red' 
-    ? "bg-gradient-to-b from-[#ef4444] to-[#b91c1c]" 
-    : "bg-gradient-to-b from-[#f43f5e] to-[#be123c]";
+    ? "from-[#ef4444] to-[#b91c1c]" 
+    : "from-[#f43f5e] to-[#be123c]";
 
   const overlineColorClass = color === 'red' ? "bg-[#dc2626]" : "bg-[#e11d48]";
 
   return (
-    <div className="bg-white rounded-[2rem] p-6 lg:p-8 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[380px]">
+    <div className="bg-white rounded-[2.5rem] p-6 lg:p-8 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[380px]">
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -70,16 +70,16 @@ export const GovernorRejectionChart = ({
 
           return (
             <div key={`${item.name}-${idx}`} className="flex flex-col items-center flex-1 group">
-              {/* Bar Track - 140px como solicitado na redução drástica */}
+              {/* Bar Track - Compacto 140px */}
               <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-2 shadow-inner">
                 <motion.div
                   initial={{ height: 0 }}
                   animate={{ height: isMounted ? `${pct}%` : 0 }}
                   transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
                   className={cn(
-                    "w-full rounded-full transition-all min-h-[20px]",
+                    "w-full rounded-full transition-all min-h-[20px] bg-gradient-to-b",
                     isAbstention 
-                      ? "bg-gradient-to-b from-slate-300 to-slate-500" 
+                      ? "from-slate-200 to-slate-400" 
                       : barColorClass
                   )}
                 />
@@ -100,7 +100,7 @@ export const GovernorRejectionChart = ({
                   </AvatarFallback>
                 </Avatar>
                 
-                <div className="space-y-0">
+                <div className="space-y-0 min-h-[2.4em] flex flex-col justify-center">
                   <p className="text-[9px] font-black text-zinc-900 leading-tight uppercase tracking-tight">
                     {item.name.split(' ')[0]}<br />
                     {item.name.split(' ')[1] || ''}
