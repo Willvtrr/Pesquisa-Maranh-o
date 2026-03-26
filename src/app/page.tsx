@@ -432,6 +432,7 @@ export default function Home() {
 
   const actualCityCountInDb = dynamicOptions.city.length;
   const coveragePercent = ((actualCityCountInDb / 217) * 100).toFixed(1);
+  const collectionPercent = ((totalDatabaseCount / 20000) * 100).toFixed(1);
 
   return (
     <AppLayout>
@@ -495,12 +496,14 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-xl font-black tracking-tighter text-zinc-950 leading-none mb-1">
-                  {totalDatabaseCount.toLocaleString('pt-BR')} 
-                  <span className="text-[10px] text-zinc-400 uppercase ml-1">de 20.000 coletas</span>
-                </h2>
-                <p className="text-[8px] font-bold text-orange-600 uppercase tracking-widest mb-2">
-                  Precisamos bater 20 mil
+                <div className="flex items-baseline gap-1">
+                  <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-none">
+                    {totalDatabaseCount.toLocaleString('pt-BR')}
+                  </h2>
+                  <span className="text-lg font-black text-zinc-400">/20.000</span>
+                </div>
+                <p className="text-[7px] font-black uppercase tracking-widest mt-6 text-zinc-500">
+                  Maranhão • Progresso {collectionPercent}%
                 </p>
                 <div className="flex gap-0.5 mt-2">
                   {[...Array(6)].map((_, i) => (
