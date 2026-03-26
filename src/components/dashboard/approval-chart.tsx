@@ -50,12 +50,6 @@ export const ApprovalChart = ({ data }: ApprovalChartProps) => {
             />
           </PieChart>
         </ResponsiveContainer>
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center">
-            <span className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest">Score</span>
-            <span className="text-2xl font-mono font-bold text-zinc-900">72.4</span>
-          </div>
-        </div>
       </div>
       <div className="grid grid-cols-3 gap-2 mt-4">
         {data.map((item) => (
