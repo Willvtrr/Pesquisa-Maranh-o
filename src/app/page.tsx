@@ -643,18 +643,8 @@ export default function Home() {
               </LuxuryCard>
             </div>
 
-            {/* LINHA DE REJEIÇÃO LADO A LADO (ABSOLUTO E PROPORCIONAL) */}
+            {/* LINHA DE REJEIÇÃO LADO A LADO (FEDERAL À ESQUERDA, ESTADUAL À DIREITA) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RejectionPillChart 
-                data={rawGovRejectionData} 
-                total={totalDatabaseCount} 
-                overline="Teto Eleitoral Estadual"
-                title="Índice de Rejeição"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="red"
-                isMounted={isMounted}
-              />
               <RejectionPillChart 
                 data={rawPresidentRejectionData} 
                 total={totalDatabaseCount} 
@@ -663,6 +653,16 @@ export default function Home() {
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
                 badge="Estimulada"
                 color="rose"
+                isMounted={isMounted}
+              />
+              <RejectionPillChart 
+                data={rawGovRejectionData} 
+                total={totalDatabaseCount} 
+                overline="Teto Eleitoral Estadual"
+                title="Índice de Rejeição"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="red"
                 isMounted={isMounted}
               />
             </div>
@@ -681,7 +681,7 @@ export default function Home() {
   );
 }
 
-// COMPONENTE DE REJEIÇÃO REVISADO (CLONE EXATO COM ALTURA PROPORCIONAL)
+// COMPONENTE DE REJEIÇÃO REVISADO (CLONE EXATO COM ALTURA PROPORCIONAL E SWAP)
 const RejectionPillChart = ({ 
   data, total, title, overline, subtitle, badge, color, isMounted 
 }: any) => {
@@ -723,8 +723,7 @@ const RejectionPillChart = ({
                   transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
                   className={cn(
                     "w-full rounded-full transition-all bg-gradient-to-b",
-                    // Mantemos apenas 4px de min-height para garantir o formato circular na base, sem afetar a proporção visível
-                    "min-height-[4px]", 
+                    "min-h-[4px]", // Mantemos apenas 4px para garantir o formato circular na base
                     isAbstention ? "from-slate-200 to-slate-400" : gradColor
                   )}
                 />
