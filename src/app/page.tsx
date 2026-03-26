@@ -433,7 +433,6 @@ export default function Home() {
 
   const actualCityCountInDb = dynamicOptions.city.length;
   const coveragePercent = ((actualCityCountInDb / 217) * 100).toFixed(1);
-  const collectionPercent = ((totalDatabaseCount / 20000) * 100).toFixed(1);
 
   return (
     <AppLayout>
@@ -513,11 +512,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
-                <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">Amostra Filtrada</span>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
-                  <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[6px] font-black uppercase tracking-widest">Em Campo</span>
-                </div>
+                <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">Sincronizado</span>
               </div>
             </div>
             <div className="bg-orange-600 rounded-[2rem] p-4 flex flex-col text-white shadow-xl border border-orange-500 relative overflow-hidden">
