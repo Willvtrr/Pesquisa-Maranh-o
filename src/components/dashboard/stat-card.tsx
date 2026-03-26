@@ -121,7 +121,10 @@ export const StatCard = ({
 
       <div className="grid grid-cols-3 gap-2 text-center relative z-10 border-b border-zinc-100/80 pb-6 mb-6 w-full">
         <div className="flex flex-col items-center">
-          <NumberCounter value={aprovaData} className="text-xl font-black text-zinc-900 mb-1" />
+          <div className="flex items-baseline gap-0.5 mb-1">
+            <NumberCounter value={aprovaData} className="text-xl font-black text-zinc-900" />
+            <span className="text-[10px] font-black text-zinc-400">%</span>
+          </div>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.aprova }} />
             <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Aprova</span>
@@ -129,7 +132,10 @@ export const StatCard = ({
         </div>
         
         <div className="flex flex-col items-center">
-          <NumberCounter value={desaprovaData} className="text-xl font-black text-zinc-900 mb-1" />
+          <div className="flex items-baseline gap-0.5 mb-1">
+            <NumberCounter value={desaprovaData} className="text-xl font-black text-zinc-900" />
+            <span className="text-[10px] font-black text-zinc-400">%</span>
+          </div>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.desaprova }} />
             <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Desaprova</span>
@@ -137,7 +143,10 @@ export const StatCard = ({
         </div>
         
         <div className="flex flex-col items-center">
-          <NumberCounter value={nsnrData} className="text-xl font-black text-zinc-900 mb-1" />
+          <div className="flex items-baseline gap-0.5 mb-1">
+            <NumberCounter value={nsnrData} className="text-xl font-black text-zinc-900" />
+            <span className="text-[10px] font-black text-zinc-400">%</span>
+          </div>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.nsnr }} />
             <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">NS/NR</span>

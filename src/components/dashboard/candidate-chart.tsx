@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -43,19 +42,27 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
 
   return (
     <LuxuryCard 
-      title="CORRIDA PRESIDENCIAL" 
-      subtitle="Intenção de Voto Federal"
-      className="h-full"
+      className="h-full relative"
     >
-      <div className="mt-1 mb-8 flex items-start justify-between gap-4">
-        <p className="text-[11px] font-medium text-zinc-400 italic leading-tight max-w-[70%]">
-          "Se as eleições para Presidente da República fossem hoje, em quem você votaria?"
-        </p>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
+      <div className="flex items-start justify-between mb-2">
+        <div className="space-y-1">
+          <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <span className="w-1 h-3 bg-orange-600 rounded-full" />
+            CORRIDA PRESIDENCIAL
+          </h4>
+          <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">
+            Intenção de Voto Federal
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
           <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
         </div>
       </div>
+
+      <p className="text-[11px] font-medium text-zinc-400 italic leading-tight mb-8">
+        "Se as eleições para Presidente da República fossem hoje, em quem você votaria?"
+      </p>
 
       <div 
         className="flex-1 flex flex-col gap-5 relative z-10"
