@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -240,6 +239,32 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
+  // REJEIÇÃO ABSOLUTA (SEM FILTROS)
+  const rawGovRejectionData = useMemo(() => {
+    if (!rawSurveyData || rawSurveyData.length === 0) return [];
+    const counts: Record<string, number> = {};
+    const key = activeKeys.GOV_REJECTION;
+    
+    rawSurveyData.forEach(item => {
+      if (item.INFO) return;
+      const val = String(item[key] || '').trim();
+      if (val && val !== 'all') {
+        counts[val] = (counts[val] || 0) + 1;
+      }
+    });
+
+    return Object.entries(counts)
+      .map(([name, value]) => ({ 
+        name, 
+        value,
+        party: PARTY_MAP[name] || null
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+  }, [rawSurveyData, activeKeys.GOV_REJECTION]);
+
+  const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
+
   const calculateApproval = (data: any[], questionKey: string) => {
     if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
     
@@ -263,8 +288,6 @@ export default function Home() {
   const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
   const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
   const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
-
-  const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
   const mayorInfo = useMemo(() => {
     const activeCities = filters.city;
@@ -307,9 +330,6 @@ export default function Home() {
     return {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), 
-      govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 4),
-      topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
-      topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 6),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
@@ -399,12 +419,6 @@ export default function Home() {
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
-  };
-
-  const images = {
-    lula: '/lula.jpg',
-    brandao: '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg',
-    genericMayor: '/bandeiracerta.jpg'
   };
 
   if (isLoading && rawSurveyData.length === 0) {
@@ -553,7 +567,7 @@ export default function Home() {
                 subtitle="Pres. Lula" 
                 party="PT"
                 value={`${statsLula.aprova}%`} 
-                imageUrl={images.lula} 
+                imageUrl="/lula.jpg" 
                 subValue="FEDERAL" 
                 breakdown={[
                   { name: 'Aprova', value: Number(statsLula.aprova) },
@@ -566,7 +580,7 @@ export default function Home() {
                 subtitle="Gov. Carlos Brandão" 
                 party="PSB"
                 value={`${statsBrandao.aprova}%`} 
-                imageUrl={images.brandao} 
+                imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" 
                 subValue="ESTADUAL" 
                 breakdown={[
                   { name: 'Aprova', value: Number(statsBrandao.aprova) },
@@ -579,7 +593,7 @@ export default function Home() {
                 subtitle={mayorInfo.displayName} 
                 party={mayorInfo.party}
                 value={`${statsPrefeito.aprova}%`} 
-                imageUrl={images.genericMayor} 
+                imageUrl="/bandeiracerta.jpg" 
                 subValue="MUNICIPAL" 
                 breakdown={[
                   { name: 'Aprova', value: Number(statsPrefeito.aprova) },
@@ -589,7 +603,6 @@ export default function Home() {
               />
             </div>
 
-            {/* SEÇÃO PRINCIPAL DE VOTOS - LADO A LADO */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <GovernorSpontaneousChart 
@@ -600,96 +613,81 @@ export default function Home() {
               />
             </div>
 
-            {/* GRADE DE INTELIGÊNCIA - EMPILHADA POR NÍVEL (ESTADUAL VS FEDERAL) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* COLUNA 1: ESTADUAL (CENÁRIOS + REJEIÇÃO) */}
+              {/* COLUNA 1: ESTADUAL EMPILHADO */}
               <div className="flex flex-col gap-6">
                 <GovernorScenarioChart />
                 <GovernorRejectionChart 
-                  data={chartData.govRejectionData} 
-                  total={filteredData.length} 
+                  data={rawGovRejectionData} 
+                  total={totalDatabaseCount} 
                 />
               </div>
               
-              {/* COLUNA 2: FEDERAL (2º TURNO + REJEIÇÃO) */}
+              {/* COLUNA 2: FEDERAL EMPILHADO */}
               <div className="flex flex-col gap-6">
-                {/* 2º TURNO PRESIDENTE */}
-                <LuxuryCard className="group/card h-full">
-                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                  <div className="relative z-10 h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-3 py-1.5 rounded-xl w-fit">
-                        <Vote className="w-3.5 h-3.5 text-orange-600" />
+                <LuxuryCard className="h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-3 bg-orange-600 rounded-full" />
                         <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                       </div>
-                      <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
-                      </div>
+                      <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Intenção de Voto (2º Turno)</h2>
                     </div>
-                    <h2 className="text-[18px] font-black text-zinc-900 mb-2 tracking-tight">Intenção de Voto (2º Turno)</h2>
-                    <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Num eventual segundo turno para Presidente..."</p>
-                    <div className="space-y-6 flex-1">
-                      {chartData.secondRoundData.slice(0, 3).map((item) => (
-                        <div key={item.name} className="group/row">
-                          <div className="flex justify-between items-end mb-2">
-                            <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
-                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                            </span>
-                            <span className="text-[12px] font-black text-orange-600">
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-zinc-100 rounded-full h-2 relative overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                              transition={{ duration: 1.5, ease: "circOut" }}
-                              className="h-full bg-orange-500 rounded-full"
-                            />
-                          </div>
+                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Num eventual segundo turno para Presidente..."</p>
+                  <div className="space-y-6">
+                    {chartData.secondRoundData.slice(0, 3).map((item) => (
+                      <div key={item.name}>
+                        <div className="flex justify-between items-end mb-2">
+                          <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
+                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                          </span>
+                          <span className="text-[12px] font-black text-orange-600">
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} transition={{ duration: 1.5 }} className="h-full bg-orange-500" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </LuxuryCard>
 
-                {/* REJEIÇÃO PRESIDENTE */}
-                <LuxuryCard className="group/card h-full">
-                  <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                  <div className="relative z-10 h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1.5 rounded-xl w-fit">
-                        <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-                        <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
+                <LuxuryCard className="h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-3 bg-rose-600 rounded-full" />
+                        <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Teto Federal</span>
                       </div>
-                      <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
-                      </div>
+                      <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Rejeição (Presidente)</h2>
                     </div>
-                    <h2 className="text-[18px] font-black text-zinc-900 mb-2 tracking-tight">Índice de Rejeição (Presidente)</h2>
-                    <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Em quem você NÃO votaria de jeito nenhum?"</p>
-                    <div className="space-y-6 flex-1">
-                      {chartData.rejectionData.slice(0, 5).map((item) => (
-                        <div key={item.name} className="group/row">
-                          <div className="flex justify-between items-end mb-2">
-                            <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
-                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                            </span>
-                            <span className="text-[12px] font-black text-rose-600">
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-zinc-100 rounded-full h-2 relative overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                              transition={{ duration: 1.5, ease: "circOut" }}
-                              className="h-full bg-rose-500 rounded-full"
-                            />
-                          </div>
+                    <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
+                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Em quem você NÃO votaria de jeito nenhum?"</p>
+                  <div className="space-y-6">
+                    {chartData.rejectionData.slice(0, 5).map((item) => (
+                      <div key={item.name}>
+                        <div className="flex justify-between items-end mb-2">
+                          <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
+                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                          </span>
+                          <span className="text-[12px] font-black text-rose-600">
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} transition={{ duration: 1.5 }} className="h-full bg-rose-500" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </LuxuryCard>
               </div>

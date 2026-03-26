@@ -1,10 +1,8 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface GovernorRejectionChartProps {
@@ -19,88 +17,95 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
     setIsMounted(true);
   }, []);
 
-  const maxValue = Math.max(...data.map(d => d.value), 1);
-
   return (
-    <LuxuryCard className="flex-1 p-5 min-h-[380px] flex flex-col">
-      <div className="flex items-start justify-between mb-2">
+    <div className="bg-white rounded-[2rem] p-8 lg:p-10 w-full relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-zinc-50">
+      {/* Header Estilo Clone */}
+      <div className="flex justify-between items-start mb-12">
         <div className="space-y-1">
-          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-2">
-            <span className="w-1 h-3 bg-red-600 rounded-full" />
-            Teto Eleitoral Estadual
-          </h4>
-          <h3 className="text-[16px] font-black text-zinc-950 tracking-tight leading-tight">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-4 bg-[#dc2626] rounded-full" />
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
+              Teto Eleitoral Estadual
+            </span>
+          </div>
+          <h2 className="text-3xl font-black text-zinc-900 tracking-tight">
             Índice de Rejeição
-          </h3>
+          </h2>
+          <p className="text-[13px] text-zinc-400 italic mt-1 font-medium">
+            "REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"
+          </p>
         </div>
-        <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+        <div className="px-4 py-2 rounded-full bg-[#f8fafc] border border-zinc-100">
+          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+            Estimulada
+          </span>
         </div>
       </div>
-      
-      <p className="text-[9px] font-bold text-zinc-400 leading-tight italic mb-6">
-        "REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"
-      </p>
 
-      <div className="flex-grow flex items-end justify-between gap-2 pb-2">
+      {/* Chart Container */}
+      <div className="flex justify-between items-start gap-4">
         {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const heightPct = (item.value / maxValue) * 100;
           const isAbstention = item.name.toLowerCase().includes('nulo') || 
                                item.name.toLowerCase().includes('branco') || 
                                item.name.toLowerCase().includes('nenhum') ||
-                               item.name.toLowerCase().includes('ns/nr');
+                               item.name.toLowerCase().includes('não sabe');
 
           return (
             <div key={`${item.name}-${idx}`} className="flex flex-col items-center flex-1 group">
-              <div className="flex flex-col items-center w-full h-full justify-end">
-                <motion.span
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.1 }}
-                  className="text-[10px] font-black text-zinc-950 mb-2"
-                >
-                  {pct.toFixed(1)}%
-                </motion.span>
-
-                <div className="w-full max-w-[42px] bg-zinc-50 rounded-t-xl relative h-[140px] flex items-end overflow-hidden border border-zinc-100">
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: isMounted ? `${heightPct}%` : 0 }}
-                    transition={{ duration: 1.2, ease: "circOut", delay: idx * 0.1 }}
-                    className={cn(
-                      "w-full rounded-t-xl relative transition-all",
-                      isAbstention 
-                        ? "bg-gradient-to-b from-slate-200 to-slate-400" 
-                        : "bg-gradient-to-b from-red-500 to-red-700 shadow-[0_5px_15px_-5px_rgba(220,38,38,0.4)]"
-                    )}
-                  />
-                </div>
+              {/* Bar Track */}
+              <div className="w-12 h-[250px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-4 shadow-inner">
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: isMounted ? `${pct}%` : 0 }}
+                  transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
+                  className={cn(
+                    "w-full rounded-full transition-all min-h-[40px] cursor-pointer hover:brightness-110",
+                    isAbstention 
+                      ? "bg-gradient-to-b from-slate-300 to-slate-500" 
+                      : "bg-gradient-to-b from-[#ef4444] to-[#b91c1c] shadow-[0_10px_20px_-10px_rgba(220,38,38,0.4)]"
+                  )}
+                />
               </div>
 
-              <div className="mt-4 flex flex-col items-center text-center">
-                <Avatar className="w-8 h-8 border-2 border-white shadow-sm mb-1.5 transition-transform group-hover:scale-110">
+              {/* Percentage Label */}
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 + idx * 0.1 }}
+                className="text-lg font-black text-zinc-900 mb-6"
+              >
+                {pct.toFixed(1)}%
+              </motion.span>
+
+              {/* Candidate Info */}
+              <div className="flex flex-col items-center text-center space-y-3">
+                <Avatar className="w-14 h-14 border-2 border-zinc-100 shadow-sm transition-transform group-hover:-translate-y-1">
                   <AvatarImage 
-                    src={`https://picsum.photos/seed/${item.name}/100/100`} 
+                    src={`https://picsum.photos/seed/${item.name}/150/150`} 
                     className="object-cover"
                   />
-                  <AvatarFallback className="bg-zinc-100 text-[8px] font-black text-zinc-400 uppercase">
+                  <AvatarFallback className="bg-[#f8fafc] text-[10px] font-bold text-zinc-400 uppercase">
                     {isAbstention ? "N/B" : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <p className="text-[8px] font-black text-zinc-900 leading-tight uppercase tracking-tighter w-12 line-clamp-1">
-                  {item.name.split(' ')[0]}
-                </p>
-                {item.party && (
-                  <span className="text-[7px] font-bold text-zinc-400 uppercase mt-0.5">
-                    ({item.party})
-                  </span>
-                )}
+                
+                <div className="space-y-0.5">
+                  <p className="text-[11px] font-bold text-zinc-900 leading-tight uppercase tracking-tight">
+                    {item.name.split(' ')[0]}<br />
+                    {item.name.split(' ')[1] || ''}
+                  </p>
+                  {item.party && (
+                    <p className="text-[10px] font-semibold text-zinc-400 uppercase">
+                      ({item.party})
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-    </LuxuryCard>
+    </div>
   );
 };
