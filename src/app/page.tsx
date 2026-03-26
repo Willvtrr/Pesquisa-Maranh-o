@@ -124,6 +124,7 @@ const DEFAULT_KEYS = {
   PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
   GOV_VOTE_SPONTANEOUS: "GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
   GOV_REJECTION: "10. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum? (Estimulada)",
+  GOV_VICTORY_PERCEPTION: "11. PERCEPÇÃO DE VITÓRIA: Quem você acha que ganhará a eleição para Governador do Maranhão? (Estimulada)",
 };
 
 export default function Home() {
@@ -179,6 +180,7 @@ export default function Home() {
       PRESIDENT_REJECTION: findKey(['6. REJEIÇÃO'], DEFAULT_KEYS.PRESIDENT_REJECTION),
       GOV_VOTE_SPONTANEOUS: findKey(['governador', 'espontânea'], DEFAULT_KEYS.GOV_VOTE_SPONTANEOUS),
       GOV_REJECTION: findKey(['10. REJEIÇÃO'], DEFAULT_KEYS.GOV_REJECTION),
+      GOV_VICTORY_PERCEPTION: findKey(['11. PERCEPÇÃO DE VITÓRIA'], DEFAULT_KEYS.GOV_VICTORY_PERCEPTION),
     };
   }, [rawSurveyData]);
 
@@ -278,6 +280,7 @@ export default function Home() {
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS),
       govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 7),
+      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
       topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
     };
@@ -725,8 +728,46 @@ export default function Home() {
                 </div>
               </LuxuryCard>
               
-              {/* Espaço para o Mapa ocupar mais largura ou outro card */}
-              <div className="lg:col-span-1"></div>
+              <LuxuryCard className="group/card">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full w-fit">
+                      <TrendingUp className="w-3 h-3 text-blue-600" />
+                      <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Expectativa de Poder</span>
+                    </div>
+                  </div>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Percepção de Vitória (Estimulada)</h2>
+                  <div className="space-y-6 flex-1">
+                    {chartData.govVictoryData.length > 0 ? (
+                      chartData.govVictoryData.map((item, idx) => (
+                        <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-3">
+                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                            </div>
+                            <span className="text-[11px] font-black text-blue-600">
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className="h-full bg-blue-500 rounded-full"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-[10px] font-black uppercase text-zinc-400">
+                        Aguardando Dados do Google Cloud...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </LuxuryCard>
             </div>
             
             <div className="grid grid-cols-1 gap-6">
