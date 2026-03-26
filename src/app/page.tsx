@@ -19,7 +19,7 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-// Importação cirúrgica do banco de dados de referência
+// Importação do banco de dados de referência
 import surveyData from '@/data/Estadual_fev26_certo.json';
 
 const DEFAULT_KEYS = {
@@ -33,7 +33,7 @@ const DEFAULT_KEYS = {
   IDEOLOGY: "Você se considera de esquerda, centro ou direita?",
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
-  MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito?",
+  MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
   PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
@@ -188,31 +188,38 @@ export default function Home() {
     work: ['all']
   });
 
-  // Função auxiliar para cálculo de porcentagens dinâmicas
-  const getApprovalPercentage = (dataArray: any[], questionKey: string, targetValue: string) => {
-    if (!dataArray || dataArray.length === 0) return "0.0";
-    const count = dataArray.filter(item => 
-      item[questionKey] && String(item[questionKey]).trim().toLowerCase() === targetValue.toLowerCase()
-    ).length;
-    return ((count / dataArray.length) * 100).toFixed(1);
-  };
-
-  // Função auxiliar para montagem do breakdown (barras de progresso)
-  const getBreakdown = (dataArray: any[], questionKey: string) => {
-    const aprova = Number(getApprovalPercentage(dataArray, questionKey, 'Aprova'));
-    const desaprova = Number(getApprovalPercentage(dataArray, questionKey, 'Desaprova'));
-    const nsnr = Number((100 - aprova - desaprova).toFixed(1));
-    return [
-      { name: 'Aprova', value: aprova },
-      { name: 'Desaprova', value: desaprova },
-      { name: 'NS/NR', value: nsnr }
-    ];
-  };
-
   // Chaves exatas conforme orientação SURGICAL_DATA_BINDING
   const qLula = 'De modo geral, você aprova ou desaprova o Governo do Presidente Lula?';
   const qBrandao = 'De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?';
   const qPrefeito = 'De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ';
+
+  // --- MOTOR DE DADOS POWER BI ---
+  const calculateApproval = (data: any[], questionKey: string) => {
+    if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
+    
+    let aprova = 0, desaprova = 0, nsnr = 0;
+    const total = data.length;
+
+    data.forEach(row => {
+      // Pega o valor, remove espaços extras e transforma em minúsculo para evitar erros
+      const answer = row[questionKey] ? row[questionKey].toString().trim().toLowerCase() : "";
+      
+      if (answer === "aprova") aprova++;
+      else if (answer === "desaprova") desaprova++;
+      else nsnr++;
+    });
+
+    return {
+      aprova: ((aprova / total) * 100).toFixed(1),
+      desaprova: ((desaprova / total) * 100).toFixed(1),
+      nsnr: ((nsnr / total) * 100).toFixed(1)
+    };
+  };
+
+  // Processando os dados como no Power BI
+  const statsLula = calculateApproval(surveyData, qLula);
+  const statsBrandao = calculateApproval(surveyData, qBrandao);
+  const statsPrefeito = calculateApproval(surveyData, qPrefeito);
 
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
@@ -573,26 +580,38 @@ export default function Home() {
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle="Pres. Lula" 
-                value={`${getApprovalPercentage(surveyData, qLula, 'Aprova')}%`} 
+                value={`${statsLula.aprova}%`} 
                 imageUrl={images.lula} 
                 subValue="FEDERAL" 
-                breakdown={getBreakdown(surveyData, qLula)} 
+                breakdown={[
+                  { name: 'Aprova', value: Number(statsLula.aprova) },
+                  { name: 'Desaprova', value: Number(statsLula.desaprova) },
+                  { name: 'NS/NR', value: Number(statsLula.nsnr) }
+                ]} 
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle="Gov. Carlos Brandão" 
-                value={`${getApprovalPercentage(surveyData, qBrandao, 'Aprova')}%`} 
+                value={`${statsBrandao.aprova}%`} 
                 imageUrl={images.brandao} 
                 subValue="ESTADUAL" 
-                breakdown={getBreakdown(surveyData, qBrandao)} 
+                breakdown={[
+                  { name: 'Aprova', value: Number(statsBrandao.aprova) },
+                  { name: 'Desaprova', value: Number(statsBrandao.desaprova) },
+                  { name: 'NS/NR', value: Number(statsBrandao.nsnr) }
+                ]} 
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
                 subtitle={mayorDisplay} 
-                value={`${getApprovalPercentage(surveyData, qPrefeito, 'Aprova')}%`} 
+                value={`${statsPrefeito.aprova}%`} 
                 imageUrl={images.genericMayor} 
                 subValue="MUNICIPAL" 
-                breakdown={getBreakdown(surveyData, qPrefeito)} 
+                breakdown={[
+                  { name: 'Aprova', value: Number(statsPrefeito.aprova) },
+                  { name: 'Desaprova', value: Number(statsPrefeito.desaprova) },
+                  { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }
+                ]} 
               />
             </div>
 
