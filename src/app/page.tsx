@@ -13,11 +13,8 @@ import { GovernorSpontaneousChart } from '@/components/dashboard/governor-sponta
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 
 // Mapeamento de Prefeitos (Inteligência de Dados Atualizada com Gênero)
 const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
@@ -148,7 +145,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -266,7 +263,6 @@ export default function Home() {
   const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
   const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
 
-  const totalFilteredCount = filteredData.length;
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
   const mayorInfo = useMemo(() => {
@@ -307,24 +303,15 @@ export default function Home() {
         .sort((a, b) => b.value - a.value);
     };
 
-    const approvalMap: Record<string, number> = { 'Aprova': 0, 'Desaprova': 0, 'NS/NR': 0 };
-    filteredData.forEach(d => {
-      const val = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().trim();
-      if (val === 'aprova') approvalMap['Aprova']++;
-      else if (val === 'desaprova') approvalMap['Desaprova']++;
-      else approvalMap['NS/NR']++;
-    });
-
     return {
-      approvalData: Object.entries(approvalMap).map(([name, value]) => ({ name, value })),
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
-      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
-      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), 
       govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 7),
-      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
       topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
+      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
+      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
     };
   }, [filteredData, activeKeys]);
 
@@ -499,7 +486,7 @@ export default function Home() {
                   <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-none">
                     {totalDatabaseCount.toLocaleString('pt-BR')}
                   </h2>
-                  <span className="text-lg font-black text-zinc-400">/20.000</span>
+                  <span className="text-lg font-black text-zinc-400">/ 20.000</span>
                 </div>
                 <div className="flex gap-0.5 mt-8">
                   {[...Array(6)].map((_, i) => (
@@ -525,7 +512,7 @@ export default function Home() {
               <div className="flex-1 flex flex-col justify-center relative z-10">
                 <div className="flex items-baseline gap-1">
                   <h2 className="text-2xl font-black tracking-tighter leading-none">{actualCityCountInDb}</h2>
-                  <span className="text-lg font-black opacity-60">/217</span>
+                  <span className="text-lg font-black opacity-60">/ 217</span>
                 </div>
                 <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura {coveragePercent}%</p>
               </div>
@@ -601,7 +588,8 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* GRÁFICOS LADO A LADO COM DESIGN IDÊNTICO */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <GovernorSpontaneousChart 
                 data={chartData.govSpontaneousData} 
@@ -695,146 +683,6 @@ export default function Home() {
                 </div>
               </LuxuryCard>
             </div>
-
-            {/* RANKINGS ESTADUAIS */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <LuxuryCard className="group/card">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
-                      <ShieldAlert className="w-3 h-3 text-rose-600" />
-                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral (MA)</span>
-                    </div>
-                  </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Rejeição para Governador (Estimulada)</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.govRejectionData.length > 0 ? (
-                      chartData.govRejectionData.map((item, idx) => (
-                        <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="flex items-center gap-3">
-                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
-                                {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                              </span>
-                            </div>
-                            <span className="text-[11px] font-black text-rose-600">
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }} 
-                              animate={{ width: `${((item.value / Math.max(filteredData.length, 1)) * 100)}%` }}
-                              transition={{ duration: 1.5, ease: "circOut" }}
-                              className="h-full bg-rose-500 rounded-full"
-                            />
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-[10px] font-black uppercase text-zinc-400">
-                        Aguardando Dados do Google Cloud...
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </LuxuryCard>
-
-              <LuxuryCard className="group/card">
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
-                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
-                    </div>
-                  </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.topProblems.map((item, idx) => (
-                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-[11px] font-bold uppercase text-zinc-800">{item.name}</span>
-                          <span className="text-[11px] font-black text-rose-600">{((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%</span>
-                        </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1 overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} className="h-full bg-rose-500" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </LuxuryCard>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <LuxuryCard className="group/card">
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
-                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
-                    </div>
-                  </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.topWorks.map((item, idx) => (
-                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-[11px] font-bold uppercase text-zinc-800">{item.name}</span>
-                          <span className="text-[11px] font-black text-emerald-600">{((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%</span>
-                        </div>
-                        <div className="w-full bg-zinc-100 rounded-full h-1 overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} className="h-full bg-emerald-500" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </LuxuryCard>
-              
-              <LuxuryCard className="group/card">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full w-fit">
-                      <TrendingUp className="w-3 h-3 text-blue-600" />
-                      <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Expectativa de Poder</span>
-                    </div>
-                  </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Percepção de Vitória (Estimulada)</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.govVictoryData.length > 0 ? (
-                      chartData.govVictoryData.map((item, idx) => (
-                        <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="flex items-center gap-3">
-                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
-                                {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                              </span>
-                            </div>
-                            <span className="text-[11px] font-black text-blue-600">
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }} 
-                              animate={{ width: `${((item.value / Math.max(filteredData.length, 1)) * 100)}%` }}
-                              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                              className="h-full bg-blue-500 rounded-full"
-                            />
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-[10px] font-black uppercase text-zinc-400">
-                        Aguardando Dados do Google Cloud...
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </LuxuryCard>
-            </div>
-            
           </div>
           
           <div className="xl:col-span-1">

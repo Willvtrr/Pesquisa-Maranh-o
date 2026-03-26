@@ -26,12 +26,8 @@ const COLORS: Record<string, string> = {
   'Lula': 'bg-[#c2410c]',
   'Flávio Bolsonaro': 'bg-[#ea580c]',
   'Jair Bolsonaro': 'bg-[#ea580c]',
-  'Nenhum/Branco/Nulo': 'bg-[#fdba74]',
-  'NS/NR': 'bg-[#fed7aa]',
-  'Tarcísio de Freitas': 'bg-[#cbd5e1]',
-  'Ratinho Jr.': 'bg-[#e2e8f0]',
-  'Ronaldo Caiado': 'bg-[#c2410c]',
-  'Eduardo Leite': 'bg-[#cbd5e1]',
+  'Nenhum/Branco/Nulo': 'bg-zinc-300',
+  'NS/NR': 'bg-zinc-200',
 };
 
 export const CandidateChart = ({ data, total }: CandidateChartProps) => {
@@ -48,31 +44,28 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
   }, [data, total]);
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-8 md:p-14 relative overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] group/container">
+    <div className="bg-white rounded-[2.5rem] border border-zinc-200/80 p-10 md:p-14 relative overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.05)] group/container h-full flex flex-col">
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
 
-      <div className="relative z-10 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="relative z-10 mb-12 flex items-start justify-between">
         <div>
-          <div className="flex items-center gap-2.5 mb-3">
+          <div className="flex items-center gap-2 mb-4">
             <div className="w-1.5 h-4 bg-[#ea580c] rounded-full"></div>
-            <span className="text-[10px] md:text-xs font-bold text-zinc-400 uppercase tracking-[0.2em]">Corrida Presidencial</span>
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">Corrida Presidencial</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-zinc-900 tracking-tight leading-none">
+          <h1 className="text-4xl md:text-5xl font-black text-zinc-950 tracking-tighter leading-none">
             Intenção de Voto Federal
           </h1>
         </div>
         
-        <div className="flex items-center gap-2 bg-white border border-zinc-200 shadow-sm px-4 py-2 rounded-full w-fit">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ea580c]"></span>
-          </span>
-          <span className="text-[11px] font-black text-zinc-700 uppercase tracking-widest">Estimulada</span>
+        <div className="flex items-center gap-2 bg-white border border-zinc-200 shadow-sm px-4 py-2 rounded-full mt-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></div>
+          <span className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">Estimulada</span>
         </div>
       </div>
 
       <div 
-        className="flex flex-col gap-5 relative z-10 chart-container"
+        className="flex-1 flex flex-col gap-8 relative z-10"
         onMouseLeave={() => setHoveredIndex(null)}
       >
         {data.map((item, idx) => {
@@ -85,22 +78,22 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
             <div 
               key={item.name} 
               className={cn(
-                "flex items-center gap-5 h-10 cursor-default transition-all duration-300 chart-row",
+                "flex items-center gap-6 group/row cursor-default transition-all duration-300",
                 hoveredIndex === idx && "translate-x-1"
               )}
               onMouseEnter={() => setHoveredIndex(idx)}
             >
-              <div className="w-32 lg:w-48 text-right flex flex-col justify-center flex-shrink-0">
+              <div className="w-32 lg:w-44 text-right flex flex-col justify-center flex-shrink-0">
                 <span className={cn(
-                  "text-[14px] transition-colors leading-tight truncate",
-                  idx < 2 ? "font-black text-zinc-800" : "font-bold text-zinc-500",
+                  "text-[16px] transition-colors leading-tight truncate",
+                  idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                   isFaded && "text-zinc-300"
                 )}>
                   {item.name}
                 </span>
                 {party && (
                   <span className={cn(
-                    "text-[10px] font-black text-zinc-400 transition-colors uppercase tracking-widest",
+                    "text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1",
                     isFaded && "text-zinc-200"
                   )}>
                     ({party})
@@ -108,30 +101,30 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                 )}
               </div>
 
-              <div className="flex-1 h-[32px] bg-zinc-50 rounded-full relative overflow-visible border border-zinc-100/50 shadow-inner">
+              <div className="flex-1 h-12 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ 
                     width: isMounted ? `${pct}%` : 0,
                     filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
-                    boxShadow: hoveredIndex === idx ? '0 4px 12px -2px rgba(234,88,12,0.2)' : 'none'
                   }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
-                    "h-full rounded-full relative transition-all flex items-center justify-end pr-3",
+                    "h-full rounded-full relative transition-all",
                     barColor
                   )}
-                >
-                  <span className={cn(
-                    "absolute -right-16 top-1/2 -translate-y-1/2 text-[15px] font-black transition-all duration-300",
-                    isFaded ? "text-zinc-300" : "text-zinc-700",
-                    hoveredIndex === idx && "scale-105 text-zinc-950"
-                  )}>
-                    {pct.toFixed(1)}%
-                  </span>
-                </motion.div>
+                />
               </div>
-              <div className="w-14 flex-shrink-0"></div>
+              
+              <div className="w-16 flex-shrink-0">
+                <span className={cn(
+                  "text-xl font-black transition-all duration-300",
+                  isFaded ? "text-zinc-300" : "text-zinc-950",
+                  hoveredIndex === idx && "scale-110 text-orange-600"
+                )}>
+                  {pct.toFixed(1)}%
+                </span>
+              </div>
             </div>
           );
         })}
