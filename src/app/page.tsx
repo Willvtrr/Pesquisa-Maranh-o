@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -17,9 +18,6 @@ import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-
-// Importação do banco de dados de referência
-import surveyData from '@/data/Estadual_fev26_certo.json';
 
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
@@ -187,35 +185,6 @@ export default function Home() {
     work: ['all']
   });
 
-  const qLula = 'De modo geral, você aprova ou desaprova o Governo do Presidente Lula?';
-  const qBrandao = 'De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?';
-  const qPrefeito = 'De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ';
-
-  const calculateApproval = (data: any[], questionKey: string) => {
-    if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
-    
-    let aprova = 0, desaprova = 0, nsnr = 0;
-    const total = data.length;
-
-    data.forEach(row => {
-      const answer = row[questionKey] ? row[questionKey].toString().trim().toLowerCase() : "";
-      
-      if (answer === "aprova") aprova++;
-      else if (answer === "desaprova") desaprova++;
-      else nsnr++;
-    });
-
-    return {
-      aprova: ((aprova / total) * 100).toFixed(1),
-      desaprova: ((desaprova / total) * 100).toFixed(1),
-      nsnr: ((nsnr / total) * 100).toFixed(1)
-    };
-  };
-
-  const statsLula = calculateApproval(surveyData, qLula);
-  const statsBrandao = calculateApproval(surveyData, qBrandao);
-  const statsPrefeito = calculateApproval(surveyData, qPrefeito);
-
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     const sample = rawSurveyData.find(d => !d.INFO) || {};
@@ -251,20 +220,6 @@ export default function Home() {
     };
   }, [rawSurveyData]);
 
-  const missingMayors = useMemo(() => {
-    if (!rawSurveyData || rawSurveyData.length === 0) return [];
-    const citiesInData = new Set<string>();
-    rawSurveyData.forEach(item => {
-      const city = String(item[activeKeys.CITY] || '').trim();
-      if (city && city !== 'all' && !item.INFO) citiesInData.add(city);
-    });
-    
-    return Array.from(citiesInData).filter(city => {
-      const { name } = getMayorData(city);
-      return !name;
-    }).sort();
-  }, [rawSurveyData, activeKeys.CITY]);
-
   const filteredData = useMemo(() => {
     if (!rawSurveyData) return [];
     return rawSurveyData.filter(item => {
@@ -290,10 +245,47 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
-  const totalCount = useMemo(() => {
-    if (!rawSurveyData) return 0;
-    return rawSurveyData.filter(item => !item.INFO).length;
-  }, [rawSurveyData]);
+  // Função unificada para cálculo de aprovação baseada no filtro real
+  const calculateApproval = (data: any[], questionKey: string) => {
+    if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
+    
+    let aprova = 0, desaprova = 0, nsnr = 0;
+    const total = data.length;
+
+    data.forEach(row => {
+      const answer = row[questionKey] ? row[questionKey].toString().trim().toLowerCase() : "";
+      if (answer === "aprova") aprova++;
+      else if (answer === "desaprova") desaprova++;
+      else nsnr++;
+    });
+
+    return {
+      aprova: ((aprova / total) * 100).toFixed(1),
+      desaprova: ((desaprova / total) * 100).toFixed(1),
+      nsnr: ((nsnr / total) * 100).toFixed(1)
+    };
+  };
+
+  const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
+  const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
+  const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
+
+  const totalFilteredCount = filteredData.length;
+  const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
+
+  const missingMayors = useMemo(() => {
+    if (!rawSurveyData || rawSurveyData.length === 0) return [];
+    const citiesInData = new Set<string>();
+    rawSurveyData.forEach(item => {
+      const city = String(item[activeKeys.CITY] || '').trim();
+      if (city && city !== 'all' && !item.INFO) citiesInData.add(city);
+    });
+    
+    return Array.from(citiesInData).filter(city => {
+      const { name } = getMayorData(city);
+      return !name;
+    }).sort();
+  }, [rawSurveyData, activeKeys.CITY]);
 
   const chartData = useMemo(() => {
     const approvalMap: Record<string, number> = { 'Aprova': 0, 'Desaprova': 0, 'NS/NR': 0 };
@@ -358,7 +350,7 @@ export default function Home() {
 
   const distributionStats = useMemo(() => {
     const stats: Record<string, Record<string, number>> = {};
-    if (!rawSurveyData || totalCount === 0) return stats;
+    if (!rawSurveyData || totalDatabaseCount === 0) return stats;
 
     const keys = {
       region: activeKeys.REGION,
@@ -380,12 +372,12 @@ export default function Home() {
       
       stats[filterKey] = {};
       Object.entries(counts).forEach(([val, count]) => {
-        stats[filterKey][val] = (count / totalCount) * 100;
+        stats[filterKey][val] = (count / totalDatabaseCount) * 100;
       });
     });
 
     return stats;
-  }, [rawSurveyData, activeKeys, totalCount]);
+  }, [rawSurveyData, activeKeys, totalDatabaseCount]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
@@ -444,8 +436,8 @@ export default function Home() {
     );
   }
 
-  const actualCityCount = dynamicOptions.city.length;
-  const coveragePercent = ((actualCityCount / 217) * 100).toFixed(1);
+  const actualCityCountInDb = dynamicOptions.city.length;
+  const coveragePercent = ((actualCityCountInDb / 217) * 100).toFixed(1);
 
   return (
     <AppLayout>
@@ -488,7 +480,7 @@ export default function Home() {
               <div className="mb-4">
                 <p className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Base de Inteligência</p>
                 <h3 className="text-sm font-black text-white">Banco de Dados</h3>
-                <p className="text-[8px] font-medium text-zinc-400"><span className="text-orange-500 font-black">{totalCount.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
+                <p className="text-[8px] font-medium text-zinc-400"><span className="text-orange-500 font-black">{totalDatabaseCount.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
               </div>
               <div className="bg-zinc-900/40 rounded-xl p-2 h-[45px] overflow-y-auto mb-4 log-scroll border border-zinc-800/40">
                 <ul className="space-y-1 text-[6px] font-mono">
@@ -509,9 +501,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-none mb-1">{totalCount.toLocaleString('pt-BR')}</h2>
+                <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-none mb-1">{totalFilteredCount.toLocaleString('pt-BR')}</h2>
                 <div className="flex gap-0.5 mt-4">
-                  {[...Array(6)].map((_, i) => (<div key={i} className={`h-4 flex-1 rounded-full ${i === 5 ? 'bg-zinc-800' : 'bg-zinc-100'}`} />))}
+                  {[...Array(6)].map((_, i) => (<div key={i} className={`h-4 flex-1 rounded-full ${i < (totalFilteredCount / (totalDatabaseCount || 1)) * 6 ? 'bg-orange-500' : 'bg-zinc-100'}`} />))}
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
@@ -532,7 +524,7 @@ export default function Home() {
               </div>
               <div className="flex-1 flex flex-col justify-center relative z-10">
                 <div className="flex items-baseline gap-1">
-                  <h2 className="text-2xl font-black tracking-tighter leading-none">{actualCityCount}</h2>
+                  <h2 className="text-2xl font-black tracking-tighter leading-none">{actualCityCountInDb}</h2>
                   <span className="text-lg font-black opacity-60">/217</span>
                 </div>
                 <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura {coveragePercent}%</p>
