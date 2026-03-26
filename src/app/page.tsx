@@ -19,6 +19,42 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+// Mapeamento de Prefeitos (Inteligência de Dados)
+const CITY_MAYORS: Record<string, string> = {
+  'SÃO LUÍS': 'Eduardo Braide',
+  'IMPERATRIZ': 'Assis Ramos',
+  'ANAJATUBA': 'Hélder Aragão',
+  'AÇAILÂNDIA': 'Aluisio Silva Sousa',
+  'BALSAS': 'Erik Silva',
+  'CAXIAS': 'Fábio Gentil',
+  'TIMON': 'Dinair Veloso',
+  'CODÓ': 'Dr. Zé Francisco',
+  'PAÇO DO LUMIAR': 'Paula Azevedo',
+  'BACABAL': 'Edvan Brandão',
+  'ITAPECURU MIRIM': 'Benedito Coroba',
+  'PINHEIRO': 'Luciano Genésio',
+  'BARREIRINHAS': 'Amílcar Rocha',
+  'CHAPADINHA': 'Belezinha',
+  'SANTA INÊS': 'Felipe dos Pneus',
+  'BOM JARDIM': 'Cristiane Varão',
+  'ZÉ DOCA': 'Josinha Cunha',
+  'GRAJAÚ': 'Mercial Arruda',
+  'BARRA DO CORDA': 'Rigo Teles',
+  'TUTÓIA': 'Diringa Baquil',
+  'COROATÁ': 'Luís da Amovelar Filho',
+  'PEDREIRAS': 'Vanessa Maia',
+  'SÃO JOSÉ DE RIBAMAR': 'Dr. Julinho',
+  'ESTREITO': 'Léo Cunha',
+  'PORTO FRANCO': 'Deoclides Macedo',
+  'COELHO NETO': 'Bruno Silva',
+  'PRESIDENTE DUTRA': 'Raimundinho da Audiolar',
+  'COLINAS': 'Valmira Miranda',
+  'SÃO MATEUS DO MARANHÃO': 'Ivo Rezende',
+  'VIANA': 'Carrinho Cidreira',
+  'CURURUPU': 'Aldo Lopes',
+  'ROSÁRIO': 'Calvet Filho',
+};
+
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
   REGION: "Mesorregião",
@@ -162,6 +198,16 @@ export default function Home() {
 
   const totalFilteredCount = filteredData.length;
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
+
+  // Inteligência de Exibição do Prefeito
+  const selectedMayorName = useMemo(() => {
+    const activeCities = filters.city;
+    if (activeCities.length === 1 && activeCities[0] !== 'all') {
+      const cityUpper = activeCities[0].toUpperCase().trim();
+      return CITY_MAYORS[cityUpper] || `Prefeito(a) de ${activeCities[0]}`;
+    }
+    return "Prefeito(a)";
+  }, [filters.city]);
 
   const chartData = useMemo(() => {
     const processRanking = (key: string) => {
@@ -447,7 +493,7 @@ export default function Home() {
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
-                subtitle="Prefeito(a)" 
+                subtitle={selectedMayorName} 
                 value={`${statsPrefeito.aprova}%`} 
                 imageUrl={images.genericMayor} 
                 subValue="MUNICIPAL" 
@@ -464,7 +510,7 @@ export default function Home() {
               <GovernorScenarioChart />
             </div>
 
-            {/* NOVOS RANKINGS PRESIDENCIAIS */}
+            {/* RANKINGS PRESIDENCIAIS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
