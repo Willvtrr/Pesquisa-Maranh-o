@@ -495,9 +495,20 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-center">
-                <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-none mb-1">{totalFilteredCount.toLocaleString('pt-BR')}</h2>
-                <div className="flex gap-0.5 mt-4">
-                  {[...Array(6)].map((_, i) => (<div key={i} className={`h-4 flex-1 rounded-full ${i < (totalFilteredCount / (totalDatabaseCount || 1)) * 6 ? 'bg-orange-500' : 'bg-zinc-100'}`} />))}
+                <h2 className="text-xl font-black tracking-tighter text-zinc-950 leading-none mb-1">
+                  {totalDatabaseCount.toLocaleString('pt-BR')} 
+                  <span className="text-[10px] text-zinc-400 uppercase ml-1">de 20.000 coletas</span>
+                </h2>
+                <p className="text-[8px] font-bold text-orange-600 uppercase tracking-widest mb-2">
+                  Precisamos bater 20 mil
+                </p>
+                <div className="flex gap-0.5 mt-2">
+                  {[...Array(6)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`h-4 flex-1 rounded-full ${i < (totalDatabaseCount / 20000) * 6 ? 'bg-orange-500' : 'bg-zinc-100'}`} 
+                    />
+                  ))}
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
