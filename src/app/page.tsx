@@ -589,7 +589,18 @@ export default function Home() {
               />
             </div>
 
-            {/* SEÇÃO PRINCIPAL DE VOTOS - GRADE DE 4 COLUNAS EM TELAS AMPLAS */}
+            {/* SEÇÃO PRINCIPAL DE VOTOS - 2 CARDS GRANDES (CLONES) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
+              <GovernorSpontaneousChart 
+                data={chartData.govSpontaneousData} 
+                total={filteredData.length}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
+            </div>
+
+            {/* GRADE DE 4 CARDS - CENÁRIOS E REJEIÇÃO */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <GovernorScenarioChart />
               <GovernorRejectionChart 
@@ -666,16 +677,6 @@ export default function Home() {
                   </div>
                 </div>
               </LuxuryCard>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-              <GovernorSpontaneousChart 
-                data={chartData.govSpontaneousData} 
-                total={filteredData.length}
-                filters={filters}
-                onFilterChange={handleFilterChange}
-              />
             </div>
 
             <div className="w-full">
