@@ -56,27 +56,33 @@ export const GovernorScenarioChart = () => {
   , [activeScenarioId]);
 
   return (
-    <LuxuryCard 
-      title="DISPUTA ESTADUAL" 
-      subtitle="Cenários Estimulados" 
-      className="h-full"
-    >
-      <div className="space-y-8 mt-2">
-        {/* Toggle Interativo Estilo Premium Orange */}
-        <div className="bg-[#09090b] p-1.5 rounded-full flex items-center relative overflow-hidden border border-zinc-800 shadow-inner">
+    <LuxuryCard className="h-full">
+      <div className="space-y-6">
+        <div className="flex flex-col gap-1">
+          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <span className="w-1 h-3 bg-orange-600 rounded-full" />
+            DISPUTA ESTADUAL
+          </h4>
+          <h3 className="text-[16px] font-black text-zinc-950 tracking-tight leading-tight">
+            Cenários Estimulados
+          </h3>
+        </div>
+
+        {/* Toggle Interativo Estilo Pill Dark */}
+        <div className="bg-[#09090b] p-1 rounded-full flex items-center relative overflow-hidden border border-zinc-800 shadow-inner">
           {SCENARIOS.map((s) => (
             <button
               key={s.id}
               onClick={() => setActiveScenarioId(s.id)}
               className={cn(
-                "relative z-10 flex-1 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500",
-                activeScenarioId === s.id ? "text-white" : "text-zinc-500 hover:text-zinc-400"
+                "relative z-10 flex-1 py-2 text-[8px] font-black uppercase tracking-[0.2em] transition-all duration-500",
+                activeScenarioId === s.id ? "text-white" : "text-zinc-500"
               )}
             >
               {activeScenarioId === s.id && (
                 <motion.div
                   layoutId="activeTabScenario"
-                  className="absolute inset-0 bg-orange-600 rounded-full shadow-[0_0_25px_rgba(234,88,12,0.4)]"
+                  className="absolute inset-0 bg-orange-600 rounded-full shadow-[0_0_15px_rgba(234,88,12,0.3)]"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -85,60 +91,57 @@ export const GovernorScenarioChart = () => {
           ))}
         </div>
 
-        {/* Pergunta e Gráfico */}
-        <div className="space-y-6">
-          <div className="min-h-[40px]">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={activeScenario.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="text-[13px] font-bold text-zinc-500 leading-tight italic"
-              >
-                "{activeScenario.question}"
-              </motion.p>
-            </AnimatePresence>
-          </div>
+        <div className="min-h-[30px]">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={activeScenario.id}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="text-[10px] font-bold text-zinc-400 leading-tight italic"
+            >
+              "{activeScenario.question}"
+            </motion.p>
+          </AnimatePresence>
+        </div>
 
-          <div className="space-y-4">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeScenario.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="space-y-4"
-              >
-                {activeScenario.candidates.map((c, idx) => (
-                  <div key={c.name} className="flex items-center gap-4 group">
-                    <div className="w-40 text-right shrink-0">
-                      <p className={cn(
-                        "text-[11px] transition-colors truncate",
-                        idx === 0 ? "font-black text-zinc-900" : "font-bold text-zinc-500"
-                      )}>
-                        {c.name}
-                      </p>
-                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">({c.party})</span>
-                    </div>
-                    
-                    <div className="flex-1 h-8 bg-zinc-50 rounded-full border border-zinc-100/50 overflow-hidden relative">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${c.value}%` }}
-                        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: idx * 0.1 }}
-                        className={cn("h-full rounded-full transition-all flex items-center justify-end pr-3", c.color)}
-                      >
-                        <span className="text-[10px] font-black text-white drop-shadow-sm">
-                          {c.value.toFixed(1)}%
-                        </span>
-                      </motion.div>
-                    </div>
+        <div className="space-y-4">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeScenario.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-3"
+            >
+              {activeScenario.candidates.map((c, idx) => (
+                <div key={c.name} className="flex items-center gap-3 group">
+                  <div className="w-24 text-right shrink-0">
+                    <p className={cn(
+                      "text-[10px] transition-colors truncate",
+                      idx === 0 ? "font-black text-zinc-900" : "font-bold text-zinc-500"
+                    )}>
+                      {c.name}
+                    </p>
+                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">({c.party})</span>
                   </div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                  
+                  <div className="flex-1 h-6 bg-zinc-50 rounded-full border border-zinc-100/50 overflow-hidden relative">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${c.value}%` }}
+                      transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: idx * 0.05 }}
+                      className={cn("h-full rounded-full transition-all flex items-center justify-end pr-2", c.color)}
+                    >
+                      <span className="text-[8px] font-black text-white drop-shadow-sm">
+                        {c.value.toFixed(1)}%
+                      </span>
+                    </motion.div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </LuxuryCard>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -25,28 +26,27 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
 
   return (
     <LuxuryCard className="h-full relative">
-      <div className="flex items-start justify-between mb-2">
+      <div className="flex items-start justify-between mb-4">
         <div className="space-y-1">
-          <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-rose-600 rounded-full" />
             TETO ELEITORAL ESTADUAL
           </h4>
-          <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">
+          <p className="text-[16px] font-black text-zinc-950 tracking-tight leading-tight">
             Índice de Rejeição
           </p>
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
-          <div className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0">
           <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
         </div>
       </div>
 
-      <p className="text-[11px] font-medium text-zinc-400 italic leading-tight mb-8">
+      <p className="text-[10px] font-medium text-zinc-400 italic leading-tight mb-6">
         "REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"
       </p>
 
       <div 
-        className="flex-1 flex flex-col gap-5 relative z-10"
+        className="flex-1 flex flex-col gap-4 relative z-10"
         onMouseLeave={() => setHoveredIndex(null)}
       >
         {data.map((item, idx) => {
@@ -58,14 +58,14 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
             <div 
               key={`${item.name}-${idx}`} 
               className={cn(
-                "flex items-center gap-4 group/row cursor-default transition-all duration-300",
+                "flex items-center gap-3 group/row cursor-default transition-all duration-300",
                 hoveredIndex === idx && "translate-x-1"
               )}
               onMouseEnter={() => setHoveredIndex(idx)}
             >
-              <div className="w-24 lg:w-32 text-right flex flex-col justify-center flex-shrink-0">
+              <div className="w-24 text-right flex flex-col justify-center flex-shrink-0">
                 <span className={cn(
-                  "text-[11px] transition-colors leading-tight truncate",
+                  "text-[10px] transition-colors leading-tight truncate",
                   idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                   isFaded && "text-zinc-300"
                 )}>
@@ -73,7 +73,7 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
                 </span>
                 {item.party && (
                   <span className={cn(
-                    "text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                    "text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
                     isFaded && "text-zinc-200"
                   )}>
                     ({item.party})
@@ -81,7 +81,7 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
                 )}
               </div>
 
-              <div className="flex-1 h-8 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-rose-100 transition-colors">
+              <div className="flex-1 h-6 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-rose-100 transition-colors">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ 
@@ -96,9 +96,9 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
                 />
               </div>
               
-              <div className="w-12 flex-shrink-0">
+              <div className="w-10 flex-shrink-0">
                 <span className={cn(
-                  "text-[12px] font-black transition-all duration-300",
+                  "text-[10px] font-black transition-all duration-300",
                   isFaded ? "text-zinc-300" : "text-zinc-950",
                   hoveredIndex === idx && "text-rose-600"
                 )}>

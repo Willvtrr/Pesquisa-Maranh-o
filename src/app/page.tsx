@@ -146,7 +146,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -589,45 +589,32 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-              <GovernorSpontaneousChart 
-                data={chartData.govSpontaneousData} 
-                total={filteredData.length}
-                filters={filters}
-                onFilterChange={handleFilterChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* SEÇÃO PRINCIPAL DE VOTOS - GRADE DE 4 COLUNAS EM TELAS AMPLAS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <GovernorScenarioChart />
               <GovernorRejectionChart 
                 data={chartData.govRejectionData} 
                 total={filteredData.length} 
               />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 <div className="relative z-10 h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-3 py-1 rounded-full w-fit">
                       <Vote className="w-3 h-3 text-orange-600" />
-                      <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
+                      <span className="text-[9px] font-bold text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                     </div>
                   </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Intenção de Voto (2º Turno)</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.secondRoundData.map((item, idx) => (
-                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-3">
-                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
-                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                            </span>
-                          </div>
-                          <span className="text-[11px] font-black text-orange-600">
+                  <h2 className="text-[16px] font-black text-zinc-900 mb-6 tracking-tight">Intenção de Voto (2º Turno)</h2>
+                  <div className="space-y-4 flex-1">
+                    {chartData.secondRoundData.slice(0, 3).map((item, idx) => (
+                      <div key={item.name} className="group/row p-1.5 -m-1.5 rounded-xl transition-all duration-300">
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-800">
+                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[8px]">({item.party})</span>}
+                          </span>
+                          <span className="text-[10px] font-black text-orange-600">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
@@ -651,20 +638,18 @@ export default function Home() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
                       <ShieldAlert className="w-3 h-3 text-rose-600" />
-                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
+                      <span className="text-[9px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
                     </div>
                   </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Índice de Rejeição (Presidente)</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.rejectionData.map((item, idx) => (
-                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-3">
-                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
-                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                            </span>
-                          </div>
-                          <span className="text-[11px] font-black text-rose-600">
+                  <h2 className="text-[16px] font-black text-zinc-900 mb-6 tracking-tight">Rejeição (Presidente)</h2>
+                  <div className="space-y-4 flex-1">
+                    {chartData.rejectionData.slice(0, 6).map((item, idx) => (
+                      <div key={item.name} className="group/row p-1.5 -m-1.5 rounded-xl transition-all duration-300">
+                        <div className="flex justify-between items-center mb-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-800">
+                            {item.name} {item.party && <span className="text-zinc-400 font-black text-[8px]">({item.party})</span>}
+                          </span>
+                          <span className="text-[10px] font-black text-rose-600">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                           </span>
                         </div>
@@ -681,6 +666,16 @@ export default function Home() {
                   </div>
                 </div>
               </LuxuryCard>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
+              <GovernorSpontaneousChart 
+                data={chartData.govSpontaneousData} 
+                total={filteredData.length}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
             </div>
 
             <div className="w-full">
