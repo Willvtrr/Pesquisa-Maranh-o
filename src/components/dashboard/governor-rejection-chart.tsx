@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -8,41 +9,58 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 interface GovernorRejectionChartProps {
   data: { name: string; value: number; party?: string | null }[];
   total: number;
+  title?: string;
+  overline?: string;
+  subtitle?: string;
+  badge?: string;
+  color?: 'red' | 'rose';
 }
 
-export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartProps) => {
+export const GovernorRejectionChart = ({ 
+  data, 
+  total, 
+  title = "Índice de Rejeição",
+  overline = "TETO ELEITORAL ESTADUAL",
+  subtitle = '"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"',
+  badge = "Estimulada",
+  color = 'red'
+}: GovernorRejectionChartProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  const barColorClass = color === 'red' 
+    ? "bg-gradient-to-b from-[#ef4444] to-[#b91c1c] shadow-[0_4px_10px_-2px_rgba(220,38,38,0.3)]" 
+    : "bg-gradient-to-b from-rose-500 to-rose-700 shadow-[0_4px_10px_-2px_rgba(225,29,72,0.3)]";
+
+  const overlineColorClass = color === 'red' ? "bg-[#dc2626]" : "bg-[#e11d48]";
+
   return (
-    <div className="bg-white rounded-[2rem] p-6 lg:p-7 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full">
-      {/* Header Premium Clone */}
+    <div className="bg-white rounded-[2rem] p-6 lg:p-7 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[380px]">
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <div className="w-1 h-3 bg-[#dc2626] rounded-full" />
+            <div className={cn("w-1 h-3 rounded-full", overlineColorClass)} />
             <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.15em]">
-              Teto Eleitoral Estadual
+              {overline}
             </span>
           </div>
           <h2 className="text-xl font-black text-zinc-900 tracking-tight">
-            Índice de Rejeição
+            {title}
           </h2>
           <p className="text-[10px] text-zinc-400 italic font-medium">
-            "REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"
+            {subtitle}
           </p>
         </div>
         <div className="px-3 py-1 rounded-full bg-[#f8fafc] border border-zinc-100">
           <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">
-            Estimulada
+            {badge}
           </span>
         </div>
       </div>
 
-      {/* Chart Container - Compacto */}
       <div className="flex justify-between items-start gap-2 mt-auto">
         {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
@@ -52,7 +70,7 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
 
           return (
             <div key={`${item.name}-${idx}`} className="flex flex-col items-center flex-1 group">
-              {/* Bar Track - Ultra Compacto */}
+              {/* Bar Track - Ultra Compacto 140px */}
               <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner">
                 <motion.div
                   initial={{ height: 0 }}
@@ -62,17 +80,15 @@ export const GovernorRejectionChart = ({ data, total }: GovernorRejectionChartPr
                     "w-full rounded-full transition-all min-h-[16px]",
                     isAbstention 
                       ? "bg-gradient-to-b from-slate-300 to-slate-500" 
-                      : "bg-gradient-to-b from-[#ef4444] to-[#b91c1c] shadow-[0_4px_10px_-2px_rgba(220,38,38,0.3)]"
+                      : barColorClass
                   )}
                 />
               </div>
 
-              {/* Percentage Label */}
               <span className="text-[11px] font-black text-zinc-900 mb-3">
                 {pct.toFixed(1)}%
               </span>
 
-              {/* Candidate Info */}
               <div className="flex flex-col items-center text-center space-y-2">
                 <Avatar className="w-10 h-10 border-2 border-white shadow-sm transition-transform group-hover:-translate-y-0.5">
                   <AvatarImage 
