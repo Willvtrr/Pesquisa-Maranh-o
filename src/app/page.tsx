@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -122,7 +123,7 @@ const DEFAULT_KEYS = {
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
   PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
-  GOV_VOTE_SPONTANEOUS: "GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
+  GOV_VOTE_SPONTANEOUS: "7. GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
   GOV_REJECTION: "10. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum? (Estimulada)",
   GOV_VICTORY_PERCEPTION: "11. PERCEPÇÃO DE VITÓRIA: Quem você acha que ganhará a eleição para Governador do Maranhão? (Estimulada)",
 };
@@ -178,7 +179,7 @@ export default function Home() {
       PRESIDENT_VOTE: findKey(['4. PRESIDENTE', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
       PRESIDENT_SECOND_ROUND: findKey(['5. Num eventual segundo turno'], DEFAULT_KEYS.PRESIDENT_SECOND_ROUND),
       PRESIDENT_REJECTION: findKey(['6. REJEIÇÃO'], DEFAULT_KEYS.PRESIDENT_REJECTION),
-      GOV_VOTE_SPONTANEOUS: findKey(['governador', 'espontânea'], DEFAULT_KEYS.GOV_VOTE_SPONTANEOUS),
+      GOV_VOTE_SPONTANEOUS: findKey(['7. GOVERNADOR', 'espontânea'], DEFAULT_KEYS.GOV_VOTE_SPONTANEOUS),
       GOV_REJECTION: findKey(['10. REJEIÇÃO'], DEFAULT_KEYS.GOV_REJECTION),
       GOV_VICTORY_PERCEPTION: findKey(['11. PERCEPÇÃO DE VITÓRIA'], DEFAULT_KEYS.GOV_VICTORY_PERCEPTION),
     };
@@ -661,8 +662,8 @@ export default function Home() {
                           </div>
                           <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
                             <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              initial={{ width: 0 }} 
+                              animate={{ width: `${((item.value / Math.max(filteredData.length, 1)) * 100)}%` }}
                               transition={{ duration: 1.5, ease: "circOut" }}
                               className="h-full bg-rose-500 rounded-full"
                             />
@@ -752,8 +753,8 @@ export default function Home() {
                           </div>
                           <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
                             <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              initial={{ width: 0 }} 
+                              animate={{ width: `${((item.value / Math.max(filteredData.length, 1)) * 100)}%` }}
                               transition={{ duration: 1.5, ease: "circOut" }}
                               className="h-full bg-blue-500 rounded-full"
                             />
