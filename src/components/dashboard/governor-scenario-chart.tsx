@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -58,7 +59,7 @@ export const GovernorScenarioChart = () => {
     <LuxuryCard 
       title="DISPUTA ESTADUAL" 
       subtitle="Cenários Estimulados" 
-      className="lg:col-span-2 h-full"
+      className="h-full"
     >
       <div className="space-y-8 mt-2">
         {/* Toggle Interativo Estilo Premium Orange */}

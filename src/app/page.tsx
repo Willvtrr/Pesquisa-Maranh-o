@@ -606,16 +606,13 @@ export default function Home() {
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <GovernorSpontaneousChart 
                 data={chartData.govSpontaneousData} 
                 total={filteredData.length}
                 filters={filters}
                 onFilterChange={handleFilterChange}
               />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <GovernorScenarioChart />
             </div>
 
