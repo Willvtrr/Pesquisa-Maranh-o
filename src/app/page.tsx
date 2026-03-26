@@ -589,8 +589,8 @@ export default function Home() {
               />
             </div>
 
-            {/* SEÇÃO PRINCIPAL DE VOTOS - EMPILHADOS VERTICALMENTE */}
-            <div className="flex flex-col gap-6">
+            {/* SEÇÃO PRINCIPAL DE VOTOS - LADO A LADO */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <GovernorSpontaneousChart 
                 data={chartData.govSpontaneousData} 
