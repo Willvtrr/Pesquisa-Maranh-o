@@ -106,6 +106,36 @@ const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'ZÉ DOCA': { name: 'Flavinha Cunha', gender: 'F' },
 };
 
+const PARTY_MAP: Record<string, string> = {
+  // Federal
+  'Lula': 'PT',
+  'Jair Bolsonaro': 'PL',
+  'Flávio Bolsonaro': 'PL',
+  'Tarcísio de Freitas': 'REPUBLICANOS',
+  'Ronaldo Caiado': 'UNIÃO',
+  'Eduardo Leite': 'PSD',
+  'Ciro Gomes': 'PDT',
+  'Simone Tebet': 'MDB',
+  'Ratinho Jr.': 'PSD',
+  // Estadual
+  'Carlos Brandão': 'PSB',
+  'Orleans Brandão': 'MDB',
+  'Brandão': 'PSB',
+  'Felipe Camarão': 'PT',
+  'Edivaldo Holanda Jr.': 'PSD',
+  'Weverton Rocha': 'PDT',
+  'Josimar de Maranhãozinho': 'PL',
+  'Roberto Rocha': 'PSDB',
+  'Lahésio Bonfim': 'NOVO',
+  'Roseana Sarney': 'MDB',
+  'Roseana': 'MDB',
+  'Iracema Vale': 'PSB',
+  'Othelino Neto': 'PCdoB',
+  'Eduardo Braide': 'PSD',
+  'Flávio Dino': 'PSB',
+  'Dino': 'PSB'
+};
+
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
   REGION: "Mesorregião",
@@ -267,7 +297,11 @@ export default function Home() {
         }
       });
       return Object.entries(counts)
-        .map(([name, value]) => ({ name, value }))
+        .map(([name, value]) => ({ 
+          name, 
+          value,
+          party: PARTY_MAP[name] || null
+        }))
         .sort((a, b) => b.value - a.value);
     };
 
@@ -590,7 +624,9 @@ export default function Home() {
                       <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-3">
-                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
+                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                            </span>
                           </div>
                           <span className="text-[11px] font-black text-orange-600">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
@@ -625,7 +661,9 @@ export default function Home() {
                       <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-3">
-                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
+                              {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                            </span>
                           </div>
                           <span className="text-[11px] font-black text-rose-600">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
@@ -664,7 +702,9 @@ export default function Home() {
                         <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center gap-3">
-                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
+                                {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                              </span>
                             </div>
                             <span className="text-[11px] font-black text-rose-600">
                               {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
@@ -755,7 +795,9 @@ export default function Home() {
                         <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center gap-3">
-                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">
+                                {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
+                              </span>
                             </div>
                             <span className="text-[11px] font-black text-blue-600">
                               {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
@@ -765,7 +807,7 @@ export default function Home() {
                             <motion.div 
                               initial={{ width: 0 }} 
                               animate={{ width: `${((item.value / Math.max(filteredData.length, 1)) * 100)}%` }}
-                              transition={{ duration: 1.5, ease: "circOut" }}
+                              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                               className="h-full bg-blue-500 rounded-full"
                             />
                           </div>

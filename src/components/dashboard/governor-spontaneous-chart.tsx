@@ -12,6 +12,25 @@ interface GovernorSpontaneousChartProps {
   onFilterChange: (key: string, value: string) => void;
 }
 
+const PARTY_MAP: Record<string, string> = {
+  'Carlos Brandão': 'PSB',
+  'Orleans Brandão': 'MDB',
+  'Brandão': 'PSB',
+  'Felipe Camarão': 'PT',
+  'Edivaldo Holanda Jr.': 'PSD',
+  'Weverton Rocha': 'PDT',
+  'Josimar de Maranhãozinho': 'PL',
+  'Roberto Rocha': 'PSDB',
+  'Lahésio Bonfim': 'NOVO',
+  'Roseana Sarney': 'MDB',
+  'Roseana': 'MDB',
+  'Iracema Vale': 'PSB',
+  'Othelino Neto': 'PCdoB',
+  'Eduardo Braide': 'PSD',
+  'Flávio Dino': 'PSB',
+  'Dino': 'PSB'
+};
+
 const NumberCounter = ({ value, isSmall = false }: { value: number; isSmall?: boolean }) => {
   return (
     <span className={cn(
@@ -53,7 +72,8 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
       )
       .map(item => ({
         nome: item.name.trim(),
-        porcentagem: (item.value / total) * 100
+        porcentagem: (item.value / total) * 100,
+        party: PARTY_MAP[item.name.trim()] || null
       }))
       .sort((a, b) => b.porcentagem - a.porcentagem);
 
@@ -112,10 +132,17 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                     "w-7 h-7 rounded-lg font-black flex items-center justify-center text-xs mb-3 shadow-sm",
                     pos === 0 ? "bg-orange-100 text-[#ea580c]" : "bg-zinc-100 text-zinc-500"
                   )}>{pos + 1}º</div>
-                  <h3 className={cn(
-                    "text-sm font-bold text-center leading-tight truncate w-full transition-colors",
-                    active ? "text-orange-900" : "text-zinc-800"
-                  )}>{item?.nome || '-'}</h3>
+                  <div className="text-center w-full">
+                    <h3 className={cn(
+                      "text-sm font-bold leading-tight truncate w-full transition-colors",
+                      active ? "text-orange-900" : "text-zinc-800"
+                    )}>{item?.nome || '-'}</h3>
+                    {item?.party && (
+                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-1 block">
+                        ({item.party})
+                      </span>
+                    )}
+                  </div>
                   <div className={cn("my-4 transition-colors", active ? "text-orange-600" : "text-zinc-900")}>
                     <NumberCounter value={item?.porcentagem || 0} />
                   </div>
@@ -190,9 +217,16 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                     )}
                   >
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className={cn("text-xs font-semibold transition-colors", active ? "text-orange-600" : "text-zinc-600")}>
-                        {item.nome}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={cn("text-xs font-semibold transition-colors", active ? "text-orange-600" : "text-zinc-600")}>
+                          {item.nome}
+                        </span>
+                        {item.party && (
+                          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">
+                            ({item.party})
+                          </span>
+                        )}
+                      </div>
                       <span className={cn("text-xs font-bold transition-colors", active ? "text-orange-700" : "text-zinc-800")}>
                         {item.porcentagem.toFixed(1)}%
                       </span>
