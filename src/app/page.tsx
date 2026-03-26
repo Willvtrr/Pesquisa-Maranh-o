@@ -602,18 +602,23 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <GovernorSpontaneousChart 
                 data={chartData.govSpontaneousData} 
                 total={filteredData.length}
                 filters={filters}
                 onFilterChange={handleFilterChange}
               />
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <GovernorScenarioChart />
+              <InteractiveMap 
+                stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} 
+                activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} 
+                onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
+              />
             </div>
 
             {/* RANKINGS PRESIDENCIAIS */}
@@ -832,13 +837,6 @@ export default function Home() {
               </LuxuryCard>
             </div>
             
-            <div className="grid grid-cols-1 gap-6">
-              <InteractiveMap 
-                stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} 
-                activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} 
-                onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
-              />
-            </div>
           </div>
           
           <div className="xl:col-span-1">
@@ -865,3 +863,4 @@ const MaranhaoFlag = () => (
     <path d="M5.5 1.5l.7 2h2.1l-1.7 1.2.7 2.1-1.8-1.3-1.8 1.3.7-2.1-1.7-1.2h2.1z" fill="#fff" />
   </svg>
 );
+

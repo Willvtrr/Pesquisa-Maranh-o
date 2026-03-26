@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -45,6 +45,7 @@ const PHOTO_MAP: Record<string, string> = {
 };
 
 export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange }: GovernorSpontaneousChartProps) => {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const isSelected = (nome: string) => filters.gov_spontaneous?.includes(nome);
 
   const processed = useMemo(() => {
@@ -83,85 +84,88 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
   const { ranking, indecisos, brancos } = processed;
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-zinc-200/60 p-8 lg:p-12 relative overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.03)] h-full flex flex-col">
+    <div className="bg-white rounded-[3rem] border border-zinc-200/60 p-10 lg:p-14 relative overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.04)] h-full flex flex-col">
       {/* Header Estilo Referência */}
-      <div className="relative z-10 mb-10 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+      <div className="relative z-10 mb-12 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="w-1.5 h-4 bg-[#ea580c] rounded-full" />
-            <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Monitoramento Estadual</h4>
+            <div className="w-1.5 h-4 bg-orange-600 rounded-full" />
+            <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Monitoramento Estadual</h4>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black text-zinc-950 tracking-tighter leading-tight max-w-md">
+          <h1 className="text-4xl lg:text-5xl font-black text-zinc-950 tracking-tighter leading-[0.9] max-w-sm">
             Intenção de Voto Governador
           </h1>
         </div>
         
-        <div className="flex items-center gap-2 bg-white border border-zinc-100 shadow-sm px-4 py-2 rounded-full w-fit self-start sm:self-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
-          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Espontânea</span>
+        <div className="flex items-center gap-2 bg-white border border-zinc-100 shadow-sm px-5 py-2.5 rounded-full w-fit self-start sm:self-center">
+          <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.4)]" />
+          <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Espontânea</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 flex-1">
-        {/* Destaques (Top 3 Cápsulas) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
+        {/* Destaques (Top 3 Cápsulas Verticais) */}
         <div className="lg:col-span-8 flex flex-col">
-          <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-10">Destaques Espontâneos</h4>
+          <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-12">Destaques Espontâneos</h4>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 flex-1 items-start">
+          <div className="grid grid-cols-3 gap-6 flex-1 items-start">
             {[0, 1, 2].map((pos) => {
               const item = ranking[pos];
               const active = item ? isSelected(item.nome) : false;
               const photoUrl = item ? PHOTO_MAP[item.nome] : null;
+              const isFaded = hoveredIdx !== null && hoveredIdx !== pos;
               
               return (
                 <motion.div 
                   key={pos}
-                  whileHover={item ? { y: -8, scale: 1.02 } : {}}
+                  onMouseEnter={() => setHoveredIdx(pos)}
+                  onMouseLeave={() => setHoveredIdx(null)}
                   onClick={() => item && onFilterChange('gov_spontaneous', item.nome)}
                   className={cn(
-                    "bg-white border rounded-[4rem] p-6 pt-8 pb-10 flex flex-col items-center gap-6 relative transition-all duration-300 cursor-pointer shadow-sm min-h-[320px]",
-                    active ? "border-orange-500 bg-orange-50/20 ring-4 ring-orange-500/5" : "border-zinc-100 hover:border-zinc-200"
+                    "bg-white border rounded-[5rem] p-4 pt-10 pb-12 flex flex-col items-center gap-8 relative transition-all duration-500 cursor-pointer shadow-sm min-h-[400px]",
+                    active ? "border-orange-500 bg-orange-50/20" : "border-zinc-100",
+                    isFaded && "opacity-40 grayscale-[0.5] scale-95"
                   )}
                 >
                   <div className="relative">
-                    <div className="size-24 lg:size-28 rounded-full bg-zinc-50 relative overflow-hidden border-4 border-white shadow-xl">
+                    <div className="size-24 lg:size-28 rounded-full bg-zinc-50 relative overflow-hidden border-4 border-white shadow-2xl">
                       {photoUrl ? (
                         <Image src={photoUrl} alt={item?.nome || "Candidato"} fill className="object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-zinc-300 uppercase">500x500</div>
+                        <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-zinc-200 uppercase">500x500</div>
                       )}
                     </div>
-                    {/* Badge de Posição */}
+                    {/* Badge de Posição Circular */}
                     <div className={cn(
-                      "absolute top-0 right-0 size-8 lg:size-10 rounded-full font-black flex items-center justify-center text-[10px] lg:text-[11px] shadow-lg border-2 border-white",
+                      "absolute top-0 -right-2 size-10 rounded-full font-black flex items-center justify-center text-xs shadow-xl border-4 border-white",
                       pos === 0 ? "bg-orange-600 text-white" : "bg-zinc-950 text-white"
                     )}>
                       {pos + 1}º
                     </div>
                   </div>
 
-                  <div className="text-center space-y-2 w-full px-2">
+                  <div className="text-center space-y-4 w-full">
                     <div className="flex flex-col items-center">
                       <span className={cn(
-                        "text-lg lg:text-xl font-black transition-colors leading-tight",
-                        active ? "text-orange-950" : "text-zinc-900"
+                        "text-2xl font-black transition-colors leading-none mb-2",
+                        active ? "text-orange-950" : "text-zinc-950"
                       )}>
                         {item ? `${item.nome.split(' ')[0][0]}.` : '-'}
                       </span>
-                      <div className="flex items-center gap-1.5 justify-center mt-1">
-                        <span className={cn("text-lg lg:text-xl font-black", active ? "text-orange-600" : "text-zinc-950")}>
+                      <div className="flex items-baseline gap-1 justify-center">
+                        <span className={cn("text-3xl font-black", active ? "text-orange-600" : "text-zinc-950")}>
                           {item?.porcentagem.toFixed(1) || '0.0'}
                         </span>
-                        <span className="text-xs font-bold text-zinc-400">%</span>
+                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">%</span>
                       </div>
                       {item?.party && (
-                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">
+                        <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mt-1">
                           ({item.party})
                         </span>
                       )}
                     </div>
-                    {/* Barra Minimalista */}
-                    <div className="w-12 h-1.5 bg-zinc-100 rounded-full mx-auto overflow-hidden mt-4">
+                    {/* Barra Horizontal Estilo Referência */}
+                    <div className="w-14 h-1.5 bg-zinc-100 rounded-full mx-auto overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${item?.porcentagem || 0}%` }}
@@ -175,21 +179,21 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
           </div>
         </div>
 
-        {/* Sidebar de Inteligência */}
-        <div className="lg:col-span-4 flex flex-col">
-          {/* Controle de Indecisão - Estilo Bloco Referência */}
-          <div className="bg-zinc-50/80 p-6 lg:p-8 rounded-[2.5rem] border border-zinc-100 mb-10 shadow-inner">
-            <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-8">Controle de Indecisão</h4>
+        {/* Sidebar de Inteligência Estilo Image Referência */}
+        <div className="lg:col-span-4 flex flex-col pt-20">
+          {/* Controle de Indecisão - Box flutuante arredondado */}
+          <div className="bg-zinc-50/50 p-8 rounded-[3rem] border border-zinc-100 mb-14 shadow-inner">
+            <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-10">Controle de Indecisão</h4>
             
-            <div className="space-y-8">
+            <div className="space-y-10">
               <div 
                 className="cursor-pointer group"
                 onClick={() => onFilterChange('gov_spontaneous', 'NS/NR')}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-tight">Não Sabe / NS/NR</span>
+                  <span className="text-[11px] font-bold text-zinc-700 uppercase tracking-tight">Não Sabe / NS/NR</span>
                 </div>
-                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden border border-zinc-100 shadow-sm">
+                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden border border-zinc-100">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${indecisos}%` }}
@@ -203,9 +207,9 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                 onClick={() => onFilterChange('gov_spontaneous', 'Branco/Nulo')}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-tight">Branco / Nulo</span>
+                  <span className="text-[11px] font-bold text-zinc-700 uppercase tracking-tight">Branco / Nulo</span>
                 </div>
-                <div className="w-full h-2.5 bg-white rounded-full overflow-hidden border border-zinc-100 shadow-sm">
+                <div className="w-full h-2 bg-white rounded-full overflow-hidden border border-zinc-100/50">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${brancos}%` }}
@@ -216,47 +220,40 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
             </div>
           </div>
 
-          {/* Outros Nomes - Lista com Fotos Pequenas */}
+          {/* Outros Nomes - Lista Vertical Compacta */}
           <div>
-            <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-8">Outros Nomes Citados</h4>
-            <div className="space-y-6 max-h-[500px] overflow-y-auto no-scrollbar pr-2">
-              {ranking.slice(3, 15).map((item) => {
+            <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-10">Outros Nomes Citados</h4>
+            <div className="space-y-8 max-h-[400px] overflow-y-auto no-scrollbar pr-2">
+              {ranking.slice(3, 10).map((item) => {
                 const active = isSelected(item.nome);
                 const photoUrl = PHOTO_MAP[item.nome];
                 return (
                   <div 
                     key={item.nome} 
                     onClick={() => onFilterChange('gov_spontaneous', item.nome)}
-                    className="cursor-pointer group flex flex-col gap-3"
+                    className="cursor-pointer group flex items-center gap-4"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="size-11 rounded-full bg-zinc-100 relative overflow-hidden shrink-0 border-2 border-white shadow-md">
-                        {photoUrl ? (
-                          <Image src={photoUrl} alt={item.nome} fill className="object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[7px] font-black text-zinc-300">IMG</div>
-                        )}
-                      </div>
-                      <div className="flex-1 flex flex-col min-w-0">
-                        <div className="flex justify-between items-baseline gap-2 mb-0.5">
-                          <span className={cn("text-[13px] font-black truncate", active ? "text-orange-600" : "text-zinc-900")}>
-                            {item.nome}
-                          </span>
-                        </div>
-                        {item.party && (
-                          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">
-                            ({item.party})
-                          </span>
-                        )}
-                      </div>
+                    <div className="size-12 rounded-full bg-zinc-50 relative overflow-hidden shrink-0 border-2 border-white shadow-lg">
+                      {photoUrl ? (
+                        <Image src={photoUrl} alt={item.nome} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[8px] font-black text-zinc-300">IMG</div>
+                      )}
                     </div>
-                    {/* Barra sutil abaixo do nome como na referência */}
-                    <div className="w-full h-1 bg-zinc-100/50 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${item.porcentagem}%` }}
-                        className={cn("h-full", active ? "bg-orange-500" : "bg-orange-200")}
-                      />
+                    <div className="flex-1 flex flex-col min-w-0">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className={cn("text-[13px] font-black truncate", active ? "text-orange-600" : "text-zinc-900")}>
+                          {item.nome}
+                        </span>
+                        <span className="text-[11px] font-black text-zinc-400">{item.porcentagem.toFixed(1)}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${item.porcentagem}%` }}
+                          className={cn("h-full", active ? "bg-orange-600" : "bg-zinc-300")}
+                        />
+                      </div>
                     </div>
                   </div>
                 );
