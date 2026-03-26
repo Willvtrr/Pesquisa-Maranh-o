@@ -10,7 +10,7 @@ import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioChart } from '@/components/dashboard/governor-scenario-chart';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
@@ -31,126 +31,15 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
+  PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
+  PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
 };
-
-const CITY_MAYORS: Record<string, string> = {
-  "São Luís": "Eduardo Braide",
-  "São José de Ribamar": "Dr. Julinho",
-  "Paço do Lumiar": "Fred Campos",
-  "Raposa": "Eudes Barros",
-  "Alcântara": "Nivaldo Araújo",
-  "Bacabeira": "Naíra Gonçalo",
-  "Santa Rita": "Dr. Milton Gonçalo",
-  "Rosário": "Jonas Magno",
-  "Pinheiro": "André da Ralpnet",
-  "Cururupu": "Aldo Lopes",
-  "Viana": "Carrinho Cidreira",
-  "Itapecuru Mirim": "Filipe Marreca",
-  "Chapadinha": "Belezinha",
-  "Barreirinhas": "Vinicius Vale",
-  "barreiginhas": "Vinicius Vale",
-  "Tutóia": "Viriato Cardoso",
-  "Humberto de Campos": "Luis Fernando",
-  "Guimarães": "Magno",
-  "Mirinzal": "Deyvison do Posto",
-  "Peri Mirim": "Heliezer do Povo",
-  "Santa Helena": "Joãozinho Pavão",
-  "São Bento": "Dino Penha",
-  "Turiaçu": "Edésio Cavalcante",
-  "Anajatuba": "Helder Aragão",
-  "Imperatriz": "Rildo Amaral",
-  "Açailândia": "Dr. Benjamim",
-  "Grajaú": "Dr. Gilson Guerreiro",
-  "Barra do Corda": "Rigo Teles",
-  "Buriticupu": "João Carlos",
-  "Estreito": "Léo Cunha",
-  "Porto Franco": "Deoclídes",
-  "Amarante do Maranhão": "Vanderly",
-  "Montes Altos": "Domingos França",
-  "João Lisboa": "Dr. Fábio Holanda",
-  "Senador La Rocque": "Professor Bartolomeu",
-  "Davinópolis": "Zé Pequeno",
-  "Governador Edison Lobão": "Fábio Soares",
-  "Pedreiras": "Vanessa Maia",
-  "Presidente Dutra": "Raimundinho da Audiolar",
-  "Colinas": "Renato Santos",
-  "São Mateus do Maranhão": "Miltinho Aragão",
-  "Dom Pedro": "Galego Mota",
-  "Tuntum": "Fernando Pessoa",
-  "Gonçalves Dias": "Suane Dias",
-  "Governador Archer": "Professora Leide",
-  "Caxias": "Gentil Neto",
-  "Timon": "Rafael",
-  "Codó": "Chiquinho FC",
-  "Coelho Neto": "Bruno Silva",
-  "Aldeias Altas": "Kedson",
-  "Parnarama": "Juvenal Silva",
-  "Matões": "Nonatinho",
-  "São Francisco do Maranhão": "Francisco do Posto",
-  "Bacabal": "Roberto Costa",
-  "Coroatá": "Edimar Vaqueiro",
-  "Balsas": "Allan da Marissol",
-  "Carolina": "Jayme Fonseca",
-  "Riachão": "Paula Coelho",
-  "São Raimundo das Mangabeiras": "Accioly",
-  "Loreto": "Germano Coelho",
-  "Sambaíba": "Fátima Dantas",
-  "Alto Parnaíba": "Rubens Japonês",
-  "Alto Alegre do Maranhão": "Nilsilene do Liorne",
-  "Araioses": "Neto Carvalho",
-  "Arame": "Pedro Fernandes",
-  "Arari": "Simplesmente Maria",
-  "Bom Jardim": "Cristiane Varão",
-  "Brejo": "Thâmara Castro",
-  "Buriti": "André Gaúcho",
-  "Icatu": "Wallace",
-  "Lago da Pedra": "Maura Jorge",
-  "Miranda do Norte": "Ivaldo Ribeiro",
-  "Penalva": "Guerra",
-  "Pindaré-Mirim": "Dr. Alexandre",
-  "Santa Inês": "Felipe dos Pneus",
-  "Santa Luzia": "Jucelino Marreca",
-  "Santa Quitéria do Maranhão": "Sâmia Moreira",
-  "São Bernardo": "Chico Carvalho",
-  "São Domingos do Maranhão": "Kleber Tratorzão",
-  "Timbiras": "Paulo Vinicius",
-  "Urbano Santos": "Professor Clemilton Barros",
-  "Vargem Grande": "Preto",
-  "Vitória do Mearim": "Nato da Nordestina",
-  "Zé Doca": "Flavinha Cunha"
-};
-
-const FEMALE_MAYORS = new Set([
-  "Naíra Gonçalo", 
-  "Vanessa Maia", 
-  "Suane Dias", 
-  "Professora Leide", 
-  "Paula Coelho", 
-  "Fátima Dantas",
-  "Nilsilene do Liorne",
-  "Simplesmente Maria",
-  "Cristiane Varão",
-  "Thâmara Castro",
-  "Maura Jorge",
-  "Sâmia Moreira",
-  "Flavinha Cunha"
-]);
 
 const normalizeText = (text: string) => 
   text.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-const getMayorData = (city: string) => {
-  const search = normalizeText(city);
-  const cityKey = Object.keys(CITY_MAYORS).find(k => normalizeText(k) === search);
-  const name = cityKey ? CITY_MAYORS[cityKey] : null;
-  return {
-    name,
-    isFemale: name ? FEMALE_MAYORS.has(name) : false
-  };
-};
 
 const MaranhaoFlag = () => (
   <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
@@ -216,7 +105,9 @@ export default function Home() {
       MAYOR_APPROVAL: findKey(['aprova', 'prefeito'], DEFAULT_KEYS.MAYOR_APPROVAL),
       PROBLEMS: findKey(['problema', 'grave'], DEFAULT_KEYS.PROBLEMS),
       WORKS: findKey(['obra', 'serviço', 'gostaria'], DEFAULT_KEYS.WORKS),
-      PRESIDENT_VOTE: findKey(['presidente', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
+      PRESIDENT_VOTE: findKey(['4. PRESIDENTE', 'votaria'], DEFAULT_KEYS.PRESIDENT_VOTE),
+      PRESIDENT_SECOND_ROUND: findKey(['5. Num eventual segundo turno'], DEFAULT_KEYS.PRESIDENT_SECOND_ROUND),
+      PRESIDENT_REJECTION: findKey(['6. REJEIÇÃO'], DEFAULT_KEYS.PRESIDENT_REJECTION),
     };
   }, [rawSurveyData]);
 
@@ -245,7 +136,6 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
-  // Função unificada para cálculo de aprovação baseada no filtro real
   const calculateApproval = (data: any[], questionKey: string) => {
     if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
     
@@ -253,7 +143,7 @@ export default function Home() {
     const total = data.length;
 
     data.forEach(row => {
-      const answer = row[questionKey] ? row[questionKey].toString().trim().toLowerCase() : "";
+      const answer = String(row[questionKey] || '').trim().toLowerCase();
       if (answer === "aprova") aprova++;
       else if (answer === "desaprova") desaprova++;
       else nsnr++;
@@ -273,52 +163,35 @@ export default function Home() {
   const totalFilteredCount = filteredData.length;
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
-  const missingMayors = useMemo(() => {
-    if (!rawSurveyData || rawSurveyData.length === 0) return [];
-    const citiesInData = new Set<string>();
-    rawSurveyData.forEach(item => {
-      const city = String(item[activeKeys.CITY] || '').trim();
-      if (city && city !== 'all' && !item.INFO) citiesInData.add(city);
-    });
-    
-    return Array.from(citiesInData).filter(city => {
-      const { name } = getMayorData(city);
-      return !name;
-    }).sort();
-  }, [rawSurveyData, activeKeys.CITY]);
-
   const chartData = useMemo(() => {
+    const processRanking = (key: string) => {
+      const counts: Record<string, number> = {};
+      filteredData.forEach(d => {
+        const val = String(d[key] || '').trim();
+        if (val && val !== 'all' && val !== 'NS/NR' && val !== 'Não sabe / Não responde') {
+          counts[val] = (counts[val] || 0) + 1;
+        }
+      });
+      return Object.entries(counts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value);
+    };
+
     const approvalMap: Record<string, number> = { 'Aprova': 0, 'Desaprova': 0, 'NS/NR': 0 };
     filteredData.forEach(d => {
       const val = String(d[activeKeys.GOV_APPROVAL] || '').toLowerCase().trim();
-      if (val === 'aprova' || val === 'aprovado' || val === 'sim') approvalMap['Aprova']++;
-      else if (val === 'desaprova' || val === 'desaprovado' || val === 'não' || val === 'nao') approvalMap['Desaprova']++;
+      if (val === 'aprova') approvalMap['Aprova']++;
+      else if (val === 'desaprova') approvalMap['Desaprova']++;
       else approvalMap['NS/NR']++;
-    });
-
-    const problemCounts: Record<string, number> = {};
-    filteredData.forEach(d => {
-      const prob = String(d[activeKeys.PROBLEMS] || '').trim();
-      if (prob && prob !== 'NS/NR') problemCounts[prob] = (problemCounts[prob] || 0) + 1;
-    });
-
-    const workCounts: Record<string, number> = {};
-    filteredData.forEach(d => {
-      const work = String(d[activeKeys.WORKS] || '').trim();
-      if (work && work !== 'NS/NR') workCounts[work] = (workCounts[work] || 0) + 1;
-    });
-
-    const candidateCounts: Record<string, number> = {};
-    filteredData.forEach(d => {
-      const cand = String(d[activeKeys.PRESIDENT_VOTE] || 'Não Citado').trim();
-      if (cand) candidateCounts[cand] = (candidateCounts[cand] || 0) + 1;
     });
 
     return {
       approvalData: Object.entries(approvalMap).map(([name, value]) => ({ name, value })),
-      candidateData: Object.entries(candidateCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 7),
-      topProblems: Object.entries(problemCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
-      topWorks: Object.entries(workCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5),
+      candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
+      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
+      topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
+      topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
     };
   }, [filteredData, activeKeys]);
 
@@ -413,18 +286,6 @@ export default function Home() {
     genericMayor: '/bandeiracerta.jpg'
   };
 
-  const mayorDisplay = useMemo(() => {
-    const isAllCities = filters.city.includes('all');
-    if (isAllCities || filters.city.length !== 1) return "Prefeito(a)";
-    
-    const { name, isFemale } = getMayorData(filters.city[0]);
-    if (name) {
-      return `${isFemale ? 'Prefeita' : 'Pref.'} ${name}`;
-    }
-    
-    return "Prefeito(a)";
-  }, [filters.city]);
-
   if (isLoading && rawSurveyData.length === 0) {
     return (
       <AppLayout>
@@ -484,8 +345,8 @@ export default function Home() {
               </div>
               <div className="bg-zinc-900/40 rounded-xl p-2 h-[45px] overflow-y-auto mb-4 log-scroll border border-zinc-800/40">
                 <ul className="space-y-1 text-[6px] font-mono">
-                  <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>ID:4521 Entrevista: #0318-012</span></li>
-                  <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>ID:4520 Entrevista: #0318-011</span></li>
+                  <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>ID: {totalDatabaseCount} - Sincronizado</span></li>
+                  <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>Monitoramento v3.5 Ativo</span></li>
                 </ul>
               </div>
               <button onClick={handleManualSync} disabled={isSyncing} className="mt-auto w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest bg-white hover:bg-zinc-100 text-zinc-950 shadow-xl transition-all active:scale-95">
@@ -507,7 +368,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
-                <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">Até o momento</span>
+                <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">Amostra Filtrada</span>
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
                   <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-[6px] font-black uppercase tracking-widest">Em Campo</span>
@@ -519,7 +380,7 @@ export default function Home() {
               <div className="relative z-10 flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-lg bg-white/20 border border-white/30 text-white backdrop-blur-md"><MapIcon size={14} /></div>
-                  <h4 className="text-[7px] font-black tracking-0.2em text-orange-100 uppercase">Número de Municípios</h4>
+                  <h4 className="text-[7px] font-black tracking-0.2em text-orange-100 uppercase">Municípios na Base</h4>
                 </div>
               </div>
               <div className="flex-1 flex flex-col justify-center relative z-10">
@@ -530,11 +391,7 @@ export default function Home() {
                 <p className="text-[7px] font-black uppercase tracking-widest mt-6 opacity-80">Maranhão • Cobertura {coveragePercent}%</p>
               </div>
               <div className="mt-auto flex items-center justify-between relative z-10">
-                <span className="text-[6px] font-black text-white uppercase tracking-widest">Status da Base</span>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white text-orange-600 shadow-lg">
-                  <div className="w-1 h-1 rounded-full bg-orange-600 animate-pulse" />
-                  <span className="text-[6px] font-black uppercase tracking-widest">Sincronizado</span>
-                </div>
+                <span className="text-[6px] font-black text-white uppercase tracking-widest">Sincronizado</span>
               </div>
             </div>
             <div className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
@@ -542,23 +399,20 @@ export default function Home() {
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"><ClipboardCheck size={14} /></div>
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
                   <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                  <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">Em Andamento</span>
+                  <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">Auditado</span>
                 </div>
               </div>
               <div className="mb-4">
-                <p className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Status Operacional</p>
-                <h3 className="text-sm font-black text-white">Painel de Pesquisas</h3>
+                <p className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Qualidade da Base</p>
+                <h3 className="text-sm font-black text-white">Integridade de Dados</h3>
                 <div className="flex gap-1 mt-2">
                   <div className="h-1 flex-[2] rounded-full bg-orange-500"></div>
-                  <div className="h-1 flex-1 rounded-full bg-zinc-800"></div>
-                  <div className="h-1 flex-1 rounded-full bg-zinc-800"></div>
+                  <div className="h-1 flex-1 rounded-full bg-emerald-500"></div>
+                  <div className="h-1 flex-1 rounded-full bg-emerald-500"></div>
                 </div>
               </div>
-              <div className="mt-auto bg-[#121214] border border-zinc-800/60 rounded-2xl p-3 space-y-2">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div><span className="text-[7px] font-black uppercase tracking-widest">Pesquisa 1: Reta Final</span></div>
-                  <p className="text-[5px] font-black text-orange-500/60 uppercase tracking-widest pl-3.5">Quase Concluída</p>
-                </div>
+              <div className="mt-auto bg-[#121214] border border-zinc-800/60 rounded-2xl p-3">
+                <p className="text-[7px] font-black uppercase tracking-widest text-zinc-400">Status: Operacional</p>
               </div>
             </div>
           </div>
@@ -593,7 +447,7 @@ export default function Home() {
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO"
-                subtitle={mayorDisplay} 
+                subtitle="Prefeito(a)" 
                 value={`${statsPrefeito.aprova}%`} 
                 imageUrl={images.genericMayor} 
                 subValue="MUNICIPAL" 
@@ -605,177 +459,132 @@ export default function Home() {
               />
             </div>
 
-            {/* Auditoria de Prefeitos */}
-            {missingMayors.length > 0 && (
-              <LuxuryCard title="AUDITORIA DE DADOS" subtitle="Municípios sem Prefeito Vinculado" className="border-amber-200 bg-amber-50/30">
-                <div className="space-y-4">
-                  <p className="text-[10px] font-bold text-amber-700 uppercase leading-relaxed">
-                    Os seguintes municípios foram encontrados na sua base de dados, mas ainda não possuem um prefeito mapeado no sistema. 
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {missingMayors.map(city => (
-                      <Badge key={city} variant="outline" className="bg-white border-amber-200 text-amber-700 font-bold uppercase text-[9px] px-3 py-1">
-                        {city}
-                      </Badge>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
+              <GovernorScenarioChart />
+            </div>
+
+            {/* NOVOS RANKINGS PRESIDENCIAIS */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <LuxuryCard className="group/card">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-100 px-3 py-1 rounded-full w-fit">
+                      <Vote className="w-3 h-3 text-orange-600" />
+                      <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
+                    </div>
+                  </div>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Intenção de Voto (2º Turno)</h2>
+                  <div className="space-y-6 flex-1">
+                    {chartData.secondRoundData.map((item, idx) => (
+                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                          </div>
+                          <span className="text-[11px] font-black text-orange-600">
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                            transition={{ duration: 1.5, ease: "circOut" }}
+                            className="h-full bg-orange-500 rounded-full"
+                          />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
               </LuxuryCard>
-            )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <LuxuryCard className="group/card">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
                 <div className="relative z-10 h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
-                      <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div>
-                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
+                      <ShieldAlert className="w-3 h-3 text-rose-600" />
+                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
                     </div>
-                    {filters.problem[0] !== 'all' && (
-                      <button 
-                        onClick={() => handleFilterChange('problem', 'all')}
-                        className="flex items-center gap-1 text-[9px] font-black text-rose-600 uppercase tracking-widest bg-rose-100/50 hover:bg-rose-100 px-2 py-1 rounded-md transition-colors"
-                      >
-                        <X size={10} /> Limpar Filtro
-                      </button>
-                    )}
                   </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Índice de Rejeição</h2>
                   <div className="space-y-6 flex-1">
-                    {chartData.topProblems.map((item, idx) => {
-                      const isSelected = filters.problem.includes(item.name);
-                      return (
-                        <div 
-                          key={item.name} 
-                          onClick={() => handleFilterChange('problem', item.name)}
-                          className={cn(
-                            "group/row cursor-pointer p-2 -m-2 rounded-xl transition-all duration-300",
-                            isSelected ? "bg-rose-50 ring-1 ring-rose-200" : "hover:bg-zinc-50"
-                          )}
-                        >
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "w-6 h-6 rounded-md flex items-center justify-center transition-colors",
-                                isSelected ? "bg-rose-500 text-white" : "bg-zinc-50 border border-zinc-100 text-zinc-400"
-                              )}>
-                                <span className="text-[10px] font-black">#{idx + 1}</span>
-                              </div>
-                              <span className={cn(
-                                "text-[11px] font-bold uppercase tracking-wide transition-colors",
-                                isSelected ? "text-rose-700" : "text-zinc-800"
-                              )}>{item.name}</span>
-                            </div>
-                            <span className={cn(
-                              "text-[11px] font-black",
-                              isSelected ? "text-rose-600" : "text-rose-500"
-                            )}>
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                            </span>
+                    {chartData.rejectionData.map((item, idx) => (
+                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
                           </div>
-                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                              className={cn("h-full rounded-full transition-colors", isSelected ? "bg-rose-600" : "bg-rose-500")}
-                            />
-                          </div>
+                          <span className="text-[11px] font-black text-rose-600">
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
-                    <div className="flex items-center gap-2">
-                      <ArrowDownRight className="w-3 h-3" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Sentimento de Urgência</span>
-                    </div>
-                    <div className="w-6 h-6 rounded-full bg-rose-50 flex items-center justify-center">
-                      <ArrowDownRight className="w-3 h-3 text-rose-500" />
-                    </div>
-                  </div>
-                </div>
-              </LuxuryCard>
-
-              <LuxuryCard className="group/card">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-                <div className="relative z-10 h-full flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
-                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
-                    </div>
-                    {filters.work[0] !== 'all' && (
-                      <button 
-                        onClick={() => handleFilterChange('work', 'all')}
-                        className="flex items-center gap-1 text-[9px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-100/50 hover:bg-emerald-100 px-2 py-1 rounded-md transition-colors"
-                      >
-                        <X size={10} /> Limpar Filtro
-                      </button>
-                    )}
-                  </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
-                  <div className="space-y-6 flex-1">
-                    {chartData.topWorks.map((item, idx) => {
-                      const isSelected = filters.work.includes(item.name);
-                      return (
-                        <div 
-                          key={item.name} 
-                          onClick={() => handleFilterChange('work', item.name)}
-                          className={cn(
-                            "group/row cursor-pointer p-2 -m-2 rounded-xl transition-all duration-300",
-                            isSelected ? "bg-emerald-50 ring-1 ring-emerald-200" : "hover:bg-zinc-50"
-                          )}
-                        >
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "w-6 h-6 rounded-md flex items-center justify-center transition-colors",
-                                isSelected ? "bg-emerald-500 text-white" : "bg-zinc-50 border border-zinc-100 text-zinc-400"
-                              )}>
-                                <span className="text-[10px] font-black">#{idx + 1}</span>
-                              </div>
-                              <span className={cn(
-                                "text-[11px] font-bold uppercase tracking-wide transition-colors",
-                                isSelected ? "text-emerald-700" : "text-zinc-800"
-                              )}>{item.name}</span>
-                            </div>
-                            <span className={cn(
-                              "text-[11px] font-black",
-                              isSelected ? "text-emerald-600" : "text-emerald-500"
-                            )}>
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
-                              transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                              className={cn("h-full rounded-full transition-colors", isSelected ? "bg-emerald-600" : "bg-emerald-500")}
-                            />
-                          </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                            transition={{ duration: 1.5, ease: "circOut" }}
+                            className="h-full bg-rose-500 rounded-full"
+                          />
                         </div>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-10 pt-6 flex items-center justify-between text-zinc-400 border-t border-zinc-100">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-3 h-3" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Expectativa de Entrega</span>
-                    </div>
-                    <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center">
-                      <TrendingUp className="w-3 h-3 text-emerald-500" />
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </LuxuryCard>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-              <GovernorScenarioChart />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <LuxuryCard className="group/card">
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
+                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Urgência Social</span>
+                    </div>
+                  </div>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Problemas Mais Graves</h2>
+                  <div className="space-y-6 flex-1">
+                    {chartData.topProblems.map((item, idx) => (
+                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[11px] font-bold uppercase text-zinc-800">{item.name}</span>
+                          <span className="text-[11px] font-black text-rose-600">{((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-1 overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} className="h-full bg-rose-500" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </LuxuryCard>
+
+              <LuxuryCard className="group/card">
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full w-fit">
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Demandas Populares</span>
+                    </div>
+                  </div>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Obras e Serviços Desejados</h2>
+                  <div className="space-y-6 flex-1">
+                    {chartData.topWorks.map((item, idx) => (
+                      <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[11px] font-bold uppercase text-zinc-800">{item.name}</span>
+                          <span className="text-[11px] font-black text-emerald-600">{((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full bg-zinc-100 rounded-full h-1 overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} className="h-full bg-emerald-500" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </LuxuryCard>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
