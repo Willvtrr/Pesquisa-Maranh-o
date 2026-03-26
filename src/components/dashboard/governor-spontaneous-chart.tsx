@@ -4,6 +4,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface GovernorSpontaneousChartProps {
   data: { name: string; value: number }[];
@@ -29,6 +30,12 @@ const PARTY_MAP: Record<string, string> = {
   'Eduardo Braide': 'PSD',
   'Flávio Dino': 'PSB',
   'Dino': 'PSB'
+};
+
+const PHOTO_MAP: Record<string, string> = {
+  'Carlos Brandão': '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg',
+  'Eduardo Braide': 'https://picsum.photos/seed/braide/500/500',
+  'Orleans Brandão': 'https://picsum.photos/seed/orleans/500/500',
 };
 
 const NumberCounter = ({ value, isSmall = false }: { value: number; isSmall?: boolean }) => {
@@ -118,13 +125,15 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
             {[0, 1, 2].map((pos) => {
               const item = ranking[pos];
               const active = item ? isSelected(item.nome) : false;
+              const photoUrl = item ? PHOTO_MAP[item.nome] : null;
+              
               return (
                 <motion.div 
                   key={pos}
                   whileHover={item ? { y: -5 } : {}}
                   onClick={() => item && onFilterChange('gov_spontaneous', item.nome)}
                   className={cn(
-                    "bg-white border rounded-[1.5rem] p-4 md:p-5 flex flex-col items-center justify-between h-[280px] md:h-[320px] relative transition-all duration-300 cursor-pointer shadow-sm",
+                    "bg-white border rounded-[1.5rem] p-4 md:p-5 flex flex-col items-center justify-between h-auto relative transition-all duration-300 cursor-pointer shadow-sm",
                     active ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20" : "border-zinc-100 hover:border-zinc-200"
                   )}
                 >
@@ -132,7 +141,8 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                     "w-7 h-7 rounded-lg font-black flex items-center justify-center text-xs mb-3 shadow-sm",
                     pos === 0 ? "bg-orange-100 text-[#ea580c]" : "bg-zinc-100 text-zinc-500"
                   )}>{pos + 1}º</div>
-                  <div className="text-center w-full">
+                  
+                  <div className="text-center w-full mb-4">
                     <h3 className={cn(
                       "text-sm font-bold leading-tight truncate w-full transition-colors",
                       active ? "text-orange-900" : "text-zinc-800"
@@ -143,19 +153,35 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                       </span>
                     )}
                   </div>
-                  <div className={cn("my-4 transition-colors", active ? "text-orange-600" : "text-zinc-900")}>
+
+                  <div className={cn("mb-6 transition-colors", active ? "text-orange-600" : "text-zinc-900")}>
                     <NumberCounter value={item?.porcentagem || 0} />
                   </div>
-                  <div className="w-full bg-zinc-100/50 rounded-xl relative overflow-hidden flex-1 mt-2">
-                    <motion.div 
-                      initial={{ height: 0 }}
-                      animate={{ height: `${item ? (item.porcentagem / Math.max(ranking[0]?.porcentagem || 10, 1)) * 100 : 0}%` }}
-                      transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                      className={cn(
-                        "absolute bottom-0 left-0 w-full shadow-lg transition-colors",
-                        active ? "bg-orange-500" : (pos === 0 ? "bg-orange-600" : "bg-zinc-400")
-                      )} 
-                    />
+
+                  <div className="w-full aspect-square bg-zinc-100 rounded-[1.5rem] relative overflow-hidden group/photo border border-zinc-100/50">
+                    {photoUrl ? (
+                      <Image 
+                        src={photoUrl} 
+                        alt={item?.nome || "Foto"} 
+                        fill 
+                        className="object-cover transition-transform duration-500 group-hover/photo:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-zinc-300 uppercase">Foto</div>
+                    )}
+                    
+                    {/* Barra Horizontal no Rodapé da Foto */}
+                    <div className="absolute bottom-0 left-0 w-full h-2.5 bg-black/10 backdrop-blur-sm">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: `${item ? (item.porcentagem / Math.max(ranking[0]?.porcentagem || 10, 1)) * 100 : 0}%` }}
+                        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                        className={cn(
+                          "h-full shadow-lg transition-colors",
+                          active ? "bg-orange-500" : (pos === 0 ? "bg-orange-600" : "bg-zinc-400")
+                        )} 
+                      />
+                    </div>
                   </div>
                 </motion.div>
               );
