@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -502,10 +503,7 @@ export default function Home() {
                   </h2>
                   <span className="text-lg font-black text-zinc-400">/20.000</span>
                 </div>
-                <p className="text-[7px] font-black uppercase tracking-widest mt-6 text-zinc-500">
-                  Maranhão • Progresso {collectionPercent}%
-                </p>
-                <div className="flex gap-0.5 mt-2">
+                <div className="flex gap-0.5 mt-8">
                   {[...Array(6)].map((_, i) => (
                     <div 
                       key={i} 
