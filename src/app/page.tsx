@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -7,7 +6,6 @@ import { MesoRegion } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
-import { ApprovalChart } from '@/components/dashboard/approval-chart';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioChart } from '@/components/dashboard/governor-scenario-chart';
 import { GovernorSpontaneousChart } from '@/components/dashboard/governor-spontaneous-chart';
@@ -679,10 +677,6 @@ export default function Home() {
                   </div>
                 </div>
               </LuxuryCard>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              <ApprovalChart data={chartData.approvalData} />
             </div>
             
             <div className="grid grid-cols-1 gap-6">
