@@ -123,6 +123,7 @@ const DEFAULT_KEYS = {
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
   PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
   GOV_VOTE_SPONTANEOUS: "GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
+  GOV_REJECTION: "10. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum? (Estimulada)",
 };
 
 export default function Home() {
@@ -177,6 +178,7 @@ export default function Home() {
       PRESIDENT_SECOND_ROUND: findKey(['5. Num eventual segundo turno'], DEFAULT_KEYS.PRESIDENT_SECOND_ROUND),
       PRESIDENT_REJECTION: findKey(['6. REJEIÇÃO'], DEFAULT_KEYS.PRESIDENT_REJECTION),
       GOV_VOTE_SPONTANEOUS: findKey(['governador', 'espontânea'], DEFAULT_KEYS.GOV_VOTE_SPONTANEOUS),
+      GOV_REJECTION: findKey(['10. REJEIÇÃO'], DEFAULT_KEYS.GOV_REJECTION),
     };
   }, [rawSurveyData]);
 
@@ -275,6 +277,7 @@ export default function Home() {
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS),
+      govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 7),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
       topWorks: processRanking(activeKeys.WORKS).slice(0, 5),
     };
@@ -602,7 +605,7 @@ export default function Home() {
                       <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral</span>
                     </div>
                   </div>
-                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Índice de Rejeição</h2>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Índice de Rejeição (Presidente)</h2>
                   <div className="space-y-6 flex-1">
                     {chartData.rejectionData.map((item, idx) => (
                       <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
@@ -629,7 +632,49 @@ export default function Home() {
               </LuxuryCard>
             </div>
 
+            {/* RANKINGS ESTADUAIS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <LuxuryCard className="group/card">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+                <div className="relative z-10 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="inline-flex items-center gap-2 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full w-fit">
+                      <ShieldAlert className="w-3 h-3 text-rose-600" />
+                      <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Teto Eleitoral (MA)</span>
+                    </div>
+                  </div>
+                  <h2 className="text-[18px] font-black text-zinc-900 mb-8 tracking-tight">Rejeição para Governador (Estimulada)</h2>
+                  <div className="space-y-6 flex-1">
+                    {chartData.govRejectionData.length > 0 ? (
+                      chartData.govRejectionData.map((item, idx) => (
+                        <div key={item.name} className="group/row p-2 -m-2 rounded-xl transition-all duration-300 hover:bg-zinc-50">
+                          <div className="flex justify-between items-center mb-2">
+                            <div className="flex items-center gap-3">
+                              <span className="text-[11px] font-bold uppercase tracking-wide text-zinc-800">{item.name}</span>
+                            </div>
+                            <span className="text-[11px] font-black text-rose-600">
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-zinc-100 rounded-full h-1 relative overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }}
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className="h-full bg-rose-500 rounded-full"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-[10px] font-black uppercase text-zinc-400">
+                        Aguardando Dados do Google Cloud...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </LuxuryCard>
+
               <LuxuryCard className="group/card">
                 <div className="relative z-10 h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
@@ -653,7 +698,9 @@ export default function Home() {
                   </div>
                 </div>
               </LuxuryCard>
+            </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <LuxuryCard className="group/card">
                 <div className="relative z-10 h-full flex flex-col">
                   <div className="flex items-center justify-between mb-4">
@@ -677,6 +724,9 @@ export default function Home() {
                   </div>
                 </div>
               </LuxuryCard>
+              
+              {/* Espaço para o Mapa ocupar mais largura ou outro card */}
+              <div className="lg:col-span-1"></div>
             </div>
             
             <div className="grid grid-cols-1 gap-6">
