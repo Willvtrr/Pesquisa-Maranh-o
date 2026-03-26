@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -46,15 +47,14 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
       subtitle="Intenção de Voto Federal"
       className="h-full"
     >
-      <div className="absolute top-4 right-6 flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-50 border border-zinc-100">
-        <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-        <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
-      </div>
-
-      <div className="mt-1 mb-6">
-        <p className="text-[11px] font-medium text-zinc-500 italic leading-tight">
+      <div className="mt-1 mb-8 flex items-start justify-between gap-4">
+        <p className="text-[11px] font-medium text-zinc-400 italic leading-tight max-w-[70%]">
           "Se as eleições para Presidente da República fossem hoje, em quem você votaria?"
         </p>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
+          <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+        </div>
       </div>
 
       <div 
@@ -65,7 +65,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
           const pct = totalVotes > 0 ? (item.value / totalVotes) * 100 : 0;
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const party = PARTY_MAP[item.name];
-          const barColor = COLORS[item.name] || 'bg-zinc-200';
+          const barColor = COLORS[item.name] || (item.name.toLowerCase().includes('nulo') || item.name.toLowerCase().includes('ns/nr') || item.name.toLowerCase().includes('nenhum') ? 'bg-zinc-200' : 'bg-[#ea580c]');
 
           return (
             <div 
@@ -78,7 +78,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
             >
               <div className="w-24 lg:w-32 text-right flex flex-col justify-center flex-shrink-0">
                 <span className={cn(
-                  "text-[12px] transition-colors leading-tight truncate",
+                  "text-[11px] transition-colors leading-tight truncate",
                   idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                   isFaded && "text-zinc-300"
                 )}>
@@ -86,7 +86,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                 </span>
                 {party && (
                   <span className={cn(
-                    "text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5",
+                    "text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
                     isFaded && "text-zinc-200"
                   )}>
                     ({party})
@@ -111,7 +111,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
               
               <div className="w-12 flex-shrink-0">
                 <span className={cn(
-                  "text-sm font-black transition-all duration-300",
+                  "text-[12px] font-black transition-all duration-300",
                   isFaded ? "text-zinc-300" : "text-zinc-950",
                   hoveredIndex === idx && "text-orange-600"
                 )}>
