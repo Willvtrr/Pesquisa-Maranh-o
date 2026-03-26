@@ -16,6 +16,7 @@ const PARTY_MAP: Record<string, string> = {
   'Tarcísio de Freitas': 'REPUBLICANOS',
   'Ratinho Jr.': 'PSD',
   'Ronaldo Caiado': 'UNIÃO',
+  'Eduardo Leite': 'PSD',
   'Ciro Gomes': 'PDT',
   'Simone Tebet': 'MDB'
 };
@@ -29,6 +30,7 @@ const COLORS: Record<string, string> = {
   'Tarcísio de Freitas': 'bg-[#cbd5e1]',
   'Ratinho Jr.': 'bg-[#e2e8f0]',
   'Ronaldo Caiado': 'bg-[#c2410c]',
+  'Eduardo Leite': 'bg-[#cbd5e1]',
 };
 
 export const CandidateChart = ({ data, total }: CandidateChartProps) => {
@@ -116,7 +118,6 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                   </span>
                 </motion.div>
               </div>
-              {/* Spacer para a porcentagem no final */}
               <div className="w-12 flex-shrink-0"></div>
             </div>
           );
