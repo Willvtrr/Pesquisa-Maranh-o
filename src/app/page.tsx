@@ -142,7 +142,8 @@ export default function Home() {
     religion: ['all'],
     ideology: ['all'],
     problem: ['all'],
-    work: ['all']
+    work: ['all'],
+    gov_spontaneous: ['all']
   });
 
   const activeKeys = useMemo(() => {
@@ -205,7 +206,8 @@ export default function Home() {
         checkMatch('religion', activeKeys.RELIGION) &&
         checkMatch('ideology', activeKeys.IDEOLOGY) &&
         checkMatch('problem', activeKeys.PROBLEMS) &&
-        checkMatch('work', activeKeys.WORKS)
+        checkMatch('work', activeKeys.WORKS) &&
+        checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -282,7 +284,7 @@ export default function Home() {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 7),
-      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), // Não exclui NS/NR para a Espontânea tratar
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), 
       govRejectionData: processRanking(activeKeys.GOV_REJECTION).slice(0, 7),
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
       topProblems: processRanking(activeKeys.PROBLEMS).slice(0, 5),
@@ -364,7 +366,7 @@ export default function Home() {
 
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
-    problem: ['all'], work: ['all']
+    problem: ['all'], work: ['all'], gov_spontaneous: ['all']
   });
 
   const handleManualSync = async () => {
@@ -559,7 +561,12 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} />
+              <GovernorSpontaneousChart 
+                data={chartData.govSpontaneousData} 
+                total={filteredData.length}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+              />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
