@@ -19,7 +19,7 @@ import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
-// Mapeamento de Prefeitos (Inteligência de Dados Atualizada com Gênero)
+// Mapeamento de Prefeitos
 const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'SÃO LUÍS': { name: 'Eduardo Braide', gender: 'M' },
   'SÃO JOSÉ DE RIBAMAR': { name: 'Dr. Julinho', gender: 'M' },
@@ -242,7 +242,7 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
-  // REJEIÇÃO ABSOLUTA ESTADUAL (Sem filtros)
+  // REJEIÇÃO ABSOLUTA ESTADUAL
   const rawGovRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -266,7 +266,7 @@ export default function Home() {
       .slice(0, 5);
   }, [rawSurveyData, activeKeys.GOV_REJECTION]);
 
-  // REJEIÇÃO ABSOLUTA FEDERAL (Sem filtros)
+  // REJEIÇÃO ABSOLUTA FEDERAL
   const rawPresidentRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -465,7 +465,7 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* TOPO: BANCO DE DADOS E STATUS (MANTIDO PERFEITO) */}
+        {/* TOPO: BANCO DE DADOS E STATUS */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           <div className="xl:col-span-5 space-y-4 lg:pt-2">
             <div className="flex items-center gap-3 mb-1">
@@ -596,13 +596,12 @@ export default function Home() {
               <StatCard title="APROVAÇÃO DE GESTÃO" subtitle={mayorInfo.displayName} party={mayorInfo.party} value={`${statsPrefeito.aprova}%`} imageUrl="/bandeiracerta.jpg" subValue="MUNICIPAL" breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} />
             </div>
 
-            {/* GRÁFICOS LADO A LADO */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart data={chartData.candidateData} total={filteredData.length} />
               <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
-            {/* NOVA LINHA DE 3 CARDS: CENÁRIO 1, CENÁRIO 2 E REJEIÇÃO ESTADUAL */}
+            {/* LINHA ESTADUAL: CENÁRIOS E REJEIÇÃO */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
@@ -617,8 +616,18 @@ export default function Home() {
               />
             </div>
 
-            {/* COLUNA FEDERAL ABAIXO */}
+            {/* LINHA FEDERAL: REJEIÇÃO E 2º TURNO (INVERTIDOS) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <GovernorRejectionChart 
+                data={rawPresidentRejectionData} 
+                total={totalDatabaseCount} 
+                overline="TETO ELEITORAL FEDERAL"
+                title="Índice de Rejeição"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="rose"
+              />
+
               <LuxuryCard className="h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="space-y-1">
@@ -651,16 +660,6 @@ export default function Home() {
                   ))}
                 </div>
               </LuxuryCard>
-
-              <GovernorRejectionChart 
-                data={rawPresidentRejectionData} 
-                total={totalDatabaseCount} 
-                overline="TETO ELEITORAL FEDERAL"
-                title="Rejeição (Presidente)"
-                subtitle='"Em quem você NÃO votaria de jeito nenhum para Presidente?"'
-                badge="Estimulada"
-                color="rose"
-              />
             </div>
 
             <div className="w-full">

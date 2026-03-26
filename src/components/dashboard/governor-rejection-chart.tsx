@@ -32,36 +32,36 @@ export const GovernorRejectionChart = ({
   }, []);
 
   const barColorClass = color === 'red' 
-    ? "bg-gradient-to-b from-[#ef4444] to-[#b91c1c] shadow-[0_4px_10px_-2px_rgba(220,38,38,0.3)]" 
-    : "bg-gradient-to-b from-rose-500 to-rose-700 shadow-[0_4px_10px_-2px_rgba(225,29,72,0.3)]";
+    ? "bg-gradient-to-b from-[#ef4444] to-[#b91c1c]" 
+    : "bg-gradient-to-b from-[#f43f5e] to-[#be123c]";
 
   const overlineColorClass = color === 'red' ? "bg-[#dc2626]" : "bg-[#e11d48]";
 
   return (
-    <div className="bg-white rounded-[2rem] p-6 lg:p-7 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[380px]">
+    <div className="bg-white rounded-[2rem] p-6 lg:p-8 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[380px]">
       <div className="flex justify-between items-start mb-6">
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className={cn("w-1 h-3 rounded-full", overlineColorClass)} />
-            <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.15em]">
+            <div className={cn("w-1 h-4 rounded-full", overlineColorClass)} />
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">
               {overline}
             </span>
           </div>
-          <h2 className="text-xl font-black text-zinc-900 tracking-tight">
+          <h2 className="text-2xl font-black text-zinc-900 tracking-tight">
             {title}
           </h2>
-          <p className="text-[10px] text-zinc-400 italic font-medium">
+          <p className="text-[11px] text-zinc-400 italic font-medium">
             {subtitle}
           </p>
         </div>
-        <div className="px-3 py-1 rounded-full bg-[#f8fafc] border border-zinc-100">
-          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">
+        <div className="px-3 py-1.5 rounded-full bg-[#f8fafc] border border-zinc-100">
+          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">
             {badge}
           </span>
         </div>
       </div>
 
-      <div className="flex justify-between items-start gap-2 mt-auto">
+      <div className="flex justify-between items-start gap-2 mt-auto border-b border-zinc-50 pb-4">
         {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
           const isAbstention = item.name.toLowerCase().includes('nulo') || 
@@ -70,14 +70,14 @@ export const GovernorRejectionChart = ({
 
           return (
             <div key={`${item.name}-${idx}`} className="flex flex-col items-center flex-1 group">
-              {/* Bar Track - Ultra Compacto 140px */}
-              <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner">
+              {/* Bar Track - 140px como solicitado na redução drástica */}
+              <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-2 shadow-inner">
                 <motion.div
                   initial={{ height: 0 }}
                   animate={{ height: isMounted ? `${pct}%` : 0 }}
                   transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
                   className={cn(
-                    "w-full rounded-full transition-all min-h-[16px]",
+                    "w-full rounded-full transition-all min-h-[20px]",
                     isAbstention 
                       ? "bg-gradient-to-b from-slate-300 to-slate-500" 
                       : barColorClass
@@ -85,11 +85,11 @@ export const GovernorRejectionChart = ({
                 />
               </div>
 
-              <span className="text-[11px] font-black text-zinc-900 mb-3">
+              <span className="text-[12px] font-black text-zinc-900 mb-2">
                 {pct.toFixed(1)}%
               </span>
 
-              <div className="flex flex-col items-center text-center space-y-2">
+              <div className="flex flex-col items-center text-center space-y-1">
                 <Avatar className="w-10 h-10 border-2 border-white shadow-sm transition-transform group-hover:-translate-y-0.5">
                   <AvatarImage 
                     src={`https://picsum.photos/seed/${item.name}/100/100`} 
