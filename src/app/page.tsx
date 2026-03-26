@@ -19,91 +19,91 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-// Mapeamento de Prefeitos (Inteligência de Dados Atualizada)
-const CITY_MAYORS: Record<string, string> = {
-  'SÃO LUÍS': 'Eduardo Braide',
-  'SÃO JOSÉ DE RIBAMAR': 'Dr. Julinho',
-  'PAÇO DO LUMIAR': 'Fred Campos',
-  'RAPOSA': 'Eudes Barros',
-  'ALCÂNTARA': 'Nivaldo Araújo',
-  'BACABEIRA': 'Naíra Gonçalo',
-  'SANTA RITA': 'Dr. Milton Gonçalo',
-  'ROSÁRIO': 'Jonas Magno',
-  'PINHEIRO': 'André da Ralpnet',
-  'CURURUPU': 'Aldo Lopes',
-  'VIANA': 'Carrinho Cidreira',
-  'ITAPECURU MIRIM': 'Filipe Marreca',
-  'CHAPADINHA': 'Belezinha',
-  'BARREIRINHAS': 'Vinicius Vale',
-  'TUTÓIA': 'Viriato Cardoso',
-  'HUMBERTO DE CAMPOS': 'Luis Fernando',
-  'GUIMARÃES': 'Magno',
-  'MIRINZAL': 'Deyvison do Posto',
-  'PERI MIRIM': 'Heliezer do Povo',
-  'SANTA HELENA': 'Joãozinho Pavão',
-  'SÃO BENTO': 'Dino Penha',
-  'TURIAÇU': 'Edésio Cavalcante',
-  'ANAJATUBA': 'Helder Aragão',
-  'IMPERATRIZ': 'Rildo Amaral',
-  'AÇAILÂNDIA': 'Dr. Benjamim',
-  'GRAJAÚ': 'Dr. Gilson Guerreiro',
-  'BARRA DO CORDA': 'Rigo Teles',
-  'BURITICUPU': 'João Carlos',
-  'ESTREITO': 'Léo Cunha',
-  'PORTO FRANCO': 'Deoclídes',
-  'AMARANTE DO MARANHÃO': 'Vanderly',
-  'MONTES ALTOS': 'Domingos França',
-  'JOÃO LISBOA': 'Dr. Fábio Holanda',
-  'SENADOR LA ROCQUE': 'Professor Bartolomeu',
-  'DAVINÓPOLIS': 'Zé Pequeno',
-  'GOVERNADOR EDISON LOBÃO': 'Fábio Soares',
-  'PEDREIRAS': 'Vanessa Maia',
-  'PRESIDENTE DUTRA': 'Raimundinho da Audiolar',
-  'COLINAS': 'Renato Santos',
-  'SÃO MATEUS DO MARANHÃO': 'Miltinho Aragão',
-  'DOM PEDRO': 'Galego Mota',
-  'TUNTUM': 'Fernando Pessoa',
-  'GONÇALVES DIAS': 'Suane Dias',
-  'GOVERNADOR ARCHER': 'Professora Leide',
-  'CAXIAS': 'Gentil Neto',
-  'TIMON': 'Rafael',
-  'CODÓ': 'Chiquinho FC',
-  'COELHO NETO': 'Bruno Silva',
-  'ALDEIAS ALTAS': 'Kedson',
-  'PARNARAMA': 'Juvenal Silva',
-  'MATÕES': 'Nonatinho',
-  'SÃO FRANCISCO DO MARANHÃO': 'Francisco do Posto',
-  'BACABAL': 'Roberto Costa',
-  'COROATÁ': 'Edimar Vaqueiro',
-  'BALSAS': 'Allan da Marissol',
-  'CAROLINA': 'Jayme Fonseca',
-  'RIACHÃO': 'Paula Coelho',
-  'SÃO RAIMUNDO DAS MANGABEIRAS': 'Accioly',
-  'LORETO': 'Germano Coelho',
-  'SAMBAÍBA': 'Fátima Dantas',
-  'ALTO PARNAÍBA': 'Rubens Japonês',
-  'ALTO ALEGRE DO MARANHÃO': 'Nilsilene do Liorne',
-  'ARAIOSES': 'Neto Carvalho',
-  'ARAME': 'Pedro Fernandes',
-  'ARARI': 'Simplesmente Maria',
-  'BOM JARDIM': 'Cristiane Varão',
-  'BREJO': 'Thâmara Castro',
-  'BURITI': 'André Gaúcho',
-  'ICATU': 'Wallace',
-  'LAGO DA PEDRA': 'Maura Jorge',
-  'MIRANDA DO NORTE': 'Ivaldo Ribeiro',
-  'PENALVA': 'Guerra',
-  'PINDARÉ-MIRIM': 'Dr. Alexandre',
-  'SANTA INÊS': 'Felipe dos Pneus',
-  'SANTA LUZIA': 'Jucelino Marreca',
-  'SANTA QUITÉRIA DO MARANHÃO': 'Sâmia Moreira',
-  'SÃO BERNARDO': 'Chico Carvalho',
-  'SÃO DOMINGOS DO MARANHÃO': 'Kleber Tratorzão',
-  'TIMBIRAS': 'Paulo Vinicius',
-  'URBANO SANTOS': 'Professor Clemilton Barros',
-  'VARGEM GRANDE': 'Preto',
-  'VITÓRIA DO MEARIM': 'Nato da Nordestina',
-  'ZÉ DOCA': 'Flavinha Cunha',
+// Mapeamento de Prefeitos (Inteligência de Dados Atualizada com Gênero)
+const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
+  'SÃO LUÍS': { name: 'Eduardo Braide', gender: 'M' },
+  'SÃO JOSÉ DE RIBAMAR': { name: 'Dr. Julinho', gender: 'M' },
+  'PAÇO DO LUMIAR': { name: 'Fred Campos', gender: 'M' },
+  'RAPOSA': { name: 'Eudes Barros', gender: 'M' },
+  'ALCÂNTARA': { name: 'Nivaldo Araújo', gender: 'M' },
+  'BACABEIRA': { name: 'Naíra Gonçalo', gender: 'F' },
+  'SANTA RITA': { name: 'Dr. Milton Gonçalo', gender: 'M' },
+  'ROSÁRIO': { name: 'Jonas Magno', gender: 'M' },
+  'PINHEIRO': { name: 'André da Ralpnet', gender: 'M' },
+  'CURURUPU': { name: 'Aldo Lopes', gender: 'M' },
+  'VIANA': { name: 'Carrinho Cidreira', gender: 'M' },
+  'ITAPECURU MIRIM': { name: 'Filipe Marreca', gender: 'M' },
+  'CHAPADINHA': { name: 'Belezinha', gender: 'F' },
+  'BARREIRINHAS': { name: 'Vinicius Vale', gender: 'M' },
+  'TUTÓIA': { name: 'Viriato Cardoso', gender: 'M' },
+  'HUMBERTO DE CAMPOS': { name: 'Luis Fernando', gender: 'M' },
+  'GUIMARÃES': { name: 'Magno', gender: 'M' },
+  'MIRINZAL': { name: 'Deyvison do Posto', gender: 'M' },
+  'PERI MIRIM': { name: 'Heliezer do Povo', gender: 'M' },
+  'SANTA HELENA': { name: 'Joãozinho Pavão', gender: 'M' },
+  'SÃO BENTO': { name: 'Dino Penha', gender: 'M' },
+  'TURIAÇU': { name: 'Edésio Cavalcante', gender: 'M' },
+  'ANAJATUBA': { name: 'Helder Aragão', gender: 'M' },
+  'IMPERATRIZ': { name: 'Rildo Amaral', gender: 'M' },
+  'AÇAILÂNDIA': { name: 'Dr. Benjamim', gender: 'M' },
+  'GRAJAÚ': { name: 'Dr. Gilson Guerreiro', gender: 'M' },
+  'BARRA DO CORDA': { name: 'Rigo Teles', gender: 'M' },
+  'BURITICUPU': { name: 'João Carlos', gender: 'M' },
+  'ESTREITO': { name: 'Léo Cunha', gender: 'M' },
+  'PORTO FRANCO': { name: 'Deoclídes', gender: 'M' },
+  'AMARANTE DO MARANHÃO': { name: 'Vanderly', gender: 'F' },
+  'MONTES ALTOS': { name: 'Domingos França', gender: 'M' },
+  'JOÃO LISBOA': { name: 'Dr. Fábio Holanda', gender: 'M' },
+  'SENADOR LA ROCQUE': { name: 'Professor Bartolomeu', gender: 'M' },
+  'DAVINÓPOLIS': { name: 'Zé Pequeno', gender: 'M' },
+  'GOVERNADOR EDISON LOBÃO': { name: 'Fábio Soares', gender: 'M' },
+  'PEDREIRAS': { name: 'Vanessa Maia', gender: 'F' },
+  'PRESIDENTE DUTRA': { name: 'Raimundinho da Audiolar', gender: 'M' },
+  'COLINAS': { name: 'Renato Santos', gender: 'M' },
+  'SÃO MATEUS DO MARANHÃO': { name: 'Miltinho Aragão', gender: 'M' },
+  'DOM PEDRO': { name: 'Galego Mota', gender: 'M' },
+  'TUNTUM': { name: 'Fernando Pessoa', gender: 'M' },
+  'GONÇALVES DIAS': { name: 'Suane Dias', gender: 'F' },
+  'GOVERNADOR ARCHER': { name: 'Professora Leide', gender: 'F' },
+  'CAXIAS': { name: 'Gentil Neto', gender: 'M' },
+  'TIMON': { name: 'Rafael', gender: 'M' },
+  'CODÓ': { name: 'Chiquinho FC', gender: 'M' },
+  'COELHO NETO': { name: 'Bruno Silva', gender: 'M' },
+  'ALDEIAS ALTAS': { name: 'Kedson', gender: 'M' },
+  'PARNARAMA': { name: 'Juvenal Silva', gender: 'M' },
+  'MATÕES': { name: 'Nonatinho', gender: 'M' },
+  'SÃO FRANCISCO DO MARANHÃO': { name: 'Francisco do Posto', gender: 'M' },
+  'BACABAL': { name: 'Roberto Costa', gender: 'M' },
+  'COROATÁ': { name: 'Edimar Vaqueiro', gender: 'M' },
+  'BALSAS': { name: 'Allan da Marissol', gender: 'M' },
+  'CAROLINA': { name: 'Jayme Fonseca', gender: 'M' },
+  'RIACHÃO': { name: 'Paula Coelho', gender: 'F' },
+  'SÃO RAIMUNDO DAS MANGABEIRAS': { name: 'Accioly', gender: 'M' },
+  'LORETO': { name: 'Germano Coelho', gender: 'M' },
+  'SAMBAÍBA': { name: 'Fátima Dantas', gender: 'F' },
+  'ALTO PARNAÍBA': { name: 'Rubens Japonês', gender: 'M' },
+  'ALTO ALEGRE DO MARANHÃO': { name: 'Nilsilene do Liorne', gender: 'F' },
+  'ARAIOSES': { name: 'Neto Carvalho', gender: 'M' },
+  'ARAME': { name: 'Pedro Fernandes', gender: 'M' },
+  'ARARI': { name: 'Simplesmente Maria', gender: 'F' },
+  'BOM JARDIM': { name: 'Cristiane Varão', gender: 'F' },
+  'BREJO': { name: 'Thâmara Castro', gender: 'F' },
+  'BURITI': { name: 'André Gaúcho', gender: 'M' },
+  'ICATU': { name: 'Wallace', gender: 'M' },
+  'LAGO DA PEDRA': { name: 'Maura Jorge', gender: 'F' },
+  'MIRANDA DO NORTE': { name: 'Ivaldo Ribeiro', gender: 'M' },
+  'PENALVA': { name: 'Guerra', gender: 'M' },
+  'PINDARÉ-MIRIM': { name: 'Dr. Alexandre', gender: 'M' },
+  'SANTA INÊS': { name: 'Felipe dos Pneus', gender: 'M' },
+  'SANTA LUZIA': { name: 'Jucelino Marreca', gender: 'M' },
+  'SANTA QUITÉRIA DO MARANHÃO': { name: 'Sâmia Moreira', gender: 'F' },
+  'SÃO BERNARDO': { name: 'Chico Carvalho', gender: 'M' },
+  'SÃO DOMINGOS DO MARANHÃO': { name: 'Kleber Tratorzão', gender: 'M' },
+  'TIMBIRAS': { name: 'Paulo Vinicius', gender: 'M' },
+  'URBANO SANTOS': { name: 'Professor Clemilton Barros', gender: 'M' },
+  'VARGEM GRANDE': { name: 'Preto', gender: 'M' },
+  'VITÓRIA DO MEARIM': { name: 'Nato da Nordestina', gender: 'M' },
+  'ZÉ DOCA': { name: 'Flavinha Cunha', gender: 'F' },
 };
 
 const DEFAULT_KEYS = {
@@ -122,27 +122,8 @@ const DEFAULT_KEYS = {
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
-  PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
+  PRESIDENT_REJECTION: "6. REJEIÇÃO: En quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
 };
-
-const normalizeText = (text: string) => 
-  text.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-const MaranhaoFlag = () => (
-  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
-    <rect width="27" height="2" y="0" fill="#E20613" />
-    <rect width="27" height="2" y="2" fill="#FFFFFF" />
-    <rect width="27" height="2" y="4" fill="#000000" />
-    <rect width="27" height="2" y="6" fill="#E20613" />
-    <rect width="27" height="2" y="8" fill="#FFFFFF" />
-    <rect width="27" height="2" y="10" fill="#000000" />
-    <rect width="27" height="2" y="12" fill="#E20613" />
-    <rect width="27" height="2" y="14" fill="#FFFFFF" />
-    <rect width="27" height="2" y="16" fill="#000000" />
-    <rect width="11" height="8" fill="#004185" />
-    <path d="M5.5 1.5l.7 2h2.1l-1.7 1.2.7 2.1-1.8-1.3-1.8 1.3.7-2.1-1.7-1.2h2.1z" fill="#fff" />
-  </svg>
-);
 
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
@@ -250,12 +231,17 @@ export default function Home() {
   const totalFilteredCount = filteredData.length;
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
-  // Inteligência de Exibição do Prefeito
+  // Inteligência de Exibição do Prefeito com Tratamento de Gênero
   const selectedMayorName = useMemo(() => {
     const activeCities = filters.city;
     if (activeCities.length === 1 && activeCities[0] !== 'all') {
       const cityUpper = activeCities[0].toUpperCase().trim();
-      return CITY_MAYORS[cityUpper] || `Prefeito(a) de ${activeCities[0]}`;
+      const mayorInfo = CITY_MAYORS[cityUpper];
+      if (mayorInfo) {
+        const prefix = mayorInfo.gender === 'F' ? 'Prefa.' : 'Pref.';
+        return `${prefix} ${mayorInfo.name}`;
+      }
+      return `Prefeito(a) de ${activeCities[0]}`;
     }
     return "Prefeito(a)";
   }, [filters.city]);
@@ -705,3 +691,19 @@ export default function Home() {
     </AppLayout>
   );
 }
+
+const MaranhaoFlag = () => (
+  <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
+    <rect width="27" height="2" y="0" fill="#E20613" />
+    <rect width="27" height="2" y="2" fill="#FFFFFF" />
+    <rect width="27" height="2" y="4" fill="#000000" />
+    <rect width="27" height="2" y="6" fill="#E20613" />
+    <rect width="27" height="2" y="8" fill="#FFFFFF" />
+    <rect width="27" height="2" y="10" fill="#000000" />
+    <rect width="27" height="2" y="12" fill="#E20613" />
+    <rect width="27" height="2" y="14" fill="#FFFFFF" />
+    <rect width="27" height="2" y="16" fill="#000000" />
+    <rect width="11" height="8" fill="#004185" />
+    <path d="M5.5 1.5l.7 2h2.1l-1.7 1.2.7 2.1-1.8-1.3-1.8 1.3.7-2.1-1.7-1.2h2.1z" fill="#fff" />
+  </svg>
+);
