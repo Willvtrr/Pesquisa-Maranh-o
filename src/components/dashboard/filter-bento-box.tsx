@@ -517,17 +517,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#eab308" strokeWidth="6" strokeDasharray={`${pDir} ${100 - pDir}`} strokeDashoffset={100} onMouseEnter={() => setHoveredPolitic('direita')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', dirKey)} />
                 <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#9ca3af" strokeWidth="6" strokeDasharray={`${pCen} ${100 - pCen}`} strokeDashoffset={100 - pDir} onMouseEnter={() => setHoveredPolitic('centro')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', cenKey)} />
                 <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" strokeWidth="6" strokeDasharray={`${pEsq} ${100 - pEsq}`} strokeDashoffset={100 - pDir - pCen} onMouseEnter={() => setHoveredPolitic('esquerda')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', esqKey)} />
-                {/* Arco do NS/NR no gráfico */}
                 <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" strokeDasharray={`${pUndecided} ${100 - pUndecided}`} strokeDashoffset={100 - pDir - pCen - pEsq} onMouseEnter={() => setHoveredPolitic('nsnr')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', nsnrKey)} />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-2xl font-black text-zinc-800 leading-none">{displayPoliticPct}%</span>
+                <span className="text-xl font-black text-zinc-800 leading-none">{displayPoliticPct}%</span>
                 <span className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
                   {(filters.ideology?.length > 0 && !filters.ideology?.includes('all')) ? 'Soma' : 'Amostra'}
                 </span>
               </div>
             </div>
-            <div className="flex flex-col gap-2 w-full">
+            <div className="flex flex-col gap-3 w-full">
               {[
                 { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey },
                 { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
@@ -537,7 +536,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 <div 
                   key={item.id} 
                   className={cn(
-                    "flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all", 
+                    "flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all", 
                     (isSelected('ideology', item.key)) ? "bg-zinc-50" : "hover:bg-zinc-50/50"
                   )} 
                   onClick={() => onFilterChange('ideology', item.key)}
@@ -545,10 +544,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   onMouseLeave={() => setHoveredPolitic(null)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
-                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-wide">{item.label}</span>
+                    <div className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
+                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-wide">{item.label}</span>
                   </div>
-                  <span className={cn("text-lg font-black", (isSelected('ideology', item.key)) ? "text-orange-600" : "text-zinc-800")} style={{ color: (isSelected('ideology', item.key)) ? undefined : (item.id === 'nsnr' ? '#a1a1aa' : item.color) }}>
+                  <span className={cn("text-sm font-black", (isSelected('ideology', item.key)) ? "text-orange-600" : "text-zinc-800")} style={{ color: (isSelected('ideology', item.key)) ? undefined : (item.id === 'nsnr' ? '#a1a1aa' : item.color) }}>
                     {item.pct}%
                   </span>
                 </div>
