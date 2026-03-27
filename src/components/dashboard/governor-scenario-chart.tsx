@@ -24,7 +24,7 @@ interface Scenario {
 export const SCENARIOS: Scenario[] = [
   {
     id: 'cenario1',
-    label: 'CENÁRIO 1',
+    label: 'Cenário 1',
     question: 'Se os candidatos a Governador fossem estes, em quem você votaria?',
     candidates: [
       { name: 'Felipe Camarão', value: 34.2, party: 'PT' },
@@ -36,7 +36,7 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     id: 'cenario2',
-    label: 'CENÁRIO 2',
+    label: 'Cenário 2',
     question: 'E se fossem estes, em quem você votaria?',
     candidates: [
       { name: 'Felipe Camarão', value: 41.5, party: 'PT' },
