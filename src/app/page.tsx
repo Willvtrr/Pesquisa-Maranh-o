@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -582,6 +583,7 @@ export default function Home() {
                 question="Se as eleições para Governador fossem hoje, em quem você votaria?"
                 badge="ESPONTÂNEA"
                 selected={filters.gov_spontaneous}
+                showPhotos={true}
                 onFilterChange={(v) => handleFilterChange('gov_spontaneous', v)}
               />
             </div>

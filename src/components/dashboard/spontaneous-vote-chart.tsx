@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
-import { toTitleCase } from '@/app/page';
+import { toTitleCase, getCandidatePhoto } from '@/app/page';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface SpontaneousVoteChartProps {
   data: { name: string; value: number; isAbstention?: boolean }[];
@@ -15,6 +16,7 @@ interface SpontaneousVoteChartProps {
   question: string;
   badge: string;
   selected?: string[];
+  showPhotos?: boolean;
   onFilterChange: (value: string) => void;
 }
 
@@ -37,7 +39,17 @@ const PARTY_MAP: Record<string, string> = {
   'Dino': 'PSB'
 };
 
-export const SpontaneousVoteChart = ({ data, total, overline, title, question, badge, selected = [], onFilterChange }: SpontaneousVoteChartProps) => {
+export const SpontaneousVoteChart = ({ 
+  data, 
+  total, 
+  overline, 
+  title, 
+  question, 
+  badge, 
+  selected = [], 
+  showPhotos = false,
+  onFilterChange 
+}: SpontaneousVoteChartProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -93,6 +105,18 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
               onClick={() => onFilterChange(item.name)}
             >
               <div className="flex items-center gap-2.5 w-32 lg:w-40 flex-shrink-0">
+                {showPhotos && (
+                  <Avatar className={cn(
+                    "w-8 h-8 border border-white shadow-sm shrink-0 transition-all",
+                    isFaded && !isActive && "opacity-40 grayscale",
+                    isActive && "ring-2 ring-orange-500"
+                  )}>
+                    <AvatarImage src={getCandidatePhoto(item.name)} />
+                    <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
+                      {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
                 <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
                     "text-[10px] transition-colors leading-tight truncate",
