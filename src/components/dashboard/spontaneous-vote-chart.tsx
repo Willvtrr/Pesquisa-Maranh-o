@@ -141,11 +141,11 @@ export const SpontaneousVoteChart = ({
     >
       <div className="flex items-start justify-between mb-1">
         <div className="space-y-0.5">
-          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
             {overline}
           </h4>
-          <p className="text-xl font-black text-zinc-950 tracking-tight leading-tight">
+          <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">
             {title}
           </p>
         </div>
@@ -155,7 +155,7 @@ export const SpontaneousVoteChart = ({
         </div>
       </div>
 
-      <p className="text-[9px] font-medium text-zinc-400 italic leading-tight mb-2">
+      <p className="text-[8px] font-medium text-zinc-400 italic leading-tight mb-2">
         "{question}"
       </p>
 
