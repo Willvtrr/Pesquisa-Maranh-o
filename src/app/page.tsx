@@ -284,11 +284,6 @@ export default function Home() {
   }, [filters.city]);
 
   const chartData = useMemo(() => {
-    /**
-     * Motor de Processamento Brutista (Estilo Power BI)
-     * Não aplica filtros de agrupamento ("Outros") a menos que solicitado.
-     * Sempre move abstenções para o final da lista para organização lógica.
-     */
     const processRanking = (key: string) => {
       if (!filteredData || filteredData.length === 0) return [];
       
@@ -309,6 +304,7 @@ export default function Home() {
         isAbstention: abstentionKeywords.some(kw => name.toLowerCase().includes(kw))
       }));
 
+      // No slices here - Power BI style
       const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
       const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
@@ -426,7 +422,6 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* TOPO: BANCO DE DADOS E STATUS */}
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           <div className="xl:col-span-5 space-y-4 lg:pt-2">
             <div className="flex items-center gap-3 mb-1">
@@ -548,7 +543,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* DASHBOARD PRINCIPAL */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -562,9 +556,7 @@ export default function Home() {
               <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={totalDatabaseCount} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
-            {/* LINHA DE 4 CARDS: 2º TURNO, PERCEPÇÃO DE VITÓRIA, CENÁRIO 1, CENÁRIO 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Card 1: 2º Turno */}
               <LuxuryCard className="h-full">
                 <div className="flex items-start justify-between mb-2">
                   <div className="space-y-1">
@@ -632,22 +624,18 @@ export default function Home() {
                 </div>
               </LuxuryCard>
 
-              {/* Card 2: Percepção de Vitória */}
               <VictoryPerceptionCard 
                 data={chartData.govVictoryData} 
                 total={totalDatabaseCount} 
               />
 
-              {/* Card 3: Cenário 1 */}
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
-              {/* Card 4: Cenário 2 */}
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
             </div>
 
-            {/* LINHA DE REJEIÇÃO LADO A LADO */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RejectionPillChart 
-                data={chartData.rejectionData.slice(0, 5)} 
+                data={chartData.rejectionData} 
                 total={totalDatabaseCount} 
                 overline="Teto Eleitoral Federal"
                 title="Índice de Rejeição"
@@ -657,7 +645,7 @@ export default function Home() {
                 isMounted={isMounted}
               />
               <RejectionPillChart 
-                data={chartData.govSpontaneousData.slice(0, 5)} // Usando espontânea como proxy se não houver rejeição estadual específica
+                data={chartData.govSpontaneousData} 
                 total={totalDatabaseCount} 
                 overline="Teto Eleitoral Estadual"
                 title="Índice de Rejeição"
@@ -702,7 +690,6 @@ function calculateApproval(data: any[], questionKey: string) {
   };
 }
 
-// COMPONENTE DE REJEIÇÃO REVISADO
 const RejectionPillChart = ({ 
   data, total, title, overline, subtitle, badge, color, isMounted 
 }: any) => {
@@ -728,15 +715,13 @@ const RejectionPillChart = ({
         </div>
       </header>
 
-      <div className="flex justify-between items-start gap-4 flex-1 border-b border-zinc-50 pb-6">
+      <div className="flex justify-between items-start gap-4 flex-1 border-b border-zinc-50 pb-6 overflow-x-auto no-scrollbar">
         {data.map((item: any, idx: number) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const isAbstention = item.name.toLowerCase().includes('nulo') || 
-                               item.name.toLowerCase().includes('branco') || 
-                               item.name.toLowerCase().includes('nenhum');
+          const isAbstention = item.isAbstention;
 
           return (
-            <div key={idx} className="flex flex-col items-center flex-1">
+            <div key={idx} className="flex flex-col items-center min-w-[80px]">
               <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner overflow-hidden">
                 <motion.div
                   initial={{ height: 0 }}

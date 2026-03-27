@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -60,7 +61,6 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
     setIsMounted(true);
   }, []);
 
-  // Ordenação interna para garantir abstenções por último
   const sortedCandidates = [...scenario.candidates].sort((a, b) => {
     if (a.isAbstention && !b.isAbstention) return 1;
     if (!a.isAbstention && b.isAbstention) return -1;
@@ -86,7 +86,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
       <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"{scenario.question}"</p>
 
       <div className="space-y-5">
-        {sortedCandidates.slice(0, 5).map((c, idx) => {
+        {sortedCandidates.map((c, idx) => {
           const displayName = toTitleCase(c.name);
           return (
             <div key={`${c.name}-${idx}`} className="flex items-center gap-3 group">

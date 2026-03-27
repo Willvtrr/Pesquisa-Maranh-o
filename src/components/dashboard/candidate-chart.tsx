@@ -30,7 +30,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
             DISPUTA PRESIDENCIAL
           </h4>
-          <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Intenção de Voto Federal</p>
+          <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Intenção de voto presidente</p>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />

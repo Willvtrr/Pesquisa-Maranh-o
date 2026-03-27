@@ -66,7 +66,8 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
     const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
     const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-    return [...candidates.slice(0, 5), ...abstentions];
+    // No slices - All rows Power BI style
+    return [...candidates, ...abstentions];
   }, [data, total]);
 
   return (
@@ -94,7 +95,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
       </p>
 
       <div 
-        className="flex-1 flex flex-col gap-5 relative z-10"
+        className="flex-1 flex flex-col gap-5 relative z-10 overflow-y-auto pr-2 max-h-[600px] no-scrollbar"
         onMouseLeave={() => setHoveredIndex(null)}
       >
         {processedData.map((item, idx) => {
