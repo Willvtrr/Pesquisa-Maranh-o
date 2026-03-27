@@ -53,6 +53,9 @@ export const SpontaneousVoteChart = ({
         const isActive = selected.includes(item.name);
         const displayName = toTitleCase(item.name);
 
+        // Degrade de opacidade para candidatos, cinza para abstenções
+        const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
+
         return (
           <div 
             key={`${item.name}-${idx}`} 
@@ -80,7 +83,7 @@ export const SpontaneousVoteChart = ({
               <div className="flex flex-col justify-center min-w-0">
                 <span className={cn(
                   "text-[10px] transition-colors leading-tight truncate",
-                  idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                  !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                   isFaded && !isActive && "text-zinc-300",
                   isActive && "text-orange-600 font-black"
                 )}>
@@ -99,18 +102,21 @@ export const SpontaneousVoteChart = ({
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                 className={cn(
                   "h-full rounded-full relative transition-all",
-                  isActive ? "bg-orange-600" : (idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200")
+                  isActive ? "bg-orange-600" : (isAbstention 
+                    ? "bg-zinc-200" 
+                    : "bg-gradient-to-r from-[#f27e46] to-[#c44d15]")
                 )}
+                style={{ opacity: isActive ? 1 : barOpacity }}
               />
             </div>
             
             <div className="w-10 flex-shrink-0 text-right">
               <span className={cn(
                 "text-[10px] font-black transition-all duration-300",
-                isFaded && !isActive ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
+                isFaded && !isActive ? "text-zinc-300" : (!isAbstention ? "text-zinc-950" : "text-zinc-500"),
                 (hoveredIndex === idx || isActive) && "text-orange-600"
               )}>
-                {pct.toFixed(1)}%
+                {pct.toFixed(1).replace('.', ',')}%
               </span>
             </div>
           </div>
