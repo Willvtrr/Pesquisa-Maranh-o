@@ -359,20 +359,19 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política - DESIGN FINAL SOLICITADO */}
+        {/* Visão Política - DESIGN FINAL COMPACTO */}
         <div className="pt-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-6">
             <span className="w-1.5 h-6 bg-[#d97743] rounded-full" />
             Visão Política
           </label>
           
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
-            {/* Gráfico Donut Robusto */}
-            <div className="relative w-48 h-48 flex-shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+          <div className="flex items-center justify-between gap-4">
+            {/* Gráfico Donut Compacto */}
+            <div className="relative w-36 h-36 flex-shrink-0">
+              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
                 <g transform="rotate(-90 50 50)">
                   {politicalSlices.map((slice, idx) => {
-                    // Cálculo do offset dinâmico acumulado
                     const offset = politicalSlices.slice(0, idx).reduce((acc, s) => acc + s.pct, 0);
                     const isFaded = hoveredPolitic && hoveredPolitic !== slice.id;
                     
@@ -401,10 +400,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   })}
                 </g>
 
-                {/* Porcentagens dentro das fatias */}
+                {/* Porcentagens dentro das fatias - Otimizadas */}
                 {politicalSlices.map((slice) => {
                   const isFaded = hoveredPolitic && hoveredPolitic !== slice.id;
-                  if (slice.pct < 5) return null; // Não mostra texto em fatias muito pequenas
+                  if (slice.pct < 10) return null; 
 
                   return (
                     <motion.text
@@ -412,7 +411,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       x={slice.textX}
                       y={slice.textY}
                       fill={slice.textColor}
-                      className="text-[6px] font-black pointer-events-none"
+                      className="text-[5.5px] font-black pointer-events-none"
                       textAnchor="middle"
                       dominantBaseline="middle"
                       animate={{ opacity: isFaded ? 0.2 : 1 }}
@@ -424,8 +423,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </svg>
             </div>
 
-            {/* Legenda Vertical Refinada */}
-            <div className="flex-1 w-full space-y-4">
+            {/* Legenda Vertical de Impacto - Estilo Print */}
+            <div className="flex-1 space-y-3">
               {politicalSlices.map((item) => {
                 const active = isSelected('ideology', item.key);
                 const isFaded = hoveredPolitic && hoveredPolitic !== item.id;
@@ -441,23 +440,23 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     onMouseLeave={() => setHoveredPolitic(null)}
                     onClick={() => onFilterChange('ideology', item.key)}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span 
-                        className="w-3 h-3 rounded-full" 
+                        className="w-2.5 h-2.5 rounded-full shrink-0" 
                         style={{ 
                           backgroundColor: item.color,
                           border: item.id === 'nsnr' ? '1px solid #cbd5e1' : 'none'
                         }} 
                       />
                       <span className={cn(
-                        "text-[11px] font-black uppercase tracking-wider transition-colors",
-                        active ? "text-zinc-950" : "text-zinc-600"
+                        "text-[9px] font-black uppercase tracking-wider transition-colors",
+                        active ? "text-zinc-950" : "text-zinc-500"
                       )}>
                         {item.label}
                       </span>
                     </div>
                     <span 
-                      className="text-xl font-black tabular-nums"
+                      className="text-lg font-black tabular-nums tracking-tighter"
                       style={{ color: item.id === 'nsnr' ? '#64748b' : item.color }}
                     >
                       {item.pct.toFixed(1).replace('.', ',')}%
