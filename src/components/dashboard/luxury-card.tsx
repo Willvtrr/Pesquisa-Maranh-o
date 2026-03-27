@@ -19,7 +19,7 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       viewport={{ once: true }}
       transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       className={cn(
-        "bg-white rounded-[2rem] p-6 lg:p-7 flex flex-col gap-4 overflow-hidden relative",
+        "bg-white rounded-[2rem] p-5 lg:p-6 flex flex-col gap-3 overflow-hidden relative",
         "border border-zinc-200/60 ring-1 ring-white/60",
         "shadow-[0_15px_40px_rgba(234,88,12,0.04),0_1px_3px_rgba(0,0,0,0.01)]",
         "transition-all duration-300 hover:shadow-[0_25px_50px_rgba(234,88,12,0.08)]",
@@ -27,15 +27,15 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       )}
     >
       {(title || subtitle) && (
-        <div className="space-y-1 mb-2 relative z-10">
+        <div className="space-y-0.5 mb-1 relative z-10">
           {title && (
-            <h3 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <h3 className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
               <span className="w-1 h-3 bg-orange-600 rounded-full" />
               {title}
             </h3>
           )}
           {subtitle && (
-            <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">
+            <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">
               {subtitle}
             </p>
           )}
