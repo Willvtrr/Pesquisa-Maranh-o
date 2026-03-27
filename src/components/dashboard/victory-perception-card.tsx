@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getCandidatePhoto, toTitleCase } from '@/app/page';
 
 interface VictoryPerceptionCardProps {
   data: { name: string; value: number; party?: string | null; isAbstention?: boolean }[];
@@ -40,11 +41,13 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
       <div className="space-y-4">
         {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
+          const isAbstention = item.isAbstention;
+          const displayName = toTitleCase(item.name);
 
           return (
             <div key={`${item.name}-${idx}`} className="flex items-center gap-3 group">
               <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-all group-hover:scale-110">
-                <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                <AvatarImage src={getCandidatePhoto(item.name)} />
                 <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400">
                   {item.isAbstention ? 'N/B' : item.name.charAt(0)}
                 </AvatarFallback>
@@ -55,15 +58,15 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                   <div className="flex flex-col justify-center min-w-0">
                     <span className={cn(
                       "text-[11px] tracking-tight leading-tight transition-colors",
-                      idx < 2 && !item.isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
+                      idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
                     )}>
-                      {item.name}
+                      {displayName}
                     </span>
                     {item.party && <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
                   </div>
                   <span className={cn(
                     "text-[12px] font-black leading-none",
-                    idx < 2 && !item.isAbstention ? "text-zinc-950" : "text-zinc-400"
+                    idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
                   )}>
                     {pct.toFixed(1)}%
                   </span>

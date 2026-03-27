@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getCandidatePhoto, toTitleCase } from '@/app/page';
 
 interface Candidate {
   name: string;
@@ -85,46 +86,49 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
       <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"{scenario.question}"</p>
 
       <div className="space-y-5">
-        {sortedCandidates.slice(0, 5).map((c, idx) => (
-          <div key={`${c.name}-${idx}`} className="flex items-center gap-3 group">
-            <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
-              <AvatarImage src={`https://picsum.photos/seed/${c.name}/100/100`} />
-              <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
-                {c.isAbstention ? 'N/B' : c.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 space-y-1.5">
-              <div className="flex justify-between items-end">
-                <div className="flex flex-col justify-center min-w-0">
-                  <span className={cn(
-                    "text-[11px] tracking-tight leading-tight transition-colors",
-                    idx < 2 && !c.isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
-                  )}>
-                    {c.name}
-                  </span>
-                  <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({c.party})</span>
-                </div>
-                <span className={cn(
-                  "text-[12px] font-black leading-none",
-                  idx < 2 && !c.isAbstention ? "text-zinc-950" : "text-zinc-400"
-                )}>{c.value.toFixed(1)}%</span>
-              </div>
+        {sortedCandidates.slice(0, 5).map((c, idx) => {
+          const displayName = toTitleCase(c.name);
+          return (
+            <div key={`${c.name}-${idx}`} className="flex items-center gap-3 group">
+              <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
+                <AvatarImage src={getCandidatePhoto(c.name)} />
+                <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
+                  {c.isAbstention ? 'N/B' : c.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
               
-              <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: isMounted ? `${c.value}%` : 0 }}
-                  transition={{ duration: 1.2, delay: idx * 0.1 }}
-                  className={cn(
-                    "h-full rounded-full shadow-sm transition-all",
-                    idx < 2 && !c.isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
-                  )}
-                />
+              <div className="flex-1 space-y-1.5">
+                <div className="flex justify-between items-end">
+                  <div className="flex flex-col justify-center min-w-0">
+                    <span className={cn(
+                      "text-[11px] tracking-tight leading-tight transition-colors",
+                      idx < 2 && !c.isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
+                    )}>
+                      {displayName}
+                    </span>
+                    <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({c.party})</span>
+                  </div>
+                  <span className={cn(
+                    "text-[12px] font-black leading-none",
+                    idx < 2 && !c.isAbstention ? "text-zinc-950" : "text-zinc-400"
+                  )}>{c.value.toFixed(1)}%</span>
+                </div>
+                
+                <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: isMounted ? `${c.value}%` : 0 }}
+                    transition={{ duration: 1.2, delay: idx * 0.1 }}
+                    className={cn(
+                      "h-full rounded-full shadow-sm transition-all",
+                      idx < 2 && !c.isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
+                    )}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </LuxuryCard>
   );

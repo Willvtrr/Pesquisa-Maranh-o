@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getCandidatePhoto, toTitleCase } from '@/app/page';
 
 interface CandidateChartProps {
   data: { name: string; value: number; party?: string | null; isAbstention?: boolean }[];
@@ -48,12 +49,13 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
         {data.map((item, idx) => {
           const pct = totalVotes > 0 ? (item.value / totalVotes) * 100 : 0;
           const barColor = item.isAbstention ? 'bg-zinc-200' : (COLORS[item.name] || 'bg-gradient-to-r from-[#f27e46] to-[#c44d15]');
+          const displayName = toTitleCase(item.name);
 
           return (
             <div key={`${item.name}-${idx}`} className="flex items-center gap-4 group/row">
               <div className="flex items-center gap-3 w-36 lg:w-48 shrink-0">
                 <Avatar className="w-9 h-9 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110">
-                  <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                  <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
                     {item.isAbstention ? 'N/B' : item.name.charAt(0)}
                   </AvatarFallback>
@@ -63,7 +65,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                     "text-[11px] leading-tight truncate transition-colors",
                     idx < 2 && !item.isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
                   )}>
-                    {item.name}
+                    {displayName}
                   </span>
                   {item.party && (
                     <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>

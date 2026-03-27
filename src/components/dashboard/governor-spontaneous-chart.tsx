@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -5,6 +6,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getCandidatePhoto, toTitleCase } from '@/app/page';
 
 interface GovernorSpontaneousChartProps {
   data: { name: string; value: number }[];
@@ -100,6 +102,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const party = PARTY_MAP[item.name];
           const barColor = COLORS[item.name] || (item.isAbstention ? 'bg-zinc-200' : 'bg-[#ea580c]');
+          const displayName = toTitleCase(item.name);
 
           return (
             <div 
@@ -116,7 +119,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                   "w-8 h-8 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
                   isFaded && "opacity-40 grayscale"
                 )}>
-                  <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                  <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
                     {item.isAbstention ? (item.name.includes('NS') ? 'NS' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
@@ -127,7 +130,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                     idx < 2 && !item.isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                     isFaded && "text-zinc-300"
                   )}>
-                    {item.name}
+                    {displayName}
                   </span>
                   {party && (
                     <span className={cn(

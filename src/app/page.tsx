@@ -136,6 +136,19 @@ const PARTY_MAP: Record<string, string> = {
   'Dino': 'PSB'
 };
 
+export const getCandidatePhoto = (name: string) => {
+  const n = name.toLowerCase();
+  if (n === 'lula' || n.includes('presidente lula')) return '/lula.jpg';
+  if (n.includes('carlos brandão') || n.includes('carlos brandao') || n === 'brandão' || n === 'brandao') {
+    return '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg';
+  }
+  return `https://picsum.photos/seed/${name}/100/100`;
+};
+
+export const toTitleCase = (str: string) => {
+  return str.toLowerCase().replace(/(?:^|\s)\w/g, (match) => match.toUpperCase());
+};
+
 const DEFAULT_KEYS = {
   CITY: "Cidade:",
   REGION: "Mesorregião",
@@ -148,7 +161,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -486,7 +499,7 @@ export default function Home() {
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"><Database size={14} /></div>
-                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-100">
                   <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
                   <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">Cloud Ativo</span>
                 </div>
@@ -556,7 +569,7 @@ export default function Home() {
             <div className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"><ClipboardCheck size={14} /></div>
-                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-800">
+                <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-100">
                   <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
                   <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">Auditado</span>
                 </div>
@@ -611,16 +624,13 @@ export default function Home() {
                 <div className="space-y-5">
                   {chartData.secondRoundData.slice(0, 3).map((item, idx) => {
                     const pct = ((item.value / Math.max(filteredData.length, 1)) * 100);
-                    const isAbstention = item.name.toLowerCase().includes('nulo') || 
-                                         item.name.toLowerCase().includes('branco') || 
-                                         item.name.toLowerCase().includes('nenhum') ||
-                                         item.name.toLowerCase().includes('não sabe') ||
-                                         item.name.toLowerCase().includes('ns/nr');
+                    const isAbstention = item.isAbstention;
+                    const displayName = toTitleCase(item.name);
                     
                     return (
                       <div key={item.name} className="flex items-center gap-3 group">
                         <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
-                          <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                          <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
                             {isAbstention ? 'N/B' : item.name.charAt(0)}
                           </AvatarFallback>
@@ -632,7 +642,7 @@ export default function Home() {
                                 "text-[11px] tracking-tight leading-tight transition-colors",
                                 idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
                               )}>
-                                {item.name}
+                                {displayName}
                               </span>
                               {item.party && <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
                             </div>
@@ -785,7 +795,7 @@ const RejectionPillChart = ({
 
               <div className="flex flex-col items-center text-center gap-2">
                 <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
-                  <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} className="object-cover" />
+                  <AvatarImage src={getCandidatePhoto(item.name)} className="object-cover" />
                   <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400 uppercase">
                     {isAbstention ? "N/B" : item.name.charAt(0)}
                   </AvatarFallback>
