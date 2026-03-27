@@ -190,8 +190,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const displayPoliticPct = useMemo(() => {
     if (hoveredPolitic) {
       if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) return pDir;
-      if (hoveredPolitic === 'centro' || hoveredPolitic === cenKey) return pCen;
-      if (hoveredPolitic === 'esquerda' || hoveredPolitic === esqKey) return pEsq;
+      if (hoveredPolitic === 'centro' || hoveredPolitic === pCen) return pCen;
+      if (hoveredPolitic === 'esquerda' || hoveredPolitic === pEsq) return pEsq;
       if (hoveredPolitic === 'nsnr' || hoveredPolitic === nsnrKey) return pUndecided;
     }
     const selectedIdeologies = filters.ideology || [];
@@ -361,21 +361,21 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
         {/* Gênero */}
         <div className="pt-4">
-          <label className="text-[10px] font-black uppercase text-zinc-900 tracking-[0.2em] flex items-center gap-2 mb-4">
-            <span className="w-2 h-4 bg-orange-600 rounded-full" />
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             GÊNERO
           </label>
-          <div className="bg-white p-6 rounded-[2.5rem] border border-zinc-100 flex items-center justify-center gap-8 shadow-sm">
+          <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 flex items-center justify-center gap-6 shadow-sm">
             {/* Feminino */}
             <div 
-              className={cn("flex items-center gap-4 cursor-pointer transition-all", isGenderActive('Feminino') ? "opacity-100" : "opacity-30")} 
+              className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Feminino') ? "opacity-100" : "opacity-30")} 
               onClick={() => onFilterChange('gender', 'Feminino')}
             >
               <div className="text-right">
-                <Counter value={femalePct} color="text-zinc-900" symbolColor="text-zinc-400" size="text-3xl" symbolSize="text-xs" />
-                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">FEMININO</p>
+                <Counter value={femalePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" />
+                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">FEMININO</p>
               </div>
-              <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center bg-white shadow-[0_0_35px_rgba(232,62,140,0.18)] transition-all hover:shadow-[0_0_45px_rgba(232,62,140,0.25)]">
+              <div className="glass-capsule w-8 h-16 p-1.5 relative flex items-center justify-center bg-white shadow-[0_10px_20px_rgba(232,62,140,0.05)] transition-all">
                 <div className="w-full h-full mask-female bg-[#831843] relative overflow-hidden">
                   <motion.div 
                     initial={{ height: 0 }} 
@@ -389,10 +389,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             
             {/* Masculino */}
             <div 
-              className={cn("flex items-center gap-4 cursor-pointer transition-all", isGenderActive('Masculino') ? "opacity-100" : "opacity-30")} 
+              className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Masculino') ? "opacity-100" : "opacity-30")} 
               onClick={() => onFilterChange('gender', 'Masculino')}
             >
-              <div className="glass-capsule w-12 h-24 p-2 relative flex items-center justify-center bg-white shadow-[0_0_35px_rgba(29,112,184,0.18)] transition-all hover:shadow-[0_0_45px_rgba(29,112,184,0.25)]">
+              <div className="glass-capsule w-8 h-16 p-1.5 relative flex items-center justify-center bg-white shadow-[0_10px_20px_rgba(29,112,184,0.05)] transition-all">
                 <div className="w-full h-full mask-male bg-[#1e3a8a] relative overflow-hidden">
                   <motion.div 
                     initial={{ height: 0 }} 
@@ -403,8 +403,8 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
               </div>
               <div className="text-left">
-                <Counter value={malePct} color="text-zinc-900" symbolColor="text-zinc-400" size="text-3xl" symbolSize="text-xs" />
-                <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">MASCULINO</p>
+                <Counter value={malePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" />
+                <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">MASCULINO</p>
               </div>
             </div>
           </div>
