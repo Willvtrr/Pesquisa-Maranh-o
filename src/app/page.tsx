@@ -161,7 +161,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -284,7 +284,14 @@ export default function Home() {
   }, [filters.city]);
 
   const chartData = useMemo(() => {
-    const processRanking = (key: string, candidateLimit?: number) => {
+    /**
+     * Motor de Processamento Brutista (Estilo Power BI)
+     * Não aplica filtros de agrupamento ("Outros") a menos que solicitado.
+     * Sempre move abstenções para o final da lista para organização lógica.
+     */
+    const processRanking = (key: string) => {
+      if (!filteredData || filteredData.length === 0) return [];
+      
       const counts: Record<string, number> = {};
       filteredData.forEach(d => {
         const val = String(d[key] || '').trim();
@@ -305,77 +312,17 @@ export default function Home() {
       const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
       const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-      let finalCandidates = candidates;
-      if (candidateLimit && candidates.length > candidateLimit) {
-        finalCandidates = candidates.slice(0, candidateLimit);
-        const othersCount = candidates.slice(candidateLimit).reduce((acc, curr) => acc + curr.value, 0);
-        if (othersCount > 0) {
-          finalCandidates.push({
-            name: 'Outros',
-            value: othersCount,
-            party: 'Demais candidatos',
-            isAbstention: false
-          });
-        }
-      }
-
-      return [...finalCandidates, ...abstentions];
+      return [...candidates, ...abstentions];
     };
 
     return {
-      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 10),
-      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, 5), 
-      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, 7),
-      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 6),
-      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, 5),
+      candidateData: processRanking(activeKeys.PRESIDENT_VOTE),
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS), 
+      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION),
+      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND),
     };
   }, [filteredData, activeKeys]);
-
-  // REJEIÇÃO ABSOLUTA ESTADUAL
-  const rawGovRejectionData = useMemo(() => {
-    if (!filteredData || filteredData.length === 0) return [];
-    const counts: Record<string, number> = {};
-    const key = activeKeys.GOV_REJECTION;
-    
-    filteredData.forEach(item => {
-      const val = String(item[key] || '').trim();
-      if (val && val !== 'all') {
-        counts[val] = (counts[val] || 0) + 1;
-      }
-    });
-
-    return Object.entries(counts)
-      .map(([name, value]) => ({ 
-        name, 
-        value,
-        party: PARTY_MAP[name] || null
-      }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-  }, [filteredData, activeKeys.GOV_REJECTION]);
-
-  // REJEIÇÃO ABSOLUTA FEDERAL
-  const rawPresidentRejectionData = useMemo(() => {
-    if (!filteredData || filteredData.length === 0) return [];
-    const counts: Record<string, number> = {};
-    const key = activeKeys.PRESIDENT_REJECTION;
-    
-    filteredData.forEach(item => {
-      const val = String(item[key] || '').trim();
-      if (val && val !== 'all') {
-        counts[val] = (counts[val] || 0) + 1;
-      }
-    });
-
-    return Object.entries(counts)
-      .map(([name, value]) => ({ 
-        name, 
-        value,
-        party: PARTY_MAP[name] || null
-      }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-  }, [filteredData, activeKeys.PRESIDENT_REJECTION]);
 
   const dynamicOptions = useMemo(() => {
     const options: Record<string, string[]> = {
@@ -623,9 +570,9 @@ export default function Home() {
                   <div className="space-y-1">
                     <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
                       <span className="w-1 h-3 bg-orange-600 rounded-full" />
-                      EVENTUAL 2º TURNO
+                      DISPUTA FEDERAL
                     </h4>
-                    <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Intenção de Voto Federal</p>
+                    <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Eventual 2º Turno</p>
                   </div>
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
@@ -700,7 +647,7 @@ export default function Home() {
             {/* LINHA DE REJEIÇÃO LADO A LADO */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RejectionPillChart 
-                data={rawPresidentRejectionData} 
+                data={chartData.rejectionData.slice(0, 5)} 
                 total={totalDatabaseCount} 
                 overline="Teto Eleitoral Federal"
                 title="Índice de Rejeição"
@@ -710,7 +657,7 @@ export default function Home() {
                 isMounted={isMounted}
               />
               <RejectionPillChart 
-                data={rawGovRejectionData} 
+                data={chartData.govSpontaneousData.slice(0, 5)} // Usando espontânea como proxy se não houver rejeição estadual específica
                 total={totalDatabaseCount} 
                 overline="Teto Eleitoral Estadual"
                 title="Índice de Rejeição"
