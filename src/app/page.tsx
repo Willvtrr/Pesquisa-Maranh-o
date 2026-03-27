@@ -9,6 +9,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor-scenario-chart';
+import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception-card';
 import { GovernorSpontaneousChart } from '@/components/dashboard/governor-spontaneous-chart';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
@@ -147,7 +148,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -615,26 +616,40 @@ export default function Home() {
                       <div className="w-1 h-3 bg-orange-600 rounded-full" />
                       <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                     </div>
-                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Intenção de Voto (2º Turno)</h2>
+                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Intenção de Voto</h2>
                   </div>
                   <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
                     <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
                   </div>
                 </div>
-                <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Num eventual segundo turno para Presidente..."</p>
-                <div className="space-y-6">
-                  {chartData.secondRoundData.slice(0, 3).map((item) => (
-                    <div key={item.name}>
-                      <div className="flex justify-between items-end mb-2">
-                        <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
-                          {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                        </span>
-                        <span className="text-[12px] font-black text-orange-600">
-                          {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} transition={{ duration: 1.5 }} className="h-full bg-orange-500" />
+                <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
+                <div className="space-y-5">
+                  {chartData.secondRoundData.slice(0, 3).map((item, idx) => (
+                    <div key={item.name} className="flex items-center gap-3 group">
+                      <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
+                        <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                        <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
+                          {item.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 space-y-1.5">
+                        <div className="flex justify-between items-end">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase text-zinc-900 tracking-tight leading-none">{item.name}</span>
+                            {item.party && <span className="text-[8px] font-bold text-zinc-400">({item.party})</span>}
+                          </div>
+                          <span className="text-[12px] font-black text-orange-600 leading-none">
+                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }} 
+                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} 
+                            transition={{ duration: 1.2 }} 
+                            className="h-full bg-gradient-to-r from-[#f27e46] to-[#c44d15] rounded-full shadow-sm shadow-orange-500/20" 
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -642,38 +657,10 @@ export default function Home() {
               </LuxuryCard>
 
               {/* Card 2: Percepção de Vitória */}
-              <LuxuryCard className="h-full">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1 h-3 bg-orange-600 rounded-full" />
-                      <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Expectativa Real</span>
-                    </div>
-                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Percepção de Vitória</h2>
-                  </div>
-                  <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
-                  </div>
-                </div>
-                <p className="text-[11px] font-medium text-zinc-400 italic mb-8">"Quem você acha que ganhará a eleição...?"</p>
-                <div className="space-y-6">
-                  {chartData.govVictoryData.slice(0, 3).map((item) => (
-                    <div key={item.name}>
-                      <div className="flex justify-between items-end mb-2">
-                        <span className="text-[11px] font-black uppercase tracking-wide text-zinc-900">
-                          {item.name} {item.party && <span className="text-zinc-400 font-black text-[9px]">({item.party})</span>}
-                        </span>
-                        <span className="text-[12px] font-black text-orange-600">
-                          {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} transition={{ duration: 1.5 }} className="h-full bg-orange-500" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </LuxuryCard>
+              <VictoryPerceptionCard 
+                data={chartData.govVictoryData} 
+                total={filteredData.length} 
+              />
 
               {/* Card 3: Cenário 1 */}
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
