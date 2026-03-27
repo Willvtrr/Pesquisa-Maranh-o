@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -591,10 +592,10 @@ export default function Home() {
                 title="APROVAÇÃO DE GESTÃO" 
                 subtitle="Pres. Lula" 
                 party="PT" 
-                value={`${statsLula.aprova}%`} 
+                value={statsLula.aprova} 
                 imageUrl="/lula.jpg" 
                 subValue="FEDERAL" 
-                breakdown={[{ name: 'Aprova', value: Number(statsLula.aprova) }, { name: 'Desaprova', value: Number(statsLula.desaprova) }, { name: 'NS/NR', value: Number(statsLula.nsnr) }]} 
+                breakdown={[{ name: 'Aprova', value: statsLula.aprova }, { name: 'Desaprova', value: statsLula.desaprova }, { name: 'NS/NR', value: statsLula.nsnr }]} 
                 onFilterChange={(v) => handleFilterChange('president_approval', v)}
                 selected={filters.president_approval}
               />
@@ -602,20 +603,20 @@ export default function Home() {
                 title="APROVAÇÃO DE GESTÃO" 
                 subtitle="Gov. Carlos Brandão" 
                 party="PSB" 
-                value={`${statsBrandao.aprova}%`} 
+                value={statsBrandao.aprova} 
                 imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" 
                 subValue="ESTADUAL" 
-                breakdown={[{ name: 'Aprova', value: Number(statsBrandao.aprova) }, { name: 'Desaprova', value: Number(statsBrandao.desaprova) }, { name: 'NS/NR', value: Number(statsBrandao.nsnr) }]} 
+                breakdown={[{ name: 'Aprova', value: statsBrandao.aprova }, { name: 'Desaprova', value: statsBrandao.desaprova }, { name: 'NS/NR', value: statsBrandao.nsnr }]} 
                 onFilterChange={(v) => handleFilterChange('gov_approval', v)}
                 selected={filters.gov_approval}
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO" 
                 subtitle={CITY_MAYORS[filters.city?.[0]?.toUpperCase()]?.name || "Prefeito(a)"} 
-                value={`${statsPrefeito.aprova}%`} 
+                value={statsPrefeito.aprova} 
                 imageUrl="/bandeiracerta.jpg" 
                 subValue="MUNICIPAL" 
-                breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} 
+                breakdown={[{ name: 'Aprova', value: statsPrefeito.aprova }, { name: 'Desaprova', value: statsPrefeito.desaprova }, { name: 'NS/NR', value: statsPrefeito.nsnr }]} 
                 onFilterChange={(v) => handleFilterChange('mayor_approval', v)}
                 selected={filters.mayor_approval}
               />
@@ -805,7 +806,7 @@ export default function Home() {
 }
 
 function calculateApproval(data: any[], questionKey: string) {
-  if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
+  if (!data || data.length === 0) return { aprova: 0, desaprova: 0, nsnr: 0 };
   
   let aprova = 0, desaprova = 0, nsnr = 0;
   const total = data.length;
@@ -818,9 +819,9 @@ function calculateApproval(data: any[], questionKey: string) {
   });
 
   return {
-    aprova: ((aprova / total) * 100).toFixed(1).replace('.', ','),
-    desaprova: ((desaprova / total) * 100).toFixed(1).replace('.', ','),
-    nsnr: ((nsnr / total) * 100).toFixed(1).replace('.', ',')
+    aprova: (aprova / total) * 100,
+    desaprova: (desaprova / total) * 100,
+    nsnr: (nsnr / total) * 100
   };
 }
 
