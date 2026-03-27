@@ -45,8 +45,6 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       <div className="flex-1 relative z-10">
         {children}
       </div>
-      
-      <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-zinc-50/30 border-t border-zinc-100/20 z-0" />
     </motion.div>
   );
 };
