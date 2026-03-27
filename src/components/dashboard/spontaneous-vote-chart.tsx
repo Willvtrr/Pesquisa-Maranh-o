@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
@@ -41,6 +41,13 @@ export const SpontaneousVoteChart = ({
     setIsMounted(true);
   }, []);
 
+  // Calcula o valor máximo entre os candidatos (não abstenções) para servir de 100% visual
+  const maxCandidateVal = useMemo(() => {
+    const candidates = data.filter(d => !d.isAbstention);
+    if (candidates.length === 0) return Math.max(...data.map(d => d.value), 1);
+    return Math.max(...candidates.map(d => d.value), 1);
+  }, [data]);
+
   const content = (
     <div 
       className="flex flex-col gap-1 relative z-10"
@@ -52,6 +59,9 @@ export const SpontaneousVoteChart = ({
         const isAbstention = item.isAbstention;
         const isActive = selected.includes(item.name);
         const displayName = toTitleCase(item.name);
+
+        // Largura visual relativa ao líder da lista (candidato)
+        const visualWidth = Math.min((item.value / maxCandidateVal) * 100, 100);
 
         // Degrade de opacidade para candidatos, cinza para abstenções
         const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
@@ -96,7 +106,7 @@ export const SpontaneousVoteChart = ({
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ 
-                  width: isMounted ? `${pct}%` : 0,
+                  width: isMounted ? `${visualWidth}%` : 0,
                   filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
                 }}
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
