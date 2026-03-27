@@ -53,7 +53,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
   const processedData = useMemo(() => {
     if (!data || data.length === 0 || total === 0) return [];
 
-    const indecisionKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr"];
+    const indecisionKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr", "outros"];
     const brancoKeywords = ["branco", "nulo", "nenhum", "ninguém"];
 
     let items = data.map(item => ({
@@ -101,6 +101,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
         {processedData.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
+          const isAbstention = item.isAbstention;
           const party = PARTY_MAP[item.name];
           const barColor = COLORS[item.name] || (item.isAbstention ? 'bg-zinc-200' : 'bg-[#ea580c]');
           const displayName = toTitleCase(item.name);
@@ -117,12 +118,12 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
             >
               <div className="flex items-center gap-3 w-32 lg:w-44 flex-shrink-0">
                 <Avatar className={cn(
-                  "w-8 h-8 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
+                  "w-9 h-9 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
                   isFaded && "opacity-40 grayscale"
                 )}>
                   <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
-                    {item.isAbstention ? (item.name.includes('NS') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col justify-center min-w-0">
@@ -144,7 +145,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                 </div>
               </div>
 
-              <div className="flex-1 h-8 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
+              <div className="flex-1 h-2.5 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ 
@@ -154,15 +155,15 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
                     "h-full rounded-full relative transition-all",
-                    barColor
+                    idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
                   )}
                 />
               </div>
               
-              <div className="w-12 flex-shrink-0">
+              <div className="w-12 flex-shrink-0 text-right">
                 <span className={cn(
                   "text-[12px] font-black transition-all duration-300",
-                  isFaded ? "text-zinc-300" : "text-zinc-950",
+                  isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
                   hoveredIndex === idx && "text-orange-600"
                 )}>
                   {pct.toFixed(1)}%

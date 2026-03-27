@@ -142,6 +142,7 @@ export const getCandidatePhoto = (name: string) => {
   if (n.includes('carlos brandão') || n.includes('carlos brandao') || n === 'brandão' || n === 'brandao') {
     return '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg';
   }
+  if (n === 'outros') return 'https://picsum.photos/seed/outros/100/100';
   return `https://picsum.photos/seed/${name}/100/100`;
 };
 
@@ -161,7 +162,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -295,7 +296,7 @@ export default function Home() {
         }
       });
 
-      const abstentionKeywords = ["ns/nr", "não sabe", "não respondeu", "indeciso", "branco", "nulo", "nenhum", "ninguém", "nsnr"];
+      const abstentionKeywords = ["ns/nr", "não sabe", "não respondeu", "indeciso", "branco", "nulo", "nenhum", "ninguém", "nsnr", "outros"];
 
       const items = Object.entries(counts).map(([name, value]) => ({ 
         name, 
@@ -304,7 +305,7 @@ export default function Home() {
         isAbstention: abstentionKeywords.some(kw => name.toLowerCase().includes(kw))
       }));
 
-      // No slices here - Power BI style
+      // No slices - Power BI style
       const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
       const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
@@ -562,7 +563,7 @@ export default function Home() {
                   <div className="space-y-1">
                     <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
                       <span className="w-1 h-3 bg-orange-600 rounded-full" />
-                      DISPUTA FEDERAL
+                      DISPUTA PRESIDENCIAL
                     </h4>
                     <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Eventual 2º Turno</p>
                   </div>
@@ -583,7 +584,7 @@ export default function Home() {
                         <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
-                            {isAbstention ? (item.name.includes('NS') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1.5">
@@ -741,7 +742,7 @@ const RejectionPillChart = ({
                 <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
                   <AvatarImage src={getCandidatePhoto(item.name)} className="object-cover" />
                   <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400 uppercase">
-                    {isAbstention ? "N/B" : item.name.charAt(0)}
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-h-[2.5rem] flex flex-col justify-center">

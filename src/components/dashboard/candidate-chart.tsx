@@ -51,10 +51,13 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
           return (
             <div key={`${item.name}-${idx}`} className="flex items-center gap-4 group/row">
               <div className="flex items-center gap-3 w-36 lg:w-48 shrink-0">
-                <Avatar className="w-9 h-9 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110">
+                <Avatar className={cn(
+                  "w-9 h-9 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
+                  idx >= 2 || isAbstention ? "opacity-90" : ""
+                )}>
                   <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
-                    {isAbstention ? (item.name.includes('NS') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col justify-center min-w-0">

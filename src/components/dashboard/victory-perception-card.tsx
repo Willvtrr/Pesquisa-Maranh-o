@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -41,15 +42,15 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
       <div className="space-y-4">
         {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const isAbstention = item.isAbstention;
+          const isAbstention = item.isAbstention || item.name.toLowerCase().includes('outros');
           const displayName = toTitleCase(item.name);
 
           return (
             <div key={`${item.name}-${idx}`} className="flex items-center gap-3 group">
               <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-all group-hover:scale-110">
                 <AvatarImage src={getCandidatePhoto(item.name)} />
-                <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400">
-                  {item.isAbstention ? 'N/B' : item.name.charAt(0)}
+                <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
+                  {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               
@@ -79,7 +80,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                     transition={{ duration: 1.2, delay: idx * 0.05 }}
                     className={cn(
                       "h-full rounded-full transition-all",
-                      item.isAbstention || idx >= 2 ? "bg-zinc-200" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
+                      isAbstention || idx >= 2 ? "bg-zinc-200" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
                     )}
                   />
                 </div>
