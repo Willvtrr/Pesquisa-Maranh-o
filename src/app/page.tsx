@@ -141,7 +141,7 @@ export const getCandidatePhoto = (name: string) => {
   if (n.includes('carlos brandão') || n.includes('carlos brandao') || n === 'brandão' || n === 'brandao') {
     return '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg';
   }
-  if (n === 'outros' || n.includes('ns/nr')) return 'https://picsum.photos/seed/outros/100/100';
+  if (n === 'outros' || n.includes('ns/nr') || n.includes('ns/nr')) return 'https://picsum.photos/seed/outros/100/100';
   return `https://picsum.photos/seed/${name}/100/100`;
 };
 
@@ -161,9 +161,9 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
-  PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
+  PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, in quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
   PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
   GOV_VOTE_SPONTANEOUS: "7. GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
@@ -575,7 +575,7 @@ export default function Home() {
               <LuxuryCard className="h-full">
                 <div className="flex items-start justify-between mb-1">
                   <div className="space-y-0.5">
-                    <h4 className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                    <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
                       <span className="w-1 h-3 bg-orange-600 rounded-full" />
                       DISPUTA PRESIDENCIAL
                     </h4>
@@ -583,10 +583,10 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
+                    <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
                   </div>
                 </div>
-                <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
+                <p className="text-[8px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
                 <div className="space-y-4">
                   {chartData.secondRoundData.map((item, idx) => {
                     const pct = ((item.value / Math.max(totalDatabaseCount, 1)) * 100);
@@ -610,10 +610,10 @@ export default function Home() {
                               )}>
                                 {displayName}
                               </span>
-                              {item.party && <span className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
+                              {item.party && <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
                             </div>
                             <span className={cn(
-                              "text-[11px] font-black leading-none",
+                              "text-[10px] font-black leading-none",
                               idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
                             )}>
                               {pct.toFixed(1)}%

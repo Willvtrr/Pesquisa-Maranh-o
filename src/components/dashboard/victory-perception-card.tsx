@@ -24,7 +24,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
     <LuxuryCard className={cn("flex-1", className)}>
       <div className="flex items-start justify-between mb-1">
         <div className="space-y-0.5">
-          <h4 className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-[#10b981] rounded-full" />
             Expectativa Real
           </h4>
@@ -32,11 +32,11 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
         </div>
         <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
           <div className="w-1 h-1 rounded-full bg-[#10b981] animate-pulse" />
-          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
+          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
         </div>
       </div>
       
-      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Quem você acha que ganhará a eleição...?"</p>
+      <p className="text-[8px] font-medium text-zinc-400 italic mb-6">"Quem você acha que ganhará a eleição...?"</p>
 
       <div className="space-y-4">
         {data.map((item, idx) => {
@@ -62,10 +62,10 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                     )}>
                       {displayName}
                     </span>
-                    {item.party && <span className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
+                    {item.party && <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
                   </div>
                   <span className={cn(
-                    "text-[11px] font-black leading-none",
+                    "text-[10px] font-black leading-none",
                     idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
                   )}>
                     {pct.toFixed(1)}%
