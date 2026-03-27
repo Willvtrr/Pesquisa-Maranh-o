@@ -8,6 +8,7 @@ import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor-scenario-chart';
+import { SenateScenarioCard, SENATE_SCENARIOS } from '@/components/dashboard/senate-scenario-card';
 import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception-card';
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
@@ -753,6 +754,12 @@ export default function Home() {
                 selected={filters.senator_spontaneous}
                 onFilterChange={(v) => handleFilterChange('senator_spontaneous', v)}
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {SENATE_SCENARIOS.map((scenario) => (
+                <SenateScenarioCard key={scenario.id} scenario={scenario} />
+              ))}
             </div>
 
             <div className="w-full">
