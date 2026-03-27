@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
@@ -206,9 +205,19 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     return 100;
   }, [hoveredPolitic, filters.ideology, pDir, pCen, pEsq, pUndecided, dirKey, cenKey, esqKey, nsnrKey]);
 
+  const maxIncomePct = useMemo(() => {
+    const incomeStats = distribution?.income || {};
+    return Math.max(...Object.values(incomeStats), 0.1);
+  }, [distribution]);
+
+  const maxEducationPct = useMemo(() => {
+    const eduStats = distribution?.education || {};
+    return Math.max(...Object.values(eduStats), 0.1);
+  }, [distribution]);
+
   return (
-    <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn("flex flex-col h-full", className)}>
-      <div className="flex flex-col gap-6 flex-1 overflow-y-auto pr-2 no-scrollbar pb-10">
+    <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn(className)}>
+      <div className="flex flex-col gap-6 pr-2 no-scrollbar pb-6">
         
         {/* Município */}
         <div className="space-y-3">
@@ -366,7 +375,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             GÊNERO
           </label>
           <div className="bg-white p-5 rounded-[2rem] border border-zinc-100 flex items-center justify-center gap-6 shadow-sm">
-            {/* Feminino */}
             <div 
               className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Feminino') ? "opacity-100" : "opacity-30")} 
               onClick={() => onFilterChange('gender', 'Feminino')}
@@ -387,7 +395,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </div>
             </div>
             
-            {/* Masculino */}
             <div 
               className={cn("flex items-center gap-3 cursor-pointer transition-all", isGenderActive('Masculino') ? "opacity-100" : "opacity-30")} 
               onClick={() => onFilterChange('gender', 'Masculino')}
@@ -448,17 +455,18 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             {(options.income || []).map((opt) => {
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
+              const relativeWidth = (pct / maxIncomePct) * 100;
               return (
-                <div key={opt} className="cursor-pointer group flex flex-col gap-1" onClick={() => onFilterChange('income', opt)}>
+                <div key={opt} className="cursor-pointer group flex flex-col gap-1.5" onClick={() => onFilterChange('income', opt)}>
                   <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
                     {opt}
                   </span>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                    <div className="flex-1 h-2.5 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
                       <motion.div 
                         initial={{ width: 0 }} 
-                        animate={{ width: `${pct}%` }} 
-                        className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
+                        animate={{ width: `${relativeWidth}%` }} 
+                        className={cn("h-full transition-all rounded-full", active ? "bg-orange-500" : "bg-zinc-800")} 
                       />
                     </div>
                     <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
@@ -481,17 +489,18 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             {(options.education || []).map((opt) => {
               const pct = distribution?.education?.[opt] || 0;
               const active = isSelected('education', opt);
+              const relativeWidth = (pct / maxEducationPct) * 100;
               return (
-                <div key={opt} className="cursor-pointer group flex flex-col gap-1" onClick={() => onFilterChange('education', opt)}>
+                <div key={opt} className="cursor-pointer group flex flex-col gap-1.5" onClick={() => onFilterChange('education', opt)}>
                   <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
                     {opt}
                   </span>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                    <div className="flex-1 h-2.5 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
                       <motion.div 
                         initial={{ width: 0 }} 
-                        animate={{ width: `${pct}%` }} 
-                        className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
+                        animate={{ width: `${relativeWidth}%` }} 
+                        className={cn("h-full transition-all rounded-full", active ? "bg-orange-500" : "bg-zinc-800")} 
                       />
                     </div>
                     <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
@@ -558,7 +567,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
       </div>
 
-      <div className="mt-6 pt-4 border-t border-zinc-100 bg-white sticky bottom-0 z-10">
+      <div className="mt-6 pt-4 border-t border-zinc-100 bg-white z-10">
         <button onClick={onClear} className="w-full py-3 rounded-2xl bg-zinc-50 border border-zinc-100 text-zinc-400 text-[10px] font-black uppercase tracking-[0.3em] hover:text-zinc-600 flex items-center justify-center gap-2">
           <X size={12} />
           Resetar Recorte
