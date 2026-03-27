@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getCandidatePhoto, toTitleCase } from '@/app/page';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface CandidateChartProps {
   data: { name: string; value: number; party?: string | null; isAbstention?: boolean }[];
@@ -42,96 +41,93 @@ export const CandidateChart = ({ data, total, selected = [], onFilterChange }: C
         </div>
       </div>
 
-      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">
+      <p className="text-[9px] font-medium text-zinc-400 italic mb-2">
         "Se as eleições para Presidente da República fossem hoje, em quem você votaria?"
       </p>
 
-      <ScrollArea className="h-[400px] pr-4 -mr-4">
-        <div 
-          className="flex flex-col gap-4 relative z-10"
-          onMouseLeave={() => setHoveredIndex(null)}
-        >
-          {data.map((item, idx) => {
-            const pct = (item.value / totalVotes) * 100;
-            const isAbstention = item.isAbstention;
-            const displayName = toTitleCase(item.name);
-            const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
-            const isActive = selected.includes(item.name);
+      <div 
+        className="flex flex-col gap-1 relative z-10"
+        onMouseLeave={() => setHoveredIndex(null)}
+      >
+        {data.map((item, idx) => {
+          const pct = (item.value / totalVotes) * 100;
+          const isAbstention = item.isAbstention;
+          const displayName = toTitleCase(item.name);
+          const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
+          const isActive = selected.includes(item.name);
 
-            return (
-              <div 
-                key={`${item.name}-${idx}`} 
-                className={cn(
-                  "flex items-center gap-3 group/row cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
-                  hoveredIndex === idx && "translate-x-1",
-                  isActive && "bg-orange-50/50 ring-1 ring-orange-200 shadow-sm"
-                )}
-                onMouseEnter={() => setHoveredIndex(idx)}
-                onClick={() => onFilterChange?.(item.name)}
-              >
-                <div className="flex items-center gap-2.5 w-32 lg:w-40 shrink-0">
-                  <Avatar className={cn(
-                    "w-8 h-8 border border-white shadow-sm shrink-0 transition-all",
-                    isFaded && !isActive && "opacity-40 grayscale",
-                    isActive && "ring-2 ring-orange-500"
-                  )}>
-                    <AvatarImage src={getCandidatePhoto(item.name)} />
-                    <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                      {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : (item.name.toLowerCase().includes('outros') ? 'O' : 'N/B')) : item.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col justify-center min-w-0">
-                    <span className={cn(
-                      "text-[10px] leading-tight truncate transition-colors",
-                      idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
-                      isFaded && !isActive && "text-zinc-300",
-                      isActive && "text-orange-600 font-black"
-                    )}>
-                      {displayName}
-                    </span>
-                    {item.party && (
-                      <span className={cn(
-                        "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                        isFaded && !isActive && "text-zinc-200"
-                      )}>
-                        ({item.party})
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex-1 h-2 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ 
-                      width: isMounted ? `${pct}%` : 0,
-                      filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
-                    }}
-                    transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                    className={cn(
-                      "h-full rounded-full transition-all",
-                      isActive ? "bg-orange-600" : (idx < 2 && !isAbstention 
-                        ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" 
-                        : "bg-zinc-200")
-                    )}
-                  />
-                </div>
-                
-                <div className="w-10 shrink-0 text-right">
+          return (
+            <div 
+              key={`${item.name}-${idx}`} 
+              className={cn(
+                "flex items-center gap-3 group/row cursor-pointer transition-all duration-300 p-0.5 rounded-xl",
+                hoveredIndex === idx && "translate-x-1",
+                isActive && "bg-orange-50/50 ring-1 ring-orange-200 shadow-sm"
+              )}
+              onMouseEnter={() => setHoveredIndex(idx)}
+              onClick={() => onFilterChange?.(item.name)}
+            >
+              <div className="flex items-center gap-2.5 w-32 lg:w-40 shrink-0">
+                <Avatar className={cn(
+                  "w-8 h-8 border border-white shadow-sm shrink-0 transition-all",
+                  isFaded && !isActive && "opacity-40 grayscale",
+                  isActive && "ring-2 ring-orange-500"
+                )}>
+                  <AvatarImage src={getCandidatePhoto(item.name)} />
+                  <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : (item.name.toLowerCase().includes('outros') ? 'O' : 'N/B')) : item.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
-                    "text-[10px] font-black transition-all duration-300",
-                    isFaded && !isActive ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
-                    (hoveredIndex === idx || isActive) && "text-orange-600"
+                    "text-[10px] leading-tight truncate transition-colors",
+                    idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                    isFaded && !isActive && "text-zinc-300",
+                    isActive && "text-orange-600 font-black"
                   )}>
-                    {pct.toFixed(1)}%
+                    {displayName}
                   </span>
+                  {item.party && (
+                    <span className={cn(
+                      "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                      isFaded && !isActive && "text-zinc-200"
+                    )}>
+                      ({item.party})
+                    </span>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-        <ScrollBar className="opacity-100" />
-      </ScrollArea>
+
+              <div className="flex-1 h-2 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ 
+                    width: isMounted ? `${pct}%` : 0,
+                    filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
+                  }}
+                  transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    isActive ? "bg-orange-600" : (idx < 2 && !isAbstention 
+                      ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" 
+                      : "bg-zinc-200")
+                  )}
+                />
+              </div>
+              
+              <div className="w-10 shrink-0 text-right">
+                <span className={cn(
+                  "text-[10px] font-black transition-all duration-300",
+                  isFaded && !isActive ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
+                  (hoveredIndex === idx || isActive) && "text-orange-600"
+                )}>
+                  {pct.toFixed(1)}%
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </LuxuryCard>
   );
 };
