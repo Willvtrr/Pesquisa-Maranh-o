@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { LuxuryCard } from './luxury-card';
 import { cn } from '@/lib/utils';
-import { motion, useSpring, useTransform } from 'framer-motion';
+import { motion, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { 
   MapPin, 
   Search, 
@@ -187,27 +187,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const pDir = distribution?.ideology?.[dirKey] || 0;
   const pUndecided = Math.max(0, 100 - (pEsq + pCen + pDir));
 
-  const displayPoliticPct = useMemo(() => {
-    let raw = 100;
-    if (hoveredPolitic) {
-      if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) raw = pDir;
-      else if (hoveredPolitic === 'centro' || hoveredPolitic === pCen) raw = pCen;
-      else if (hoveredPolitic === 'esquerda' || hoveredPolitic === pEsq) raw = pEsq;
-      else if (hoveredPolitic === 'nsnr' || hoveredPolitic === nsnrKey) raw = pUndecided;
-    } else {
-      const selectedIdeologies = filters.ideology || [];
-      if (selectedIdeologies.length > 0 && !selectedIdeologies.includes('all')) {
-        let sum = 0;
-        if (selectedIdeologies.includes(dirKey)) sum += pDir;
-        if (selectedIdeologies.includes(cenKey)) sum += pCen;
-        if (selectedIdeologies.includes(esqKey)) sum += pEsq;
-        if (selectedIdeologies.includes(nsnrKey)) sum += pUndecided;
-        raw = sum;
-      }
-    }
-    return raw.toFixed(1).replace('.', ',');
-  }, [hoveredPolitic, filters.ideology, pDir, pCen, pEsq, pUndecided, dirKey, cenKey, esqKey, nsnrKey]);
-
   const maxIncomePct = useMemo(() => {
     const incomeStats = distribution?.income || {};
     const values = Object.values(incomeStats);
@@ -219,6 +198,14 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     const values = Object.values(eduStats);
     return values.length > 0 ? Math.max(...values) : 1;
   }, [distribution]);
+
+  const displayPoliticValue = useMemo(() => {
+    if (hoveredPolitic === 'direita') return pDir;
+    if (hoveredPolitic === 'centro') return pCen;
+    if (hoveredPolitic === 'esquerda') return pEsq;
+    if (hoveredPolitic === 'nsnr') return pUndecided;
+    return 100;
+  }, [hoveredPolitic, pDir, pCen, pEsq, pUndecided]);
 
   return (
     <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn("h-fit", className)}>
@@ -373,54 +360,113 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política */}
+        {/* Visão Política - NOVO DESIGN REFINADO */}
         <div className="pt-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             VISÃO POLÍTICA
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-6 shadow-sm">
-            <div className="relative w-32 h-32">
-              <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#eab308" strokeWidth="6" strokeDasharray={`${pDir} ${100 - pDir}`} strokeDashoffset={100} onMouseEnter={() => setHoveredPolitic('direita')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', dirKey)} />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#9ca3af" strokeWidth="6" strokeDasharray={`${pCen} ${100 - pCen}`} strokeDashoffset={100 - pDir} onMouseEnter={() => setHoveredPolitic('centro')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', cenKey)} />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" strokeWidth="6" strokeDasharray={`${pEsq} ${100 - pEsq}`} strokeDashoffset={100 - pDir - pCen} onMouseEnter={() => setHoveredPolitic('esquerda')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', esqKey)} />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" strokeDasharray={`${pUndecided} ${100 - pUndecided}`} strokeDashoffset={100 - pDir - pCen - pEsq} onMouseEnter={() => setHoveredPolitic('nsnr')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', nsnrKey)} />
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-8 shadow-sm">
+            
+            {/* Gráfico Donut Animado */}
+            <div className="relative w-40 h-40">
+              <svg viewBox="0 0 100 100" className="transform -rotate-90 drop-shadow-xl">
+                {/* NS/NR Segment */}
+                <circle 
+                  cx="50" cy="50" r="30" fill="none" stroke="#f4f4f5" strokeWidth="20" 
+                  pathLength="100" strokeDasharray={`${pUndecided} 100`} 
+                  strokeDashoffset={0}
+                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'nsnr' ? 'opacity-30' : 'opacity-100')}
+                  onMouseEnter={() => setHoveredPolitic('nsnr')}
+                  onMouseLeave={() => setHoveredPolitic(null)}
+                  onClick={() => onFilterChange('ideology', nsnrKey)}
+                />
+                {/* Esquerda Segment */}
+                <circle 
+                  cx="50" cy="50" r="30" fill="none" stroke="#ef4444" strokeWidth="20" 
+                  pathLength="100" strokeDasharray={`${pEsq} 100`} 
+                  strokeDashoffset={-pUndecided}
+                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'esquerda' ? 'opacity-30' : 'opacity-100')}
+                  onMouseEnter={() => setHoveredPolitic('esquerda')}
+                  onMouseLeave={() => setHoveredPolitic(null)}
+                  onClick={() => onFilterChange('ideology', esqKey)}
+                />
+                {/* Centro Segment */}
+                <circle 
+                  cx="50" cy="50" r="30" fill="none" stroke="#9ca3af" strokeWidth="20" 
+                  pathLength="100" strokeDasharray={`${pCen} 100`} 
+                  strokeDashoffset={-(pUndecided + pEsq)}
+                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'centro' ? 'opacity-30' : 'opacity-100')}
+                  onMouseEnter={() => setHoveredPolitic('centro')}
+                  onMouseLeave={() => setHoveredPolitic(null)}
+                  onClick={() => onFilterChange('ideology', cenKey)}
+                />
+                {/* Direita Segment */}
+                <circle 
+                  cx="50" cy="50" r="30" fill="none" stroke="#eab308" strokeWidth="20" 
+                  pathLength="100" strokeDasharray={`${pDir} 100`} 
+                  strokeDashoffset={-(pUndecided + pEsq + pCen)}
+                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'direita' ? 'opacity-30' : 'opacity-100')}
+                  onMouseEnter={() => setHoveredPolitic('direita')}
+                  onMouseLeave={() => setHoveredPolitic(null)}
+                  onClick={() => onFilterChange('ideology', dirKey)}
+                />
               </svg>
+
+              {/* Texto Central */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-xl font-black text-zinc-900 leading-none">{displayPoliticPct}%</span>
-                <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest mt-1">
-                  {(filters.ideology?.length > 0 && !filters.ideology?.includes('all')) ? 'Soma' : 'Amostra'}
-                </span>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={hoveredPolitic || 'total'}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="flex flex-col items-center"
+                  >
+                    <span className="text-xl font-black text-zinc-900 tracking-tighter">
+                      {displayPoliticValue.toFixed(1).replace('.', ',')}%
+                    </span>
+                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em] mt-0.5">
+                      {hoveredPolitic ? 'Foco' : 'Amostra'}
+                    </span>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
-            <div className="flex flex-col gap-3 w-full">
+
+            {/* Legenda Vertical Refinada */}
+            <div className="flex flex-col gap-4 w-full">
               {[
                 { id: 'direita', label: 'DIREITA', color: '#eab308', pct: pDir, key: dirKey },
                 { id: 'centro', label: 'CENTRO', color: '#9ca3af', pct: pCen, key: cenKey },
                 { id: 'esquerda', label: 'ESQUERDA', color: '#ef4444', pct: pEsq, key: esqKey },
                 { id: 'nsnr', label: 'NS/NR', color: '#f4f4f5', pct: pUndecided, key: nsnrKey }
-              ].map((item) => (
-                <div 
-                  key={item.id} 
-                  className={cn(
-                    "flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all", 
-                    (isSelected('ideology', item.key)) ? "bg-zinc-50" : "hover:bg-zinc-50/50"
-                  )} 
-                  onClick={() => onFilterChange('ideology', item.key)}
-                  onMouseEnter={() => setHoveredPolitic(item.id)}
-                  onMouseLeave={() => setHoveredPolitic(null)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
-                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{item.label}</span>
+              ].map((item) => {
+                const active = isSelected('ideology', item.key);
+                const isFaded = hoveredPolitic && hoveredPolitic !== item.id;
+
+                return (
+                  <div 
+                    key={item.id} 
+                    className={cn(
+                      "flex items-center justify-between p-1.5 rounded-xl cursor-pointer transition-all", 
+                      active ? "bg-zinc-50" : "hover:bg-zinc-50/50",
+                      isFaded && "opacity-30"
+                    )} 
+                    onClick={() => onFilterChange('ideology', item.key)}
+                    onMouseEnter={() => setHoveredPolitic(item.id)}
+                    onMouseLeave={() => setHoveredPolitic(null)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
+                      <span className="text-[9px] font-black text-zinc-950 uppercase tracking-widest">{item.label}</span>
+                    </div>
+                    <span className="text-sm font-black tabular-nums" style={{ color: item.id === 'nsnr' ? '#a1a1aa' : item.color }}>
+                      {item.pct.toFixed(1).replace('.', ',')}%
+                    </span>
                   </div>
-                  <span className={cn("text-sm font-black", (isSelected('ideology', item.key)) ? "text-orange-600" : "text-zinc-800")} style={{ color: (isSelected('ideology', item.key)) ? undefined : (item.id === 'nsnr' ? '#a1a1aa' : item.color) }}>
-                    {item.pct.toFixed(1).replace('.', ',')}%
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
