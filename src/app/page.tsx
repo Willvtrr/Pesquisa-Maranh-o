@@ -58,7 +58,7 @@ const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'DAVINÓPOLIS': { name: 'Zé Pequeno', gender: 'M' },
   'GOVERNADOR EDISON LOBÃO': { name: 'Fábio Soares', gender: 'M' },
   'PEDREIRAS': { name: 'Vanessa Maia', gender: 'F' },
-  'PRESIDENTE DUTRA': { name: 'Raimundinho da Audiolar', gender: 'M' },
+  'PRESIDENTE DUTRA': { name: 'Raimundinho da Audiolar', gesture: 'M' },
   'COLINAS': { name: 'Renato Santos', gender: 'M' },
   'SÃO MATEUS DO MARANHÃO': { name: 'Miltinho Aragão', gender: 'M' },
   'DOM PEDRO': { name: 'Galego Mota', gender: 'M' },
@@ -653,7 +653,7 @@ export default function Home() {
                             </div>
                             <span className={cn(
                               "text-[12px] font-black leading-none",
-                              idx < 2 && !isAbstention ? "text-orange-600" : "text-zinc-400"
+                              idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
                             )}>
                               {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
                             </span>

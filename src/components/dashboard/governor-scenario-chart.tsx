@@ -54,17 +54,16 @@ interface ScenarioCardProps {
 export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps) => {
   return (
     <LuxuryCard className={cn("flex-1", className)}>
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-start justify-between mb-4 border-l-[5px] border-[#e66324] pl-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="w-1 h-3 bg-orange-600 rounded-full" />
             <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Disputa Estadual</span>
           </div>
-          <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">{scenario.label}</h2>
+          <h2 className="text-[18px] font-black text-zinc-900 tracking-tight leading-none">{scenario.label}</h2>
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
         </div>
       </div>
       
@@ -85,8 +84,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                 <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
                     "text-[11px] tracking-tight leading-tight transition-colors",
-                    idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500",
-                    idx === 0 && "text-orange-600"
+                    idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500"
                   )}>
                     {c.name}
                   </span>
@@ -94,7 +92,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                 </div>
                 <span className={cn(
                   "text-[12px] font-black leading-none",
-                  idx < 2 ? "text-zinc-900" : "text-zinc-400"
+                  idx < 2 ? "text-zinc-950" : "text-zinc-400"
                 )}>{c.value.toFixed(1)}%</span>
               </div>
               
