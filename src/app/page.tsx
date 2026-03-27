@@ -718,9 +718,9 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
               <SpontaneousVoteChart 
-                className="xl:col-span-4"
+                className="xl:col-span-3"
                 data={chartData.deputyFederalData} 
                 total={getFilteredData(['deputy_federal']).length} 
                 overline="CORRIDA FEDERAL"
@@ -731,7 +731,7 @@ export default function Home() {
                 onFilterChange={(v) => handleFilterChange('deputy_federal', v)}
               />
               <SpontaneousVoteChart 
-                className="xl:col-span-4"
+                className="xl:col-span-3"
                 data={chartData.deputyEstadualData} 
                 total={getFilteredData(['deputy_estadual']).length} 
                 overline="CORRIDA ESTADUAL"
