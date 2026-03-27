@@ -171,7 +171,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -206,7 +206,10 @@ export default function Home() {
     deputy_federal: ['all'],
     deputy_estadual: ['all'],
     president_rejection: ['all'],
-    gov_rejection: ['all']
+    gov_rejection: ['all'],
+    president_approval: ['all'],
+    gov_approval: ['all'],
+    mayor_approval: ['all']
   });
 
   const activeKeys = useMemo(() => {
@@ -260,7 +263,7 @@ export default function Home() {
         const currentFilters = filters[filterKey];
         if (!currentFilters || currentFilters.includes('all')) return true;
         const itemVal = String(item[dataKey] || '').trim();
-        return currentFilters.includes(itemVal);
+        return currentFilters.some(f => f.toLowerCase() === itemVal.toLowerCase());
       };
       return (
         checkMatch('region', activeKeys.REGION) &&
@@ -276,7 +279,10 @@ export default function Home() {
         checkMatch('deputy_federal', activeKeys.DEPUTY_FEDERAL_VOTE) &&
         checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE) &&
         checkMatch('president_rejection', activeKeys.PRESIDENT_REJECTION) &&
-        checkMatch('gov_rejection', activeKeys.GOV_REJECTION)
+        checkMatch('gov_rejection', activeKeys.GOV_REJECTION) &&
+        checkMatch('president_approval', activeKeys.PRESIDENT_APPROVAL) &&
+        checkMatch('gov_approval', activeKeys.GOV_APPROVAL) &&
+        checkMatch('mayor_approval', activeKeys.MAYOR_APPROVAL)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -284,9 +290,10 @@ export default function Home() {
   const filteredData = useMemo(() => getFilteredData(), [getFilteredData]);
   const totalDatabaseCount = useMemo(() => filteredData.length || 0, [filteredData]);
 
-  const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
-  const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
-  const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
+  // Para o cálculo dos cartões, ignoramos o próprio filtro do cartão para que ele sirva como referência
+  const statsLula = useMemo(() => calculateApproval(getFilteredData(['president_approval']), activeKeys.PRESIDENT_APPROVAL), [getFilteredData, activeKeys.PRESIDENT_APPROVAL]);
+  const statsBrandao = useMemo(() => calculateApproval(getFilteredData(['gov_approval']), activeKeys.GOV_APPROVAL), [getFilteredData, activeKeys.GOV_APPROVAL]);
+  const statsPrefeito = useMemo(() => calculateApproval(getFilteredData(['mayor_approval']), activeKeys.MAYOR_APPROVAL), [getFilteredData, activeKeys.MAYOR_APPROVAL]);
 
   const chartData = useMemo(() => {
     const processRanking = (dataKey: string, filterKey: string) => {
@@ -421,7 +428,8 @@ export default function Home() {
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
     president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'],
-    president_rejection: ['all'], gov_rejection: ['all']
+    president_rejection: ['all'], gov_rejection: ['all'],
+    president_approval: ['all'], gov_approval: ['all'], mayor_approval: ['all']
   });
 
   const handleManualSync = async () => {
@@ -573,9 +581,38 @@ export default function Home() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle="Pres. Lula" party="PT" value={`${statsLula.aprova}%`} imageUrl="/lula.jpg" subValue="FEDERAL" breakdown={[{ name: 'Aprova', value: Number(statsLula.aprova) }, { name: 'Desaprova', value: Number(statsLula.desaprova) }, { name: 'NS/NR', value: Number(statsLula.nsnr) }]} />
-              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle="Gov. Carlos Brandão" party="PSB" value={`${statsBrandao.aprova}%`} imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" subValue="ESTADUAL" breakdown={[{ name: 'Aprova', value: Number(statsBrandao.aprova) }, { name: 'Desaprova', value: Number(statsBrandao.desaprova) }, { name: 'NS/NR', value: Number(statsBrandao.nsnr) }]} />
-              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle={CITY_MAYORS[filters.city?.[0]?.toUpperCase()]?.name || "Prefeito(a)"} value={`${statsPrefeito.aprova}%`} imageUrl="/bandeiracerta.jpg" subValue="MUNICIPAL" breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} />
+              <StatCard 
+                title="APROVAÇÃO DE GESTÃO" 
+                subtitle="Pres. Lula" 
+                party="PT" 
+                value={`${statsLula.aprova}%`} 
+                imageUrl="/lula.jpg" 
+                subValue="FEDERAL" 
+                breakdown={[{ name: 'Aprova', value: Number(statsLula.aprova) }, { name: 'Desaprova', value: Number(statsLula.desaprova) }, { name: 'NS/NR', value: Number(statsLula.nsnr) }]} 
+                onFilterChange={(v) => handleFilterChange('president_approval', v)}
+                selected={filters.president_approval}
+              />
+              <StatCard 
+                title="APROVAÇÃO DE GESTÃO" 
+                subtitle="Gov. Carlos Brandão" 
+                party="PSB" 
+                value={`${statsBrandao.aprova}%`} 
+                imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" 
+                subValue="ESTADUAL" 
+                breakdown={[{ name: 'Aprova', value: Number(statsBrandao.aprova) }, { name: 'Desaprova', value: Number(statsBrandao.desaprova) }, { name: 'NS/NR', value: Number(statsBrandao.nsnr) }]} 
+                onFilterChange={(v) => handleFilterChange('gov_approval', v)}
+                selected={filters.gov_approval}
+              />
+              <StatCard 
+                title="APROVAÇÃO DE GESTÃO" 
+                subtitle={CITY_MAYORS[filters.city?.[0]?.toUpperCase()]?.name || "Prefeito(a)"} 
+                value={`${statsPrefeito.aprova}%`} 
+                imageUrl="/bandeiracerta.jpg" 
+                subValue="MUNICIPAL" 
+                breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} 
+                onFilterChange={(v) => handleFilterChange('mayor_approval', v)}
+                selected={filters.mayor_approval}
+              />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

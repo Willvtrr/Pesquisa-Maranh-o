@@ -15,6 +15,8 @@ interface StatCardProps {
   className?: string;
   breakdown?: { name: string; value: number }[];
   party?: string;
+  onFilterChange?: (name: string) => void;
+  selected?: string[];
 }
 
 const NumberCounter = ({ value, className }: { value: number; className?: string }) => {
@@ -41,7 +43,9 @@ export const StatCard = ({
   imageUrl, 
   className, 
   breakdown,
-  party
+  party,
+  onFilterChange,
+  selected = []
 }: StatCardProps) => {
   const colors = {
     aprova: '#10b981', // emerald-500
@@ -55,6 +59,8 @@ export const StatCard = ({
 
   const displayTitle = title;
   const displaySubtitle = subtitle || label;
+
+  const isSelected = (name: string) => selected.includes(name);
 
   return (
     <motion.div
@@ -120,9 +126,15 @@ export const StatCard = ({
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-center relative z-10 border-b border-zinc-100/80 pb-6 mb-6 w-full">
-        <div className="flex flex-col items-center">
+        <div 
+          onClick={() => onFilterChange?.('Aprova')}
+          className={cn(
+            "flex flex-col items-center cursor-pointer transition-all duration-300 p-2 rounded-2xl",
+            isSelected('Aprova') ? "bg-emerald-50 ring-1 ring-emerald-100" : "hover:bg-zinc-50"
+          )}
+        >
           <div className="flex items-baseline gap-0.5 mb-1">
-            <NumberCounter value={aprovaData} className="text-xl font-black text-zinc-900" />
+            <NumberCounter value={aprovaData} className={cn("text-xl font-black", isSelected('Aprova') ? "text-emerald-600" : "text-zinc-900")} />
             <span className="text-[10px] font-black text-zinc-400">%</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -131,9 +143,15 @@ export const StatCard = ({
           </div>
         </div>
         
-        <div className="flex flex-col items-center">
+        <div 
+          onClick={() => onFilterChange?.('Desaprova')}
+          className={cn(
+            "flex flex-col items-center cursor-pointer transition-all duration-300 p-2 rounded-2xl",
+            isSelected('Desaprova') ? "bg-rose-50 ring-1 ring-rose-100" : "hover:bg-zinc-50"
+          )}
+        >
           <div className="flex items-baseline gap-0.5 mb-1">
-            <NumberCounter value={desaprovaData} className="text-xl font-black text-zinc-900" />
+            <NumberCounter value={desaprovaData} className={cn("text-xl font-black", isSelected('Desaprova') ? "text-rose-600" : "text-zinc-900")} />
             <span className="text-[10px] font-black text-zinc-400">%</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -142,9 +160,15 @@ export const StatCard = ({
           </div>
         </div>
         
-        <div className="flex flex-col items-center">
+        <div 
+          onClick={() => onFilterChange?.('NS/NR')}
+          className={cn(
+            "flex flex-col items-center cursor-pointer transition-all duration-300 p-2 rounded-2xl",
+            isSelected('NS/NR') ? "bg-zinc-100 ring-1 ring-zinc-200" : "hover:bg-zinc-50"
+          )}
+        >
           <div className="flex items-baseline gap-0.5 mb-1">
-            <NumberCounter value={nsnrData} className="text-xl font-black text-zinc-900" />
+            <NumberCounter value={nsnrData} className={cn("text-xl font-black", isSelected('NS/NR') ? "text-zinc-600" : "text-zinc-900")} />
             <span className="text-[10px] font-black text-zinc-400">%</span>
           </div>
           <div className="flex items-center gap-1.5">
