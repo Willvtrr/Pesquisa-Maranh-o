@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getCandidatePhoto, toTitleCase } from '@/app/page';
 
 interface GovernorSpontaneousChartProps {
-  data: { name: string; value: number }[];
+  data: { name: string; value: number; isAbstention?: boolean }[];
   total: number;
   filters: Record<string, string[]>;
   onFilterChange: (key: string, value: string) => void;
@@ -34,14 +34,6 @@ const PARTY_MAP: Record<string, string> = {
   'Dino': 'PSB'
 };
 
-const COLORS: Record<string, string> = {
-  'Carlos Brandão': 'bg-[#c2410c]',
-  'Eduardo Braide': 'bg-[#ea580c]',
-  'Weverton Rocha': 'bg-[#ea580c]',
-  'NS/NR': 'bg-zinc-200',
-  'Branco/Nulo': 'bg-zinc-100',
-};
-
 export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange }: GovernorSpontaneousChartProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -49,26 +41,6 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  const processedData = useMemo(() => {
-    if (!data || data.length === 0 || total === 0) return [];
-
-    const indecisionKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr", "outros"];
-    const brancoKeywords = ["branco", "nulo", "nenhum", "ninguém"];
-
-    let items = data.map(item => ({
-      name: item.name.trim(),
-      value: item.value,
-      isAbstention: indecisionKeywords.some(kw => item.name.toLowerCase().includes(kw)) || 
-                     brancoKeywords.some(kw => item.name.toLowerCase().includes(kw))
-    }));
-
-    const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
-    const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
-
-    // No slices - All rows Power BI style
-    return [...candidates, ...abstentions];
-  }, [data, total]);
 
   return (
     <LuxuryCard 
@@ -98,12 +70,11 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
         className="flex-1 flex flex-col gap-5 relative z-10 overflow-y-auto pr-2 max-h-[600px] no-scrollbar"
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        {processedData.map((item, idx) => {
+        {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const isAbstention = item.isAbstention;
           const party = PARTY_MAP[item.name];
-          const barColor = COLORS[item.name] || (item.isAbstention ? 'bg-zinc-200' : 'bg-[#ea580c]');
           const displayName = toTitleCase(item.name);
 
           return (
@@ -123,13 +94,13 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                 )}>
                   <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
-                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
                     "text-[11px] transition-colors leading-tight truncate",
-                    idx < 2 && !item.isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                    idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                     isFaded && "text-zinc-300"
                   )}>
                     {displayName}

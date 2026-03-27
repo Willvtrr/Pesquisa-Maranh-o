@@ -42,7 +42,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
         "Se as eleições para Presidente da República fossem hoje, em quem você votaria?"
       </p>
 
-      <div className="flex-1 flex flex-col gap-5 relative z-10">
+      <div className="flex-1 flex flex-col gap-5 relative z-10 overflow-y-auto pr-2 max-h-[600px] no-scrollbar">
         {data.map((item, idx) => {
           const pct = (item.value / totalVotes) * 100;
           const isAbstention = item.isAbstention;
@@ -57,7 +57,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                 )}>
                   <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
-                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col justify-center min-w-0">

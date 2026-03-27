@@ -142,7 +142,7 @@ export const getCandidatePhoto = (name: string) => {
   if (n.includes('carlos brandão') || n.includes('carlos brandao') || n === 'brandão' || n === 'brandao') {
     return '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg';
   }
-  if (n === 'outros') return 'https://picsum.photos/seed/outros/100/100';
+  if (n === 'outros' || n.includes('ns/nr')) return 'https://picsum.photos/seed/outros/100/100';
   return `https://picsum.photos/seed/${name}/100/100`;
 };
 
@@ -162,7 +162,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -289,25 +289,40 @@ export default function Home() {
       if (!filteredData || filteredData.length === 0) return [];
       
       const counts: Record<string, number> = {};
+      let nsnrCount = 0;
+      let brancoCount = 0;
+
+      const nsnrKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr", "outros"];
+      const brancoKeywords = ["branco", "nulo", "nenhum", "ninguém"];
+
       filteredData.forEach(d => {
         const val = String(d[key] || '').trim();
-        if (val && val !== 'all') {
+        if (!val || val === 'all') return;
+
+        const lowerVal = val.toLowerCase();
+        if (nsnrKeywords.some(kw => lowerVal.includes(kw))) {
+          nsnrCount += 1;
+        } else if (brancoKeywords.some(kw => lowerVal.includes(kw))) {
+          brancoCount += 1;
+        } else {
           counts[val] = (counts[val] || 0) + 1;
         }
       });
 
-      const abstentionKeywords = ["ns/nr", "não sabe", "não respondeu", "indeciso", "branco", "nulo", "nenhum", "ninguém", "nsnr", "outros"];
-
-      const items = Object.entries(counts).map(([name, value]) => ({ 
+      const candidates = Object.entries(counts).map(([name, value]) => ({ 
         name, 
         value,
         party: PARTY_MAP[name] || null,
-        isAbstention: abstentionKeywords.some(kw => name.toLowerCase().includes(kw))
-      }));
+        isAbstention: false
+      })).sort((a, b) => b.value - a.value);
 
-      // No slices - Power BI style
-      const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
-      const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
+      const abstentions = [];
+      if (nsnrCount > 0) {
+        abstentions.push({ name: 'NS/NR', value: nsnrCount, party: null, isAbstention: true });
+      }
+      if (brancoCount > 0) {
+        abstentions.push({ name: 'Branco / Nulo', value: brancoCount, party: null, isAbstention: true });
+      }
 
       return [...candidates, ...abstentions];
     };
@@ -580,11 +595,11 @@ export default function Home() {
                     const displayName = toTitleCase(item.name);
                     
                     return (
-                      <div key={item.name} className="flex items-center gap-3 group">
+                      <div key={`${item.name}-${idx}`} className="flex items-center gap-3 group">
                         <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
-                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
+                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1.5">
@@ -742,7 +757,7 @@ const RejectionPillChart = ({
                 <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
                   <AvatarImage src={getCandidatePhoto(item.name)} className="object-cover" />
                   <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400 uppercase">
-                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
+                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-h-[2.5rem] flex flex-col justify-center">
