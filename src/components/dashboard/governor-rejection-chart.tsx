@@ -66,7 +66,7 @@ export const GovernorRejectionChart = ({
         </div>
       </div>
 
-      <ScrollArea className="w-full flex-grow">
+      <ScrollArea type="always" className="w-full flex-grow">
         <div className="flex justify-around items-end gap-2 pb-6 px-2 min-w-full">
           {data.map((item, idx) => {
             const pct = total > 0 ? (item.value / total) * 100 : 0;
