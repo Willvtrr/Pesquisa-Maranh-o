@@ -45,8 +45,8 @@ export const GovernorRejectionChart = ({
   return (
     <div className="bg-white rounded-[2rem] p-5 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[260px]">
       <div className="flex justify-between items-start mb-4">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-1.5">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
             <div className={cn("w-1 h-3 rounded-full", overlineColorClass)} />
             <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">
               {overline}
