@@ -58,7 +58,7 @@ const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'DAVINÓPOLIS': { name: 'Zé Pequeno', gender: 'M' },
   'GOVERNADOR EDISON LOBÃO': { name: 'Fábio Soares', gender: 'M' },
   'PEDREIRAS': { name: 'Vanessa Maia', gender: 'F' },
-  'PRESIDENTE DUTRA': { name: 'Raimundinho da Audiolar', gesture: 'M' },
+  'PRESIDENTE DUTRA': { name: 'Raimundinho da Audiolar', gender: 'M' },
   'COLINAS': { name: 'Renato Santos', gender: 'M' },
   'SÃO MATEUS DO MARANHÃO': { name: 'Miltinho Aragão', gender: 'M' },
   'DOM PEDRO': { name: 'Galego Mota', gender: 'M' },
@@ -98,7 +98,7 @@ const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'SANTA LUZIA': { name: 'Jucelino Marreca', gender: 'M' },
   'SANTA QUITÉRIA DO MARANHÃO': { name: 'Sâmia Moreira', gender: 'F' },
   'SÃO BERNARDO': { name: 'Chico Carvalho', gender: 'M' },
-  'SÃO DOMINGOS DO MARANHÃO': { name: 'Kleber Tratorzão', gesture: 'M' },
+  'SÃO DOMINGOS DO MARANHÃO': { name: 'Kleber Tratorzão', gender: 'M' },
   'TIMBIRAS': { name: 'Paulo Vinicius', gender: 'M' },
   'URBANO SANTOS': { name: 'Professor Clemilton Barros', gender: 'M' },
   'VARGEM GRANDE': { name: 'Preto', gender: 'M' },
@@ -249,6 +249,62 @@ export default function Home() {
 
   const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
 
+  const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
+  const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
+  const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
+
+  const mayorInfo = useMemo(() => {
+    const activeCities = filters.city;
+    if (activeCities.length === 1 && activeCities[0] !== 'all') {
+      const cityUpper = activeCities[0].toUpperCase().trim();
+      const info = CITY_MAYORS[cityUpper];
+      if (info) {
+        const prefix = info.gender === 'F' ? 'Prefa.' : 'Pref.';
+        return {
+          displayName: `${prefix} ${info.name}`,
+          party: PARTY_MAP[info.name] || null
+        };
+      }
+      return { displayName: `Prefeito(a) de ${activeCities[0]}`, party: null };
+    }
+    return { displayName: "Prefeito(a)", party: null };
+  }, [filters.city]);
+
+  const chartData = useMemo(() => {
+    const processRanking = (key: string, limitCount?: number) => {
+      const counts: Record<string, number> = {};
+      filteredData.forEach(d => {
+        const val = String(d[key] || '').trim();
+        if (val && val !== 'all') {
+          counts[val] = (counts[val] || 0) + 1;
+        }
+      });
+
+      const abstentionKeywords = ["ns/nr", "não sabe", "não respondeu", "indeciso", "branco", "nulo", "nenhum", "ninguém", "nsnr"];
+
+      const items = Object.entries(counts).map(([name, value]) => ({ 
+        name, 
+        value,
+        party: PARTY_MAP[name] || null,
+        isAbstention: abstentionKeywords.some(kw => name.toLowerCase().includes(kw))
+      }));
+
+      const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
+      const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
+
+      const combined = [...candidates, ...abstentions];
+      return limitCount ? combined.slice(0, limitCount) : combined;
+    };
+
+    return {
+      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 7),
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS), 
+      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, 7),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 6),
+      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, 5),
+    };
+  }, [filteredData, activeKeys]);
+
   // REJEIÇÃO ABSOLUTA ESTADUAL (Sem Filtros)
   const rawGovRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
@@ -296,77 +352,6 @@ export default function Home() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   }, [rawSurveyData, activeKeys.PRESIDENT_REJECTION]);
-
-  const calculateApproval = (data: any[], questionKey: string) => {
-    if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
-    
-    let aprova = 0, desaprova = 0, nsnr = 0;
-    const total = data.length;
-
-    data.forEach(row => {
-      const answer = String(row[questionKey] || '').trim().toLowerCase();
-      if (answer === "aprova") aprova++;
-      else if (answer === "desaprova") desaprova++;
-      else nsnr++;
-    });
-
-    return {
-      aprova: ((aprova / total) * 100).toFixed(1),
-      desaprova: ((desaprova / total) * 100).toFixed(1),
-      nsnr: ((nsnr / total) * 100).toFixed(1)
-    };
-  };
-
-  const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
-  const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
-  const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
-
-  const mayorInfo = useMemo(() => {
-    const activeCities = filters.city;
-    if (activeCities.length === 1 && activeCities[0] !== 'all') {
-      const cityUpper = activeCities[0].toUpperCase().trim();
-      const info = CITY_MAYORS[cityUpper];
-      if (info) {
-        const prefix = info.gender === 'F' ? 'Prefa.' : 'Pref.';
-        return {
-          displayName: `${prefix} ${info.name}`,
-          party: PARTY_MAP[info.name] || null
-        };
-      }
-      return { displayName: `Prefeito(a) de ${activeCities[0]}`, party: null };
-    }
-    return { displayName: "Prefeito(a)", party: null };
-  }, [filters.city]);
-
-  const chartData = useMemo(() => {
-    const processRanking = (key: string, excludeNSNR = true) => {
-      const counts: Record<string, number> = {};
-      filteredData.forEach(d => {
-        const val = String(d[key] || '').trim();
-        if (val && val !== 'all') {
-          if (excludeNSNR && (val.toLowerCase().includes('ns/nr') || val.toLowerCase().includes('não sabe'))) {
-            return;
-          }
-          counts[val] = (counts[val] || 0) + 1;
-        }
-      });
-      return Object.entries(counts)
-        .map(([name, value]) => ({ 
-          name, 
-          value,
-          party: PARTY_MAP[name] || null
-        }))
-        .sort((a, b) => b.value - a.value);
-    };
-
-    return {
-      candidateData: processRanking(activeKeys.PRESIDENT_VOTE).slice(0, 7),
-      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, false), 
-      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION).slice(0, 7),
-      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION).slice(0, 6),
-      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND).slice(0, 5),
-    };
-  }, [filteredData, activeKeys]);
 
   const dynamicOptions = useMemo(() => {
     const options: Record<string, string[]> = {
@@ -610,22 +595,22 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Card 1: 2º Turno */}
               <LuxuryCard className="h-full">
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-4 border-l-[5px] border-[#e66324] pl-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <div className="w-1 h-3 bg-orange-600 rounded-full" />
                       <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                     </div>
                     <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Intenção de Voto</h2>
                   </div>
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
                   </div>
                 </div>
                 <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
                 <div className="space-y-5">
                   {chartData.secondRoundData.slice(0, 3).map((item, idx) => {
+                    const pct = ((item.value / Math.max(filteredData.length, 1)) * 100);
                     const isAbstention = item.name.toLowerCase().includes('nulo') || 
                                          item.name.toLowerCase().includes('branco') || 
                                          item.name.toLowerCase().includes('nenhum') ||
@@ -655,13 +640,13 @@ export default function Home() {
                               "text-[12px] font-black leading-none",
                               idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
                             )}>
-                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                              {pct.toFixed(1)}%
                             </span>
                           </div>
                           <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }} 
-                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} 
+                              animate={{ width: `${pct}%` }} 
                               transition={{ duration: 1.2 }} 
                               className={cn(
                                 "h-full rounded-full transition-all",
@@ -728,6 +713,26 @@ export default function Home() {
   );
 }
 
+function calculateApproval(data: any[], questionKey: string) {
+  if (!data || data.length === 0) return { aprova: "0.0", desaprova: "0.0", nsnr: "0.0" };
+  
+  let aprova = 0, desaprova = 0, nsnr = 0;
+  const total = data.length;
+
+  data.forEach(row => {
+    const answer = String(row[questionKey] || '').trim().toLowerCase();
+    if (answer === "aprova") aprova++;
+    else if (answer === "desaprova") desaprova++;
+    else nsnr++;
+  });
+
+  return {
+    aprova: ((aprova / total) * 100).toFixed(1),
+    desaprova: ((desaprova / total) * 100).toFixed(1),
+    nsnr: ((nsnr / total) * 100).toFixed(1)
+  };
+}
+
 // COMPONENTE DE REJEIÇÃO REVISADO (CLONE EXATO COM ALTURA PROPORCIONAL E SWAP)
 const RejectionPillChart = ({ 
   data, total, title, overline, subtitle, badge, color, isMounted 
@@ -763,7 +768,6 @@ const RejectionPillChart = ({
 
           return (
             <div key={idx} className="flex flex-col items-center flex-1">
-              {/* TRILHA DA BARRA - ALTURA PROPORCIONAL SEM MIN-HEIGHT FLOOR EXAGERADO */}
               <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner overflow-hidden">
                 <motion.div
                   initial={{ height: 0 }}
@@ -771,16 +775,14 @@ const RejectionPillChart = ({
                   transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
                   className={cn(
                     "w-full rounded-full transition-all bg-gradient-to-b",
-                    "min-h-[4px]", // Mantemos apenas 4px para garantir o formato circular na base
+                    "min-h-[4px]", 
                     isAbstention ? "from-slate-200 to-slate-400" : gradColor
                   )}
                 />
               </div>
 
-              {/* PORCENTAGEM ABAIXO DA TRILHA */}
               <span className="text-[13px] font-black text-zinc-950 mb-4">{pct.toFixed(1)}%</span>
 
-              {/* INFO DO CANDIDATO */}
               <div className="flex flex-col items-center text-center gap-2">
                 <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
                   <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} className="object-cover" />
