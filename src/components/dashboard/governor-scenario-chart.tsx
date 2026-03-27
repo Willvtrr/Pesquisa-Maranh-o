@@ -55,6 +55,7 @@ interface ScenarioCardProps {
 
 export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -84,14 +85,28 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
       
       <p className="text-[8px] font-medium text-zinc-400 italic mb-6">"{scenario.question}"</p>
 
-      <div className="space-y-4">
+      <div 
+        className="space-y-4"
+        onMouseLeave={() => setHoveredIndex(null)}
+      >
         {sortedCandidates.map((c, idx) => {
           const displayName = toTitleCase(c.name);
           const isAbstention = c.isAbstention || c.name.toLowerCase().includes('outros');
+          const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           
           return (
-            <div key={`${c.name}-${idx}`} className="flex items-center gap-3 group">
-              <Avatar className="w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
+            <div 
+              key={`${c.name}-${idx}`} 
+              className={cn(
+                "flex items-center gap-3 group/row cursor-pointer transition-all duration-300",
+                hoveredIndex === idx && "translate-x-1"
+              )}
+              onMouseEnter={() => setHoveredIndex(idx)}
+            >
+              <Avatar className={cn(
+                "w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-all",
+                isFaded && "opacity-40 grayscale"
+              )}>
                 <AvatarImage src={getCandidatePhoto(c.name)} />
                 <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
                   {isAbstention ? (c.name.toLowerCase().includes('ns') ? 'NS' : c.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : c.name.charAt(0)}
@@ -103,22 +118,32 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                   <div className="flex flex-col justify-center min-w-0">
                     <span className={cn(
                       "text-[10px] tracking-tight leading-tight transition-colors",
-                      idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
+                      idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                      isFaded && "text-zinc-300"
                     )}>
                       {displayName}
                     </span>
-                    <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({c.party})</span>
+                    <span className={cn(
+                      "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                      isFaded && "text-zinc-200"
+                    )}>
+                      ({c.party})
+                    </span>
                   </div>
                   <span className={cn(
-                    "text-[10px] font-black leading-none",
-                    idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
+                    "text-[10px] font-black leading-none transition-colors",
+                    isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"),
+                    hoveredIndex === idx && "text-orange-600"
                   )}>{c.value.toFixed(1)}%</span>
                 </div>
                 
-                <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: isMounted ? `${c.value}%` : 0 }}
+                    animate={{ 
+                      width: isMounted ? `${c.value}%` : 0,
+                      filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
+                    }}
                     transition={{ duration: 1.2, delay: idx * 0.1 }}
                     className={cn(
                       "h-full rounded-full shadow-sm transition-all",

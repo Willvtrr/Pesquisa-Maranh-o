@@ -175,6 +175,7 @@ export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -587,15 +588,29 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="text-[8px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
-                <div className="space-y-4">
+                <div 
+                  className="space-y-4"
+                  onMouseLeave={() => setHoveredSecondRound(null)}
+                >
                   {chartData.secondRoundData.map((item, idx) => {
                     const pct = ((item.value / Math.max(totalDatabaseCount, 1)) * 100);
                     const isAbstention = item.isAbstention;
                     const displayName = toTitleCase(item.name);
+                    const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
                     
                     return (
-                      <div key={`${item.name}-${idx}`} className="flex items-center gap-3 group">
-                        <Avatar className="w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
+                      <div 
+                        key={`${item.name}-${idx}`} 
+                        className={cn(
+                          "flex items-center gap-3 group/row cursor-pointer transition-all duration-300",
+                          hoveredSecondRound === idx && "translate-x-1"
+                        )}
+                        onMouseEnter={() => setHoveredSecondRound(idx)}
+                      >
+                        <Avatar className={cn(
+                          "w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-all",
+                          isFaded && "opacity-40 grayscale"
+                        )}>
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
                             {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
@@ -606,28 +621,40 @@ export default function Home() {
                             <div className="flex flex-col justify-center min-w-0">
                               <span className={cn(
                                 "text-[10px] tracking-tight leading-tight transition-colors",
-                                idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
+                                idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                                isFaded && "text-zinc-300"
                               )}>
                                 {displayName}
                               </span>
-                              {item.party && <span className="text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
+                              {item.party && (
+                                <span className={cn(
+                                  "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                                  isFaded && "text-zinc-200"
+                                )}>
+                                  ({item.party})
+                                </span>
+                              )}
                             </div>
                             <span className={cn(
-                              "text-[10px] font-black leading-none",
-                              idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"
+                              "text-[10px] font-black leading-none transition-colors",
+                              isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"),
+                              hoveredSecondRound === idx && "text-orange-600"
                             )}>
                               {pct.toFixed(1)}%
                             </span>
                           </div>
-                          <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                          <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
                             <motion.div 
                               initial={{ width: 0 }} 
-                              animate={{ width: `${pct}%` }} 
+                              animate={{ 
+                                width: `${pct}%`,
+                                filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
+                              }} 
                               transition={{ duration: 1.2 }} 
                               className={cn(
                                 "h-full rounded-full transition-all",
                                 idx < 2 && !isAbstention 
-                                  ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15] shadow-sm shadow-orange-500/20" 
+                                  ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" 
                                   : "bg-zinc-200"
                               )} 
                             />
