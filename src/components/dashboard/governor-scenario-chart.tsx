@@ -83,7 +83,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
         </div>
       </div>
       
-      <p className="text-[8px] font-medium text-zinc-400 italic mb-6">"{scenario.question}"</p>
+      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"{scenario.question}"</p>
 
       <div 
         className="space-y-4"

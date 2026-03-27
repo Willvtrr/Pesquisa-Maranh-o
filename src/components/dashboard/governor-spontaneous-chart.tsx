@@ -47,17 +47,17 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
     >
       <div className="flex items-start justify-between mb-1">
         <div className="space-y-0.5">
-          <h4 className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
             MONITORAMENTO ESTADUAL
           </h4>
           <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">
-            Intenção de Voto Governador
+            Intenção de voto governador
           </p>
         </div>
         <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESPONTÂNEA</span>
+          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">ESPONTÂNEA</span>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
                   </span>
                   {party && (
                     <span className={cn(
-                      "text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                      "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
                       isFaded && "text-zinc-200"
                     )}>
                       ({party})
@@ -132,7 +132,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
               
               <div className="w-10 flex-shrink-0 text-right">
                 <span className={cn(
-                  "text-[11px] font-black transition-all duration-300",
+                  "text-[10px] font-black transition-all duration-300",
                   isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
                   hoveredIndex === idx && "text-orange-600"
                 )}>

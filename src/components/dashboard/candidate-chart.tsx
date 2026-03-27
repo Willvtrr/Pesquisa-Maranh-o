@@ -81,7 +81,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
                   </span>
                   {item.party && (
                     <span className={cn(
-                      "text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                      "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
                       isFaded && "text-zinc-200"
                     )}>
                       ({item.party})

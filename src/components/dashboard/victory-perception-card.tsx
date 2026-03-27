@@ -37,7 +37,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
         </div>
       </div>
       
-      <p className="text-[8px] font-medium text-zinc-400 italic mb-6">"Quem você acha que ganhará a eleição...?"</p>
+      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Quem você acha que ganhará a eleição...?"</p>
 
       <div 
         className="space-y-4"
