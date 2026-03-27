@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -594,7 +593,7 @@ export default function Home() {
                   <div className="space-y-0.5">
                     <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
                       <span className="w-1 h-3 bg-orange-600 rounded-full" />
-                      DISPUTA PRESIDENCIAL
+                      CORRIDA PRESIDENCIAL
                     </h4>
                     <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">Eventual 2º Turno</p>
                   </div>
@@ -645,7 +644,7 @@ export default function Home() {
                 data={chartData.rejectionData} 
                 total={getFilteredData(['president_rejection']).length}
                 title="Índice de Rejeição"
-                overline="DISPUTA PRESIDENCIAL"
+                overline="CORRIDA PRESIDENCIAL"
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
                 badge="Estimulada"
                 color="rose"
