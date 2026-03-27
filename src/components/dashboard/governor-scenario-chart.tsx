@@ -91,9 +91,12 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
       >
         {sortedCandidates.map((c, idx) => {
           const displayName = toTitleCase(c.name);
-          const isAbstention = c.isAbstention || c.name.toLowerCase().includes('outros');
+          const isAbstention = c.isAbstention || c.name.toLowerCase().includes('outros') || c.name.toLowerCase().includes('ns') || c.name.toLowerCase().includes('sabe');
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           
+          // Lógica de intensidade: cores para todos os candidatos com opacidade decrescente
+          const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
+
           return (
             <div 
               key={`${c.name}-${idx}`} 
@@ -118,7 +121,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                   <div className="flex flex-col justify-center min-w-0">
                     <span className={cn(
                       "text-[10px] tracking-tight leading-tight transition-colors",
-                      idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                      !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                       isFaded && "text-zinc-300"
                     )}>
                       {displayName}
@@ -133,10 +136,12 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                     )}
                   </div>
                   <span className={cn(
-                    "text-[10px] font-black leading-none transition-colors",
-                    isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"),
+                    "text-[10px] font-black leading-none transition-colors tabular-nums",
+                    isFaded ? "text-zinc-300" : (!isAbstention ? "text-zinc-950" : "text-zinc-400"),
                     hoveredIndex === idx && "text-orange-600"
-                  )}>{c.value.toFixed(1)}%</span>
+                  )}>
+                    {c.value.toFixed(1).replace('.', ',')}%
+                  </span>
                 </div>
                 
                 <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
@@ -149,8 +154,9 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                     transition={{ duration: 1.2, delay: idx * 0.1 }}
                     className={cn(
                       "h-full rounded-full shadow-sm transition-all",
-                      idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
+                      !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
                     )}
+                    style={{ opacity: barOpacity }}
                   />
                 </div>
               </div>
