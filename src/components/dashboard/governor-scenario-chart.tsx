@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -70,12 +69,13 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
 
   return (
     <LuxuryCard className={cn("flex-1", className)}>
-      <div className="flex items-start justify-between mb-4 border-l-[5px] border-[#e66324] pl-4">
+      <div className="flex items-start justify-between mb-2">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Disputa Estadual</span>
-          </div>
-          <h2 className="text-[18px] font-black text-zinc-900 tracking-tight leading-none">{scenario.label}</h2>
+          <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <span className="w-1 h-3 bg-orange-600 rounded-full" />
+            Disputa Estadual
+          </h4>
+          <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">{scenario.label}</p>
         </div>
         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />

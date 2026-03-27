@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -23,12 +22,13 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
 
   return (
     <LuxuryCard className={cn("flex-1", className)}>
-      <div className="flex items-start justify-between mb-4 border-l-[5px] border-[#10b981] pl-4">
+      <div className="flex items-start justify-between mb-2">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black text-[#10b981] uppercase tracking-widest">Expectativa Real</span>
-          </div>
-          <h2 className="text-[18px] font-black text-zinc-900 tracking-tight leading-none">Percepção de Vitória</h2>
+          <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+            <span className="w-1 h-3 bg-[#10b981] rounded-full" />
+            Expectativa Real
+          </h4>
+          <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Percepção de Vitória</p>
         </div>
         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-[#10b981] animate-pulse" />

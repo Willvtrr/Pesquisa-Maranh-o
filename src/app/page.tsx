@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -305,13 +304,12 @@ export default function Home() {
       const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
       const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-      // Limita apenas os candidatos, mas SEMPRE mantém todas as abstenções no final
       const limitedCandidates = candidateLimit ? candidates.slice(0, candidateLimit) : candidates;
       return [...limitedCandidates, ...abstentions];
     };
 
     return {
-      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 10), // Aumentado para ver mais se necessário
+      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 10),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS), 
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, 7),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 6),
@@ -319,7 +317,7 @@ export default function Home() {
     };
   }, [filteredData, activeKeys]);
 
-  // REJEIÇÃO ABSOLUTA ESTADUAL (Sem Filtros)
+  // REJEIÇÃO ABSOLUTA ESTADUAL
   const rawGovRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -343,7 +341,7 @@ export default function Home() {
       .slice(0, 5);
   }, [rawSurveyData, activeKeys.GOV_REJECTION]);
 
-  // REJEIÇÃO ABSOLUTA FEDERAL (Sem Filtros)
+  // REJEIÇÃO ABSOLUTA FEDERAL
   const rawPresidentRejectionData = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return [];
     const counts: Record<string, number> = {};
@@ -609,14 +607,15 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Card 1: 2º Turno */}
               <LuxuryCard className="h-full">
-                <div className="flex items-start justify-between mb-4 border-l-[5px] border-[#e66324] pl-4">
+                <div className="flex items-start justify-between mb-2">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
-                    </div>
-                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight leading-none">Intenção de Voto</h2>
+                    <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                      <span className="w-1 h-3 bg-orange-600 rounded-full" />
+                      Eventual 2º Turno
+                    </h4>
+                    <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Intenção de Voto</p>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
                     <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
                   </div>
@@ -686,7 +685,7 @@ export default function Home() {
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
             </div>
 
-            {/* LINHA DE REJEIÇÃO LADO A LADO (FEDERAL À ESQUERDA, ESTADUAL À DIREITA) */}
+            {/* LINHA DE REJEIÇÃO LADO A LADO */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RejectionPillChart 
                 data={rawPresidentRejectionData} 
@@ -744,7 +743,7 @@ function calculateApproval(data: any[], questionKey: string) {
   };
 }
 
-// COMPONENTE DE REJEIÇÃO REVISADO (CLONE EXATO COM ALTURA PROPORCIONAL E SWAP)
+// COMPONENTE DE REJEIÇÃO REVISADO
 const RejectionPillChart = ({ 
   data, total, title, overline, subtitle, badge, color, isMounted 
 }: any) => {
