@@ -67,7 +67,7 @@ export const GovernorRejectionChart = ({
       </div>
 
       <ScrollArea className="w-full flex-grow">
-        <div className="flex justify-start items-end gap-3 pb-4 px-1 min-w-max">
+        <div className="flex justify-around items-end gap-4 pb-4 px-6 min-w-full">
           {data.map((item, idx) => {
             const pct = total > 0 ? (item.value / total) * 100 : 0;
             const isAbstention = item.name.toLowerCase().includes('nulo') || 
