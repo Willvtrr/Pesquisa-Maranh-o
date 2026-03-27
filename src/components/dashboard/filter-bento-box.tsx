@@ -461,7 +461,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
                       />
                     </div>
-                    <span className={cn("text-[10px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
+                    <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
                       {pct.toFixed(1)}%
                     </span>
                   </div>
@@ -472,47 +472,33 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
         </div>
 
         {/* Escolaridade */}
-        <div className="space-y-3 pt-4">
+        <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             ESCOLARIDADE
           </label>
-          <div className="flex flex-col gap-3">
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-4">
             {(options.education || []).map((opt) => {
               const pct = distribution?.education?.[opt] || 0;
               const active = isSelected('education', opt);
               return (
-                <motion.div
-                  key={opt}
-                  whileHover={{ x: 2, scale: 1.005 }}
-                  onClick={() => onFilterChange('education', opt)}
-                  className={cn(
-                    "flex flex-col gap-1.5 p-3 rounded-xl transition-all cursor-pointer border",
-                    active 
-                      ? "border-orange-500 bg-orange-50/10" 
-                      : "border-zinc-100 bg-white hover:border-zinc-200"
-                  )}
-                >
-                  <h3 className={cn("text-[10px] font-bold transition-colors uppercase tracking-tight", active ? "text-orange-600" : "text-zinc-800")}>
+                <div key={opt} className="cursor-pointer group flex flex-col gap-1" onClick={() => onFilterChange('education', opt)}>
+                  <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
                     {opt}
-                  </h3>
+                  </span>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden relative">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ duration: 1.2, ease: "easeOut" }}
-                        className={cn(
-                          "h-full rounded-full transition-colors",
-                          active ? "bg-orange-500" : "bg-zinc-400"
-                        )}
+                    <div className="flex-1 h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                      <motion.div 
+                        initial={{ width: 0 }} 
+                        animate={{ width: `${pct}%` }} 
+                        className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
                       />
                     </div>
-                    <span className={cn("text-[10px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
-                      {Math.round(pct)}%
+                    <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
+                      {pct.toFixed(1)}%
                     </span>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
