@@ -449,21 +449,21 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
               return (
-                <div key={opt} className="cursor-pointer group flex flex-col gap-1.5" onClick={() => onFilterChange('income', opt)}>
-                  <div className="flex justify-between items-end">
-                    <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
-                      {opt}
-                    </span>
-                    <span className={cn("text-xl font-black transition-colors", active ? "text-orange-600" : "text-zinc-800")}>
+                <div key={opt} className="cursor-pointer group flex flex-col gap-1" onClick={() => onFilterChange('income', opt)}>
+                  <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
+                    {opt}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                      <motion.div 
+                        initial={{ width: 0 }} 
+                        animate={{ width: `${pct}%` }} 
+                        className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
+                      />
+                    </div>
+                    <span className={cn("text-[10px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
                       {pct.toFixed(1)}%
                     </span>
-                  </div>
-                  <div className="w-full h-2 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
-                    <motion.div 
-                      initial={{ width: 0 }} 
-                      animate={{ width: `${pct}%` }} 
-                      className={cn("h-full transition-all", active ? "bg-orange-500" : "bg-zinc-800")} 
-                    />
                   </div>
                 </div>
               );
@@ -484,41 +484,33 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               return (
                 <motion.div
                   key={opt}
-                  whileHover={{ x: 4, scale: 1.01 }}
+                  whileHover={{ x: 2, scale: 1.005 }}
                   onClick={() => onFilterChange('education', opt)}
                   className={cn(
-                    "flex flex-col gap-3 p-4 rounded-xl transition-all cursor-pointer border",
+                    "flex flex-col gap-1.5 p-3 rounded-xl transition-all cursor-pointer border",
                     active 
-                      ? "border-orange-500 bg-orange-50/30" 
+                      ? "border-orange-500 bg-orange-50/10" 
                       : "border-zinc-100 bg-white hover:border-zinc-200"
                   )}
                 >
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col gap-0.5">
-                      <h3 className={cn("text-xs font-bold transition-colors", active ? "text-orange-600" : "text-zinc-800")}>
-                        {opt}
-                      </h3>
-                      <p className="text-[8px] text-zinc-400 uppercase tracking-widest">
-                        {pct > 40 ? 'Maioria' : pct > 20 ? 'Base' : 'Segmento'}
-                      </p>
+                  <h3 className={cn("text-[10px] font-bold transition-colors uppercase tracking-tight", active ? "text-orange-600" : "text-zinc-800")}>
+                    {opt}
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden relative">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
+                        className={cn(
+                          "h-full rounded-full transition-colors",
+                          active ? "bg-orange-500" : "bg-zinc-400"
+                        )}
+                      />
                     </div>
-                    <div className="flex items-baseline gap-0.5">
-                      <span className={cn("text-xl font-black transition-colors", active ? "text-orange-600" : "text-zinc-800")}>
-                        {Math.round(pct)}
-                      </span>
-                      <span className="text-[10px] font-bold text-zinc-400">%</span>
-                    </div>
-                  </div>
-                  <div className="h-4 bg-zinc-100/70 border border-zinc-200/20 rounded-lg p-[3px] relative overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ duration: 1.5, ease: [0.2, 0.8, 0.2, 1] }}
-                      className={cn(
-                        "h-full rounded-[5px] transition-colors",
-                        active ? "bg-orange-500" : "bg-zinc-300"
-                      )}
-                    />
+                    <span className={cn("text-[10px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
+                      {Math.round(pct)}%
+                    </span>
                   </div>
                 </motion.div>
               );
