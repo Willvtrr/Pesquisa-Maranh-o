@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -169,7 +170,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -179,6 +180,7 @@ const DEFAULT_KEYS = {
   GOV_VICTORY_PERCEPTION: "11. PERCEPÇÃO DE VITÓRIA: Quem você acha que ganhará a eleição para Governador do Maranhão? (Estimulada)",
   DEPUTY_FEDERAL_VOTE: "Em quem você votaria para Deputado FEDERAL? (Espontânea)",
   DEPUTY_ESTADUAL_VOTE: "Em quem você votaria para Deputado ESTADUAL? (Espontânea)",
+  SENATOR_VOTE_SPONTANEOUS: "SENADOR: Se as eleições para Senador fossem hoje, em quem você votaria? (Espontânea)",
   SENATOR_COALITION: "De qual chapa, o Senador que você pretende votar, deveria fazer parte?",
 };
 
@@ -204,6 +206,7 @@ export default function Home() {
     gov_spontaneous: ['all'],
     deputy_federal: ['all'],
     deputy_estadual: ['all'],
+    senator_spontaneous: ['all'],
     president_rejection: ['all'],
     gov_rejection: ['all'],
     president_approval: ['all'],
@@ -250,6 +253,7 @@ export default function Home() {
       GOV_VICTORY_PERCEPTION: findKey(['11. PERCEPÇÃO DE VITÓRIA'], DEFAULT_KEYS.GOV_VICTORY_PERCEPTION),
       DEPUTY_FEDERAL_VOTE: findKey(['Deputado FEDERAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_FEDERAL_VOTE),
       DEPUTY_ESTADUAL_VOTE: findKey(['Deputado ESTADUAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_ESTADUAL_VOTE),
+      SENATOR_VOTE_SPONTANEOUS: findKey(['Senador', 'hoje', 'espontânea'], DEFAULT_KEYS.SENATOR_VOTE_SPONTANEOUS),
       SENATOR_COALITION: findKey(['chapa', 'senador', 'parte'], DEFAULT_KEYS.SENATOR_COALITION),
     };
   }, [rawSurveyData]);
@@ -278,6 +282,7 @@ export default function Home() {
         checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS) &&
         checkMatch('deputy_federal', activeKeys.DEPUTY_FEDERAL_VOTE) &&
         checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE) &&
+        checkMatch('senator_spontaneous', activeKeys.SENATOR_VOTE_SPONTANEOUS) &&
         checkMatch('president_rejection', activeKeys.PRESIDENT_REJECTION) &&
         checkMatch('gov_rejection', activeKeys.GOV_REJECTION) &&
         checkMatch('president_approval', activeKeys.PRESIDENT_APPROVAL) &&
@@ -347,6 +352,7 @@ export default function Home() {
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, ''),
       deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'deputy_federal'),
       deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
+      senatorSpontaneousData: processRanking(activeKeys.SENATOR_VOTE_SPONTANEOUS, 'senator_spontaneous'),
       problemsData: processRanking(activeKeys.PROBLEMS, ''),
       worksData: processRanking(activeKeys.WORKS, ''),
       senatorCoalitionData: processRanking(activeKeys.SENATOR_COALITION, ''),
@@ -427,7 +433,7 @@ export default function Home() {
 
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
-    president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'],
+    president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'], senator_spontaneous: ['all'],
     president_rejection: ['all'], gov_rejection: ['all'],
     president_approval: ['all'], gov_approval: ['all'], mayor_approval: ['all']
   });
@@ -713,7 +719,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <SpontaneousVoteChart 
                 data={chartData.deputyFederalData} 
                 total={getFilteredData(['deputy_federal']).length} 
@@ -733,6 +739,16 @@ export default function Home() {
                 badge="ESPONTÂNEA"
                 selected={filters.deputy_estadual}
                 onFilterChange={(v) => handleFilterChange('deputy_estadual', v)}
+              />
+              <SpontaneousVoteChart 
+                data={chartData.senatorSpontaneousData} 
+                total={getFilteredData(['senator_spontaneous']).length} 
+                overline="CORRIDA SENADO"
+                title="Intenção de Voto Senador"
+                question="SENADOR: Se as eleições para Senador fossem hoje, em quem você votaria? (Espontânea)"
+                badge="ESPONTÂNEA"
+                selected={filters.senator_spontaneous}
+                onFilterChange={(v) => handleFilterChange('senator_spontaneous', v)}
               />
             </div>
 
