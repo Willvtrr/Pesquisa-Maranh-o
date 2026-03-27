@@ -1,29 +1,34 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { getCandidatePhoto } from '@/app/page';
 
 interface GovernorRejectionChartProps {
   data: { name: string; value: number; party?: string | null }[];
   total: number;
-  title?: string;
-  overline?: string;
-  subtitle?: string;
-  badge?: string;
+  title: string;
+  overline: string;
+  subtitle: string;
+  badge: string;
   color?: 'red' | 'rose';
+  selected?: string[];
+  onFilterChange?: (name: string) => void;
 }
 
 export const GovernorRejectionChart = ({ 
   data, 
   total, 
-  title = "Índice de Rejeição",
-  overline = "TETO ELEITORAL ESTADUAL",
-  subtitle = '"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"',
-  badge = "Estimulada",
-  color = 'red'
+  title,
+  overline,
+  subtitle,
+  badge,
+  color = 'red',
+  selected = [],
+  onFilterChange
 }: GovernorRejectionChartProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -38,84 +43,99 @@ export const GovernorRejectionChart = ({
   const overlineColorClass = color === 'red' ? "bg-[#dc2626]" : "bg-[#e11d48]";
 
   return (
-    <div className="bg-white rounded-[2.5rem] p-6 lg:p-8 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[380px]">
-      <div className="flex justify-between items-start mb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className={cn("w-1 h-4 rounded-full", overlineColorClass)} />
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">
+    <div className="bg-white rounded-[2rem] p-5 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[260px]">
+      <div className="flex justify-between items-start mb-4">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-1.5">
+            <div className={cn("w-1 h-3 rounded-full", overlineColorClass)} />
+            <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">
               {overline}
             </span>
           </div>
-          <h2 className="text-2xl font-black text-zinc-900 tracking-tight">
+          <h2 className="text-base font-black text-zinc-900 tracking-tight leading-none">
             {title}
           </h2>
-          <p className="text-[11px] text-zinc-400 italic font-medium">
+          <p className="text-[8px] text-zinc-400 italic font-medium">
             {subtitle}
           </p>
         </div>
-        <div className="px-3 py-1.5 rounded-full bg-[#f8fafc] border border-zinc-100">
-          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">
+        <div className="px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100">
+          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">
             {badge}
           </span>
         </div>
       </div>
 
-      <div className="flex justify-between items-start gap-2 mt-auto border-b border-zinc-50 pb-4">
-        {data.map((item, idx) => {
-          const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const isAbstention = item.name.toLowerCase().includes('nulo') || 
-                               item.name.toLowerCase().includes('branco') || 
-                               item.name.toLowerCase().includes('nenhum');
+      <ScrollArea className="w-full flex-grow">
+        <div className="flex justify-start items-end gap-3 pb-4 px-1 min-w-max">
+          {data.map((item, idx) => {
+            const pct = total > 0 ? (item.value / total) * 100 : 0;
+            const isAbstention = item.name.toLowerCase().includes('nulo') || 
+                                 item.name.toLowerCase().includes('branco') || 
+                                 item.name.toLowerCase().includes('ns') ||
+                                 item.name.toLowerCase().includes('sabe');
+            const isActive = selected.includes(item.name);
 
-          return (
-            <div key={`${item.name}-${idx}`} className="flex flex-col items-center flex-1 group">
-              {/* Bar Track - Compacto 140px */}
-              <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-2 shadow-inner">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: isMounted ? `${pct}%` : 0 }}
-                  transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
-                  className={cn(
-                    "w-full rounded-full transition-all min-h-[20px] bg-gradient-to-b",
-                    isAbstention 
-                      ? "from-slate-200 to-slate-400" 
-                      : barColorClass
-                  )}
-                />
-              </div>
-
-              <span className="text-[12px] font-black text-zinc-900 mb-2">
-                {pct.toFixed(1)}%
-              </span>
-
-              <div className="flex flex-col items-center text-center space-y-1">
-                <Avatar className="w-10 h-10 border-2 border-white shadow-sm transition-transform group-hover:-translate-y-0.5">
-                  <AvatarImage 
-                    src={`https://picsum.photos/seed/${item.name}/100/100`} 
-                    className="object-cover"
+            return (
+              <div 
+                key={`${item.name}-${idx}`} 
+                onClick={() => onFilterChange?.(item.name)}
+                className={cn(
+                  "flex flex-col items-center w-12 group cursor-pointer transition-all duration-300 p-1 rounded-xl",
+                  isActive && "bg-orange-50 ring-1 ring-orange-100 shadow-sm"
+                )}
+              >
+                <div className="w-5 h-[85px] bg-zinc-50 border border-zinc-100 rounded-full flex flex-col justify-end p-0.5 mb-2">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: isMounted ? `${pct}%` : 0 }}
+                    transition={{ duration: 1.2, ease: "circOut", delay: idx * 0.05 }}
+                    className={cn(
+                      "w-full rounded-full bg-gradient-to-b",
+                      isAbstention ? "from-zinc-200 to-zinc-400" : barColorClass,
+                      isActive && "opacity-100"
+                    )}
                   />
-                  <AvatarFallback className="bg-[#f8fafc] text-[8px] font-bold text-zinc-400 uppercase">
-                    {isAbstention ? "N/B" : item.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="space-y-0 min-h-[2.4em] flex flex-col justify-center">
-                  <p className="text-[9px] font-black text-zinc-900 leading-tight uppercase tracking-tight">
-                    {item.name.split(' ')[0]}<br />
-                    {item.name.split(' ')[1] || ''}
-                  </p>
-                  {item.party && (
-                    <p className="text-[8px] font-bold text-zinc-400 uppercase">
-                      ({item.party})
+                </div>
+
+                <span className={cn(
+                  "text-[9px] font-black mb-1.5 transition-colors",
+                  isActive ? "text-orange-600" : "text-zinc-900"
+                )}>
+                  {pct.toFixed(1)}%
+                </span>
+
+                <div className="flex flex-col items-center text-center gap-1">
+                  <Avatar className={cn(
+                    "w-7 h-7 border border-white shadow-sm transition-transform group-hover:-translate-y-0.5",
+                    isActive && "ring-2 ring-orange-500"
+                  )}>
+                    <AvatarImage src={getCandidatePhoto(item.name)} />
+                    <AvatarFallback className="bg-zinc-50 text-[7px] font-bold text-zinc-400">
+                      {isAbstention ? "N/B" : item.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="min-h-[2em] flex flex-col justify-center">
+                    <p className={cn(
+                      "text-[7px] font-black leading-tight uppercase tracking-tighter truncate w-12",
+                      isActive ? "text-orange-600" : "text-zinc-800"
+                    )}>
+                      {item.name.split(' ')[0]}
                     </p>
-                  )}
+                    {item.party && (
+                      <p className="text-[5px] font-bold text-zinc-400 uppercase">
+                        ({item.party})
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+        <ScrollBar orientation="horizontal" className="h-1" />
+      </ScrollArea>
     </div>
   );
 };

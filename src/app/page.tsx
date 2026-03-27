@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -11,6 +10,7 @@ import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor-scenario-chart';
 import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception-card';
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
+import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -142,7 +142,7 @@ export const getCandidatePhoto = (name: string) => {
   if (n.includes('carlos brandão') || n.includes('carlos brandao') || n === 'brandão' || n === 'brandao') {
     return '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg';
   }
-  if (n === 'outros' || n.includes('ns/nr') || n.includes('não sabe')) return 'https://picsum.photos/seed/outros/100/100';
+  if (n === 'outros' || n.includes('ns/nr') || n.includes('não sabe') || n === 'o') return 'https://picsum.photos/seed/outros/100/100';
   return `https://picsum.photos/seed/${name}/100/100`;
 };
 
@@ -162,7 +162,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -195,7 +195,9 @@ export default function Home() {
     president_vote: ['all'],
     gov_spontaneous: ['all'],
     deputy_federal: ['all'],
-    deputy_estadual: ['all']
+    deputy_estadual: ['all'],
+    president_rejection: ['all'],
+    gov_rejection: ['all']
   });
 
   const activeKeys = useMemo(() => {
@@ -264,7 +266,9 @@ export default function Home() {
         checkMatch('president_vote', activeKeys.PRESIDENT_VOTE) &&
         checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS) &&
         checkMatch('deputy_federal', activeKeys.DEPUTY_FEDERAL_VOTE) &&
-        checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE)
+        checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE) &&
+        checkMatch('president_rejection', activeKeys.PRESIDENT_REJECTION) &&
+        checkMatch('gov_rejection', activeKeys.GOV_REJECTION)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -324,7 +328,8 @@ export default function Home() {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 'president_vote'),
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, 'gov_spontaneous'), 
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, ''),
-      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, ''),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 'president_rejection'),
+      govRejectionData: processRanking(activeKeys.GOV_REJECTION, 'gov_rejection'),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, ''),
       deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'deputy_federal'),
       deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
@@ -405,7 +410,8 @@ export default function Home() {
 
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
-    president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all']
+    president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'],
+    president_rejection: ['all'], gov_rejection: ['all']
   });
 
   const handleManualSync = async () => {
@@ -578,6 +584,31 @@ export default function Home() {
                 badge="ESPONTÂNEA"
                 selected={filters.gov_spontaneous}
                 onFilterChange={(v) => handleFilterChange('gov_spontaneous', v)}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <GovernorRejectionChart 
+                data={chartData.rejectionData} 
+                total={getFilteredData(['president_rejection']).length}
+                title="Índice de Rejeição"
+                overline="DISPUTA PRESIDENCIAL"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="rose"
+                selected={filters.president_rejection}
+                onFilterChange={(v) => handleFilterChange('president_rejection', v)}
+              />
+              <GovernorRejectionChart 
+                data={chartData.govRejectionData} 
+                total={getFilteredData(['gov_rejection']).length}
+                title="Índice de Rejeição"
+                overline="DISPUTA ESTADUAL"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="red"
+                selected={filters.gov_rejection}
+                onFilterChange={(v) => handleFilterChange('gov_rejection', v)}
               />
             </div>
 
