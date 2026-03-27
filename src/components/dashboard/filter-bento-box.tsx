@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
@@ -207,17 +208,19 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
 
   const maxIncomePct = useMemo(() => {
     const incomeStats = distribution?.income || {};
-    return Math.max(...Object.values(incomeStats), 0.1);
+    const values = Object.values(incomeStats);
+    return values.length > 0 ? Math.max(...values) : 1;
   }, [distribution]);
 
   const maxEducationPct = useMemo(() => {
     const eduStats = distribution?.education || {};
-    return Math.max(...Object.values(eduStats), 0.1);
+    const values = Object.values(eduStats);
+    return values.length > 0 ? Math.max(...values) : 1;
   }, [distribution]);
 
   return (
-    <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn(className)}>
-      <div className="flex flex-col gap-6 pr-2 no-scrollbar pb-6">
+    <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn("h-fit", className)}>
+      <div className="flex flex-col gap-6 pr-1 no-scrollbar pb-2">
         
         {/* Município */}
         <div className="space-y-3">
@@ -368,6 +371,58 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
+        {/* Visão Política - REPOSICIONADO PARA O TOPO DA SEGMENTAÇÃO */}
+        <div className="pt-6">
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
+            VISÃO POLÍTICA
+          </label>
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-6 shadow-sm">
+            <div className="relative w-32 h-32">
+              <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" />
+                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#eab308" strokeWidth="6" strokeDasharray={`${pDir} ${100 - pDir}`} strokeDashoffset={100} onMouseEnter={() => setHoveredPolitic('direita')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', dirKey)} />
+                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#9ca3af" strokeWidth="6" strokeDasharray={`${pCen} ${100 - pCen}`} strokeDashoffset={100 - pDir} onMouseEnter={() => setHoveredPolitic('centro')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', cenKey)} />
+                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" strokeWidth="6" strokeDasharray={`${pEsq} ${100 - pEsq}`} strokeDashoffset={100 - pDir - pCen} onMouseEnter={() => setHoveredPolitic('esquerda')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', esqKey)} />
+                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" strokeDasharray={`${pUndecided} ${100 - pUndecided}`} strokeDashoffset={100 - pDir - pCen - pEsq} onMouseEnter={() => setHoveredPolitic('nsnr')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', nsnrKey)} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xl font-black text-zinc-900 leading-none">{displayPoliticPct}%</span>
+                <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest mt-1">
+                  {(filters.ideology?.length > 0 && !filters.ideology?.includes('all')) ? 'Soma' : 'Amostra'}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 w-full">
+              {[
+                { id: 'direita', label: 'DIREITA', color: '#eab308', pct: pDir, key: dirKey },
+                { id: 'centro', label: 'CENTRO', color: '#9ca3af', pct: pCen, key: cenKey },
+                { id: 'esquerda', label: 'ESQUERDA', color: '#ef4444', pct: pEsq, key: esqKey },
+                { id: 'nsnr', label: 'NS/NR', color: '#f4f4f5', pct: pUndecided, key: nsnrKey }
+              ].map((item) => (
+                <div 
+                  key={item.id} 
+                  className={cn(
+                    "flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all", 
+                    (isSelected('ideology', item.key)) ? "bg-zinc-50" : "hover:bg-zinc-50/50"
+                  )} 
+                  onClick={() => onFilterChange('ideology', item.key)}
+                  onMouseEnter={() => setHoveredPolitic(item.id)}
+                  onMouseLeave={() => setHoveredPolitic(null)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
+                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{item.label}</span>
+                  </div>
+                  <span className={cn("text-sm font-black", (isSelected('ideology', item.key)) ? "text-orange-600" : "text-zinc-800")} style={{ color: (isSelected('ideology', item.key)) ? undefined : (item.id === 'nsnr' ? '#a1a1aa' : item.color) }}>
+                    {item.pct}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Gênero */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
@@ -423,7 +478,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             FAIXA ETÁRIA
           </label>
-          <div className="bg-white p-4 rounded-[2rem] border border-zinc-100 flex items-end justify-between h-[120px] gap-1">
+          <div className="bg-white p-4 rounded-[2rem] border border-zinc-100 flex items-end justify-between h-[120px] gap-1 shadow-sm">
             {(options.age || []).map((opt) => {
               const pct = distribution?.age?.[opt] || 0;
               const isSelectedAge = isSelected('age', opt);
@@ -434,7 +489,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   <div className="w-full max-w-[28px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative">
                     <motion.div 
                       initial={{ height: 0 }} 
-                      animate={{ height: `${(pct / maxAgePct) * 100}%` }} 
+                      animate={{ height: `${(pct / Math.max(maxAgePct, 1)) * 100}%` }} 
                       className={cn("w-full rounded-t-lg transition-all", isSelectedAge ? "bg-orange-500" : (isOrange ? "bg-orange-500/60" : "bg-zinc-800"))} 
                     />
                   </div>
@@ -451,14 +506,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             RENDA FAMILIAR
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-4">
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-4 shadow-sm">
             {(options.income || []).map((opt) => {
               const pct = distribution?.income?.[opt] || 0;
               const active = isSelected('income', opt);
-              const relativeWidth = (pct / maxIncomePct) * 100;
+              const leaderValue = maxIncomePct || 1;
+              const relativeWidth = (pct / leaderValue) * 100;
               return (
                 <div key={opt} className="cursor-pointer group flex flex-col gap-1.5" onClick={() => onFilterChange('income', opt)}>
-                  <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
+                  <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-400")}>
                     {opt}
                   </span>
                   <div className="flex items-center gap-3">
@@ -469,7 +525,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         className={cn("h-full transition-all rounded-full", active ? "bg-orange-500" : "bg-zinc-800")} 
                       />
                     </div>
-                    <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
+                    <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-950")}>
                       {pct.toFixed(1)}%
                     </span>
                   </div>
@@ -485,14 +541,15 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
             ESCOLARIDADE
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-4">
+          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 space-y-4 shadow-sm">
             {(options.education || []).map((opt) => {
               const pct = distribution?.education?.[opt] || 0;
               const active = isSelected('education', opt);
-              const relativeWidth = (pct / maxEducationPct) * 100;
+              const leaderValue = maxEducationPct || 1;
+              const relativeWidth = (pct / leaderValue) * 100;
               return (
                 <div key={opt} className="cursor-pointer group flex flex-col gap-1.5" onClick={() => onFilterChange('education', opt)}>
-                  <span className={cn("text-[9px] font-bold uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-500")}>
+                  <span className={cn("text-[9px] font-black uppercase tracking-widest transition-colors", active ? "text-orange-600" : "text-zinc-400")}>
                     {opt}
                   </span>
                   <div className="flex items-center gap-3">
@@ -503,65 +560,13 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         className={cn("h-full transition-all rounded-full", active ? "bg-orange-500" : "bg-zinc-800")} 
                       />
                     </div>
-                    <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-800")}>
+                    <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-950")}>
                       {pct.toFixed(1)}%
                     </span>
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* Visão Política */}
-        <div className="pt-6">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
-            VISÃO POLÍTICA
-          </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-6">
-            <div className="relative w-32 h-32">
-              <svg width="100%" height="100%" viewBox="0 0 42 42" className="transform -rotate-90">
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#eab308" strokeWidth="6" strokeDasharray={`${pDir} ${100 - pDir}`} strokeDashoffset={100} onMouseEnter={() => setHoveredPolitic('direita')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', dirKey)} />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#9ca3af" strokeWidth="6" strokeDasharray={`${pCen} ${100 - pCen}`} strokeDashoffset={100 - pDir} onMouseEnter={() => setHoveredPolitic('centro')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', cenKey)} />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" strokeWidth="6" strokeDasharray={`${pEsq} ${100 - pEsq}`} strokeDashoffset={100 - pDir - pCen} onMouseEnter={() => setHoveredPolitic('esquerda')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', esqKey)} />
-                <circle className="cursor-pointer transition-all duration-500" cx="21" cy="21" r="15.9" fill="transparent" stroke="#f4f4f5" strokeWidth="6" strokeDasharray={`${pUndecided} ${100 - pUndecided}`} strokeDashoffset={100 - pDir - pCen - pEsq} onMouseEnter={() => setHoveredPolitic('nsnr')} onMouseLeave={() => setHoveredPolitic(null)} onClick={() => onFilterChange('ideology', nsnrKey)} />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-xl font-black text-zinc-800 leading-none">{displayPoliticPct}%</span>
-                <span className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
-                  {(filters.ideology?.length > 0 && !filters.ideology?.includes('all')) ? 'Soma' : 'Amostra'}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 w-full">
-              {[
-                { id: 'direita', label: 'Direita', color: '#eab308', pct: pDir, key: dirKey },
-                { id: 'centro', label: 'Centro', color: '#9ca3af', pct: pCen, key: cenKey },
-                { id: 'esquerda', label: 'Esquerda', color: '#ef4444', pct: pEsq, key: esqKey },
-                { id: 'nsnr', label: 'NS/NR', color: '#f4f4f5', pct: pUndecided, key: nsnrKey }
-              ].map((item) => (
-                <div 
-                  key={item.id} 
-                  className={cn(
-                    "flex items-center justify-between p-2 rounded-xl cursor-pointer transition-all", 
-                    (isSelected('ideology', item.key)) ? "bg-zinc-50" : "hover:bg-zinc-50/50"
-                  )} 
-                  onClick={() => onFilterChange('ideology', item.key)}
-                  onMouseEnter={() => setHoveredPolitic(item.id)}
-                  onMouseLeave={() => setHoveredPolitic(null)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
-                    <span className="text-[9px] font-black text-zinc-700 uppercase tracking-wide">{item.label}</span>
-                  </div>
-                  <span className={cn("text-sm font-black", (isSelected('ideology', item.key)) ? "text-orange-600" : "text-zinc-800")} style={{ color: (isSelected('ideology', item.key)) ? undefined : (item.id === 'nsnr' ? '#a1a1aa' : item.color) }}>
-                    {item.pct}%
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
