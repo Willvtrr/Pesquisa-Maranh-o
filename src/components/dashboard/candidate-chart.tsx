@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface CandidateChartProps {
   data: { name: string; value: number }[];
@@ -56,7 +57,7 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest text-[7px]">ESTIMULADA</span>
         </div>
       </div>
 
@@ -73,6 +74,10 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const party = PARTY_MAP[item.name];
           const barColor = COLORS[item.name] || (item.name.toLowerCase().includes('nulo') || item.name.toLowerCase().includes('ns/nr') || item.name.toLowerCase().includes('nenhum') ? 'bg-zinc-200' : 'bg-[#ea580c]');
+          const isAbstention = item.name.toLowerCase().includes('nulo') || 
+                               item.name.toLowerCase().includes('branco') || 
+                               item.name.toLowerCase().includes('nenhum') ||
+                               item.name.toLowerCase().includes('ns/nr');
 
           return (
             <div 
@@ -83,22 +88,33 @@ export const CandidateChart = ({ data, total }: CandidateChartProps) => {
               )}
               onMouseEnter={() => setHoveredIndex(idx)}
             >
-              <div className="w-24 lg:w-32 text-right flex flex-col justify-center flex-shrink-0">
-                <span className={cn(
-                  "text-[11px] transition-colors leading-tight truncate",
-                  idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500",
-                  isFaded && "text-zinc-300"
+              <div className="flex items-center gap-3 w-32 lg:w-44 flex-shrink-0">
+                <Avatar className={cn(
+                  "w-8 h-8 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
+                  isFaded && "opacity-40 grayscale"
                 )}>
-                  {item.name}
-                </span>
-                {party && (
+                  <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                  <AvatarFallback className="bg-zinc-100 text-[9px] font-bold text-zinc-400">
+                    {isAbstention ? 'N/B' : item.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
-                    "text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                    isFaded && "text-zinc-200"
+                    "text-[11px] transition-colors leading-tight truncate",
+                    idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                    isFaded && "text-zinc-300"
                   )}>
-                    ({party})
+                    {item.name}
                   </span>
-                )}
+                  {party && (
+                    <span className={cn(
+                      "text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                      isFaded && "text-zinc-200"
+                    )}>
+                      ({party})
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="flex-1 h-8 bg-zinc-50 rounded-full relative border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
