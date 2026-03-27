@@ -73,7 +73,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
         <div className="space-y-0.5">
           <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
-            CORRIDA ESTADUAL
+            CORRIDA GOVERNAMENTAL
           </h4>
           <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">{scenario.label}</p>
         </div>

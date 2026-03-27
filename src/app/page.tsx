@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -631,7 +630,7 @@ export default function Home() {
               <SpontaneousVoteChart 
                 data={chartData.govSpontaneousData} 
                 total={getFilteredData(['gov_spontaneous']).length} 
-                overline="CORRIDA ESTADUAL"
+                overline="CORRIDA GOVERNAMENTAL"
                 title="Intenção de Voto Governador"
                 question="Se as eleições para Governador fossem hoje, em quem você votaria?"
                 badge="ESPONTÂNEA"
@@ -710,7 +709,7 @@ export default function Home() {
                 data={chartData.govRejectionData} 
                 total={getFilteredData(['gov_rejection']).length}
                 title="Índice de Rejeição"
-                overline="CORRIDA ESTADUAL"
+                overline="CORRIDA GOVERNAMENTAL"
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
                 badge="Estimulada"
                 color="red"
@@ -759,7 +758,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <RankingCard 
                 title="Problemas Mais Graves" 
-                overline="CORRIDA ESTADUAL" 
+                overline="CORRIDA GOVERNAMENTAL" 
                 footerLabel="SENTIMENTO DE URGÊNCIA" 
                 data={chartData.problemsData} 
                 total={filteredData.length} 
@@ -767,7 +766,7 @@ export default function Home() {
               />
               <RankingCard 
                 title="Obras e Serviços Desejados" 
-                overline="CORRIDA ESTADUAL" 
+                overline="CORRIDA GOVERNAMENTAL" 
                 footerLabel="EXPECTATIVA DE ENTREGA" 
                 data={chartData.worksData} 
                 total={filteredData.length} 
