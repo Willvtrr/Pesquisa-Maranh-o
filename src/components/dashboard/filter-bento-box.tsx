@@ -199,13 +199,12 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     return values.length > 0 ? Math.max(...values) : 1;
   }, [distribution]);
 
-  const displayPoliticValue = useMemo(() => {
-    if (hoveredPolitic === 'direita') return pDir;
-    if (hoveredPolitic === 'centro') return pCen;
-    if (hoveredPolitic === 'esquerda') return pEsq;
-    if (hoveredPolitic === 'nsnr') return pUndecided;
-    return 100;
-  }, [hoveredPolitic, pDir, pCen, pEsq, pUndecided]);
+  const politicalSlices = [
+    { id: 'direita', label: 'DIREITA', color: '#2563eb', pct: pDir, key: dirKey, textX: 75.8, textY: 34.7, textColor: 'white' },
+    { id: 'centro', label: 'CENTRO', color: '#9ca3af', pct: pCen, key: cenKey, textX: 64.9, textY: 76.0, textColor: 'white' },
+    { id: 'esquerda', label: 'ESQUERDA', color: '#dc2626', pct: pEsq, key: esqKey, textX: 25.4, textY: 67.1, textColor: 'white' },
+    { id: 'nsnr', label: 'NS/NR', color: '#e2e8f0', pct: pUndecided, key: nsnrKey, textX: 32.4, textY: 25.8, textColor: '#475569' }
+  ];
 
   return (
     <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn("h-fit", className)}>
@@ -360,108 +359,107 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política - NOVO DESIGN REFINADO */}
+        {/* Visão Política - DESIGN FINAL SOLICITADO */}
         <div className="pt-6">
-          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
-            VISÃO POLÍTICA
+          <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-6">
+            <span className="w-1.5 h-6 bg-[#d97743] rounded-full" />
+            Visão Política
           </label>
-          <div className="bg-white p-6 rounded-[2rem] border border-zinc-100 flex flex-col items-center gap-8 shadow-sm">
-            
-            {/* Gráfico Donut Animado */}
-            <div className="relative w-40 h-40">
-              <svg viewBox="0 0 100 100" className="transform -rotate-90 drop-shadow-xl">
-                {/* NS/NR Segment */}
-                <circle 
-                  cx="50" cy="50" r="30" fill="none" stroke="#f4f4f5" strokeWidth="20" 
-                  pathLength="100" strokeDasharray={`${pUndecided} 100`} 
-                  strokeDashoffset={0}
-                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'nsnr' ? 'opacity-30' : 'opacity-100')}
-                  onMouseEnter={() => setHoveredPolitic('nsnr')}
-                  onMouseLeave={() => setHoveredPolitic(null)}
-                  onClick={() => onFilterChange('ideology', nsnrKey)}
-                />
-                {/* Esquerda Segment */}
-                <circle 
-                  cx="50" cy="50" r="30" fill="none" stroke="#ef4444" strokeWidth="20" 
-                  pathLength="100" strokeDasharray={`${pEsq} 100`} 
-                  strokeDashoffset={-pUndecided}
-                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'esquerda' ? 'opacity-30' : 'opacity-100')}
-                  onMouseEnter={() => setHoveredPolitic('esquerda')}
-                  onMouseLeave={() => setHoveredPolitic(null)}
-                  onClick={() => onFilterChange('ideology', esqKey)}
-                />
-                {/* Centro Segment */}
-                <circle 
-                  cx="50" cy="50" r="30" fill="none" stroke="#9ca3af" strokeWidth="20" 
-                  pathLength="100" strokeDasharray={`${pCen} 100`} 
-                  strokeDashoffset={-(pUndecided + pEsq)}
-                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'centro' ? 'opacity-30' : 'opacity-100')}
-                  onMouseEnter={() => setHoveredPolitic('centro')}
-                  onMouseLeave={() => setHoveredPolitic(null)}
-                  onClick={() => onFilterChange('ideology', cenKey)}
-                />
-                {/* Direita Segment */}
-                <circle 
-                  cx="50" cy="50" r="30" fill="none" stroke="#eab308" strokeWidth="20" 
-                  pathLength="100" strokeDasharray={`${pDir} 100`} 
-                  strokeDashoffset={-(pUndecided + pEsq + pCen)}
-                  className={cn("transition-all duration-500 cursor-pointer", hoveredPolitic && hoveredPolitic !== 'direita' ? 'opacity-30' : 'opacity-100')}
-                  onMouseEnter={() => setHoveredPolitic('direita')}
-                  onMouseLeave={() => setHoveredPolitic(null)}
-                  onClick={() => onFilterChange('ideology', dirKey)}
-                />
-              </svg>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+            {/* Gráfico Donut Robusto */}
+            <div className="relative w-48 h-48 flex-shrink-0">
+              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg">
+                <g transform="rotate(-90 50 50)">
+                  {politicalSlices.map((slice, idx) => {
+                    // Cálculo do offset dinâmico acumulado
+                    const offset = politicalSlices.slice(0, idx).reduce((acc, s) => acc + s.pct, 0);
+                    const isFaded = hoveredPolitic && hoveredPolitic !== slice.id;
+                    
+                    return (
+                      <motion.circle
+                        key={slice.id}
+                        cx="50" cy="50" r="30"
+                        fill="none"
+                        stroke={slice.color}
+                        strokeWidth={hoveredPolitic === slice.id ? 32 : 30}
+                        pathLength="100"
+                        strokeDasharray={`${slice.pct} 100`}
+                        strokeDashoffset={-offset}
+                        className="cursor-pointer transition-all duration-300"
+                        initial={{ strokeDasharray: "0 100" }}
+                        animate={{ 
+                          strokeDasharray: `${slice.pct} 100`,
+                          opacity: isFaded ? 0.3 : 1
+                        }}
+                        transition={{ duration: 1, ease: "circOut" }}
+                        onMouseEnter={() => setHoveredPolitic(slice.id)}
+                        onMouseLeave={() => setHoveredPolitic(null)}
+                        onClick={() => onFilterChange('ideology', slice.key)}
+                      />
+                    );
+                  })}
+                </g>
 
-              {/* Texto Central */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={hoveredPolitic || 'total'}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex flex-col items-center"
-                  >
-                    <span className="text-xl font-black text-zinc-900 tracking-tighter">
-                      {displayPoliticValue.toFixed(1).replace('.', ',')}%
-                    </span>
-                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em] mt-0.5">
-                      {hoveredPolitic ? 'Foco' : 'Amostra'}
-                    </span>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+                {/* Porcentagens dentro das fatias */}
+                {politicalSlices.map((slice) => {
+                  const isFaded = hoveredPolitic && hoveredPolitic !== slice.id;
+                  if (slice.pct < 5) return null; // Não mostra texto em fatias muito pequenas
+
+                  return (
+                    <motion.text
+                      key={`text-${slice.id}`}
+                      x={slice.textX}
+                      y={slice.textY}
+                      fill={slice.textColor}
+                      className="text-[6px] font-black pointer-events-none"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      animate={{ opacity: isFaded ? 0.2 : 1 }}
+                    >
+                      {slice.pct.toFixed(1).replace('.', ',')}%
+                    </motion.text>
+                  );
+                })}
+              </svg>
             </div>
 
             {/* Legenda Vertical Refinada */}
-            <div className="flex flex-col gap-4 w-full">
-              {[
-                { id: 'direita', label: 'DIREITA', color: '#eab308', pct: pDir, key: dirKey },
-                { id: 'centro', label: 'CENTRO', color: '#9ca3af', pct: pCen, key: cenKey },
-                { id: 'esquerda', label: 'ESQUERDA', color: '#ef4444', pct: pEsq, key: esqKey },
-                { id: 'nsnr', label: 'NS/NR', color: '#f4f4f5', pct: pUndecided, key: nsnrKey }
-              ].map((item) => {
+            <div className="flex-1 w-full space-y-4">
+              {politicalSlices.map((item) => {
                 const active = isSelected('ideology', item.key);
                 const isFaded = hoveredPolitic && hoveredPolitic !== item.id;
 
                 return (
                   <div 
-                    key={item.id} 
+                    key={item.id}
                     className={cn(
-                      "flex items-center justify-between p-1.5 rounded-xl cursor-pointer transition-all", 
-                      active ? "bg-zinc-50" : "hover:bg-zinc-50/50",
+                      "flex items-center justify-between group cursor-pointer transition-all duration-300",
                       isFaded && "opacity-30"
-                    )} 
-                    onClick={() => onFilterChange('ideology', item.key)}
+                    )}
                     onMouseEnter={() => setHoveredPolitic(item.id)}
                     onMouseLeave={() => setHoveredPolitic(null)}
+                    onClick={() => onFilterChange('ideology', item.key)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full shadow-sm border border-zinc-200" style={{ backgroundColor: item.color }} />
-                      <span className="text-[9px] font-black text-zinc-950 uppercase tracking-widest">{item.label}</span>
+                      <span 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ 
+                          backgroundColor: item.color,
+                          border: item.id === 'nsnr' ? '1px solid #cbd5e1' : 'none'
+                        }} 
+                      />
+                      <span className={cn(
+                        "text-[11px] font-black uppercase tracking-wider transition-colors",
+                        active ? "text-zinc-950" : "text-zinc-600"
+                      )}>
+                        {item.label}
+                      </span>
                     </div>
-                    <span className="text-sm font-black tabular-nums" style={{ color: item.id === 'nsnr' ? '#a1a1aa' : item.color }}>
+                    <span 
+                      className="text-xl font-black tabular-nums"
+                      style={{ color: item.id === 'nsnr' ? '#64748b' : item.color }}
+                    >
                       {item.pct.toFixed(1).replace('.', ',')}%
                     </span>
                   </div>
