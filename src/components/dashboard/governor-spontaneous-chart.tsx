@@ -47,15 +47,15 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
     >
       <div className="flex items-start justify-between mb-1">
         <div className="space-y-0.5">
-          <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+          <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
             MONITORAMENTO ESTADUAL
           </h4>
-          <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">
+          <p className="text-xl font-black text-zinc-950 tracking-tight leading-tight">
             Intenção de voto governador
           </p>
         </div>
-        <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
+        <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
           <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">ESPONTÂNEA</span>
         </div>
