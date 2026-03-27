@@ -31,7 +31,7 @@ export const SCENARIOS: Scenario[] = [
       { name: 'Weverton Rocha', value: 26.5, party: 'PDT' },
       { name: 'Josimar de Maranhãozinho', value: 15.8, party: 'PL' },
       { name: 'Roberto Rocha', value: 10.4, party: 'PSDB' },
-      { name: 'Branco / Nulo', value: 13.1, party: 'Votos Inválidos', isAbstention: true },
+      { name: 'Branco / Nulo', value: 13.1, party: '', isAbstention: true },
     ]
   },
   {
@@ -43,7 +43,7 @@ export const SCENARIOS: Scenario[] = [
       { name: 'Josimar de Maranhãozinho', value: 24.1, party: 'PL' },
       { name: 'Edivaldo Holanda Jr.', value: 14.2, party: 'PSD' },
       { name: 'Lahésio Bonfim', value: 9.8, party: 'NOVO' },
-      { name: 'Branco / Nulo', value: 10.4, party: 'Votos Inválidos', isAbstention: true },
+      { name: 'Branco / Nulo', value: 10.4, party: '', isAbstention: true },
     ]
   }
 ];
@@ -109,7 +109,7 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
               )}>
                 <AvatarImage src={getCandidatePhoto(c.name)} />
                 <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                  {isAbstention ? (c.name.toLowerCase().includes('ns') ? 'NS' : c.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : c.name.charAt(0)}
+                  {isAbstention ? (c.name.toLowerCase().includes('ns') ? 'NS' : (c.name.toLowerCase().includes('outros') ? 'O' : 'N/B')) : c.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               
@@ -123,12 +123,14 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                     )}>
                       {displayName}
                     </span>
-                    <span className={cn(
-                      "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                      isFaded && "text-zinc-200"
-                    )}>
-                      ({c.party})
-                    </span>
+                    {c.party && (
+                      <span className={cn(
+                        "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                        isFaded && "text-zinc-200"
+                      )}>
+                        ({c.party})
+                      </span>
+                    )}
                   </div>
                   <span className={cn(
                     "text-[10px] font-black leading-none transition-colors",
