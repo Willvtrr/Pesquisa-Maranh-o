@@ -15,6 +15,7 @@ interface SpontaneousVoteChartProps {
   title: string;
   question: string;
   badge: string;
+  selected?: string[];
   onFilterChange: (value: string) => void;
 }
 
@@ -37,7 +38,7 @@ const PARTY_MAP: Record<string, string> = {
   'Dino': 'PSB'
 };
 
-export const SpontaneousVoteChart = ({ data, total, overline, title, question, badge, onFilterChange }: SpontaneousVoteChartProps) => {
+export const SpontaneousVoteChart = ({ data, total, overline, title, question, badge, selected = [], onFilterChange }: SpontaneousVoteChartProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -77,6 +78,7 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
           const pct = total > 0 ? (item.value / total) * 100 : 0;
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const isAbstention = item.isAbstention;
+          const isActive = selected.includes(item.name);
           const party = PARTY_MAP[item.name];
           const displayName = toTitleCase(item.name);
 
@@ -84,8 +86,9 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
             <div 
               key={`${item.name}-${idx}`} 
               className={cn(
-                "flex items-center gap-3 group/row cursor-pointer transition-all duration-300",
-                hoveredIndex === idx && "translate-x-1"
+                "flex items-center gap-3 group/row cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
+                hoveredIndex === idx && "translate-x-1",
+                isActive && "bg-orange-50/50 ring-1 ring-orange-200 shadow-sm"
               )}
               onMouseEnter={() => setHoveredIndex(idx)}
               onClick={() => onFilterChange(item.name)}
@@ -93,25 +96,27 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
               <div className="flex items-center gap-2.5 w-32 lg:w-40 flex-shrink-0">
                 <Avatar className={cn(
                   "w-8 h-8 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
-                  isFaded && "opacity-40 grayscale"
+                  isFaded && !isActive && "opacity-40 grayscale",
+                  isActive && "ring-2 ring-orange-500"
                 )}>
                   <AvatarImage src={getCandidatePhoto(item.name)} />
                   <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                    {isAbstention ? 'NS' : item.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
                     "text-[10px] transition-colors leading-tight truncate",
                     idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
-                    isFaded && "text-zinc-300"
+                    isFaded && !isActive && "text-zinc-300",
+                    isActive && "text-orange-600 font-black"
                   )}>
                     {displayName}
                   </span>
                   {party && (
                     <span className={cn(
                       "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                      isFaded && "text-zinc-200"
+                      isFaded && !isActive && "text-zinc-200"
                     )}>
                       ({party})
                     </span>
@@ -124,12 +129,12 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
                   initial={{ width: 0 }}
                   animate={{ 
                     width: isMounted ? `${pct}%` : 0,
-                    filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
+                    filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
                   }}
                   transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                   className={cn(
                     "h-full rounded-full relative transition-all",
-                    idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
+                    isActive ? "bg-orange-600" : (idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200")
                   )}
                 />
               </div>
@@ -137,8 +142,8 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
               <div className="w-10 flex-shrink-0 text-right">
                 <span className={cn(
                   "text-[10px] font-black transition-all duration-300",
-                  isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
-                  hoveredIndex === idx && "text-orange-600"
+                  isFaded && !isActive ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-500"),
+                  (hoveredIndex === idx || isActive) && "text-orange-600"
                 )}>
                   {pct.toFixed(1)}%
                 </span>

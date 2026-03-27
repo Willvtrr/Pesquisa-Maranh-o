@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
 import { MesoRegion } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
@@ -162,7 +162,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -178,7 +178,6 @@ export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -193,8 +192,7 @@ export default function Home() {
     income: ['all'],
     religion: ['all'],
     ideology: ['all'],
-    problem: ['all'],
-    work: ['all'],
+    president_vote: ['all'],
     gov_spontaneous: ['all'],
     deputy_federal: ['all'],
     deputy_estadual: ['all']
@@ -242,11 +240,13 @@ export default function Home() {
     };
   }, [rawSurveyData]);
 
-  const filteredData = useMemo(() => {
+  // Função para obter dados filtrados ignorando chaves específicas (Cross-filtering)
+  const getFilteredData = useCallback((excludeKeys: string[] = []) => {
     if (!rawSurveyData) return [];
     return rawSurveyData.filter(item => {
       if (item.INFO) return false;
       const checkMatch = (filterKey: string, dataKey: string) => {
+        if (excludeKeys.includes(filterKey)) return true; // Ignora o próprio filtro para não isolar
         const currentFilters = filters[filterKey];
         if (!currentFilters || currentFilters.includes('all')) return true;
         const itemVal = String(item[dataKey] || '').trim();
@@ -261,8 +261,7 @@ export default function Home() {
         checkMatch('income', activeKeys.INCOME) &&
         checkMatch('religion', activeKeys.RELIGION) &&
         checkMatch('ideology', activeKeys.IDEOLOGY) &&
-        checkMatch('problem', activeKeys.PROBLEMS) &&
-        checkMatch('work', activeKeys.WORKS) &&
+        checkMatch('president_vote', activeKeys.PRESIDENT_VOTE) &&
         checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS) &&
         checkMatch('deputy_federal', activeKeys.DEPUTY_FEDERAL_VOTE) &&
         checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE)
@@ -270,32 +269,17 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
+  const filteredData = useMemo(() => getFilteredData(), [getFilteredData]);
   const totalDatabaseCount = useMemo(() => filteredData.length || 0, [filteredData]);
 
   const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
   const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
   const statsPrefeito = useMemo(() => calculateApproval(filteredData, activeKeys.MAYOR_APPROVAL), [filteredData, activeKeys.MAYOR_APPROVAL]);
 
-  const mayorInfo = useMemo(() => {
-    const activeCities = filters.city;
-    if (activeCities.length === 1 && activeCities[0] !== 'all') {
-      const cityUpper = activeCities[0].toUpperCase().trim();
-      const info = CITY_MAYORS[cityUpper];
-      if (info) {
-        const prefix = info.gender === 'F' ? 'Prefa.' : 'Pref.';
-        return {
-          displayName: `${prefix} ${info.name}`,
-          party: PARTY_MAP[info.name] || null
-        };
-      }
-      return { displayName: `Prefeito(a) de ${activeCities[0]}`, party: null };
-    }
-    return { displayName: "Prefeito(a)", party: null };
-  }, [filters.city]);
-
   const chartData = useMemo(() => {
-    const processRanking = (key: string) => {
-      if (!filteredData || filteredData.length === 0) return [];
+    const processRanking = (dataKey: string, filterKey: string) => {
+      const sourceData = getFilteredData([filterKey]);
+      if (!sourceData || sourceData.length === 0) return [];
       
       const counts: Record<string, number> = {};
       let nsnrCount = 0;
@@ -304,8 +288,8 @@ export default function Home() {
       const nsnrKeywords = ["ns/nr", "não sabe", "não respondeu", "não opinou", "indeciso", "nsnr", "outros"];
       const brancoKeywords = ["branco", "nulo", "nenhum", "ninguém"];
 
-      filteredData.forEach(d => {
-        const val = String(d[key] || '').trim();
+      sourceData.forEach(d => {
+        const val = String(d[dataKey] || '').trim();
         if (!val || val === 'all') return;
 
         const lowerVal = val.toLowerCase();
@@ -337,15 +321,15 @@ export default function Home() {
     };
 
     return {
-      candidateData: processRanking(activeKeys.PRESIDENT_VOTE),
-      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS), 
-      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION),
-      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION),
-      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND),
-      deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE),
-      deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE),
+      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 'president_vote'),
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, 'gov_spontaneous'), 
+      govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, ''),
+      rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, ''),
+      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, ''),
+      deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'deputy_federal'),
+      deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
     };
-  }, [filteredData, activeKeys]);
+  }, [getFilteredData, activeKeys]);
 
   const dynamicOptions = useMemo(() => {
     const options: Record<string, string[]> = {
@@ -421,7 +405,7 @@ export default function Home() {
 
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
-    problem: ['all'], work: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all']
+    president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all']
   });
 
   const handleManualSync = async () => {
@@ -575,18 +559,24 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <StatCard title="APROVAÇÃO DE GESTÃO" subtitle="Pres. Lula" party="PT" value={`${statsLula.aprova}%`} imageUrl="/lula.jpg" subValue="FEDERAL" breakdown={[{ name: 'Aprova', value: Number(statsLula.aprova) }, { name: 'Desaprova', value: Number(statsLula.desaprova) }, { name: 'NS/NR', value: Number(statsLula.nsnr) }]} />
               <StatCard title="APROVAÇÃO DE GESTÃO" subtitle="Gov. Carlos Brandão" party="PSB" value={`${statsBrandao.aprova}%`} imageUrl="/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg" subValue="ESTADUAL" breakdown={[{ name: 'Aprova', value: Number(statsBrandao.aprova) }, { name: 'Desaprova', value: Number(statsBrandao.desaprova) }, { name: 'NS/NR', value: Number(statsBrandao.nsnr) }]} />
-              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle={mayorInfo.displayName} party={mayorInfo.party} value={`${statsPrefeito.aprova}%`} imageUrl="/bandeiracerta.jpg" subValue="MUNICIPAL" breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} />
+              <StatCard title="APROVAÇÃO DE GESTÃO" subtitle={CITY_MAYORS[filters.city?.[0]?.toUpperCase()]?.name || "Prefeito(a)"} value={`${statsPrefeito.aprova}%`} imageUrl="/bandeiracerta.jpg" subValue="MUNICIPAL" breakdown={[{ name: 'Aprova', value: Number(statsPrefeito.aprova) }, { name: 'Desaprova', value: Number(statsPrefeito.desaprova) }, { name: 'NS/NR', value: Number(statsPrefeito.nsnr) }]} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CandidateChart data={chartData.candidateData} total={totalDatabaseCount} />
+              <CandidateChart 
+                data={chartData.candidateData} 
+                total={getFilteredData(['president_vote']).length} 
+                selected={filters.president_vote}
+                onFilterChange={(v) => handleFilterChange('president_vote', v)}
+              />
               <SpontaneousVoteChart 
                 data={chartData.govSpontaneousData} 
-                total={totalDatabaseCount} 
+                total={getFilteredData(['gov_spontaneous']).length} 
                 overline="MONITORAMENTO ESTADUAL"
                 title="Intenção de voto governador"
                 question="Se as eleições para Governador fossem hoje, em quem você votaria?"
                 badge="ESPONTÂNEA"
+                selected={filters.gov_spontaneous}
                 onFilterChange={(v) => handleFilterChange('gov_spontaneous', v)}
               />
             </div>
@@ -607,76 +597,25 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
-                <div 
-                  className="space-y-4"
-                  onMouseLeave={() => setHoveredSecondRound(null)}
-                >
+                <div className="space-y-4">
                   {chartData.secondRoundData.map((item, idx) => {
                     const pct = ((item.value / Math.max(totalDatabaseCount, 1)) * 100);
                     const isAbstention = item.isAbstention;
-                    const displayName = toTitleCase(item.name);
-                    const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
-                    
                     return (
-                      <div 
-                        key={`${item.name}-${idx}`} 
-                        className={cn(
-                          "flex items-center gap-3 group/row cursor-pointer transition-all duration-300",
-                          hoveredSecondRound === idx && "translate-x-1"
-                        )}
-                        onMouseEnter={() => setHoveredSecondRound(idx)}
-                      >
-                        <Avatar className={cn(
-                          "w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-all",
-                          isFaded && "opacity-40 grayscale"
-                        )}>
+                      <div key={`${item.name}-${idx}`} className="flex items-center gap-3">
+                        <Avatar className="w-8 h-8 border-2 border-white shadow-sm shrink-0">
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                            {isAbstention ? 'NS' : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
                           <div className="flex justify-between items-end">
-                            <div className="flex flex-col justify-center min-w-0">
-                              <span className={cn(
-                                "text-[10px] tracking-tight leading-tight transition-colors",
-                                idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
-                                isFaded && "text-zinc-300"
-                              )}>
-                                {displayName}
-                              </span>
-                              {item.party && (
-                                <span className={cn(
-                                  "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                                  isFaded && "text-zinc-200"
-                                )}>
-                                  ({item.party})
-                                </span>
-                              )}
-                            </div>
-                            <span className={cn(
-                              "text-[10px] font-black leading-none transition-colors",
-                              isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"),
-                              hoveredSecondRound === idx && "text-orange-600"
-                            )}>
-                              {pct.toFixed(1)}%
-                            </span>
+                            <span className="text-[10px] font-black text-zinc-950">{toTitleCase(item.name)}</span>
+                            <span className="text-[10px] font-black text-zinc-950">{pct.toFixed(1)}%</span>
                           </div>
-                          <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden group-hover/row:border-orange-100 transition-colors">
-                            <motion.div 
-                              initial={{ width: 0 }} 
-                              animate={{ 
-                                width: `${pct}%`,
-                                filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
-                              }} 
-                              transition={{ duration: 1.2 }} 
-                              className={cn(
-                                "h-full rounded-full transition-all",
-                                idx < 2 && !isAbstention 
-                                  ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" 
-                                  : "bg-zinc-200"
-                              )} 
-                            />
+                          <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.2 }} className={cn("h-full rounded-full", idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200")} />
                           </div>
                         </div>
                       </div>
@@ -695,45 +634,24 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RejectionPillChart 
-                data={chartData.rejectionData} 
-                total={totalDatabaseCount} 
-                overline="DISPUTA PRESIDENCIAL"
-                title="Índice de Rejeição"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="rose"
-                isMounted={isMounted}
-              />
-              <RejectionPillChart 
-                data={chartData.govSpontaneousData} 
-                total={totalDatabaseCount} 
-                overline="DISPUTA ESTADUAL"
-                title="Índice de Rejeição"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="red"
-                isMounted={isMounted}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <SpontaneousVoteChart 
                 data={chartData.deputyFederalData} 
-                total={totalDatabaseCount} 
+                total={getFilteredData(['deputy_federal']).length} 
                 overline="DISPUTA FEDERAL"
                 title="Intenção de voto deputado federal"
                 question="Em quem você votaria para Deputado FEDERAL? (Espontânea)"
                 badge="ESPONTÂNEA"
+                selected={filters.deputy_federal}
                 onFilterChange={(v) => handleFilterChange('deputy_federal', v)}
               />
               <SpontaneousVoteChart 
                 data={chartData.deputyEstadualData} 
-                total={totalDatabaseCount} 
+                total={getFilteredData(['deputy_estadual']).length} 
                 overline="DISPUTA ESTADUAL"
                 title="Intenção de voto deputado estadual"
                 question="Em quem você votaria para Deputado ESTADUAL? (Espontânea)"
                 badge="ESPONTÂNEA"
+                selected={filters.deputy_estadual}
                 onFilterChange={(v) => handleFilterChange('deputy_estadual', v)}
               />
             </div>
@@ -771,78 +689,6 @@ function calculateApproval(data: any[], questionKey: string) {
     nsnr: ((nsnr / total) * 100).toFixed(1)
   };
 }
-
-const RejectionPillChart = ({ 
-  data, total, title, overline, subtitle, badge, color, isMounted 
-}: any) => {
-  const overlineColor = color === 'red' ? 'bg-[#dc2626]' : 'bg-[#e11d48]';
-  const gradColor = color === 'red' 
-    ? 'from-[#ef4444] to-[#b91c1c]' 
-    : 'from-[#f43f5e] to-[#be123c]';
-
-  return (
-    <div className="bg-white rounded-[2.5rem] p-8 lg:p-10 flex flex-col h-full shadow-sm border border-zinc-100">
-      <header className="flex justify-between items-start mb-10">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className={cn("w-1 h-4 rounded-full", overlineColor)} />
-            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">{overline}</span>
-          </div>
-          <h1 className="text-3xl font-black text-zinc-950 tracking-tighter">{title}</h1>
-          <p className="text-[11px] font-medium text-zinc-400 italic">{subtitle}</p>
-        </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
-          <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">{badge}</span>
-        </div>
-      </header>
-
-      <div className="flex justify-between items-start gap-4 flex-1 border-b border-zinc-50 pb-6 overflow-x-auto no-scrollbar">
-        {data.map((item: any, idx: number) => {
-          const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const isAbstention = item.isAbstention;
-
-          return (
-            <div key={idx} className="flex flex-col items-center min-w-[80px]">
-              <div className="w-8 h-[140px] bg-[#f1f5f9] border border-[#e2e8f0] rounded-full flex flex-col justify-end p-1 mb-3 shadow-inner overflow-hidden">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: isMounted ? `${pct}%` : 0 }}
-                  transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
-                  className={cn(
-                    "w-full rounded-full transition-all bg-gradient-to-b",
-                    "min-h-[4px]", 
-                    isAbstention ? "from-slate-200 to-slate-400" : gradColor
-                  )}
-                />
-              </div>
-
-              <span className="text-[13px] font-black text-zinc-950 mb-4">{pct.toFixed(1)}%</span>
-
-              <div className="flex flex-col items-center text-center gap-2">
-                <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
-                  <AvatarImage src={getCandidatePhoto(item.name)} className="object-cover" />
-                  <AvatarFallback className="bg-zinc-50 text-[10px] font-bold text-zinc-400 uppercase">
-                    {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-h-[2.5rem] flex flex-col justify-center">
-                  <p className="text-[9px] font-black text-zinc-900 leading-tight uppercase tracking-tight">
-                    {item.name.split(' ')[0]}<br />
-                    {item.name.split(' ')[1] || ''}
-                  </p>
-                  {item.party && (
-                    <p className="text-[8px] font-bold text-zinc-400 uppercase mt-0.5">({item.party})</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
 
 const MaranhaoFlag = () => (
   <svg width="24" height="16" viewBox="0 0 27 18" className="rounded-sm shadow-md ring-1 ring-zinc-200/50 md:w-[64px] md:h-[42px]">
