@@ -11,6 +11,7 @@ import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor
 import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception-card';
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
+import { RankingCard } from '@/components/dashboard/ranking-card';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -162,7 +163,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -293,7 +294,7 @@ export default function Home() {
 
       sourceData.forEach(d => {
         const val = String(d[dataKey] || '').trim();
-        if (!val || val === 'all') return;
+        if (!val || val === 'all' || val === '---') return;
 
         const lowerVal = val.toLowerCase();
         if (nsnrKeywords.some(kw => lowerVal.includes(kw))) {
@@ -305,7 +306,7 @@ export default function Home() {
         }
       });
 
-      const candidates = Object.entries(counts).map(([name, value]) => ({ 
+      const items = Object.entries(counts).map(([name, value]) => ({ 
         name, 
         value,
         party: PARTY_MAP[name] || null,
@@ -320,7 +321,7 @@ export default function Home() {
         abstentions.push({ name: 'Branco / Nulo', value: brancoCount, party: null, isAbstention: true });
       }
 
-      return [...candidates, ...abstentions];
+      return [...items, ...abstentions];
     };
 
     return {
@@ -332,6 +333,8 @@ export default function Home() {
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, ''),
       deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'deputy_federal'),
       deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
+      problemsData: processRanking(activeKeys.PROBLEMS, ''),
+      worksData: processRanking(activeKeys.WORKS, ''),
     };
   }, [getFilteredData, activeKeys]);
 
@@ -689,6 +692,25 @@ export default function Home() {
 
             <div className="w-full">
               <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <RankingCard 
+                title="Problemas Mais Graves" 
+                overline="URGÊNCIA SOCIAL" 
+                footerLabel="SENTIMENTO DE URGÊNCIA" 
+                data={chartData.problemsData} 
+                total={filteredData.length} 
+                color="red" 
+              />
+              <RankingCard 
+                title="Obras e Serviços Desejados" 
+                overline="DEMANDAS POPULARES" 
+                footerLabel="EXPECTATIVA DE ENTREGA" 
+                data={chartData.worksData} 
+                total={filteredData.length} 
+                color="green" 
+              />
             </div>
           </div>
           
