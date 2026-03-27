@@ -588,31 +588,6 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GovernorRejectionChart 
-                data={chartData.rejectionData} 
-                total={getFilteredData(['president_rejection']).length}
-                title="Índice de Rejeição"
-                overline="DISPUTA PRESIDENCIAL"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="rose"
-                selected={filters.president_rejection}
-                onFilterChange={(v) => handleFilterChange('president_rejection', v)}
-              />
-              <GovernorRejectionChart 
-                data={chartData.govRejectionData} 
-                total={getFilteredData(['gov_rejection']).length}
-                title="Índice de Rejeição"
-                overline="DISPUTA ESTADUAL"
-                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
-                color="red"
-                selected={filters.gov_rejection}
-                onFilterChange={(v) => handleFilterChange('gov_rejection', v)}
-              />
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <LuxuryCard className="h-full">
                 <div className="flex items-start justify-between mb-1">
@@ -663,6 +638,31 @@ export default function Home() {
 
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <GovernorRejectionChart 
+                data={chartData.rejectionData} 
+                total={getFilteredData(['president_rejection']).length}
+                title="Índice de Rejeição"
+                overline="DISPUTA PRESIDENCIAL"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="rose"
+                selected={filters.president_rejection}
+                onFilterChange={(v) => handleFilterChange('president_rejection', v)}
+              />
+              <GovernorRejectionChart 
+                data={chartData.govRejectionData} 
+                total={getFilteredData(['gov_rejection']).length}
+                title="Índice de Rejeição"
+                overline="DISPUTA ESTADUAL"
+                subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="red"
+                selected={filters.gov_rejection}
+                onFilterChange={(v) => handleFilterChange('gov_rejection', v)}
+              />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
