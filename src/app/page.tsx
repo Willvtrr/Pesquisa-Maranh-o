@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -160,7 +161,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -259,7 +260,7 @@ export default function Home() {
     });
   }, [filters, rawSurveyData, activeKeys]);
 
-  const totalDatabaseCount = useMemo(() => rawSurveyData?.filter(d => !d.INFO).length || 0, [rawSurveyData]);
+  const totalDatabaseCount = useMemo(() => filteredData.length || 0, [filteredData]);
 
   const statsLula = useMemo(() => calculateApproval(filteredData, activeKeys.PRESIDENT_APPROVAL), [filteredData, activeKeys.PRESIDENT_APPROVAL]);
   const statsBrandao = useMemo(() => calculateApproval(filteredData, activeKeys.GOV_APPROVAL), [filteredData, activeKeys.GOV_APPROVAL]);
@@ -304,13 +305,26 @@ export default function Home() {
       const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
       const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-      const limitedCandidates = candidateLimit ? candidates.slice(0, candidateLimit) : candidates;
-      return [...limitedCandidates, ...abstentions];
+      let finalCandidates = candidates;
+      if (candidateLimit && candidates.length > candidateLimit) {
+        finalCandidates = candidates.slice(0, candidateLimit);
+        const othersCount = candidates.slice(candidateLimit).reduce((acc, curr) => acc + curr.value, 0);
+        if (othersCount > 0) {
+          finalCandidates.push({
+            name: 'Outros',
+            value: othersCount,
+            party: 'Demais candidatos',
+            isAbstention: false
+          });
+        }
+      }
+
+      return [...finalCandidates, ...abstentions];
     };
 
     return {
       candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 10),
-      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS), 
+      govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS, 5), 
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, 7),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 6),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, 5),
@@ -319,12 +333,11 @@ export default function Home() {
 
   // REJEIÇÃO ABSOLUTA ESTADUAL
   const rawGovRejectionData = useMemo(() => {
-    if (!rawSurveyData || rawSurveyData.length === 0) return [];
+    if (!filteredData || filteredData.length === 0) return [];
     const counts: Record<string, number> = {};
     const key = activeKeys.GOV_REJECTION;
     
-    rawSurveyData.forEach(item => {
-      if (item.INFO) return;
+    filteredData.forEach(item => {
       const val = String(item[key] || '').trim();
       if (val && val !== 'all') {
         counts[val] = (counts[val] || 0) + 1;
@@ -339,16 +352,15 @@ export default function Home() {
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
-  }, [rawSurveyData, activeKeys.GOV_REJECTION]);
+  }, [filteredData, activeKeys.GOV_REJECTION]);
 
   // REJEIÇÃO ABSOLUTA FEDERAL
   const rawPresidentRejectionData = useMemo(() => {
-    if (!rawSurveyData || rawSurveyData.length === 0) return [];
+    if (!filteredData || filteredData.length === 0) return [];
     const counts: Record<string, number> = {};
     const key = activeKeys.PRESIDENT_REJECTION;
     
-    rawSurveyData.forEach(item => {
-      if (item.INFO) return;
+    filteredData.forEach(item => {
       const val = String(item[key] || '').trim();
       if (val && val !== 'all') {
         counts[val] = (counts[val] || 0) + 1;
@@ -363,7 +375,7 @@ export default function Home() {
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
-  }, [rawSurveyData, activeKeys.PRESIDENT_REJECTION]);
+  }, [filteredData, activeKeys.PRESIDENT_REJECTION]);
 
   const dynamicOptions = useMemo(() => {
     const options: Record<string, string[]> = {
@@ -393,7 +405,8 @@ export default function Home() {
 
   const distributionStats = useMemo(() => {
     const stats: Record<string, Record<string, number>> = {};
-    if (!rawSurveyData || totalDatabaseCount === 0) return stats;
+    const totalCount = filteredData.length;
+    if (totalCount === 0) return stats;
 
     const keys = {
       region: activeKeys.REGION,
@@ -407,20 +420,19 @@ export default function Home() {
 
     Object.entries(keys).forEach(([filterKey, dataKey]) => {
       const counts: Record<string, number> = {};
-      rawSurveyData.forEach(item => {
-        if (item.INFO) return;
+      filteredData.forEach(item => {
         const val = String(item[dataKey] || '').trim();
         if (val) counts[val] = (counts[val] || 0) + 1;
       });
       
       stats[filterKey] = {};
       Object.entries(counts).forEach(([val, count]) => {
-        stats[filterKey][val] = (count / totalDatabaseCount) * 100;
+        stats[filterKey][val] = (count / totalCount) * 100;
       });
     });
 
     return stats;
-  }, [rawSurveyData, activeKeys, totalDatabaseCount]);
+  }, [filteredData, activeKeys]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => {
@@ -599,8 +611,8 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CandidateChart data={chartData.candidateData} total={filteredData.length} />
-              <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={filteredData.length} filters={filters} onFilterChange={handleFilterChange} />
+              <CandidateChart data={chartData.candidateData} total={totalDatabaseCount} />
+              <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={totalDatabaseCount} filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
             {/* LINHA DE 4 CARDS: 2º TURNO, PERCEPÇÃO DE VITÓRIA, CENÁRIO 1, CENÁRIO 2 */}
@@ -611,9 +623,9 @@ export default function Home() {
                   <div className="space-y-1">
                     <h4 className="text-[9px] lg:text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
                       <span className="w-1 h-3 bg-orange-600 rounded-full" />
-                      Eventual 2º Turno
+                      EVENTUAL 2º TURNO
                     </h4>
-                    <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Intenção de Voto</p>
+                    <p className="text-[18px] font-black text-zinc-950 tracking-tight leading-tight">Intenção de Voto Federal</p>
                   </div>
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
@@ -623,7 +635,7 @@ export default function Home() {
                 <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
                 <div className="space-y-5">
                   {chartData.secondRoundData.map((item, idx) => {
-                    const pct = ((item.value / Math.max(filteredData.length, 1)) * 100);
+                    const pct = ((item.value / Math.max(totalDatabaseCount, 1)) * 100);
                     const isAbstention = item.isAbstention;
                     const displayName = toTitleCase(item.name);
                     
@@ -676,7 +688,7 @@ export default function Home() {
               {/* Card 2: Percepção de Vitória */}
               <VictoryPerceptionCard 
                 data={chartData.govVictoryData} 
-                total={filteredData.length} 
+                total={totalDatabaseCount} 
               />
 
               {/* Card 3: Cenário 1 */}
