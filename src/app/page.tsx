@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
 import { CandidateChart } from '@/components/dashboard/candidate-chart';
 import { GovernorScenarioCard, SCENARIOS } from '@/components/dashboard/governor-scenario-chart';
 import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception-card';
-import { GovernorSpontaneousChart } from '@/components/dashboard/governor-spontaneous-chart';
+import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -161,7 +162,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -169,6 +170,8 @@ const DEFAULT_KEYS = {
   GOV_VOTE_SPONTANEOUS: "7. GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
   GOV_REJECTION: "10. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum? (Estimulada)",
   GOV_VICTORY_PERCEPTION: "11. PERCEPÇÃO DE VITÓRIA: Quem você acha que ganhará a eleição para Governador do Maranhão? (Estimulada)",
+  DEPUTY_FEDERAL_VOTE: "Em quem você votaria para Deputado FEDERAL? (Espontânea)",
+  DEPUTY_ESTADUAL_VOTE: "Em quem você votaria para Deputado ESTADUAL? (Espontânea)",
 };
 
 export default function Home() {
@@ -192,7 +195,9 @@ export default function Home() {
     ideology: ['all'],
     problem: ['all'],
     work: ['all'],
-    gov_spontaneous: ['all']
+    gov_spontaneous: ['all'],
+    deputy_federal: ['all'],
+    deputy_estadual: ['all']
   });
 
   const activeKeys = useMemo(() => {
@@ -232,6 +237,8 @@ export default function Home() {
       GOV_VOTE_SPONTANEOUS: findKey(['7. GOVERNADOR', 'espontânea'], DEFAULT_KEYS.GOV_VOTE_SPONTANEOUS),
       GOV_REJECTION: findKey(['10. REJEIÇÃO'], DEFAULT_KEYS.GOV_REJECTION),
       GOV_VICTORY_PERCEPTION: findKey(['11. PERCEPÇÃO DE VITÓRIA'], DEFAULT_KEYS.GOV_VICTORY_PERCEPTION),
+      DEPUTY_FEDERAL_VOTE: findKey(['Deputado FEDERAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_FEDERAL_VOTE),
+      DEPUTY_ESTADUAL_VOTE: findKey(['Deputado ESTADUAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_ESTADUAL_VOTE),
     };
   }, [rawSurveyData]);
 
@@ -256,7 +263,9 @@ export default function Home() {
         checkMatch('ideology', activeKeys.IDEOLOGY) &&
         checkMatch('problem', activeKeys.PROBLEMS) &&
         checkMatch('work', activeKeys.WORKS) &&
-        checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS)
+        checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS) &&
+        checkMatch('deputy_federal', activeKeys.DEPUTY_FEDERAL_VOTE) &&
+        checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -318,7 +327,7 @@ export default function Home() {
 
       const abstentions = [];
       if (nsnrCount > 0) {
-        abstentions.push({ name: 'Ns/nr', value: nsnrCount, party: null, isAbstention: true });
+        abstentions.push({ name: 'NS/NR', value: nsnrCount, party: null, isAbstention: true });
       }
       if (brancoCount > 0) {
         abstentions.push({ name: 'Branco / Nulo', value: brancoCount, party: null, isAbstention: true });
@@ -333,6 +342,8 @@ export default function Home() {
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND),
+      deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE),
+      deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE),
     };
   }, [filteredData, activeKeys]);
 
@@ -410,7 +421,7 @@ export default function Home() {
 
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
-    problem: ['all'], work: ['all'], gov_spontaneous: ['all']
+    problem: ['all'], work: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all']
   });
 
   const handleManualSync = async () => {
@@ -569,7 +580,15 @@ export default function Home() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart data={chartData.candidateData} total={totalDatabaseCount} />
-              <GovernorSpontaneousChart data={chartData.govSpontaneousData} total={totalDatabaseCount} filters={filters} onFilterChange={handleFilterChange} />
+              <SpontaneousVoteChart 
+                data={chartData.govSpontaneousData} 
+                total={totalDatabaseCount} 
+                overline="MONITORAMENTO ESTADUAL"
+                title="Intenção de voto governador"
+                question="Se as eleições para Governador fossem hoje, em quem você votaria?"
+                badge="ESPONTÂNEA"
+                onFilterChange={(v) => handleFilterChange('gov_spontaneous', v)}
+              />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -695,6 +714,27 @@ export default function Home() {
                 badge="Estimulada"
                 color="red"
                 isMounted={isMounted}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SpontaneousVoteChart 
+                data={chartData.deputyFederalData} 
+                total={totalDatabaseCount} 
+                overline="DISPUTA FEDERAL"
+                title="Intenção de voto deputado federal"
+                question="Em quem você votaria para Deputado FEDERAL? (Espontânea)"
+                badge="ESPONTÂNEA"
+                onFilterChange={(v) => handleFilterChange('deputy_federal', v)}
+              />
+              <SpontaneousVoteChart 
+                data={chartData.deputyEstadualData} 
+                total={totalDatabaseCount} 
+                overline="DISPUTA ESTADUAL"
+                title="Intenção de voto deputado estadual"
+                question="Em quem você votaria para Deputado ESTADUAL? (Espontânea)"
+                badge="ESPONTÂNEA"
+                onFilterChange={(v) => handleFilterChange('deputy_estadual', v)}
               />
             </div>
 
