@@ -672,10 +672,10 @@ export default function Home() {
                         <div className="flex-1 space-y-1">
                           <div className="flex justify-between items-end">
                             <span className="text-[10px] font-black text-zinc-950">{toTitleCase(item.name)}</span>
-                            <span className="text-[10px] font-black text-zinc-950">{pct.toFixed(1)}%</span>
+                            <span className="text-[10px] font-black text-zinc-950">{pct.toFixed(1).replace('.', ',')}%</span>
                           </div>
                           <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
-                            <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.2 }} className={cn("h-full rounded-full", idx < 2 && !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200")} />
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.2 }} className={cn("h-full rounded-full", !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200")} style={{ opacity: isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12)) }} />
                           </div>
                         </div>
                       </div>
@@ -718,8 +718,9 @@ export default function Home() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
               <SpontaneousVoteChart 
+                className="xl:col-span-3"
                 data={chartData.deputyFederalData} 
                 total={getFilteredData(['deputy_federal']).length} 
                 overline="CORRIDA FEDERAL"
@@ -730,6 +731,7 @@ export default function Home() {
                 onFilterChange={(v) => handleFilterChange('deputy_federal', v)}
               />
               <SpontaneousVoteChart 
+                className="xl:col-span-3"
                 data={chartData.deputyEstadualData} 
                 total={getFilteredData(['deputy_estadual']).length} 
                 overline="CORRIDA ESTADUAL"
@@ -740,12 +742,14 @@ export default function Home() {
                 onFilterChange={(v) => handleFilterChange('deputy_estadual', v)}
               />
               <SpontaneousVoteChart 
+                className="xl:col-span-6"
                 data={chartData.senatorSpontaneousData} 
                 total={getFilteredData(['senator_spontaneous']).length} 
                 overline="CORRIDA SENADO"
                 title="Intenção de Voto Senador"
                 question="SENADOR: Se as eleições para Senador fossem hoje, em quem você votaria? (Espontânea)"
                 badge="ESPONTÂNEA"
+                showPhotos={true}
                 selected={filters.senator_spontaneous}
                 onFilterChange={(v) => handleFilterChange('senator_spontaneous', v)}
               />
@@ -807,9 +811,9 @@ function calculateApproval(data: any[], questionKey: string) {
   });
 
   return {
-    aprova: ((aprova / total) * 100).toFixed(1),
-    desaprova: ((desaprova / total) * 100).toFixed(1),
-    nsnr: ((nsnr / total) * 100).toFixed(1)
+    aprova: ((aprova / total) * 100).toFixed(1).replace('.', ','),
+    desaprova: ((desaprova / total) * 100).toFixed(1).replace('.', ','),
+    nsnr: ((nsnr / total) * 100).toFixed(1).replace('.', ',')
   };
 }
 

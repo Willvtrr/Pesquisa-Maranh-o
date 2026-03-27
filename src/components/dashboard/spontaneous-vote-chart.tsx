@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -10,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface SpontaneousVoteChartProps {
-  data: { name: string; value: number; isAbstention?: boolean }[];
+  data: { name: string; value: number; party?: string | null; isAbstention?: boolean }[];
   total: number;
   overline: string;
   title: string;
@@ -20,6 +19,7 @@ interface SpontaneousVoteChartProps {
   showPhotos?: boolean;
   noScroll?: boolean;
   onFilterChange: (value: string) => void;
+  className?: string;
 }
 
 export const SpontaneousVoteChart = ({ 
@@ -32,7 +32,8 @@ export const SpontaneousVoteChart = ({
   selected = [], 
   showPhotos = false,
   noScroll = false,
-  onFilterChange 
+  onFilterChange,
+  className
 }: SpontaneousVoteChartProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -41,7 +42,6 @@ export const SpontaneousVoteChart = ({
     setIsMounted(true);
   }, []);
 
-  // Calcula o valor máximo entre os candidatos (não abstenções) para servir de 100% visual
   const maxCandidateVal = useMemo(() => {
     const candidates = data.filter(d => !d.isAbstention);
     if (candidates.length === 0) return Math.max(...data.map(d => d.value), 1);
@@ -60,10 +60,7 @@ export const SpontaneousVoteChart = ({
         const isActive = selected.includes(item.name);
         const displayName = toTitleCase(item.name);
 
-        // Largura visual relativa ao líder da lista (candidato)
         const visualWidth = Math.min((item.value / maxCandidateVal) * 100, 100);
-
-        // Degrade de opacidade para candidatos, cinza para abstenções
         const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
 
         return (
@@ -99,6 +96,15 @@ export const SpontaneousVoteChart = ({
                 )}>
                   {displayName}
                 </span>
+                {item.party && (
+                  <span className={cn(
+                    "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
+                    isFaded && !isActive && "text-zinc-200",
+                    isActive && "text-orange-400"
+                  )}>
+                    ({item.party})
+                  </span>
+                )}
               </div>
             </div>
 
@@ -137,7 +143,7 @@ export const SpontaneousVoteChart = ({
 
   return (
     <LuxuryCard 
-      className="h-full relative"
+      className={cn("h-full relative", className)}
     >
       <div className="flex items-start justify-between mb-1">
         <div className="space-y-0.5">
