@@ -112,7 +112,7 @@ export const GovernorRejectionChart = ({
                   )}>
                     <AvatarImage src={getCandidatePhoto(item.name)} />
                     <AvatarFallback className="bg-zinc-50 text-[7px] font-bold text-zinc-400">
-                      {isAbstention ? "N/B" : item.name.charAt(0)}
+                      {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -123,11 +123,6 @@ export const GovernorRejectionChart = ({
                     )}>
                       {item.name.split(' ')[0]}
                     </p>
-                    {item.party && (
-                      <p className="text-[5px] font-bold text-zinc-400 uppercase">
-                        ({item.party})
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>

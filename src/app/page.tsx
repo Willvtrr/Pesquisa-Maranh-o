@@ -137,13 +137,21 @@ const PARTY_MAP: Record<string, string> = {
   'Dino': 'PSB'
 };
 
+const SILHOUETTE_GRAY = "data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23f4f4f5'/%3E%3Cpath d='M50 20c-8.3 0-15 6.7-15 15s6.7 15 15 15 15-6.7 15-15-6.7-15-15-15zM20 85c0-13.8 13.4-25 30-25s30 11.2 30 25v5H20v-5z' fill='%239ca3af'/%3E%3C/svg%3E";
+const SILHOUETTE_DARK = "data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23e4e4e7'/%3E%3Cpath d='M50 20c-8.3 0-15 6.7-15 15s6.7 15 15 15 15-6.7 15-15-6.7-15-15-15zM20 85c0-13.8 13.4-25 30-25s30 11.2 30 25v5H20v-5z' fill='%233f3f46'/%3E%3C/svg%3E";
+const SILHOUETTE_MEDIUM = "data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='%23f4f4f5'/%3E%3Cpath d='M50 20c-8.3 0-15 6.7-15 15s6.7 15 15 15 15-6.7 15-15-6.7-15-15-15zM20 85c0-13.8 13.4-25 30-25s30 11.2 30 25v5H20v-5z' fill='%2371717a'/%3E%3C/svg%3E";
+
 export const getCandidatePhoto = (name: string) => {
   const n = name.toLowerCase();
   if (n === 'lula' || n.includes('presidente lula')) return '/lula.jpg';
   if (n.includes('carlos brandão') || n.includes('carlos brandao') || n === 'brandão' || n === 'brandao') {
     return '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg';
   }
-  if (n === 'outros' || n.includes('ns/nr') || n.includes('não sabe') || n === 'o') return 'https://picsum.photos/seed/outros/100/100';
+  
+  if (n.includes('outros')) return SILHOUETTE_GRAY;
+  if (n.includes('branco') || n.includes('nulo') || n.includes('ninguém') || n.includes('ninguem')) return SILHOUETTE_MEDIUM;
+  if (n.includes('ns/nr') || n.includes('não sabe') || n.includes('indeciso') || n.includes('nsnr') || n.includes('não resp')) return SILHOUETTE_DARK;
+  
   return `https://picsum.photos/seed/${name}/100/100`;
 };
 
@@ -163,7 +171,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -615,7 +623,7 @@ export default function Home() {
                         <Avatar className="w-8 h-8 border-2 border-white shadow-sm shrink-0">
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                            {isAbstention ? 'NS' : item.name.charAt(0)}
+                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
@@ -671,7 +679,7 @@ export default function Home() {
               <SpontaneousVoteChart 
                 data={chartData.deputyFederalData} 
                 total={getFilteredData(['deputy_federal']).length} 
-                overline="DISPUTA FEDERAL"
+                overline="CORRIDA FEDERAL"
                 title="Intenção de Voto Deputado Federal"
                 question="Em quem você votaria para Deputado FEDERAL? (Espontânea)"
                 badge="ESPONTÂNEA"
@@ -697,7 +705,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <RankingCard 
                 title="Problemas Mais Graves" 
-                overline="URGÊNCIA SOCIAL" 
+                overline="CORRIDA ESTADUAL" 
                 footerLabel="SENTIMENTO DE URGÊNCIA" 
                 data={chartData.problemsData} 
                 total={filteredData.length} 
@@ -705,7 +713,7 @@ export default function Home() {
               />
               <RankingCard 
                 title="Obras e Serviços Desejados" 
-                overline="DEMANDAS POPULARES" 
+                overline="CORRIDA ESTADUAL" 
                 footerLabel="EXPECTATIVA DE ENTREGA" 
                 data={chartData.worksData} 
                 total={filteredData.length} 

@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -19,25 +18,6 @@ interface SpontaneousVoteChartProps {
   showPhotos?: boolean;
   onFilterChange: (value: string) => void;
 }
-
-const PARTY_MAP: Record<string, string> = {
-  'Carlos Brandão': 'PSB',
-  'Orleans Brandão': 'MDB',
-  'Brandão': 'PSB',
-  'Felipe Camarão': 'PT',
-  'Edivaldo Holanda Jr.': 'PSD',
-  'Weverton Rocha': 'PDT',
-  'Josimar de Maranhãozinho': 'PL',
-  'Roberto Rocha': 'PSDB',
-  'Lahésio Bonfim': 'NOVO',
-  'Roseana Sarney': 'MDB',
-  'Roseana': 'MDB',
-  'Iracema Vale': 'PSB',
-  'Othelino Neto': 'PCdoB',
-  'Eduardo Braide': 'PSD',
-  'Flávio Dino': 'PSB',
-  'Dino': 'PSB'
-};
 
 export const SpontaneousVoteChart = ({ 
   data, 
@@ -90,7 +70,6 @@ export const SpontaneousVoteChart = ({
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const isAbstention = item.isAbstention;
           const isActive = selected.includes(item.name);
-          const party = PARTY_MAP[item.name];
           const displayName = toTitleCase(item.name);
 
           return (
@@ -113,7 +92,7 @@ export const SpontaneousVoteChart = ({
                   )}>
                     <AvatarImage src={getCandidatePhoto(item.name)} />
                     <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                      {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
+                      {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 )}
@@ -126,14 +105,6 @@ export const SpontaneousVoteChart = ({
                   )}>
                     {displayName}
                   </span>
-                  {party && (
-                    <span className={cn(
-                      "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                      isFaded && !isActive && "text-zinc-200"
-                    )}>
-                      ({party})
-                    </span>
-                  )}
                 </div>
               </div>
 
