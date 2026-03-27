@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -62,8 +61,9 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
           </div>
           <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">{scenario.label}</h2>
         </div>
-        <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
+          <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
         </div>
       </div>
       

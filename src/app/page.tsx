@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -148,7 +147,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -618,8 +617,9 @@ export default function Home() {
                     </div>
                     <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Intenção de Voto</h2>
                   </div>
-                  <div className="px-2 py-1 rounded-md bg-zinc-50 border border-zinc-100">
-                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
+                    <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+                    <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Estimulada</span>
                   </div>
                 </div>
                 <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
@@ -726,8 +726,9 @@ const RejectionPillChart = ({
           <h1 className="text-3xl font-black text-zinc-950 tracking-tighter">{title}</h1>
           <p className="text-[11px] font-medium text-zinc-400 italic">{subtitle}</p>
         </div>
-        <div className="px-4 py-1.5 rounded-full bg-[#f8fafc] border border-zinc-100">
-          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">{badge}</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
+          <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
+          <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">{badge}</span>
         </div>
       </header>
 
