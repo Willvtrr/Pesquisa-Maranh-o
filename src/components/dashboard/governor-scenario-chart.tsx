@@ -81,14 +81,14 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
             
             <div className="flex-1 space-y-1.5">
               <div className="flex justify-between items-end">
-                <div className="flex flex-col">
+                <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
-                    "text-[10px] font-black uppercase tracking-tight leading-none",
-                    idx === 0 ? "text-orange-600" : "text-zinc-900"
+                    "text-[11px] font-black uppercase tracking-tight leading-tight",
+                    idx === 0 ? "text-orange-600" : "text-zinc-950"
                   )}>
                     {c.name}
                   </span>
-                  <span className="text-[8px] font-bold text-zinc-400">({c.party})</span>
+                  <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({c.party})</span>
                 </div>
                 <span className="text-[12px] font-black text-zinc-900 leading-none">{c.value.toFixed(1)}%</span>
               </div>

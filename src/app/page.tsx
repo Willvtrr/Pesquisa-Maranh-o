@@ -97,7 +97,7 @@ const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'SANTA LUZIA': { name: 'Jucelino Marreca', gender: 'M' },
   'SANTA QUITÉRIA DO MARANHÃO': { name: 'Sâmia Moreira', gender: 'F' },
   'SÃO BERNARDO': { name: 'Chico Carvalho', gender: 'M' },
-  'SÃO DOMINGOS DO MARANHÃO': { name: 'Kleber Tratorzão', gender: 'M' },
+  'SÃO DOMINGOS DO MARANHÃO': { name: 'Kleber Tratorzão', gesture: 'M' },
   'TIMBIRAS': { name: 'Paulo Vinicius', gender: 'M' },
   'URBANO SANTOS': { name: 'Professor Clemilton Barros', gender: 'M' },
   'VARGEM GRANDE': { name: 'Preto', gender: 'M' },
@@ -147,7 +147,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -634,9 +634,9 @@ export default function Home() {
                       </Avatar>
                       <div className="flex-1 space-y-1.5">
                         <div className="flex justify-between items-end">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] font-black uppercase text-zinc-900 tracking-tight leading-none">{item.name}</span>
-                            {item.party && <span className="text-[8px] font-bold text-zinc-400">({item.party})</span>}
+                          <div className="flex flex-col justify-center min-w-0">
+                            <span className="text-[11px] font-black uppercase text-zinc-950 tracking-tight leading-tight">{item.name}</span>
+                            {item.party && <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
                           </div>
                           <span className="text-[12px] font-black text-orange-600 leading-none">
                             {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%

@@ -55,15 +55,15 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
               
               <div className="flex-1 space-y-1.5">
                 <div className="flex justify-between items-end">
-                  <div className="flex flex-col overflow-hidden">
+                  <div className="flex flex-col justify-center min-w-0">
                     <span className={cn(
-                      "text-[10px] font-black uppercase tracking-tight leading-none truncate",
-                      idx === 0 ? "text-[#10b981]" : "text-zinc-900",
+                      "text-[11px] font-black uppercase tracking-tight leading-tight truncate",
+                      idx === 0 ? "text-[#10b981]" : "text-zinc-950",
                       isNeutral && "text-zinc-400"
                     )}>
                       {item.name}
                     </span>
-                    {item.party && <span className="text-[8px] font-bold text-zinc-400">({item.party})</span>}
+                    {item.party && <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
                   </div>
                   <span className={cn(
                     "text-[12px] font-black leading-none",
