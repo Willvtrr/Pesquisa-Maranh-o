@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -147,7 +148,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -624,35 +625,56 @@ export default function Home() {
                 </div>
                 <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
                 <div className="space-y-5">
-                  {chartData.secondRoundData.slice(0, 3).map((item, idx) => (
-                    <div key={item.name} className="flex items-center gap-3 group">
-                      <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
-                        <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
-                        <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
-                          {item.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-1.5">
-                        <div className="flex justify-between items-end">
-                          <div className="flex flex-col justify-center min-w-0">
-                            <span className="text-[11px] font-black uppercase text-zinc-950 tracking-tight leading-tight">{item.name}</span>
-                            {item.party && <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
+                  {chartData.secondRoundData.slice(0, 3).map((item, idx) => {
+                    const isAbstention = item.name.toLowerCase().includes('nulo') || 
+                                         item.name.toLowerCase().includes('branco') || 
+                                         item.name.toLowerCase().includes('nenhum') ||
+                                         item.name.toLowerCase().includes('não sabe') ||
+                                         item.name.toLowerCase().includes('ns/nr');
+                    
+                    return (
+                      <div key={item.name} className="flex items-center gap-3 group">
+                        <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
+                          <AvatarImage src={`https://picsum.photos/seed/${item.name}/100/100`} />
+                          <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
+                            {isAbstention ? 'N/B' : item.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 space-y-1.5">
+                          <div className="flex justify-between items-end">
+                            <div className="flex flex-col justify-center min-w-0">
+                              <span className={cn(
+                                "text-[11px] tracking-tight leading-tight transition-colors",
+                                idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500"
+                              )}>
+                                {item.name}
+                              </span>
+                              {item.party && <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({item.party})</span>}
+                            </div>
+                            <span className={cn(
+                              "text-[12px] font-black leading-none",
+                              idx < 2 && !isAbstention ? "text-orange-600" : "text-zinc-400"
+                            )}>
+                              {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
+                            </span>
                           </div>
-                          <span className="text-[12px] font-black text-orange-600 leading-none">
-                            {((item.value / Math.max(filteredData.length, 1)) * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }} 
-                            animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} 
-                            transition={{ duration: 1.2 }} 
-                            className="h-full bg-gradient-to-r from-[#f27e46] to-[#c44d15] rounded-full shadow-sm shadow-orange-500/20" 
-                          />
+                          <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }} 
+                              animate={{ width: `${(item.value / Math.max(filteredData.length, 1)) * 100}%` }} 
+                              transition={{ duration: 1.2 }} 
+                              className={cn(
+                                "h-full rounded-full transition-all",
+                                idx < 2 && !isAbstention 
+                                  ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15] shadow-sm shadow-orange-500/20" 
+                                  : "bg-zinc-200"
+                              )} 
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </LuxuryCard>
 

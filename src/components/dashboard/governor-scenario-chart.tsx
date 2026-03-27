@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -83,14 +84,18 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
               <div className="flex justify-between items-end">
                 <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
-                    "text-[11px] font-black uppercase tracking-tight leading-tight",
-                    idx === 0 ? "text-orange-600" : "text-zinc-950"
+                    "text-[11px] tracking-tight leading-tight transition-colors",
+                    idx < 2 ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                    idx === 0 && "text-orange-600"
                   )}>
                     {c.name}
                   </span>
                   <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">({c.party})</span>
                 </div>
-                <span className="text-[12px] font-black text-zinc-900 leading-none">{c.value.toFixed(1)}%</span>
+                <span className={cn(
+                  "text-[12px] font-black leading-none",
+                  idx < 2 ? "text-zinc-900" : "text-zinc-400"
+                )}>{c.value.toFixed(1)}%</span>
               </div>
               
               <div className="w-full h-2.5 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
@@ -98,7 +103,10 @@ export const GovernorScenarioCard = ({ scenario, className }: ScenarioCardProps)
                   initial={{ width: 0 }}
                   animate={{ width: `${c.value}%` }}
                   transition={{ duration: 1.2, delay: idx * 0.1 }}
-                  className={cn("h-full rounded-full bg-gradient-to-r shadow-sm", c.color)}
+                  className={cn(
+                    "h-full rounded-full shadow-sm transition-all",
+                    idx < 2 ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200"
+                  )}
                 />
               </div>
             </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -42,7 +43,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                             item.name.toLowerCase().includes('ns/nr');
 
           return (
-            <div key={`${item.name}-${idx}`} className={cn("flex items-center gap-3 group", idx === 0 && "winner")}>
+            <div key={`${item.name}-${idx}`} className="flex items-center gap-3 group">
               <Avatar className={cn(
                 "w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-all group-hover:scale-110",
                 idx === 0 && "border-[#10b981]/30 shadow-[#10b981]/10"
@@ -57,9 +58,9 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                 <div className="flex justify-between items-end">
                   <div className="flex flex-col justify-center min-w-0">
                     <span className={cn(
-                      "text-[11px] font-black uppercase tracking-tight leading-tight truncate",
-                      idx === 0 ? "text-[#10b981]" : "text-zinc-950",
-                      isNeutral && "text-zinc-400"
+                      "text-[11px] tracking-tight leading-tight truncate transition-colors",
+                      idx < 2 && !isNeutral ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                      idx === 0 && !isNeutral && "text-[#10b981]"
                     )}>
                       {item.name}
                     </span>
@@ -67,8 +68,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                   </div>
                   <span className={cn(
                     "text-[12px] font-black leading-none",
-                    idx === 0 ? "text-[#10b981]" : "text-zinc-900",
-                    isNeutral && "text-zinc-400"
+                    idx < 2 && !isNeutral ? (idx === 0 ? "text-[#10b981]" : "text-zinc-900") : "text-zinc-400"
                   )}>
                     {pct.toFixed(1)}%
                   </span>
@@ -81,7 +81,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                     transition={{ duration: 1.2, delay: idx * 0.05 }}
                     className={cn(
                       "h-full rounded-full transition-all",
-                      isNeutral ? "bg-zinc-300" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
+                      isNeutral || idx >= 2 ? "bg-zinc-300" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
                     )}
                   />
                 </div>
