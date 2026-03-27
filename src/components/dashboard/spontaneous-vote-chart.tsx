@@ -5,8 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getCandidatePhoto, toTitleCase } from '@/app/page';
+import { toTitleCase } from '@/app/page';
 
 interface SpontaneousVoteChartProps {
   data: { name: string; value: number; isAbstention?: boolean }[];
@@ -94,16 +93,6 @@ export const SpontaneousVoteChart = ({ data, total, overline, title, question, b
               onClick={() => onFilterChange(item.name)}
             >
               <div className="flex items-center gap-2.5 w-32 lg:w-40 flex-shrink-0">
-                <Avatar className={cn(
-                  "w-8 h-8 border border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
-                  isFaded && !isActive && "opacity-40 grayscale",
-                  isActive && "ring-2 ring-orange-500"
-                )}>
-                  <AvatarImage src={getCandidatePhoto(item.name)} />
-                  <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                    {isAbstention ? 'NS' : item.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
                 <div className="flex flex-col justify-center min-w-0">
                   <span className={cn(
                     "text-[10px] transition-colors leading-tight truncate",
