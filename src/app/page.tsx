@@ -578,7 +578,7 @@ export default function Home() {
               <SpontaneousVoteChart 
                 data={chartData.govSpontaneousData} 
                 total={getFilteredData(['gov_spontaneous']).length} 
-                overline="MONITORAMENTO ESTADUAL"
+                overline="CORRIDA ESTADUAL"
                 title="Intenção de Voto Governador"
                 question="Se as eleições para Governador fossem hoje, em quem você votaria?"
                 badge="ESPONTÂNEA"
@@ -656,7 +656,7 @@ export default function Home() {
                 data={chartData.govRejectionData} 
                 total={getFilteredData(['gov_rejection']).length}
                 title="Índice de Rejeição"
-                overline="DISPUTA ESTADUAL"
+                overline="CORRIDA ESTADUAL"
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
                 badge="Estimulada"
                 color="red"
@@ -679,7 +679,7 @@ export default function Home() {
               <SpontaneousVoteChart 
                 data={chartData.deputyEstadualData} 
                 total={getFilteredData(['deputy_estadual']).length} 
-                overline="DISPUTA ESTADUAL"
+                overline="CORRIDA ESTADUAL"
                 title="Intenção de Voto Deputado Estadual"
                 question="Em quem você votaria para Deputado ESTADUAL? (Espontânea)"
                 badge="ESPONTÂNEA"

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -27,7 +28,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
         <div className="space-y-0.5">
           <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-[#10b981] rounded-full" />
-            DISPUTA ESTADUAL
+            CORRIDA ESTADUAL
           </h4>
           <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">Percepção de Vitória</p>
         </div>

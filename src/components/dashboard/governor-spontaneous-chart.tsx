@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -49,7 +50,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
         <div className="space-y-0.5">
           <h4 className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
-            MONITORAMENTO ESTADUAL
+            CORRIDA ESTADUAL
           </h4>
           <p className="text-xl font-black text-zinc-950 tracking-tight leading-tight">
             Intenção de Voto Governador
