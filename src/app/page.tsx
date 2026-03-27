@@ -161,7 +161,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -284,7 +284,7 @@ export default function Home() {
   }, [filters.city]);
 
   const chartData = useMemo(() => {
-    const processRanking = (key: string, limitCount?: number) => {
+    const processRanking = (key: string, candidateLimit?: number) => {
       const counts: Record<string, number> = {};
       filteredData.forEach(d => {
         const val = String(d[key] || '').trim();
@@ -305,12 +305,13 @@ export default function Home() {
       const candidates = items.filter(i => !i.isAbstention).sort((a, b) => b.value - a.value);
       const abstentions = items.filter(i => i.isAbstention).sort((a, b) => b.value - a.value);
 
-      const combined = [...candidates, ...abstentions];
-      return limitCount ? combined.slice(0, limitCount) : combined;
+      // Limita apenas os candidatos, mas SEMPRE mantém todas as abstenções no final
+      const limitedCandidates = candidateLimit ? candidates.slice(0, candidateLimit) : candidates;
+      return [...limitedCandidates, ...abstentions];
     };
 
     return {
-      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 7),
+      candidateData: processRanking(activeKeys.PRESIDENT_VOTE, 10), // Aumentado para ver mais se necessário
       govSpontaneousData: processRanking(activeKeys.GOV_VOTE_SPONTANEOUS), 
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, 7),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 6),
@@ -613,16 +614,16 @@ export default function Home() {
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Eventual 2º Turno</span>
                     </div>
-                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight">Intenção de Voto</h2>
+                    <h2 className="text-[18px] font-black text-zinc-900 tracking-tight leading-none">Intenção de Voto</h2>
                   </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">
                     <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
                     <span className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
                   </div>
                 </div>
                 <p className="text-[10px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
                 <div className="space-y-5">
-                  {chartData.secondRoundData.slice(0, 3).map((item, idx) => {
+                  {chartData.secondRoundData.map((item, idx) => {
                     const pct = ((item.value / Math.max(filteredData.length, 1)) * 100);
                     const isAbstention = item.isAbstention;
                     const displayName = toTitleCase(item.name);
@@ -632,7 +633,7 @@ export default function Home() {
                         <Avatar className="w-9 h-9 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110">
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
-                            {isAbstention ? 'N/B' : item.name.charAt(0)}
+                            {isAbstention ? (item.name.includes('NS') ? 'NS' : 'N/B') : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1.5">
