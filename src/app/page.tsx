@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -109,7 +108,6 @@ const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
 };
 
 const PARTY_MAP: Record<string, string> = {
-  // Federal
   'Lula': 'PT',
   'Jair Bolsonaro': 'PL',
   'Flávio Bolsonaro': 'PL',
@@ -119,7 +117,6 @@ const PARTY_MAP: Record<string, string> = {
   'Ciro Gomes': 'PDT',
   'Simone Tebet': 'MDB',
   'Ratinho Jr.': 'PSD',
-  // Estadual
   'Carlos Brandão': 'PSB',
   'Orleans Brandão': 'MDB',
   'Brandão': 'PSB',
@@ -182,6 +179,7 @@ const DEFAULT_KEYS = {
   GOV_VICTORY_PERCEPTION: "11. PERCEPÇÃO DE VITÓRIA: Quem você acha que ganhará a eleição para Governador do Maranhão? (Estimulada)",
   DEPUTY_FEDERAL_VOTE: "Em quem você votaria para Deputado FEDERAL? (Espontânea)",
   DEPUTY_ESTADUAL_VOTE: "Em quem você votaria para Deputado ESTADUAL? (Espontânea)",
+  SENATOR_COALITION: "De qual chapa, o Senador que você pretende votar, deveria fazer parte?",
 };
 
 export default function Home() {
@@ -252,6 +250,7 @@ export default function Home() {
       GOV_VICTORY_PERCEPTION: findKey(['11. PERCEPÇÃO DE VITÓRIA'], DEFAULT_KEYS.GOV_VICTORY_PERCEPTION),
       DEPUTY_FEDERAL_VOTE: findKey(['Deputado FEDERAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_FEDERAL_VOTE),
       DEPUTY_ESTADUAL_VOTE: findKey(['Deputado ESTADUAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_ESTADUAL_VOTE),
+      SENATOR_COALITION: findKey(['chapa', 'senador', 'parte'], DEFAULT_KEYS.SENATOR_COALITION),
     };
   }, [rawSurveyData]);
 
@@ -291,7 +290,6 @@ export default function Home() {
   const filteredData = useMemo(() => getFilteredData(), [getFilteredData]);
   const totalDatabaseCount = useMemo(() => filteredData.length || 0, [filteredData]);
 
-  // Para o cálculo dos cartões, ignoramos o próprio filtro do cartão para que ele sirva como referência
   const statsLula = useMemo(() => calculateApproval(getFilteredData(['president_approval']), activeKeys.PRESIDENT_APPROVAL), [getFilteredData, activeKeys.PRESIDENT_APPROVAL]);
   const statsBrandao = useMemo(() => calculateApproval(getFilteredData(['gov_approval']), activeKeys.GOV_APPROVAL), [getFilteredData, activeKeys.GOV_APPROVAL]);
   const statsPrefeito = useMemo(() => calculateApproval(getFilteredData(['mayor_approval']), activeKeys.MAYOR_APPROVAL), [getFilteredData, activeKeys.MAYOR_APPROVAL]);
@@ -351,6 +349,7 @@ export default function Home() {
       deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
       problemsData: processRanking(activeKeys.PROBLEMS, ''),
       worksData: processRanking(activeKeys.WORKS, ''),
+      senatorCoalitionData: processRanking(activeKeys.SENATOR_COALITION, ''),
     };
   }, [getFilteredData, activeKeys]);
 
@@ -761,8 +760,17 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="xl:col-span-1 h-fit">
+          <div className="xl:col-span-1 h-fit space-y-6">
             <FilterBentoBox filters={filters} options={dynamicOptions} distribution={distributionStats} onFilterChange={handleFilterChange} onClear={clearFilters} />
+            
+            <RankingCard 
+              title="Composição da Chapa" 
+              overline="CORRIDA SENADO" 
+              footerLabel="ALIANÇAS PREFERIDAS" 
+              data={chartData.senatorCoalitionData} 
+              total={filteredData.length} 
+              color="orange" 
+            />
           </div>
         </div>
       </div>

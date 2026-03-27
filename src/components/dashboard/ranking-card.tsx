@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Info, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { TrendingUp, AlertCircle, CheckCircle2, Target } from 'lucide-react';
 
 interface RankingItem {
   name: string;
@@ -16,7 +16,7 @@ interface RankingCardProps {
   footerLabel: string;
   data: RankingItem[];
   total: number;
-  color: 'red' | 'green';
+  color: 'red' | 'green' | 'orange';
   className?: string;
 }
 
@@ -45,6 +45,13 @@ export const RankingCard = ({
       percentage: "text-emerald-500",
       icon: <CheckCircle2 size={14} className="text-zinc-300" />,
       indicator: "bg-emerald-500"
+    },
+    orange: {
+      overline: "text-orange-500",
+      bar: "bg-orange-600",
+      percentage: "text-orange-600",
+      icon: <Target size={14} className="text-zinc-300" />,
+      indicator: "bg-orange-600"
     }
   };
 
@@ -86,7 +93,7 @@ export const RankingCard = ({
                   </span>
                 </div>
                 <span className={cn("text-xs font-black tabular-nums", style.percentage)}>
-                  {pct.toFixed(1)}%
+                  {pct.toFixed(1).replace('.', ',')}%
                 </span>
               </div>
               <div className="h-[3px] w-full bg-zinc-50 rounded-full overflow-hidden">
@@ -113,8 +120,10 @@ export const RankingCard = ({
         </div>
         {color === 'green' ? (
           <TrendingUp size={14} className="text-emerald-500" />
-        ) : (
+        ) : color === 'red' ? (
           <TrendingUp size={14} className="text-rose-500 rotate-180" />
+        ) : (
+          <TrendingUp size={14} className="text-orange-500" />
         )}
       </div>
     </div>
