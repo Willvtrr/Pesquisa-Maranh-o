@@ -52,7 +52,7 @@ export const GovernorSpontaneousChart = ({ data, total, filters, onFilterChange 
             MONITORAMENTO ESTADUAL
           </h4>
           <p className="text-xl font-black text-zinc-950 tracking-tight leading-tight">
-            Intenção de voto governador
+            Intenção de Voto Governador
           </p>
         </div>
         <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm mt-1">

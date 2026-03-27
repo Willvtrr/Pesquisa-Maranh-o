@@ -242,13 +242,12 @@ export default function Home() {
     };
   }, [rawSurveyData]);
 
-  // Função para obter dados filtrados ignorando chaves específicas (Cross-filtering)
   const getFilteredData = useCallback((excludeKeys: string[] = []) => {
     if (!rawSurveyData) return [];
     return rawSurveyData.filter(item => {
       if (item.INFO) return false;
       const checkMatch = (filterKey: string, dataKey: string) => {
-        if (excludeKeys.includes(filterKey)) return true; // Ignora o próprio filtro para não isolar
+        if (excludeKeys.includes(filterKey)) return true;
         const currentFilters = filters[filterKey];
         if (!currentFilters || currentFilters.includes('all')) return true;
         const itemVal = String(item[dataKey] || '').trim();
@@ -579,7 +578,7 @@ export default function Home() {
                 data={chartData.govSpontaneousData} 
                 total={getFilteredData(['gov_spontaneous']).length} 
                 overline="MONITORAMENTO ESTADUAL"
-                title="Intenção de voto governador"
+                title="Intenção de Voto Governador"
                 question="Se as eleições para Governador fossem hoje, em quem você votaria?"
                 badge="ESPONTÂNEA"
                 selected={filters.gov_spontaneous}
@@ -669,7 +668,7 @@ export default function Home() {
                 data={chartData.deputyFederalData} 
                 total={getFilteredData(['deputy_federal']).length} 
                 overline="DISPUTA FEDERAL"
-                title="Intenção de voto deputado federal"
+                title="Intenção de Voto Deputado Federal"
                 question="Em quem você votaria para Deputado FEDERAL? (Espontânea)"
                 badge="ESPONTÂNEA"
                 selected={filters.deputy_federal}
@@ -679,7 +678,7 @@ export default function Home() {
                 data={chartData.deputyEstadualData} 
                 total={getFilteredData(['deputy_estadual']).length} 
                 overline="DISPUTA ESTADUAL"
-                title="Intenção de voto deputado estadual"
+                title="Intenção de Voto Deputado Estadual"
                 question="Em quem você votaria para Deputado ESTADUAL? (Espontânea)"
                 badge="ESPONTÂNEA"
                 selected={filters.deputy_estadual}
