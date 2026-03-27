@@ -182,28 +182,30 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     o.toLowerCase().includes('nenhum')
   ) || 'NS/NR';
 
-  const pEsq = Math.round(distribution?.ideology?.[esqKey] || 0);
-  const pCen = Math.round(distribution?.ideology?.[cenKey] || 0);
-  const pDir = Math.round(distribution?.ideology?.[dirKey] || 0);
+  const pEsq = distribution?.ideology?.[esqKey] || 0;
+  const pCen = distribution?.ideology?.[cenKey] || 0;
+  const pDir = distribution?.ideology?.[dirKey] || 0;
   const pUndecided = Math.max(0, 100 - (pEsq + pCen + pDir));
 
   const displayPoliticPct = useMemo(() => {
+    let raw = 100;
     if (hoveredPolitic) {
-      if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) return pDir;
-      if (hoveredPolitic === 'centro' || hoveredPolitic === pCen) return pCen;
-      if (hoveredPolitic === 'esquerda' || hoveredPolitic === pEsq) return pEsq;
-      if (hoveredPolitic === 'nsnr' || hoveredPolitic === nsnrKey) return pUndecided;
+      if (hoveredPolitic === 'direita' || hoveredPolitic === dirKey) raw = pDir;
+      else if (hoveredPolitic === 'centro' || hoveredPolitic === pCen) raw = pCen;
+      else if (hoveredPolitic === 'esquerda' || hoveredPolitic === pEsq) raw = pEsq;
+      else if (hoveredPolitic === 'nsnr' || hoveredPolitic === nsnrKey) raw = pUndecided;
+    } else {
+      const selectedIdeologies = filters.ideology || [];
+      if (selectedIdeologies.length > 0 && !selectedIdeologies.includes('all')) {
+        let sum = 0;
+        if (selectedIdeologies.includes(dirKey)) sum += pDir;
+        if (selectedIdeologies.includes(cenKey)) sum += pCen;
+        if (selectedIdeologies.includes(esqKey)) sum += pEsq;
+        if (selectedIdeologies.includes(nsnrKey)) sum += pUndecided;
+        raw = sum;
+      }
     }
-    const selectedIdeologies = filters.ideology || [];
-    if (selectedIdeologies.length > 0 && !selectedIdeologies.includes('all')) {
-      let sum = 0;
-      if (selectedIdeologies.includes(dirKey)) sum += pDir;
-      if (selectedIdeologies.includes(cenKey)) sum += pCen;
-      if (selectedIdeologies.includes(esqKey)) sum += pEsq;
-      if (selectedIdeologies.includes(nsnrKey)) sum += pUndecided;
-      return sum;
-    }
-    return 100;
+    return raw.toFixed(1).replace('.', ',');
   }, [hoveredPolitic, filters.ideology, pDir, pCen, pEsq, pUndecided, dirKey, cenKey, esqKey, nsnrKey]);
 
   const maxIncomePct = useMemo(() => {
@@ -355,7 +357,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         {region === 'Metrop.' ? 'Metro' : region}
                       </span>
                     </div>
-                    <span className="text-[9px] font-black font-mono shrink-0">{pct.toFixed(0)}%</span>
+                    <span className="text-[9px] font-black font-mono shrink-0">{pct.toFixed(1).replace('.', ',')}%</span>
                   </div>
                   <div className="h-1 w-full bg-zinc-100 rounded-full overflow-hidden">
                     <motion.div 
@@ -371,7 +373,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política - REPOSICIONADO PARA O TOPO DA SEGMENTAÇÃO */}
+        {/* Visão Política */}
         <div className="pt-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -415,7 +417,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">{item.label}</span>
                   </div>
                   <span className={cn("text-sm font-black", (isSelected('ideology', item.key)) ? "text-orange-600" : "text-zinc-800")} style={{ color: (isSelected('ideology', item.key)) ? undefined : (item.id === 'nsnr' ? '#a1a1aa' : item.color) }}>
-                    {item.pct}%
+                    {item.pct.toFixed(1).replace('.', ',')}%
                   </span>
                 </div>
               ))}
@@ -435,7 +437,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               onClick={() => onFilterChange('gender', 'Feminino')}
             >
               <div className="text-right">
-                <Counter value={femalePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" />
+                <Counter value={femalePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" decimals={1} />
                 <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">FEMININO</p>
               </div>
               <div className="glass-capsule w-8 h-16 p-1.5 relative flex items-center justify-center bg-white shadow-[0_10px_20px_rgba(232,62,140,0.05)] transition-all">
@@ -465,7 +467,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
               </div>
               <div className="text-left">
-                <Counter value={malePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" />
+                <Counter value={malePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" decimals={1} />
                 <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">MASCULINO</p>
               </div>
             </div>
@@ -485,7 +487,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               const isOrange = opt.includes('25-34') || opt.includes('45-59');
               return (
                 <div key={opt} onClick={() => onFilterChange('age', opt)} className="flex flex-col items-center flex-1 h-full cursor-pointer group">
-                  <span className="text-[8px] font-black text-zinc-800">{pct.toFixed(1)}%</span>
+                  <span className="text-[8px] font-black text-zinc-800">{pct.toFixed(1).replace('.', ',')}%</span>
                   <div className="w-full max-w-[28px] bg-zinc-100 rounded-t-lg h-full flex items-end overflow-hidden relative">
                     <motion.div 
                       initial={{ height: 0 }} 
@@ -526,7 +528,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       />
                     </div>
                     <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-950")}>
-                      {pct.toFixed(1)}%
+                      {pct.toFixed(1).replace('.', ',')}%
                     </span>
                   </div>
                 </div>
@@ -561,7 +563,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       />
                     </div>
                     <span className={cn("text-[9px] font-black transition-colors min-w-[32px] text-right", active ? "text-orange-600" : "text-zinc-950")}>
-                      {pct.toFixed(1)}%
+                      {pct.toFixed(1).replace('.', ',')}%
                     </span>
                   </div>
                 </div>
