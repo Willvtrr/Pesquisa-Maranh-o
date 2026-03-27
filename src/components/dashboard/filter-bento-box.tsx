@@ -411,7 +411,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       x={slice.textX}
                       y={slice.textY}
                       fill={slice.textColor}
-                      className="text-[5.5px] font-black pointer-events-none"
+                      className="text-[4.5px] font-black pointer-events-none"
                       textAnchor="middle"
                       dominantBaseline="middle"
                       animate={{ opacity: isFaded ? 0.2 : 1 }}
@@ -456,7 +456,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       </span>
                     </div>
                     <span 
-                      className="text-lg font-black tabular-nums tracking-tighter"
+                      className="text-[13px] font-black tabular-nums tracking-tighter"
                       style={{ color: item.id === 'nsnr' ? '#64748b' : item.color }}
                     >
                       {item.pct.toFixed(1).replace('.', ',')}%
@@ -480,7 +480,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               onClick={() => onFilterChange('gender', 'Feminino')}
             >
               <div className="text-right">
-                <Counter value={femalePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" decimals={1} />
+                <Counter value={femalePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-lg" symbolSize="text-[10px]" decimals={1} />
                 <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">FEMININO</p>
               </div>
               <div className="glass-capsule w-8 h-16 p-1.5 relative flex items-center justify-center bg-white shadow-[0_10px_20px_rgba(232,62,140,0.05)] transition-all">
@@ -510,7 +510,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                 </div>
               </div>
               <div className="text-left">
-                <Counter value={malePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-2xl" symbolSize="text-[10px]" decimals={1} />
+                <Counter value={malePct} color="text-zinc-950" symbolColor="text-zinc-400" size="text-lg" symbolSize="text-[10px]" decimals={1} />
                 <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-0.5">MASCULINO</p>
               </div>
             </div>
