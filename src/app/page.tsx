@@ -171,7 +171,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -224,6 +224,7 @@ export default function Home() {
     senator_second_vote_est: ['all'],
     senator_second_vote_spon: ['all'],
     senator_rejection: ['all'],
+    interview_ids: ['all'], // Novo filtro de segmentação cirúrgica
   });
 
   const activeKeys = useMemo(() => {
@@ -282,6 +283,12 @@ export default function Home() {
         if (excludeKeys.includes(filterKey)) return true;
         const currentFilters = filters[filterKey];
         if (!currentFilters || currentFilters.includes('all')) return true;
+        
+        // Lógica de segmentação cirúrgica por ID de entrevista
+        if (filterKey === 'interview_ids') {
+          return currentFilters.includes(item.id);
+        }
+
         const itemVal = String(item[dataKey] || '').trim();
         return currentFilters.some(f => f.toLowerCase() === itemVal.toLowerCase());
       };
@@ -307,7 +314,8 @@ export default function Home() {
         checkMatch('mayor_approval', activeKeys.MAYOR_APPROVAL) &&
         checkMatch('senator_second_vote_est', activeKeys.SENATOR_SECOND_VOTE_EST) &&
         checkMatch('senator_second_vote_spon', activeKeys.SENATOR_SECOND_VOTE_SPON) &&
-        checkMatch('senator_rejection', activeKeys.SENATOR_REJECTION)
+        checkMatch('senator_rejection', activeKeys.SENATOR_REJECTION) &&
+        checkMatch('interview_ids', '')
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -455,12 +463,25 @@ export default function Home() {
     });
   };
 
+  const handleInterviewSelect = (id: string) => {
+    setFilters(prev => {
+      const current = prev.interview_ids || [];
+      if (current.includes(id)) {
+        const filtered = current.filter(cid => cid !== id);
+        return { ...prev, interview_ids: filtered.length === 0 ? ['all'] : filtered };
+      } else {
+        return { ...prev, interview_ids: [...current.filter(cid => cid !== 'all'), id] };
+      }
+    });
+  };
+
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
     president_vote: ['all'], president_second_round: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'], senator_spontaneous: ['all'],
     president_rejection: ['all'], gov_rejection: ['all'],
     president_approval: ['all'], gov_approval: ['all'], mayor_approval: ['all'],
     senator_second_vote_est: ['all'], senator_second_vote_spon: ['all'], senator_rejection: ['all'],
+    interview_ids: ['all'],
   });
 
   const handleManualSync = async () => {
@@ -967,6 +988,8 @@ export default function Home() {
           <InteractiveMap 
             data={filteredData}
             activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
+            selectedInterviews={filters.interview_ids}
+            onInterviewSelect={handleInterviewSelect}
             onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
           />
         </div>

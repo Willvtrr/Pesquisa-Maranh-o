@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 interface InteractiveMapProps {
   data: any[];
   onCitySelect?: (cityName: string | null) => void;
+  onInterviewSelect?: (id: string) => void;
+  selectedInterviews?: string[];
   activeCity?: string;
 }
 
@@ -25,7 +27,7 @@ const mapStyles = [
 ];
 
 /**
- * Função de Extração de Dados GPS resiliente
+ * Função de Extração de Dados GPS resiliente seguindo Guia Mestre
  */
 const extractLatLng = (item: any) => {
   const latNum = item['_start-geopoint_latitude'];
@@ -50,7 +52,7 @@ const extractLatLng = (item: any) => {
 };
 
 /**
- * Sub-componente Interno para lógica da Data Layer e Estilização
+ * Sub-componente Interno para lógica da Data Layer e Estilização (Arquitetura SSR-Safe)
  */
 const InteractiveMapContent = ({ 
   cityCounts, 
@@ -104,22 +106,20 @@ const InteractiveMapContent = ({
       const hasData = count > 0;
       
       const isResponsesOnly = paintMode === 'responses';
-      let visible = true;
       
+      // Se for "Só Coletas", só mostramos se tiver dado (Recorte solicitado)
       if (isResponsesOnly && !hasData) {
-        visible = false;
+        return { visible: false };
       }
 
       let strokeW = 1.2;
-      let strokeC = '#27272a'; 
-      let opacity = 0.45;
+      let strokeC = '#27272a'; // Evidente
+      let opacity = 0.45; // Mais forte o laranja transparente
 
       if (hasData) {
-        opacity = 0.65 + (count / maxCount) * 0.3;
-        if (isResponsesOnly) {
-          strokeW = 1.8;
-          strokeC = '#000000';
-        }
+        opacity = 0.7 + (count / maxCount) * 0.25;
+        strokeW = isResponsesOnly ? 2.0 : 1.5;
+        strokeC = isResponsesOnly ? '#000000' : '#18181b';
       }
 
       return {
@@ -127,7 +127,7 @@ const InteractiveMapContent = ({
         fillOpacity: opacity,
         strokeColor: strokeC,
         strokeWeight: strokeW,
-        visible: visible
+        visible: true
       };
     });
   }, [map, cityCounts, maxCount, paintMode]);
@@ -135,7 +135,7 @@ const InteractiveMapContent = ({
   return null;
 };
 
-export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMapProps) => {
+export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selectedInterviews = [], activeCity }: InteractiveMapProps) => {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'municipal' | 'interviews'>('municipal');
   const [paintMode, setPaintMode] = useState<'all' | 'responses'>('all');
@@ -265,18 +265,27 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
               paintMode={paintMode} 
             />
 
-            {/* Marcadores Individuais */}
-            {viewMode === 'interviews' && points.map((p: any) => (
-              <AdvancedMarker
-                key={p.id}
-                position={{ lat: p.lat, lng: p.lng }}
-                onClick={() => setSelectedPoint(p.originalData)}
-              >
-                <div className="w-3.5 h-3.5 rounded-full bg-orange-600 border-2 border-white shadow-[0_0_10px_rgba(234,88,12,0.4)] hover:scale-150 transition-transform cursor-pointer" />
-              </AdvancedMarker>
-            ))}
+            {/* Marcadores Individuais com lógica de segmentação cirúrgica */}
+            {viewMode === 'interviews' && points.map((p: any) => {
+              const isSelected = selectedInterviews.includes(p.id);
+              return (
+                <AdvancedMarker
+                  key={p.id}
+                  position={{ lat: p.lat, lng: p.lng }}
+                  onClick={() => {
+                    onInterviewSelect?.(p.id);
+                    setSelectedPoint(p.originalData);
+                  }}
+                >
+                  <div className={cn(
+                    "w-3.5 h-3.5 rounded-full border-2 border-white shadow-[0_0_10px_rgba(234,88,12,0.4)] hover:scale-150 transition-transform cursor-pointer",
+                    isSelected ? "bg-zinc-950 scale-125 border-zinc-400 ring-2 ring-zinc-950 ring-offset-1" : "bg-orange-600"
+                  )} />
+                </AdvancedMarker>
+              );
+            })}
 
-            {/* InfoWindow Nativa para Detalhes (Evita problemas de zoom externo) */}
+            {/* InfoWindow Nativa para Detalhes */}
             {selectedPoint && (
               <InfoWindow
                 position={extractLatLng(selectedPoint)}
