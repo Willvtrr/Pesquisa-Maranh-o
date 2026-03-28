@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -184,7 +185,7 @@ const DEFAULT_KEYS = {
   SENATOR_COALITION: "De qual chapa, o Senador que você pretende votar, deveria fazer parte?",
   SENATOR_SECOND_VOTE_EST: "SEGUNDO VOTO: Para quem você daria o seu segundo voto para Senador? (Estimulada)",
   SENATOR_SECOND_VOTE_SPON: "E o segundo Senador, qual será eleito? (ESPONTÂNEA)",
-  SENATOR_REJECTION: "REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum? (Estimulada)",
+  SENATOR_REJECTION: "19. REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum? (Estimulada)",
   SENATOR_VICTORY_PERCEPTION: "PERCEPÇÃO DE VITÓRIA: Na sua opinião, quais são os dois Senadores que serão eleitos? (ESPONTÂNEA)",
 };
 
@@ -266,7 +267,7 @@ export default function Home() {
       SENATOR_COALITION: findKey(['chapa', 'senador', 'parte'], DEFAULT_KEYS.SENATOR_COALITION),
       SENATOR_SECOND_VOTE_EST: findKey(['segundo voto', 'senador'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_EST),
       SENATOR_SECOND_VOTE_SPON: findKey(['segundo senador', 'espontânea'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_SPON),
-      SENATOR_REJECTION: findKey(['rejeição', 'senador', 'estimulada'], DEFAULT_KEYS.SENATOR_REJECTION, ['presidente']),
+      SENATOR_REJECTION: findKey(['19.', 'rejeição'], DEFAULT_KEYS.SENATOR_REJECTION, ['presidente', 'governador']),
       SENATOR_VICTORY_PERCEPTION: findKey(['percepção', 'vitória', 'senadores'], DEFAULT_KEYS.SENATOR_VICTORY_PERCEPTION),
     };
   }, [rawSurveyData]);
@@ -763,7 +764,7 @@ export default function Home() {
                 title="Índice de Rejeição"
                 overline="CORRIDA PRESIDENCIAL"
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
+                badge="ESTIMULADA"
                 color="rose"
                 selected={filters.president_rejection}
                 onFilterChange={(v) => handleFilterChange('president_rejection', v)}
@@ -774,7 +775,7 @@ export default function Home() {
                 title="Índice de Rejeição"
                 overline="CORRIDA GOVERNAMENTAL"
                 subtitle='"REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
+                badge="ESTIMULADA"
                 color="red"
                 selected={filters.gov_rejection}
                 onFilterChange={(v) => handleFilterChange('gov_rejection', v)}
@@ -839,8 +840,8 @@ export default function Home() {
                 total={getFilteredData(['senator_rejection']).length}
                 title="Índice de Rejeição"
                 overline="CORRIDA SENADO"
-                subtitle='"REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum?"'
-                badge="Estimulada"
+                subtitle="19. REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum? (Estimulada)"
+                badge="ESTIMULADA"
                 color="rose"
                 selected={filters.senator_rejection}
                 onFilterChange={(v) => handleFilterChange('senator_rejection', v)}
