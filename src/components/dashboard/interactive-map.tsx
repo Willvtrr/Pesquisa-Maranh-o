@@ -25,17 +25,15 @@ const mapStyles = [
 ];
 
 /**
- * Função de Extração de Dados GPS seguindo o Guia Mestre
+ * Função de Extração de Dados GPS
  */
 const extractLatLng = (item: any) => {
-  // 1. Campos numéricos prioritários
   const latNum = item['_start-geopoint_latitude'];
   const lngNum = item['_start-geopoint_longitude'];
   if (typeof latNum === 'number' && typeof lngNum === 'number') {
     return { lat: latNum, lng: lngNum };
   }
 
-  // 2. String INFO ou Coordenadas (formato "lat, lng")
   const info = item['INFO'] || item['Coordenadas'];
   if (typeof info === 'string') {
     const parts = info.split(',').map(p => parseFloat(p.trim()));
@@ -44,7 +42,6 @@ const extractLatLng = (item: any) => {
     }
   }
   
-  // 3. Objeto location
   if (item.location?.lat && item.location?.lng) {
     return { lat: item.location.lat, lng: item.location.lng };
   }
@@ -86,7 +83,7 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
       const cityName = event.feature.getProperty('NM_MUN');
       setHoveredCity(cityName);
       map.data.overrideStyle(event.feature, { 
-        strokeColor: '#ea580c', 
+        strokeColor: '#000000', 
         strokeWeight: 2.5,
         fillOpacity: 1.0 
       });
@@ -110,25 +107,29 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
       const count = cityCounts[cityName] || 0;
       const hasData = count > 0;
       
+      const isResponsesOnly = paintMode === 'responses';
       let visible = true;
-      if (paintMode === 'responses' && !hasData) {
+      
+      // No modo "Só Coletas", oculta municípios sem respostas
+      if (isResponsesOnly && !hasData) {
         visible = false;
       }
 
-      // Configuração de divisas evidentes
-      let strokeW = 1.0;
-      let strokeC = '#a1a1aa'; // zinc-400/500
-      
-      let opacity = 0.3; // Opacidade base para o estado todo
+      // Estilo Padrão (Modo Estado Todo)
+      let strokeW = 0.8;
+      let strokeC = '#71717a'; // zinc-500: Divisões evidentes
+      let opacity = 0.25; // Preenchimento sutil base
 
       if (hasData) {
-        // Escala de intensidade: Mínimo 0.5, Máximo 0.95
-        opacity = 0.5 + (count / maxCount) * 0.45;
+        // Escala de intensidade laranja: Min 0.45, Max 0.95
+        opacity = 0.45 + (count / maxCount) * 0.5;
         
-        // Em modo só coletas, o traçado fica mais forte para destacar os blocos
-        if (paintMode === 'responses') {
-          strokeW = 2.0;
-          strokeC = '#09090b'; // Quase preto para o "traçado" evidente
+        if (isResponsesOnly) {
+          strokeW = 1.8;
+          strokeC = '#000000'; // Contorno preto sólido para o modo de recorte
+        } else {
+          strokeW = 1.2;
+          strokeC = '#27272a'; // zinc-800: Mais evidente em cidades com dados
         }
       }
 
