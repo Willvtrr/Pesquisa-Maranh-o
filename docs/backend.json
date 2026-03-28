@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Mesorregiao": {
@@ -151,7 +152,7 @@
           "schema": {
             "$ref": "#/backend/entities/Mesorregiao"
           },
-          "description": "Stores information about each mesoregion in Maranhão. These documents are publicly readable to support geographical data display and filtering options in the UI. No specific authorization fields are needed as all data is public.",
+          "description": "Stores information about each mesoregion in Maranhão. Publicly readable.",
           "params": [
             {
               "name": "mesorregiaoId",
@@ -167,7 +168,7 @@
           "schema": {
             "$ref": "#/backend/entities/Cidade"
           },
-          "description": "Stores information about each city, including its association with a mesoregion. These documents are publicly readable to support geographical data display and filtering options in the UI. No specific authorization fields are needed as all data is public.",
+          "description": "Stores information about each city. Publicly readable.",
           "params": [
             {
               "name": "cidadeId",
@@ -175,8 +176,24 @@
             }
           ]
         }
+      },
+      {
+        "path": "/surveyResponses/{responseId}",
+        "definition": {
+          "entityName": "SurveyRecord",
+          "schema": {
+            "$ref": "#/backend/entities/SurveyRecord"
+          },
+          "description": "Stores individual survey responses imported via the admin panel. Publicly readable for dashboard stats.",
+          "params": [
+            {
+              "name": "responseId",
+              "description": "The unique identifier for a specific survey response."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The recommended Firestore structure for 'Maranhão Insights' is designed around the core principle that the primary survey data (`SurveyRecord`) is processed client-side from embedded JavaScript arrays, explicitly stating 'sem chamadas a bancos de dados externos' for filtering and aggregation. Consequently, the Firestore database is primarily used for managing static, public geographical lookup data (`Mesorregiao` and `Cidade`) that supports the interactive map and multidimensional filter UI components.\n\n**Authorization Independence (CRITICAL):** For the `mesorregioes` and `cidades` collections, authorization rules are `allow read: if true;`. This completely eliminates the need for hierarchical authorization dependencies (`get()`) or denormalized authorization context within these documents. All documents are publicly accessible, making security rules extremely simple, atomic, and easy to debug.\n\n**Clarity of Intent (Debuggability):** The public, read-only nature of the geographical data collections clearly communicates their intended access pattern, simplifying rule writing and debugging. There are no complex access control lists or roles to manage for these data types.\n\n**DBAC (No Custom Claims):** Since the application's features, as described, do not involve user-specific data management or administrative roles requiring write access, no database-backed access control (DBAC) collections (like `/roles_admin/{uid}`) are necessary in this initial structure. If future features introduce administrative functions, such a DBAC model would be implemented.\n\n**QAPs (Rules are not Filters):** By designating `mesorregioes` and `cidades` as publicly readable, all `list` operations on these collections are inherently secure. The rules `allow read: if true;` mean that clients can retrieve any document or list all documents without needing security rules to filter sensitive data. This aligns with the QAP principle as the rules enforce access based on the nature of the data, not on filtering its content.\n\n**Structural Segregation:** The geographical entities are segregated into their own collections (`/mesorregioes` and `/cidades`). All documents within each collection share the same security posture (public, read-only), preventing mixed security requirements within a single collection and keeping rules simple.\n\n**Data Clarity and Predictability:** The schema for `Mesorregiao` and `Cidade` are straightforward, using `id`, `name`, `stateName`, and `mesorregiaoId` (for Cidade) as explicit and predictable fields. This ensures consistency and simplifies data querying and UI binding."
+    "reasoning": "The Firestore structure is updated to support the transition from embedded data to dynamic database-driven analysis. The 'surveyResponses' collection is now the primary source for the dashboard, allowing for real-time updates and easier data management via the import tool."
   }
 }
