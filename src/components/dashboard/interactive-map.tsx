@@ -4,7 +4,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Loader2, AlertTriangle, MapPin, Search } from 'lucide-react';
+import { Loader2, AlertTriangle, MapPin } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 
@@ -14,7 +14,13 @@ interface InteractiveMapProps {
   activeCity: string;
 }
 
-const mapContainerStyle = { width: '100%', height: '100%' };
+// Estilo do container do mapa - Altura fixa para garantir visibilidade
+const mapContainerStyle = { 
+  width: '100%', 
+  height: '37.5rem', // 600px na escala 80%
+  borderRadius: '2rem'
+};
+
 const center = { lat: -5.3, lng: -45.0 };
 
 const mapStyles = [
@@ -24,20 +30,6 @@ const mapStyles = [
   { "featureType": "road", "stylers": [{ "visibility": "off" }] },
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
-
-/**
- * Função para processar as coordenadas do banco (lat lng alt prec)
- */
-const extractLatLng = (val: any) => {
-  if (!val || typeof val !== 'string') return null;
-  const parts = val.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    const lat = parseFloat(parts[0]);
-    const lng = parseFloat(parts[1]);
-    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
-  }
-  return null;
-};
 
 export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMapProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -57,13 +49,17 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     const nameToCode: Record<string, string> = {};
 
     // Mapeamento auxiliar do GeoJSON para vincular nomes do banco aos códigos
-    MUNICIP_GEOJSON.features.forEach((f: any) => {
-      nameToCode[f.properties.NM_MUN.toUpperCase()] = f.properties.CD_MUN;
-    });
+    if (MUNICIP_GEOJSON && MUNICIP_GEOJSON.features) {
+      MUNICIP_GEOJSON.features.forEach((f: any) => {
+        if (f.properties && f.properties.NM_MUN) {
+          nameToCode[f.properties.NM_MUN.toUpperCase()] = f.properties.CD_MUN;
+        }
+      });
+    }
 
     data.forEach(item => {
-      // Tentar match por CD_MUN direto ou por Nome da Cidade
-      const code = item.CD_MUN || item.cd_mun || nameToCode[String(item['Cidade:'] || '').toUpperCase()];
+      const cityRaw = String(item['Cidade:'] || item['cidade'] || '').toUpperCase();
+      const code = item.CD_MUN || item.cd_mun || nameToCode[cityRaw];
       if (code) {
         stats[code] = (stats[code] || 0) + 1;
       }
@@ -78,7 +74,11 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    mapInstance.data.addGeoJson(MUNICIP_GEOJSON);
+    try {
+      mapInstance.data.addGeoJson(MUNICIP_GEOJSON);
+    } catch (e) {
+      console.error("Erro ao carregar GeoJSON:", e);
+    }
   }, []);
 
   // Aplicar Estilização Dinâmica (Choropleth)
@@ -89,18 +89,17 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
         const nmMun = feature.getProperty('NM_MUN');
         const count = cityStats[cdMun] || 0;
         
-        const isSelected = activeCity === nmMun.toUpperCase();
+        const isSelected = activeCity === String(nmMun).toUpperCase();
         const hasData = count > 0;
         
-        let fillColor = '#e2e8f0'; // Default gray
+        let fillColor = '#e2e8f0'; 
         let fillOpacity = 0.3;
         let strokeWeight = 0.5;
         let strokeColor = '#cbd5e1';
 
         if (hasData) {
-          // Escala de intensidade baseada no volume de dados
           const intensity = Math.min(0.3 + (count / maxCount) * 0.7, 1);
-          fillColor = '#ea580c'; // Cor primária Orange
+          fillColor = '#ea580c'; 
           fillOpacity = intensity;
           strokeWeight = 1;
           strokeColor = '#ffffff';
@@ -131,7 +130,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
     const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
       const nmMun = event.feature.getProperty('NM_MUN');
-      onCitySelect(nmMun.toUpperCase());
+      onCitySelect(nmMun ? nmMun.toUpperCase() : null);
     });
 
     const mouseOverListener = map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
@@ -162,17 +161,17 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
   if (!apiKey || loadError) {
     return (
-      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[31.25rem]">
+      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[37.5rem]">
         <div className="flex flex-col items-center justify-center h-full text-center gap-6">
           <AlertTriangle className="w-12 h-12 text-rose-500" />
-          <p className="text-sm text-zinc-500 font-medium max-w-xs">Erro ao carregar o engine de mapas. Verifique sua chave API do Google Cloud.</p>
+          <p className="text-sm text-zinc-500 font-medium max-w-xs">Erro ao carregar o engine de mapas. Verifique sua chave API do Google Cloud nas variáveis de ambiente.</p>
         </div>
       </LuxuryCard>
     );
   }
 
   return (
-    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden min-h-[37.5rem]">
+    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden h-[37.5rem]">
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
@@ -180,7 +179,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
         </div>
       </div>
 
-      <div className="w-full h-full relative">
+      <div className="w-full h-full relative bg-zinc-50">
         {isLoaded ? (
           <GoogleMap 
             mapContainerStyle={mapContainerStyle} 
