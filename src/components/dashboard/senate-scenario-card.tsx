@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -113,7 +114,7 @@ export const SenateScenarioCard = ({ scenario, className }: SenateScenarioCardPr
             <span className="w-1 h-3 bg-orange-600 rounded-full" />
             CORRIDA SENADO
           </h4>
-          <p className="text-sm font-black text-zinc-950 tracking-tight leading-tight">{scenario.label}</p>
+          <p className="text-xs font-black text-zinc-950 tracking-tight leading-tight">{scenario.label}</p>
         </div>
         <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
           <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
@@ -121,7 +122,7 @@ export const SenateScenarioCard = ({ scenario, className }: SenateScenarioCardPr
         </div>
       </div>
       
-      <p className="text-[8px] font-medium text-zinc-400 italic mb-4 leading-tight">"{scenario.question}"</p>
+      <p className="text-[7px] font-medium text-zinc-400 italic mb-4 leading-tight">"{scenario.question}"</p>
 
       <div 
         className="space-y-3"
