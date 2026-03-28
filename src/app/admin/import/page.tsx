@@ -6,7 +6,7 @@ import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer, getDocs } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle, ListOrdered, Tag } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -346,35 +346,82 @@ export default function ImportPage() {
             </div>
           </BentoCard>
 
-          <BentoCard title="Status do Banco" subtitle="Monitoramento Real">
-            <div className="flex flex-col h-full justify-between py-4">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
-                  <div className="flex items-center gap-3">
-                    <Database size={18} className="text-zinc-400" />
-                    <span className="text-[10px] font-black uppercase text-zinc-500">Documentos</span>
+          <div className="space-y-8">
+            <BentoCard title="Status do Banco" subtitle="Monitoramento Real">
+              <div className="flex flex-col h-full justify-between py-4">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+                    <div className="flex items-center gap-3">
+                      <Database size={18} className="text-zinc-400" />
+                      <span className="text-[10px] font-black uppercase text-zinc-500">Documentos</span>
+                    </div>
+                    <span className="text-sm font-mono font-bold text-zinc-950">
+                      {exactDbCount !== null ? exactDbCount.toLocaleString('pt-BR') : <Loader2 className="animate-spin size-3" />}
+                    </span>
                   </div>
-                  <span className="text-sm font-mono font-bold text-zinc-950">
-                    {exactDbCount !== null ? exactDbCount.toLocaleString('pt-BR') : <Loader2 className="animate-spin size-3" />}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 size={18} className="text-emerald-500" />
-                    <span className="text-[10px] font-black uppercase text-emerald-600">Integridade</span>
+                  <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 size={18} className="text-emerald-500" />
+                      <span className="text-[10px] font-black uppercase text-emerald-600">Integridade</span>
+                    </div>
+                    <Badge variant="outline" className="bg-emerald-500 text-white border-none">100% OK</Badge>
                   </div>
-                  <Badge variant="outline" className="bg-emerald-500 text-white border-none">100% OK</Badge>
                 </div>
-              </div>
 
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3">
-                <Info size={16} className="text-amber-500 shrink-0" />
-                <p className="text-[9px] text-amber-700 font-bold uppercase leading-relaxed">
-                  Para evitar duplicados, o sistema usa IDs baseados na posição do arquivo. Use "Limpar Banco" se quiser um reset total.
-                </p>
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex gap-3 mt-6">
+                  <Info size={16} className="text-amber-500 shrink-0" />
+                  <p className="text-[9px] text-amber-700 font-bold uppercase leading-relaxed">
+                    Para evitar duplicados, o sistema usa IDs baseados na posição do arquivo. Use "Limpar Banco" se quiser um reset total.
+                  </p>
+                </div>
               </div>
-            </div>
-          </BentoCard>
+            </BentoCard>
+
+            <BentoCard title="Dicionário de Variáveis" subtitle="Estrutura do JSON">
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ListOrdered size={14} className="text-zinc-400" />
+                    <span className="text-[9px] font-black uppercase text-zinc-400 tracking-[0.2em]">Ordem de Ingestão</span>
+                  </div>
+                  <Badge variant="secondary" className="bg-zinc-100 text-zinc-600 border-none text-[8px] font-black uppercase tracking-widest px-2">
+                    {dynamicColumns.length} Colunas
+                  </Badge>
+                </div>
+
+                <ScrollArea className="h-[280px] -mr-4 pr-4">
+                  <div className="space-y-2 pb-4">
+                    {dynamicColumns.length > 0 ? dynamicColumns.map((col, idx) => (
+                      <div key={col} className="flex items-center gap-4 p-3 rounded-2xl bg-zinc-50 border border-zinc-100 hover:bg-white hover:shadow-md hover:border-orange-500/20 transition-all group">
+                        <div className="w-7 h-7 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-[10px] font-black text-zinc-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-all shrink-0 shadow-sm">
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-black text-zinc-800 uppercase tracking-tight truncate" title={col}>
+                            {col}
+                          </p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <Tag size={8} className="text-zinc-300" />
+                            <span className="text-[7px] font-bold text-zinc-400 uppercase tracking-widest">Coluna Ativa</span>
+                          </div>
+                        </div>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <CheckCircle2 size={14} className="text-emerald-500" />
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="flex flex-col items-center justify-center h-40 text-center gap-2 opacity-40">
+                        <Search size={24} className="text-zinc-300" />
+                        <p className="text-[9px] font-black uppercase text-zinc-400 tracking-widest leading-relaxed">
+                          Nenhum cabeçalho detectado.<br />Inicie um upload para ver o mapa.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </BentoCard>
+          </div>
         </div>
 
         <BentoCard title="Explorador de Dados" subtitle="Entrevistas Organizadas">
