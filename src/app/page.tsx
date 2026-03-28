@@ -189,6 +189,7 @@ export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -204,6 +205,7 @@ export default function Home() {
     religion: ['all'],
     ideology: ['all'],
     president_vote: ['all'],
+    president_second_round: ['all'],
     gov_spontaneous: ['all'],
     deputy_federal: ['all'],
     deputy_estadual: ['all'],
@@ -280,6 +282,7 @@ export default function Home() {
         checkMatch('religion', activeKeys.RELIGION) &&
         checkMatch('ideology', activeKeys.IDEOLOGY) &&
         checkMatch('president_vote', activeKeys.PRESIDENT_VOTE) &&
+        checkMatch('president_second_round', activeKeys.PRESIDENT_SECOND_ROUND) &&
         checkMatch('gov_spontaneous', activeKeys.GOV_VOTE_SPONTANEOUS) &&
         checkMatch('deputy_federal', activeKeys.DEPUTY_FEDERAL_VOTE) &&
         checkMatch('deputy_estadual', activeKeys.DEPUTY_ESTADUAL_VOTE) &&
@@ -350,7 +353,7 @@ export default function Home() {
       govVictoryData: processRanking(activeKeys.GOV_VICTORY_PERCEPTION, ''),
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 'president_rejection'),
       govRejectionData: processRanking(activeKeys.GOV_REJECTION, 'gov_rejection'),
-      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, ''),
+      secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, 'president_second_round'),
       deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'deputy_federal'),
       deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
       senatorSpontaneousData: processRanking(activeKeys.SENATOR_VOTE_SPONTANEOUS, 'senator_spontaneous'),
@@ -434,7 +437,7 @@ export default function Home() {
 
   const clearFilters = () => setFilters({ 
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
-    president_vote: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'], senator_spontaneous: ['all'],
+    president_vote: ['all'], president_second_round: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'], senator_spontaneous: ['all'],
     president_rejection: ['all'], gov_rejection: ['all'],
     president_approval: ['all'], gov_approval: ['all'], mayor_approval: ['all']
   });
@@ -644,7 +647,7 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <LuxuryCard className="h-full">
+              <LuxuryCard className="h-full relative overflow-hidden group">
                 <div className="flex items-start justify-between mb-1">
                   <div className="space-y-0.5">
                     <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -659,13 +662,35 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
-                <div className="space-y-4">
+                <div 
+                  className="space-y-4 relative z-10"
+                  onMouseLeave={() => setHoveredSecondRound(null)}
+                >
                   {chartData.secondRoundData.map((item, idx) => {
-                    const pct = ((item.value / Math.max(totalDatabaseCount, 1)) * 100);
+                    const totalData = getFilteredData(['president_second_round']);
+                    const pct = ((item.value / Math.max(totalData.length, 1)) * 100);
                     const isAbstention = item.isAbstention;
+                    const isActive = filters.president_second_round.includes(item.name);
+                    const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
+                    
+                    const maxVal = Math.max(...chartData.secondRoundData.filter(d => !d.isAbstention).map(d => d.value), 1);
+                    const visualPct = isAbstention ? (item.value / Math.max(totalData.length, 1)) * 100 : (item.value / maxVal) * 100;
+
                     return (
-                      <div key={`${item.name}-${idx}`} className="flex items-center gap-3">
-                        <Avatar className="w-8 h-8 border-2 border-white shadow-sm shrink-0">
+                      <div 
+                        key={`${item.name}-${idx}`} 
+                        className={cn(
+                          "flex items-center gap-3 cursor-pointer transition-all duration-300 p-1.5 rounded-2xl group/row",
+                          isActive && "bg-orange-50 ring-1 ring-orange-200 shadow-sm",
+                          isFaded && "opacity-40 grayscale-[0.5]"
+                        )}
+                        onMouseEnter={() => setHoveredSecondRound(idx)}
+                        onClick={() => handleFilterChange('president_second_round', item.name)}
+                      >
+                        <Avatar className={cn(
+                          "w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-transform group-hover/row:scale-110",
+                          isActive && "ring-2 ring-orange-500 ring-offset-1"
+                        )}>
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
                             {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
@@ -673,11 +698,32 @@ export default function Home() {
                         </Avatar>
                         <div className="flex-1 space-y-1">
                           <div className="flex justify-between items-end">
-                            <span className="text-[10px] font-black text-zinc-950">{toTitleCase(item.name)}</span>
-                            <span className="text-[10px] font-black text-zinc-950">{pct.toFixed(1).replace('.', ',')}%</span>
+                            <span className={cn(
+                              "text-[10px] transition-colors",
+                              isActive ? "text-orange-600 font-black" : "text-zinc-950 font-black",
+                              isAbstention && "text-zinc-500 font-bold"
+                            )}>
+                              {toTitleCase(item.name)}
+                            </span>
+                            <span className={cn(
+                              "text-[10px] font-black tabular-nums",
+                              isActive ? "text-orange-600" : "text-zinc-950"
+                            )}>
+                              {pct.toFixed(1).replace('.', ',')}%
+                            </span>
                           </div>
                           <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
-                            <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 1.2 }} className={cn("h-full rounded-full", !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200")} style={{ opacity: isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12)) }} />
+                            <motion.div 
+                              initial={{ width: 0 }} 
+                              animate={{ width: `${visualPct}%` }} 
+                              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }} 
+                              className={cn(
+                                "h-full rounded-full transition-all", 
+                                !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200",
+                                isActive && "from-orange-600 to-orange-700"
+                              )} 
+                              style={{ opacity: isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12)) }} 
+                            />
                           </div>
                         </div>
                       </div>
