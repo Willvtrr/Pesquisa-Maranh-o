@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -6,7 +7,7 @@ import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer, getDocs } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle, ListOrdered, Tag, Eye } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle, ListOrdered, Tag, Eye, Maximize2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
