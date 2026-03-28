@@ -15,17 +15,25 @@ interface InteractiveMapProps {
 
 const mapContainerStyle = { 
   width: '100%', 
-  height: '37.5rem', // 600px na escala 80%
+  height: '100%',
+  minHeight: '40rem',
   borderRadius: '2rem'
 };
 
-const center = { lat: -5.3, lng: -45.0 };
+// Centro otimizado para o Maranhão
+const center = { lat: -5.1, lng: -45.1 };
 
 const mapStyles = [
   { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
   { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+  { "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+  { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "visibility": "on" }] },
+  { "featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{ "color": "#cbd5e1" }] },
+  { "featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{ "color": "#94a3b8" }, { "weight": 1 }] },
+  { "featureType": "administrative.locality", "stylers": [{ "visibility": "off" }] },
   { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
   { "featureType": "road", "stylers": [{ "visibility": "off" }] },
+  { "featureType": "transit", "stylers": [{ "visibility": "off" }] },
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
@@ -41,12 +49,10 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [hoverInfo, setHoverInfo] = useState<{ lat: number, lng: number, name: string, count: number } | null>(null);
 
-  // Mapeamento dinâmico de estatísticas por município
   const cityStats = useMemo(() => {
     const stats: Record<string, number> = {};
     const nameToCode: Record<string, string> = {};
 
-    // Mapeamento auxiliar do GeoJSON para vincular nomes do banco aos códigos IBGE (CD_MUN)
     if (MUNICIP_GEOJSON && MUNICIP_GEOJSON.features) {
       MUNICIP_GEOJSON.features.forEach((f: any) => {
         if (f.properties && f.properties.NM_MUN) {
@@ -57,7 +63,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
     data.forEach(item => {
       const cityRaw = String(item['Cidade:'] || item['cidade'] || '').toUpperCase().trim();
-      // Prioriza CD_MUN se existir no banco, senão busca pelo nome mapeado
       const code = item.CD_MUN || item.cd_mun || nameToCode[cityRaw];
       if (code) {
         stats[code] = (stats[code] || 0) + 1;
@@ -80,7 +85,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     }
   }, []);
 
-  // Estilização Dinâmica da Data Layer (Choropleth)
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
@@ -91,23 +95,22 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
         const isSelected = activeCity === String(nmMun).toUpperCase();
         const hasData = count > 0;
         
-        let fillColor = '#e2e8f0'; 
-        let fillOpacity = 0.2;
+        let fillColor = '#f1f5f9'; 
+        let fillOpacity = 0.3;
         let strokeWeight = 0.5;
         let strokeColor = '#cbd5e1';
 
         if (hasData) {
-          // Efeito Power BI: intensidade da cor baseada no volume de dados
-          const intensity = 0.3 + (count / maxCount) * 0.7;
+          const intensity = 0.4 + (count / maxCount) * 0.6;
           fillColor = '#ea580c'; 
           fillOpacity = intensity;
-          strokeWeight = 1;
+          strokeWeight = 0.8;
           strokeColor = '#ffffff';
         }
 
         if (isSelected) {
-          fillOpacity = 0.9;
-          strokeWeight = 3;
+          fillOpacity = 0.95;
+          strokeWeight = 2.5;
           strokeColor = '#09090b';
           fillColor = '#f97316';
         }
@@ -124,7 +127,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     }
   }, [map, cityStats, maxCount, activeCity]);
 
-  // Listeners de Eventos (Clique e Hover)
   useEffect(() => {
     if (!map) return;
 
@@ -161,22 +163,21 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
   if (!apiKey || loadError) {
     return (
-      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[37.5rem]">
+      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[40rem]">
         <div className="flex flex-col items-center justify-center h-full text-center gap-6">
           <AlertTriangle className="w-12 h-12 text-rose-500" />
-          <p className="text-sm text-zinc-500 font-medium max-w-xs">Erro ao carregar o engine de mapas. Verifique sua chave API do Google Cloud nas variáveis de ambiente.</p>
+          <p className="text-sm text-zinc-500 font-medium max-w-xs">Erro ao carregar o engine de mapas. Verifique sua chave API do Google Cloud.</p>
         </div>
       </LuxuryCard>
     );
   }
 
   return (
-    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden h-[37.5rem]">
-      {/* Indicador de Status do Mapa */}
+    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden h-[40rem]">
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
-          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE 2024 • Sincronizada</span>
+          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE 2024 • Navegação Fluida</span>
         </div>
       </div>
 
@@ -185,7 +186,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
           <GoogleMap 
             mapContainerStyle={mapContainerStyle} 
             center={center} 
-            zoom={6} 
+            zoom={7} 
             onLoad={onLoad} 
             options={{ 
               styles: mapStyles, 
@@ -194,7 +195,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
               mapTypeControl: false, 
               streetViewControl: false, 
               fullscreenControl: true, 
-              gestureHandling: 'cooperative' 
+              gestureHandling: 'greedy' // Ativa navegação extremamente fluida (um dedo/scroll)
             }}
           >
             {hoverInfo && (
