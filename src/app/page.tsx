@@ -604,12 +604,12 @@ export default function Home() {
                   <span className="text-lg font-black text-zinc-400">/ 20.000</span>
                 </div>
                 <div className="flex gap-0.5 mt-8">
-                  {[...Array(6)].map((_, i) => (
-                    <div 
-                      key={i} 
-                      className={`h-4 flex-1 rounded-full ${i < (totalDatabaseCount / 20000) * 6 ? 'bg-orange-500' : 'bg-zinc-100'}`} 
-                    />
-                  ))}
+                  <div className="h-4 flex-1 rounded-full bg-orange-500" />
+                  <div className="h-4 flex-1 rounded-full bg-orange-500" />
+                  <div className="h-4 flex-1 rounded-full bg-zinc-100" />
+                  <div className="h-4 flex-1 rounded-full bg-zinc-100" />
+                  <div className="h-4 flex-1 rounded-full bg-zinc-100" />
+                  <div className="h-4 flex-1 rounded-full bg-zinc-100" />
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
@@ -965,13 +965,9 @@ export default function Home() {
         {/* Mapa Interativo ocupando todo o espaço lateral */}
         <div className="w-full">
           <InteractiveMap 
-            stats={filteredData.reduce((acc, curr) => { 
-              const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; 
-              if (r) acc[r] = (acc[r] || 0) + 1; 
-              return acc; 
-            }, {} as Record<MesoRegion, number>)} 
-            activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} 
-            onRegionSelect={(r) => handleFilterChange('region', r || 'all')} 
+            data={filteredData}
+            activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
+            onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
           />
         </div>
       </div>

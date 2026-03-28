@@ -1,23 +1,17 @@
+
 "use client";
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api';
-import { MesoRegion } from '@/data/survey-data';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Loader2, AlertTriangle, MapPin } from 'lucide-react';
+import { ArrowUpRight, Loader2, AlertTriangle, MapPin, Search } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
-
-/**
- * CONFIGURAÇÃO DO GEOJSON:
- * Se você quiser usar um arquivo local, salve-o na pasta 'public'
- * e mude esta URL para '/seu-arquivo.json'
- */
-const GEOJSON_URL = 'https://servicodados.ibge.gov.br/api/v3/malhas/estados/21?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=mesorregiao';
+import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 
 interface InteractiveMapProps {
-  onRegionSelect: (region: MesoRegion | null) => void;
-  stats: Record<MesoRegion, number>;
-  activeRegion: string;
+  data: any[];
+  onCitySelect: (cityName: string | null) => void;
+  activeCity: string;
 }
 
 const mapContainerStyle = { width: '100%', height: '100%' };
@@ -31,41 +25,21 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-const MESO_COLORS: Record<string, string> = {
-  'Metrop.': '#f43f5e',
-  'Norte': '#f97316',
-  'Oeste': '#22c55e',
-  'Centro': '#eab308',
-  'Leste': '#3b82f6',
-  'Sul': '#a855f7',
-};
-
-// Função robusta para mapear nomes do IBGE ou customizados para as chaves do App
-const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
-  if (!ibgeName) return 'Norte';
-  const name = String(ibgeName).toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove acentos
-    
-  if (name.includes('metropol')) return 'Metrop.';
-  if (name.includes('norte')) return 'Norte';
-  if (name.includes('sul')) return 'Sul';
-  if (name.includes('oeste')) return 'Oeste';
-  if (name.includes('leste')) return 'Leste';
-  if (name.includes('centro')) return 'Centro';
-  return 'Norte';
-};
-
-// Extração segura de propriedades do polígono (Sem usar .toObject())
-const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
-  const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name', 'id'];
-  for (const key of keys) {
-    const val = feature.getProperty(key);
-    if (val) return String(val);
+/**
+ * Função para processar as coordenadas do banco (lat lng alt prec)
+ */
+const extractLatLng = (val: any) => {
+  if (!val || typeof val !== 'string') return null;
+  const parts = val.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
   }
   return null;
 };
 
-export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: InteractiveMapProps) => {
+export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMapProps) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
@@ -75,67 +49,116 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [infoWindowData, setInfoWindowData] = useState<{ lat: number, lng: number, name: string, region: string } | null>(null);
+  const [hoverInfo, setHoverInfo] = useState<{ lat: number, lng: number, name: string, count: number } | null>(null);
 
-  const totalSamples = useMemo(() => Object.values(stats).reduce((a, b) => a + b, 0), [stats]);
+  // Agrupar estatísticas por Código de Município (CD_MUN)
+  const cityStats = useMemo(() => {
+    const stats: Record<string, number> = {};
+    const nameToCode: Record<string, string> = {};
+
+    // Mapeamento auxiliar do GeoJSON para vincular nomes do banco aos códigos
+    MUNICIP_GEOJSON.features.forEach((f: any) => {
+      nameToCode[f.properties.NM_MUN.toUpperCase()] = f.properties.CD_MUN;
+    });
+
+    data.forEach(item => {
+      // Tentar match por CD_MUN direto ou por Nome da Cidade
+      const code = item.CD_MUN || item.cd_mun || nameToCode[String(item['Cidade:'] || '').toUpperCase()];
+      if (code) {
+        stats[code] = (stats[code] || 0) + 1;
+      }
+    });
+    return stats;
+  }, [data]);
+
+  const maxCount = useMemo(() => {
+    const counts = Object.values(cityStats);
+    return counts.length > 0 ? Math.max(...counts) : 1;
+  }, [cityStats]);
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-    mapInstance.data.loadGeoJson(GEOJSON_URL);
+    mapInstance.data.addGeoJson(MUNICIP_GEOJSON);
   }, []);
 
-  useEffect(() => {
-    if (!map) return;
-    const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const rawName = getRegionNameFromFeature(event.feature);
-      const regionKey = mapIBGENameToApp(rawName);
-      
-      // Aplica o filtro global
-      onRegionSelect(regionKey);
-      
-      if (event.latLng) {
-        setInfoWindowData({
-          lat: event.latLng.lat(),
-          lng: event.latLng.lng(),
-          name: rawName || regionKey,
-          region: regionKey
-        });
-        map.panTo(event.latLng);
-      }
-    });
-    return () => {
-      google.maps.event.removeListener(clickListener);
-    };
-  }, [map, onRegionSelect]);
-
+  // Aplicar Estilização Dinâmica (Choropleth)
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
-        const rawName = getRegionNameFromFeature(feature);
-        const regionKey = mapIBGENameToApp(rawName);
-        const isSelectionActive = activeRegion !== 'all';
-        const isThisRegionActive = activeRegion === regionKey;
+        const cdMun = feature.getProperty('CD_MUN');
+        const nmMun = feature.getProperty('NM_MUN');
+        const count = cityStats[cdMun] || 0;
         
-        let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.75;
-        let strokeWeight = 2;
-        let strokeColor = '#ffffff';
+        const isSelected = activeCity === nmMun.toUpperCase();
+        const hasData = count > 0;
+        
+        let fillColor = '#e2e8f0'; // Default gray
+        let fillOpacity = 0.3;
+        let strokeWeight = 0.5;
+        let strokeColor = '#cbd5e1';
 
-        if (isSelectionActive) {
-          if (isThisRegionActive) {
-            fillOpacity = 0.95;
-            strokeWeight = 4;
-            strokeColor = '#ffffff';
-          } else {
-            fillOpacity = 0.05;
-            strokeWeight = 0.5;
-            strokeColor = '#f1f5f9';
-          }
+        if (hasData) {
+          // Escala de intensidade baseada no volume de dados
+          const intensity = Math.min(0.3 + (count / maxCount) * 0.7, 1);
+          fillColor = '#ea580c'; // Cor primária Orange
+          fillOpacity = intensity;
+          strokeWeight = 1;
+          strokeColor = '#ffffff';
         }
-        return { fillColor, fillOpacity, strokeColor, strokeWeight, visible: true };
+
+        if (isSelected) {
+          fillOpacity = 0.9;
+          strokeWeight = 3;
+          strokeColor = '#09090b';
+          fillColor = '#f97316';
+        }
+
+        return {
+          fillColor,
+          fillOpacity,
+          strokeColor,
+          strokeWeight,
+          visible: true,
+          cursor: 'pointer'
+        };
       });
     }
-  }, [map, activeRegion]);
+  }, [map, cityStats, maxCount, activeCity]);
+
+  // Listeners de Eventos
+  useEffect(() => {
+    if (!map) return;
+
+    const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
+      const nmMun = event.feature.getProperty('NM_MUN');
+      onCitySelect(nmMun.toUpperCase());
+    });
+
+    const mouseOverListener = map.data.addListener('mouseover', (event: google.maps.Data.MouseEvent) => {
+      const nmMun = event.feature.getProperty('NM_MUN');
+      const cdMun = event.feature.getProperty('CD_MUN');
+      const count = cityStats[cdMun] || 0;
+      
+      if (event.latLng) {
+        setHoverInfo({
+          lat: event.latLng.lat(),
+          lng: event.latLng.lng(),
+          name: nmMun,
+          count: count
+        });
+      }
+    });
+
+    const mouseOutListener = map.data.addListener('mouseout', () => {
+      setHoverInfo(null);
+    });
+
+    return () => {
+      google.maps.event.removeListener(clickListener);
+      google.maps.event.removeListener(mouseOverListener);
+      google.maps.event.removeListener(mouseOutListener);
+    };
+  }, [map, cityStats, onCitySelect]);
 
   if (!apiKey || loadError) {
     return (
@@ -153,9 +176,10 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
-          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE • Sincronizado</span>
+          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE 2024 • Sincronizado</span>
         </div>
       </div>
+
       <div className="w-full h-full relative">
         {isLoaded ? (
           <GoogleMap 
@@ -173,14 +197,19 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
               gestureHandling: 'cooperative' 
             }}
           >
-            {infoWindowData && (
-              <InfoWindow position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }} onCloseClick={() => setInfoWindowData(null)}>
+            {hoverInfo && (
+              <InfoWindow 
+                position={{ lat: hoverInfo.lat, lng: hoverInfo.lng }} 
+                options={{ pixelOffset: new window.google.maps.Size(0, -10) }}
+              >
                 <div className="p-3 min-w-[10rem]">
-                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1"><MapPin size={10} />Recorte Regional</p>
-                  <p className="text-sm font-black text-zinc-900 leading-tight">{infoWindowData.name}</p>
+                  <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1">
+                    <MapPin size={10} /> Município
+                  </p>
+                  <p className="text-sm font-black text-zinc-900 leading-tight">{hoverInfo.name}</p>
                   <div className="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
-                    <span className="text-[9px] font-bold text-zinc-400">Status</span>
-                    <span className="text-[9px] font-black text-emerald-600 uppercase">Sincronizado</span>
+                    <span className="text-[9px] font-bold text-zinc-400">Entrevistas</span>
+                    <span className="text-[10px] font-black text-zinc-950">{hoverInfo.count.toLocaleString('pt-BR')}</span>
                   </div>
                 </div>
               </InfoWindow>
@@ -192,37 +221,6 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Iniciando Cartografia Maranhense...</p>
           </div>
         )}
-        <AnimatePresence>
-          {activeRegion !== 'all' && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="absolute right-6 top-6 bottom-6 w-80 p-8 bg-white/95 backdrop-blur-2xl border border-zinc-200 rounded-[2.5rem] shadow-2xl z-30 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: MESO_COLORS[activeRegion] }} />
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: MESO_COLORS[activeRegion] || '#f97316' }}>{activeRegion === 'Metrop.' ? 'Metropolitana' : activeRegion} Maranhense</span>
-                  </div>
-                  <button onClick={() => onRegionSelect('all')} className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors"><ArrowUpRight size={18} className="text-zinc-400" /></button>
-                </div>
-                <div className="space-y-8">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Amostra de Votos</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-zinc-950 tracking-tighter">{(stats[activeRegion as MesoRegion] || 0).toLocaleString('pt-BR')}</span>
-                      <span className="text-xs font-bold text-zinc-400">Entrevistas</span>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-end"><span className="text-[10px] font-black text-zinc-500 uppercase">Representatividade</span><span className="text-2xl font-black font-mono" style={{ color: MESO_COLORS[activeRegion] }}>{totalSamples > 0 ? ((stats[activeRegion as MesoRegion] / totalSamples) * 100).toFixed(1) : 0}%</span></div>
-                    <div className="h-4 w-full bg-zinc-100 rounded-full overflow-hidden shadow-inner">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${(stats[activeRegion as MesoRegion] / totalSamples) * 100}%` }} transition={{ duration: 1, ease: "circOut" }} className="h-full shadow-lg" style={{ backgroundColor: MESO_COLORS[activeRegion] }} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-center"><p className="text-[10px] text-zinc-400 font-black uppercase tracking-widest">Base de Dados Cloud: Maranhão 2026</p></div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </LuxuryCard>
   );
