@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -171,7 +170,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -825,29 +824,15 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Novos Módulos de Análise Senado */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-              <SpontaneousVoteChart 
-                data={chartData.senatorSecondVoteEstData}
-                total={getFilteredData(['senator_second_vote_est']).length}
+            {/* Percepção de Vitória e Rejeição Senado lado a lado */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <VictoryPerceptionCard 
+                data={chartData.senatorVictoryData} 
+                total={totalDatabaseCount}
                 overline="CORRIDA SENADO"
-                title="Segundo Voto"
-                question="Para quem você daria o seu segundo voto para Senador?"
-                badge="ESTIMULADA"
-                showPhotos={true}
-                selected={filters.senator_second_vote_est}
-                onFilterChange={(v) => handleFilterChange('senator_second_vote_est', v)}
-              />
-              <SpontaneousVoteChart 
-                data={chartData.senatorSecondVoteSponData}
-                total={getFilteredData(['senator_second_vote_spon']).length}
-                overline="CORRIDA SENADO"
-                title="Segundo Senador"
-                question="E o segundo Senador, qual será eleito?"
+                title="Percepção de Vitória"
+                question='"Na sua opinião, quais são os dois Senadores que serão eleitos?"'
                 badge="ESPONTÂNEA"
-                showPhotos={true}
-                selected={filters.senator_second_vote_spon}
-                onFilterChange={(v) => handleFilterChange('senator_second_vote_spon', v)}
               />
               <GovernorRejectionChart 
                 data={chartData.senatorRejectionData}
@@ -859,18 +844,6 @@ export default function Home() {
                 color="rose"
                 selected={filters.senator_rejection}
                 onFilterChange={(v) => handleFilterChange('senator_rejection', v)}
-              />
-            </div>
-
-            {/* Novo módulo de Percepção de Vitória Senado */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <VictoryPerceptionCard 
-                data={chartData.senatorVictoryData} 
-                total={totalDatabaseCount}
-                overline="CORRIDA SENADO"
-                title="Percepção de Vitória"
-                question='"Na sua opinião, quais são os dois Senadores que serão eleitos?"'
-                badge="ESPONTÂNEA"
               />
             </div>
 
@@ -909,6 +882,29 @@ export default function Home() {
               data={chartData.senatorCoalitionData} 
               total={filteredData.length} 
               color="orange" 
+            />
+
+            <SpontaneousVoteChart 
+              data={chartData.senatorSecondVoteEstData}
+              total={getFilteredData(['senator_second_vote_est']).length}
+              overline="CORRIDA SENADO"
+              title="Segundo Voto"
+              question="Para quem você daria o seu segundo voto para Senador?"
+              badge="ESTIMULADA"
+              showPhotos={true}
+              selected={filters.senator_second_vote_est}
+              onFilterChange={(v) => handleFilterChange('senator_second_vote_est', v)}
+            />
+            <SpontaneousVoteChart 
+              data={chartData.senatorSecondVoteSponData}
+              total={getFilteredData(['senator_second_vote_spon']).length}
+              overline="CORRIDA SENADO"
+              title="Segundo Senador"
+              question="E o segundo Senador, qual será eleito?"
+              badge="ESPONTÂNEA"
+              showPhotos={true}
+              selected={filters.senator_second_vote_spon}
+              onFilterChange={(v) => handleFilterChange('senator_second_vote_spon', v)}
             />
           </div>
         </div>
