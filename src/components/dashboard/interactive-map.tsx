@@ -58,12 +58,14 @@ const InteractiveMapContent = ({
   cityCounts, 
   maxCount, 
   setHoveredCity, 
-  paintMode 
+  paintMode,
+  viewMode
 }: { 
   cityCounts: Record<string, number>, 
   maxCount: number,
   setHoveredCity: (n: string | null) => void, 
-  paintMode: 'all' | 'responses' 
+  paintMode: 'all' | 'responses',
+  viewMode: 'municipal' | 'interviews'
 }) => {
   const map = useMap();
 
@@ -78,9 +80,9 @@ const InteractiveMapContent = ({
     }
 
     const mouseOverListener = map.data.addListener('mouseover', (event: any) => {
+      if (viewMode === 'interviews') return; // Desativa tooltips no modo de pins
       const cityName = event.feature.getProperty('NM_MUN');
       setHoveredCity(cityName);
-      // Ajustado para manter transparência mas destacar os contornos
       map.data.overrideStyle(event.feature, { 
         strokeColor: '#000000', 
         strokeWeight: 3.0,
@@ -97,18 +99,24 @@ const InteractiveMapContent = ({
       google.maps.event.removeListener(mouseOverListener);
       google.maps.event.removeListener(mouseOutListener);
     };
-  }, [map, setHoveredCity]);
+  }, [map, setHoveredCity, viewMode]);
 
   useEffect(() => {
     if (!map) return;
     map.data.setStyle((feature) => {
+      // Se estivermos no modo de Entrevistas, não pintamos a malha municipal
+      // Isso remove o "degradê" e as linhas para deixar apenas os pins visíveis
+      if (viewMode === 'interviews') {
+        return { visible: false };
+      }
+
       const cityName = String(feature.getProperty('NM_MUN')).toUpperCase();
       const count = cityCounts[cityName] || 0;
       const hasData = count > 0;
       
       const isResponsesOnly = paintMode === 'responses';
       
-      // Se for "Só Coletas", só mostramos se tiver dado (Recorte solicitado)
+      // Se for "Só Coletas", só mostramos se tiver dado
       if (isResponsesOnly && !hasData) {
         return { visible: false };
       }
@@ -131,7 +139,7 @@ const InteractiveMapContent = ({
         visible: true
       };
     });
-  }, [map, cityCounts, maxCount, paintMode]);
+  }, [map, cityCounts, maxCount, paintMode, viewMode]);
 
   return null;
 };
@@ -264,6 +272,7 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
               maxCount={maxCount} 
               setHoveredCity={setHoveredCity} 
               paintMode={paintMode} 
+              viewMode={viewMode}
             />
 
             {/* Marcadores Individuais com lógica de segmentação cirúrgica */}
@@ -332,7 +341,7 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
           </Map>
 
           {/* Tooltip flutuante no Hover */}
-          {hoveredCity && (
+          {hoveredCity && viewMode === 'municipal' && (
             <div className="absolute bottom-6 left-6 z-30 bg-zinc-950 text-white p-4 rounded-[1.5rem] shadow-2xl border border-white/10 backdrop-blur-md flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 min-w-[180px]">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
