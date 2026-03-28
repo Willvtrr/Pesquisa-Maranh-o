@@ -196,14 +196,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
   return (
     <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden h-[40rem]">
-      {/* HUD de Controle Superior Esquerdo */}
-      <div className="absolute top-6 left-6 z-20 pointer-events-none space-y-3">
-        <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
-          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE 2024 • Navegação Fluida</span>
-        </div>
-      </div>
-
       {/* Toggles de Visualização Superior Direito */}
       <div className="absolute top-6 right-6 z-20 flex gap-2">
         <div className="bg-white/95 backdrop-blur-xl border border-zinc-200 p-1.5 rounded-2xl shadow-2xl flex gap-1">
