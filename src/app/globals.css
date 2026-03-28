@@ -28,6 +28,12 @@
 }
 
 @layer base {
+  html {
+    /* Ajuste de escala global: 14px em vez de 16px (Efeito zoom 87.5%) */
+    /* Para efeito de 80% puro, poderíamos usar 12.8px, mas 14px é o ideal para leitura */
+    font-size: 14px;
+  }
+
   * {
     @apply border-zinc-200/80;
   }
