@@ -171,7 +171,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -466,7 +466,8 @@ export default function Home() {
   const handleManualSync = async () => {
     if (isSyncing) return;
     setIsSyncing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // 2 ciclos de 1.5s = 3s
+    await new Promise(resolve => setTimeout(resolve, 3000));
     setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
@@ -522,25 +523,22 @@ export default function Home() {
               <AnimatePresence>
                 {isSyncing && (
                   <motion.div
+                    key="scanner-line"
                     initial={{ top: "-10%" }}
                     animate={{ top: "110%" }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 1.5, repeat: 1, ease: "linear" }}
                     className="absolute left-0 right-0 h-[2px] bg-orange-500/50 shadow-[0_0_15px_rgba(234,88,12,0.8)] z-20 pointer-events-none"
                   />
                 )}
               </AnimatePresence>
 
               <div className="flex items-center justify-between mb-4">
-                <motion.div 
-                  animate={isSyncing ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : {}}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                  className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"
-                >
+                <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500">
                   <Database size={14} />
-                </motion.div>
+                </div>
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-100">
-                  <div className={cn("w-1 h-1 rounded-full", isSyncing ? "bg-emerald-500 animate-bounce" : "bg-orange-500 animate-pulse")} />
+                  <div className={cn("w-1 h-1 rounded-full", isSyncing ? "bg-emerald-50 animate-bounce" : "bg-orange-500 animate-pulse")} />
                   <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">
                     {isSyncing ? "Sincronizando" : "Cloud Ativo"}
                   </span>
