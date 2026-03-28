@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
@@ -94,13 +93,15 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
       // Aplica o filtro global
       onRegionSelect(regionKey);
       
-      setInfoWindowData({
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng(),
-        name: rawName || regionKey,
-        region: regionKey
-      });
-      map.panTo(event.latLng);
+      if (event.latLng) {
+        setInfoWindowData({
+          lat: event.latLng.lat(),
+          lng: event.latLng.lng(),
+          name: rawName || regionKey,
+          region: regionKey
+        });
+        map.panTo(event.latLng);
+      }
     });
     return () => {
       google.maps.event.removeListener(clickListener);
@@ -138,7 +139,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
 
   if (!apiKey || loadError) {
     return (
-      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[500px]">
+      <LuxuryCard title="GEOLOCALIZAÇÃO" subtitle="Erro de Configuração" className="min-h-[31.25rem]">
         <div className="flex flex-col items-center justify-center h-full text-center gap-6">
           <AlertTriangle className="w-12 h-12 text-rose-500" />
           <p className="text-sm text-zinc-500 font-medium max-w-xs">Erro ao carregar o engine de mapas. Verifique sua chave API do Google Cloud.</p>
@@ -148,7 +149,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
   }
 
   return (
-    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden min-h-[600px]">
+    <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden min-h-[37.5rem]">
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
@@ -174,7 +175,7 @@ export const InteractiveMap = ({ onRegionSelect, stats, activeRegion }: Interact
           >
             {infoWindowData && (
               <InfoWindow position={{ lat: infoWindowData.lat, lng: infoWindowData.lng }} onCloseClick={() => setInfoWindowData(null)}>
-                <div className="p-3 min-w-[160px]">
+                <div className="p-3 min-w-[10rem]">
                   <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1"><MapPin size={10} />Recorte Regional</p>
                   <p className="text-sm font-black text-zinc-900 leading-tight">{infoWindowData.name}</p>
                   <div className="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">

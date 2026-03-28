@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -171,7 +170,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -472,7 +471,7 @@ export default function Home() {
   if (isLoading && rawSurveyData.length === 0) {
     return (
       <AppLayout>
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="flex flex-col items-center justify-center min-h-[25rem] gap-4">
           <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
           <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sincronizando Banco de Dados...</p>
         </div>
@@ -512,7 +511,7 @@ export default function Home() {
             </div>
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">App de inteligência política e monitoramento de dados eleitorais.</p>
           </div>
-          <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[240px]">
+          <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[15rem]">
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"><Database size={14} /></div>
@@ -526,7 +525,7 @@ export default function Home() {
                 <h3 className="text-sm font-black text-white">Banco de Dados</h3>
                 <p className="text-[8px] font-medium text-zinc-400"><span className="text-orange-500 font-black">{totalDatabaseCount.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
               </div>
-              <div className="bg-zinc-900/40 rounded-xl p-2 h-[45px] overflow-y-auto mb-4 log-scroll border border-zinc-800/40">
+              <div className="bg-zinc-900/40 rounded-xl p-2 h-[2.8125rem] overflow-y-auto mb-4 log-scroll border border-zinc-800/40">
                 <ul className="space-y-1 text-[6px] font-mono">
                   <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>ID: {totalDatabaseCount} - Sincronizado</span></li>
                   <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>Monitoramento v3.5 Ativo</span></li>
@@ -703,7 +702,7 @@ export default function Home() {
                           isActive && "bg-orange-50 ring-1 ring-orange-200 shadow-sm",
                           isFaded && !isActive && "opacity-40 grayscale-[0.5]"
                         )}
-                        onMouseEnter={() => setHoveredSecondRound(idx)}
+                        onMouseEnter={() => hoveredSecondRound !== null && setHoveredSecondRound(idx)}
                         onClick={() => handleFilterChange('president_second_round', item.name)}
                       >
                         <Avatar className={cn(

@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -17,11 +16,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       {/* Background Grid Sutil */}
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
       
-      <header className="h-16 lg:h-24 bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
+      <header className="h-16 lg:h-[6rem] bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
           {/* Logo Oficial FOCCO ANALYTICS - Variante 3 */}
           <div className="flex items-center cursor-pointer group">
-            <div className="relative w-[140px] h-[40px] lg:w-[180px] lg:h-[52px]">
+            <div className="relative w-[8.75rem] h-[2.5rem] lg:w-[11.25rem] h-[3.25rem]">
               <Image 
                 src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
                 alt="Focco Analytics" 
@@ -53,7 +52,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </header>
 
-      <main className="max-w-[1900px] mx-auto p-4 sm:p-6 md:p-10 lg:p-12 relative z-10">
+      <main className="max-w-[118.75rem] mx-auto p-4 sm:p-6 md:p-10 lg:p-12 relative z-10">
         {children}
 
         <footer className="mt-12 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 border-t border-zinc-200 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 pb-10">
