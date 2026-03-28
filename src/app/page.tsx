@@ -667,14 +667,14 @@ export default function Home() {
                   onMouseLeave={() => setHoveredSecondRound(null)}
                 >
                   {chartData.secondRoundData.map((item, idx) => {
-                    const totalData = getFilteredData(['president_second_round']);
-                    const pct = ((item.value / Math.max(totalData.length, 1)) * 100);
+                    const totalDataLength = getFilteredData(['president_second_round']).length || 1;
+                    const pct = (item.value / totalDataLength) * 100;
                     const isAbstention = item.isAbstention;
                     const isActive = filters.president_second_round.includes(item.name);
                     const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
                     
-                    const maxVal = Math.max(...chartData.secondRoundData.filter(d => !d.isAbstention).map(d => d.value), 1);
-                    const visualPct = isAbstention ? (item.value / Math.max(totalData.length, 1)) * 100 : (item.value / maxVal) * 100;
+                    // Barra de Distribuição Proporcional: Largura é o valor real sobre 100%
+                    const visualPct = pct;
 
                     return (
                       <div 
@@ -682,7 +682,7 @@ export default function Home() {
                         className={cn(
                           "flex items-center gap-3 cursor-pointer transition-all duration-300 p-1.5 rounded-2xl group/row",
                           isActive && "bg-orange-50 ring-1 ring-orange-200 shadow-sm",
-                          isFaded && "opacity-40 grayscale-[0.5]"
+                          isFaded && !isActive && "opacity-40 grayscale-[0.5]"
                         )}
                         onMouseEnter={() => setHoveredSecondRound(idx)}
                         onClick={() => handleFilterChange('president_second_round', item.name)}
@@ -722,7 +722,7 @@ export default function Home() {
                                 !isAbstention ? "bg-gradient-to-r from-[#f27e46] to-[#c44d15]" : "bg-zinc-200",
                                 isActive && "from-orange-600 to-orange-700"
                               )} 
-                              style={{ opacity: isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12)) }} 
+                              style={{ opacity: isActive ? 1 : (isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12))) }} 
                             />
                           </div>
                         </div>
@@ -876,7 +876,7 @@ const MaranhaoFlag = () => (
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />
-    <rect width="27" height="2" y="6" fill="#E20613" />
+    <rect width="27" height="2" y="2" fill="#E20613" />
     <rect width="27" height="2" y="8" fill="#FFFFFF" />
     <rect width="27" height="2" y="10" fill="#000000" />
     <rect width="27" height="2" y="12" fill="#E20613" />
