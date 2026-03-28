@@ -1,13 +1,12 @@
 
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
-import { Loader2, AlertTriangle, MapPin, Layers, Box, Users, X } from 'lucide-react';
+import { Loader2, Layers, Users, Box } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface InteractiveMapProps {
   data: any[];
@@ -20,97 +19,73 @@ const center = { lat: -5.1, lng: -45.1 };
 const mapStyles = [
   { "elementType": "geometry", "stylers": [{ "color": "#f8f9fa" }] },
   { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-  { "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
-  { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "visibility": "on" }] },
-  { "featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{ "color": "#94a3b8" }, { "weight": 1 }] },
   { "featureType": "road", "stylers": [{ "visibility": "off" }] },
   { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-// Sub-componente Interno para lógica que usa useMap()
-const InteractiveMapContent = ({ data, onCitySelect, activeCity, viewMode, cityStats, maxCount, setHoverInfo }: any) => {
+/**
+ * Sub-componente Interno para lógica que usa useMap()
+ * Lida com a Data Layer (GeoJSON) e estilização da malha.
+ */
+const InteractiveMapContent = () => {
   const map = useMap();
 
   useEffect(() => {
     if (!map) return;
 
-    // Carrega GeoJSON se ainda não estiver carregado
+    // Carrega a malha do Maranhão
     try {
       map.data.addGeoJson(MUNICIP_GEOJSON);
     } catch (e) {
-      // Ignora se já estiver carregado
+      console.warn("GeoJSON já carregado ou erro no carregamento:", e);
     }
 
-    map.data.setStyle((feature) => {
-      const cdMun = feature.getProperty('CD_MUN');
-      const nmMun = feature.getProperty('NM_MUN');
-      const count = cityStats[cdMun] || 0;
-      
-      const isSelected = activeCity === String(nmMun).toUpperCase();
-      const hasData = count > 0;
-      const isInterviews = viewMode === 'interviews';
-      
-      let fillColor = '#f1f5f9'; 
-      let fillOpacity = isInterviews ? 0.05 : 0.2;
-      let strokeWeight = 0.5;
-      let strokeColor = isInterviews ? '#e2e8f0' : '#cbd5e1';
-
-      if (!isInterviews && hasData) {
-        const intensity = 0.3 + (count / maxCount) * 0.7;
-        fillColor = '#ea580c'; 
-        fillOpacity = intensity;
-        strokeWeight = 0.8;
-        strokeColor = '#ffffff';
-      }
-
-      if (isSelected) {
-        fillOpacity = isInterviews ? 0.1 : 0.95;
-        strokeWeight = 3;
-        strokeColor = '#09090b';
-        fillColor = '#f97316';
-      }
-
-      return {
-        fillColor,
-        fillOpacity,
-        strokeColor,
-        strokeWeight,
-        visible: true,
-        cursor: 'pointer'
-      };
-    });
-
-    const clickListener = map.data.addListener('click', (event: any) => {
-      const nmMun = event.feature.getProperty('NM_MUN');
-      onCitySelect(nmMun ? nmMun.toUpperCase() : null);
-    });
-
-    const mouseOverListener = map.data.addListener('mousemove', (event: any) => {
-      const nmMun = event.feature.getProperty('NM_MUN');
-      const cdMun = event.feature.getProperty('CD_MUN');
-      const count = cityStats[cdMun] || 0;
-      
-      if (event.domEvent) {
-        setHoverInfo({
-          x: event.domEvent.clientX,
-          y: event.domEvent.clientY,
-          name: nmMun,
-          count: count
-        });
-      }
-    });
-
-    const mouseOutListener = map.data.addListener('mouseout', () => {
-      setHoverInfo(null);
+    // Estilização inicial da malha solicitada
+    map.data.setStyle({
+      fillColor: '#ea580c',
+      fillOpacity: 0.05,
+      strokeColor: '#cbd5e1',
+      strokeWeight: 0.5,
+      visible: true
     });
 
     return () => {
-      google.maps.event.removeListener(clickListener);
-      google.maps.event.removeListener(mouseOverListener);
-      google.maps.event.removeListener(mouseOutListener);
+      // Limpeza se necessário
     };
-  }, [map, cityStats, maxCount, activeCity, viewMode, onCitySelect, setHoverInfo]);
+  }, [map]);
+
+  return null;
+};
+
+/**
+ * Função de Extração de Dados GPS conforme prioridades técnicas
+ */
+const extractLatLng = (item: any) => {
+  // Prioridade 1: Campos numéricos _start-geopoint
+  const latNum = item['_start-geopoint_latitude'];
+  const lngNum = item['_start-geopoint_longitude'];
+  if (typeof latNum === 'number' && typeof lngNum === 'number') {
+    return { lat: latNum, lng: lngNum };
+  }
+
+  // Prioridade 2: Campo string INFO (formato 'lat, lng')
+  const info = item['INFO'];
+  if (typeof info === 'string') {
+    const parts = info.split(',').map(p => parseFloat(p.trim()));
+    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      return { lat: parts[0], lng: parts[1] };
+    }
+  }
+
+  // Fallback para campo 'Coordenadas' se existir
+  const coords = item['Coordenadas'];
+  if (typeof coords === 'string') {
+    const parts = coords.split(',').map(p => parseFloat(p.trim()));
+    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      return { lat: parts[0], lng: parts[1] };
+    }
+  }
 
   return null;
 };
@@ -119,22 +94,10 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'municipal' | 'interviews'>('municipal');
   const [is3D, setIs3D] = useState(false);
-  const [hoverInfo, setHoverInfo] = useState<{ x: number, y: number, name: string, count: number } | null>(null);
   
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const extractLatLng = (item: any) => {
-    const coordStr = item.Coordenadas || item.INFO || "";
-    if (!coordStr || typeof coordStr !== 'string') return null;
-    
-    const parts = coordStr.replace(',', ' ').split(/\s+/).map(p => parseFloat(p));
-    if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-      return { lat: parts[0], lng: parts[1] };
-    }
-    return null;
-  };
 
   const points = useMemo(() => {
     if (viewMode !== 'interviews') return [];
@@ -145,33 +108,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
       })
       .filter(p => p !== null);
   }, [data, viewMode]);
-
-  const cityStats = useMemo(() => {
-    const stats: Record<string, number> = {};
-    const nameToCode: Record<string, string> = {};
-
-    if (MUNICIP_GEOJSON && MUNICIP_GEOJSON.features) {
-      MUNICIP_GEOJSON.features.forEach((f: any) => {
-        if (f.properties && f.properties.NM_MUN) {
-          nameToCode[f.properties.NM_MUN.toUpperCase()] = f.properties.CD_MUN;
-        }
-      });
-    }
-
-    data.forEach(item => {
-      const cityRaw = String(item['Cidade:'] || item['cidade'] || '').toUpperCase().trim();
-      const code = item.CD_MUN || item.cd_mun || nameToCode[cityRaw];
-      if (code) {
-        stats[code] = (stats[code] || 0) + 1;
-      }
-    });
-    return stats;
-  }, [data]);
-
-  const maxCount = useMemo(() => {
-    const counts = Object.values(cityStats);
-    return counts.length > 0 ? Math.max(...counts) : 1;
-  }, [cityStats]);
 
   if (!mounted) {
     return (
@@ -238,53 +174,17 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             disableDefaultUI={false}
             gestureHandling={'greedy'}
           >
-            <InteractiveMapContent 
-              data={data}
-              onCitySelect={onCitySelect}
-              activeCity={activeCity}
-              viewMode={viewMode}
-              cityStats={cityStats}
-              maxCount={maxCount}
-              setHoverInfo={setHoverInfo}
-            />
+            <InteractiveMapContent />
 
             {viewMode === 'interviews' && points.map((p: any) => (
               <AdvancedMarker
                 key={p.id}
                 position={{ lat: p.lat, lng: p.lng }}
               >
-                <div className="w-3 h-3 rounded-full bg-orange-600 border-2 border-white shadow-md" />
+                <div className="w-3 h-3 rounded-full bg-orange-600 border-2 border-white shadow-md hover:scale-125 transition-transform cursor-pointer" />
               </AdvancedMarker>
             ))}
           </Map>
-
-          <AnimatePresence>
-            {hoverInfo && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                style={{ 
-                  position: 'fixed', 
-                  left: hoverInfo.x + 15, 
-                  top: hoverInfo.y + 15,
-                  pointerEvents: 'none'
-                }}
-                className="z-[100] glass-capsule p-3 min-w-[12rem] border border-white/40 shadow-2xl"
-              >
-                <div className="space-y-1">
-                  <p className="text-[8px] font-black uppercase text-orange-600 flex items-center gap-1">
-                    <MapPin size={10} /> Localização
-                  </p>
-                  <p className="text-sm font-black text-zinc-900 leading-tight">{hoverInfo.name}</p>
-                  <div className="mt-2 pt-2 border-t border-zinc-100 flex items-center justify-between gap-4">
-                    <span className="text-[8px] font-bold text-zinc-400 uppercase">Registros</span>
-                    <span className="text-[10px] font-black text-zinc-950">{hoverInfo.count.toLocaleString('pt-BR')}</span>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
     </LuxuryCard>
