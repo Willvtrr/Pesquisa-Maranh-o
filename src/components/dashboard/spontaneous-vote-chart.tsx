@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
@@ -43,11 +43,7 @@ export const SpontaneousVoteChart = ({
     setIsMounted(true);
   }, []);
 
-  const maxCandidateVal = useMemo(() => {
-    const candidates = data.filter(d => !d.isAbstention);
-    if (candidates.length === 0) return Math.max(...data.map(d => d.value), 1);
-    return Math.max(...candidates.map(d => d.value), 1);
-  }, [data]);
+  const totalVotes = Math.max(total, 1);
 
   const content = (
     <div 
@@ -55,14 +51,13 @@ export const SpontaneousVoteChart = ({
       onMouseLeave={() => setHoveredIndex(null)}
     >
       {data.map((item, idx) => {
-        const pct = total > 0 ? (item.value / total) * 100 : 0;
+        // Barra de Distribuição Proporcional: reflete o percentual real sobre o total de 100%
+        const pct = (item.value / totalVotes) * 100;
         const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
         const isAbstention = item.isAbstention;
         const isActive = selected.includes(item.name);
         const displayName = toTitleCase(item.name);
 
-        // Barra de Escala Relativa: o líder preenche 100% do campo visual da barra
-        const visualWidth = Math.min((item.value / maxCandidateVal) * 100, 100);
         const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
 
         return (
@@ -114,7 +109,7 @@ export const SpontaneousVoteChart = ({
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ 
-                  width: isMounted ? `${visualWidth}%` : 0,
+                  width: isMounted ? `${pct}%` : 0,
                   filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
                 }}
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
