@@ -80,10 +80,11 @@ const InteractiveMapContent = ({
     const mouseOverListener = map.data.addListener('mouseover', (event: any) => {
       const cityName = event.feature.getProperty('NM_MUN');
       setHoveredCity(cityName);
+      // Ajustado para manter transparência mas destacar os contornos
       map.data.overrideStyle(event.feature, { 
         strokeColor: '#000000', 
-        strokeWeight: 2.5,
-        fillOpacity: 1.0 
+        strokeWeight: 3.0,
+        fillOpacity: 0.85 
       });
     });
 
@@ -113,8 +114,8 @@ const InteractiveMapContent = ({
       }
 
       let strokeW = 1.2;
-      let strokeC = '#27272a'; // Evidente
-      let opacity = 0.45; // Mais forte o laranja transparente
+      let strokeC = '#27272a'; 
+      let opacity = 0.45; 
 
       if (hasData) {
         opacity = 0.7 + (count / maxCount) * 0.25;
