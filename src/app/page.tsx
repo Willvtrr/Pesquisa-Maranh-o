@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -693,7 +692,7 @@ export default function Home() {
                         )}>
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
+                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : (item.name.toLowerCase().includes('outros') ? 'O' : 'N/B')) : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
@@ -839,6 +838,7 @@ export default function Home() {
             <RankingCard 
               title="Composição da Chapa" 
               overline="CORRIDA SENADO" 
+              subtitle="De qual chapa, o Senador que você pretende votar, deveria fazer parte?"
               footerLabel="ALIANÇAS PREFERIDAS" 
               data={chartData.senatorCoalitionData} 
               total={filteredData.length} 

@@ -13,6 +13,7 @@ interface RankingItem {
 interface RankingCardProps {
   title: string;
   overline: string;
+  subtitle?: string;
   footerLabel: string;
   data: RankingItem[];
   total: number;
@@ -23,6 +24,7 @@ interface RankingCardProps {
 export const RankingCard = ({ 
   title, 
   overline, 
+  subtitle,
   footerLabel, 
   data, 
   total, 
@@ -73,6 +75,11 @@ export const RankingCard = ({
         <h2 className="text-lg font-black text-zinc-950 tracking-tight">
           {title}
         </h2>
+        {subtitle && (
+          <p className="text-[8px] font-medium text-zinc-400 italic mt-1 leading-tight">
+            "{subtitle}"
+          </p>
+        )}
       </div>
 
       {/* List */}
