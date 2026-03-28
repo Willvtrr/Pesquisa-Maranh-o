@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Map, AdvancedMarker, useMap, InfoWindow } from '@vis.gl/react-google-maps';
-import { Loader2, Layers, Users, Box, MapPin } from 'lucide-react';
+import { Loader2, Layers, Users, Box, MapPin, Globe, Target } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 import { cn } from '@/lib/utils';
@@ -25,15 +25,17 @@ const mapStyles = [
 ];
 
 /**
- * Função de Extração de Dados GPS com prioridades técnicas
+ * Função de Extração de Dados GPS seguindo o Guia Mestre
  */
 const extractLatLng = (item: any) => {
+  // 1. Campos numéricos prioritários
   const latNum = item['_start-geopoint_latitude'];
   const lngNum = item['_start-geopoint_longitude'];
   if (typeof latNum === 'number' && typeof lngNum === 'number') {
     return { lat: latNum, lng: lngNum };
   }
 
+  // 2. String INFO ou Coordenadas (formato "lat, lng")
   const info = item['INFO'] || item['Coordenadas'];
   if (typeof info === 'string') {
     const parts = info.split(',').map(p => parseFloat(p.trim()));
@@ -41,13 +43,19 @@ const extractLatLng = (item: any) => {
       return { lat: parts[0], lng: parts[1] };
     }
   }
+  
+  // 3. Objeto location
+  if (item.location?.lat && item.location?.lng) {
+    return { lat: item.location.lat, lng: item.location.lng };
+  }
+
   return null;
 };
 
 /**
  * Sub-componente Interno para lógica da Data Layer e Estilização
  */
-const InteractiveMapContent = ({ data, setHoveredCity }: any) => {
+const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[], setHoveredCity: (n: string | null) => void, paintMode: 'all' | 'responses' }) => {
   const map = useMap();
 
   const cityCounts = useMemo(() => {
@@ -68,8 +76,12 @@ const InteractiveMapContent = ({ data, setHoveredCity }: any) => {
     if (!map) return;
 
     try {
+      // Limpa dados antigos antes de adicionar novos para evitar duplicação em re-renders
+      map.data.forEach((feature) => map.data.remove(feature));
       map.data.addGeoJson(MUNICIP_GEOJSON);
-    } catch (e) {}
+    } catch (e) {
+      console.error("Erro ao carregar GeoJSON:", e);
+    }
 
     const mouseOverListener = map.data.addListener('mouseover', (event: any) => {
       const cityName = event.feature.getProperty('NM_MUN');
@@ -97,17 +109,28 @@ const InteractiveMapContent = ({ data, setHoveredCity }: any) => {
     map.data.setStyle((feature) => {
       const cityName = String(feature.getProperty('NM_MUN')).toUpperCase();
       const count = cityCounts[cityName] || 0;
-      const opacity = count > 0 ? 0.1 + (count / maxCount) * 0.7 : 0.05;
+      
+      let visible = true;
+      let opacity = 0.05; // Opacidade base para Maranhão Todo
+
+      if (paintMode === 'responses' && count === 0) {
+        visible = false;
+      }
+
+      if (count > 0) {
+        // Escala de intensidade baseada na densidade de respostas
+        opacity = 0.15 + (count / maxCount) * 0.75;
+      }
 
       return {
         fillColor: '#ea580c',
         fillOpacity: opacity,
         strokeColor: '#cbd5e1',
         strokeWeight: 0.5,
-        visible: true
+        visible: visible
       };
     });
-  }, [map, cityCounts, maxCount]);
+  }, [map, cityCounts, maxCount, paintMode]);
 
   return null;
 };
@@ -115,6 +138,7 @@ const InteractiveMapContent = ({ data, setHoveredCity }: any) => {
 export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMapProps) => {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'municipal' | 'interviews'>('municipal');
+  const [paintMode, setPaintMode] = useState<'all' | 'responses'>('all');
   const [is3D, setIs3D] = useState(false);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<any | null>(null);
@@ -144,7 +168,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     <LuxuryCard className="relative p-0 overflow-hidden h-[45rem]">
       <div className="flex flex-col h-full">
         {/* Header Controls */}
-        <div className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 bg-white z-20">
+        <div className="p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-zinc-100 bg-white z-20">
           <div className="space-y-0.5">
             <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
               <span className="w-1 h-3 bg-orange-600 rounded-full" />
@@ -155,7 +179,8 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Seletor de Modo de Visualização */}
             <div className="bg-zinc-100/80 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-zinc-200">
               <button 
                 onClick={() => setViewMode('municipal')}
@@ -174,6 +199,28 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
                 )}
               >
                 <Users size={14} /> Entrevistas
+              </button>
+            </div>
+
+            {/* Seletor de Abrangência Territorial - Novo */}
+            <div className="bg-zinc-100/80 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-zinc-200">
+              <button 
+                onClick={() => setPaintMode('all')}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                  paintMode === 'all' ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-500 hover:bg-white/50"
+                )}
+              >
+                <Globe size={14} /> Estado Todo
+              </button>
+              <button 
+                onClick={() => setPaintMode('responses')}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                  paintMode === 'responses' ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-500 hover:bg-white/50"
+                )}
+              >
+                <Target size={14} /> Só Coletas
               </button>
             </div>
 
@@ -199,7 +246,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             disableDefaultUI={false}
             gestureHandling={'greedy'}
           >
-            <InteractiveMapContent data={data} setHoveredCity={setHoveredCity} />
+            <InteractiveMapContent data={data} setHoveredCity={setHoveredCity} paintMode={paintMode} />
 
             {/* Individual Markers Mode */}
             {viewMode === 'interviews' && points.map((p: any) => (
@@ -218,7 +265,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
                 position={extractLatLng(selectedPoint)}
                 onCloseClick={() => setSelectedPoint(null)}
               >
-                <div className="p-3 min-w-[200px] space-y-3 font-sans">
+                <div className="p-3 min-w-[220px] space-y-3 font-sans">
                   <div className="flex items-center gap-2 border-b border-zinc-100 pb-2">
                     <div className="p-1.5 rounded-lg bg-orange-50 text-orange-600">
                       <MapPin size={14} />
