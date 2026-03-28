@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -182,6 +183,9 @@ const DEFAULT_KEYS = {
   DEPUTY_ESTADUAL_VOTE: "Em quem você votaria para Deputado ESTADUAL? (Espontânea)",
   SENATOR_VOTE_SPONTANEOUS: "SENADOR: Se as eleições para Senador fossem hoje, em quem você votaria? (Espontânea)",
   SENATOR_COALITION: "De qual chapa, o Senador que você pretende votar, deveria fazer parte?",
+  SENATOR_SECOND_VOTE_EST: "SEGUNDO VOTO: Para quem você daria o seu segundo voto para Senador? (Estimulada)",
+  SENATOR_SECOND_VOTE_SPON: "E o segundo Senador, qual será eleito? (ESPONTÂNEA)",
+  SENATOR_REJECTION: "REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum? (Estimulada)",
 };
 
 export default function Home() {
@@ -213,7 +217,10 @@ export default function Home() {
     gov_rejection: ['all'],
     president_approval: ['all'],
     gov_approval: ['all'],
-    mayor_approval: ['all']
+    mayor_approval: ['all'],
+    senator_second_vote_est: ['all'],
+    senator_second_vote_spon: ['all'],
+    senator_rejection: ['all'],
   });
 
   const activeKeys = useMemo(() => {
@@ -257,6 +264,9 @@ export default function Home() {
       DEPUTY_ESTADUAL_VOTE: findKey(['Deputado ESTADUAL', 'espontânea'], DEFAULT_KEYS.DEPUTY_ESTADUAL_VOTE),
       SENATOR_VOTE_SPONTANEOUS: findKey(['Senador', 'hoje', 'espontânea'], DEFAULT_KEYS.SENATOR_VOTE_SPONTANEOUS),
       SENATOR_COALITION: findKey(['chapa', 'senador', 'parte'], DEFAULT_KEYS.SENATOR_COALITION),
+      SENATOR_SECOND_VOTE_EST: findKey(['segundo voto', 'senador'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_EST),
+      SENATOR_SECOND_VOTE_SPON: findKey(['segundo senador', 'espontânea'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_SPON),
+      SENATOR_REJECTION: findKey(['rejeição', 'senador', 'estimulada'], DEFAULT_KEYS.SENATOR_REJECTION, ['presidente']),
     };
   }, [rawSurveyData]);
 
@@ -290,7 +300,10 @@ export default function Home() {
         checkMatch('gov_rejection', activeKeys.GOV_REJECTION) &&
         checkMatch('president_approval', activeKeys.PRESIDENT_APPROVAL) &&
         checkMatch('gov_approval', activeKeys.GOV_APPROVAL) &&
-        checkMatch('mayor_approval', activeKeys.MAYOR_APPROVAL)
+        checkMatch('mayor_approval', activeKeys.MAYOR_APPROVAL) &&
+        checkMatch('senator_second_vote_est', activeKeys.SENATOR_SECOND_VOTE_EST) &&
+        checkMatch('senator_second_vote_spon', activeKeys.SENATOR_SECOND_VOTE_SPON) &&
+        checkMatch('senator_rejection', activeKeys.SENATOR_REJECTION)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -359,6 +372,9 @@ export default function Home() {
       problemsData: processRanking(activeKeys.PROBLEMS, ''),
       worksData: processRanking(activeKeys.WORKS, ''),
       senatorCoalitionData: processRanking(activeKeys.SENATOR_COALITION, ''),
+      senatorSecondVoteEstData: processRanking(activeKeys.SENATOR_SECOND_VOTE_EST, 'senator_second_vote_est'),
+      senatorSecondVoteSponData: processRanking(activeKeys.SENATOR_SECOND_VOTE_SPON, 'senator_second_vote_spon'),
+      senatorRejectionData: processRanking(activeKeys.SENATOR_REJECTION, 'senator_rejection'),
     };
   }, [getFilteredData, activeKeys]);
 
@@ -438,7 +454,8 @@ export default function Home() {
     region: ['all'], city: ['all'], age: ['all'], gender: ['all'], education: ['all'], income: ['all'], religion: ['all'], ideology: ['all'],
     president_vote: ['all'], president_second_round: ['all'], gov_spontaneous: ['all'], deputy_federal: ['all'], deputy_estadual: ['all'], senator_spontaneous: ['all'],
     president_rejection: ['all'], gov_rejection: ['all'],
-    president_approval: ['all'], gov_approval: ['all'], mayor_approval: ['all']
+    president_approval: ['all'], gov_approval: ['all'], mayor_approval: ['all'],
+    senator_second_vote_est: ['all'], senator_second_vote_spon: ['all'], senator_rejection: ['all'],
   });
 
   const handleManualSync = async () => {
@@ -806,6 +823,43 @@ export default function Home() {
               {SENATE_SCENARIOS.map((scenario) => (
                 <SenateScenarioCard key={scenario.id} scenario={scenario} />
               ))}
+            </div>
+
+            {/* Novos Módulos de Análise Senado */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+              <SpontaneousVoteChart 
+                data={chartData.senatorSecondVoteEstData}
+                total={getFilteredData(['senator_second_vote_est']).length}
+                overline="CORRIDA SENADO"
+                title="Segundo Voto"
+                question="Para quem você daria o seu segundo voto para Senador?"
+                badge="ESTIMULADA"
+                showPhotos={true}
+                selected={filters.senator_second_vote_est}
+                onFilterChange={(v) => handleFilterChange('senator_second_vote_est', v)}
+              />
+              <SpontaneousVoteChart 
+                data={chartData.senatorSecondVoteSponData}
+                total={getFilteredData(['senator_second_vote_spon']).length}
+                overline="CORRIDA SENADO"
+                title="Segundo Senador"
+                question="E o segundo Senador, qual será eleito?"
+                badge="ESPONTÂNEA"
+                showPhotos={true}
+                selected={filters.senator_second_vote_spon}
+                onFilterChange={(v) => handleFilterChange('senator_second_vote_spon', v)}
+              />
+              <GovernorRejectionChart 
+                data={chartData.senatorRejectionData}
+                total={getFilteredData(['senator_rejection']).length}
+                title="Índice de Rejeição"
+                overline="CORRIDA SENADO"
+                subtitle='"REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum?"'
+                badge="Estimulada"
+                color="rose"
+                selected={filters.senator_rejection}
+                onFilterChange={(v) => handleFilterChange('senator_rejection', v)}
+              />
             </div>
 
             <div className="w-full">
