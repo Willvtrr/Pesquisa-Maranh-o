@@ -89,7 +89,7 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
       map.data.overrideStyle(event.feature, { 
         strokeColor: '#ea580c', 
         strokeWeight: 2,
-        fillOpacity: 0.9 
+        fillOpacity: 1.0 
       });
     });
 
@@ -111,21 +111,21 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
       const count = cityCounts[cityName] || 0;
       
       let visible = true;
-      let opacity = 0.05; // Opacidade base para Maranhão Todo
+      let opacity = 0.3; // Aumentado de 0.05 para 0.3 (Opacidade base mais sólida)
 
       if (paintMode === 'responses' && count === 0) {
         visible = false;
       }
 
       if (count > 0) {
-        // Escala de intensidade baseada na densidade de respostas
-        opacity = 0.15 + (count / maxCount) * 0.75;
+        // Escala de intensidade: Mínimo 0.5, Máximo 0.95
+        opacity = 0.5 + (count / maxCount) * 0.45;
       }
 
       return {
         fillColor: '#ea580c',
         fillOpacity: opacity,
-        strokeColor: '#cbd5e1',
+        strokeColor: '#a1a1aa', // Cinza um pouco mais escuro para definição
         strokeWeight: 0.5,
         visible: visible
       };
@@ -202,7 +202,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
               </button>
             </div>
 
-            {/* Seletor de Abrangência Territorial - Novo */}
+            {/* Seletor de Abrangência Territorial */}
             <div className="bg-zinc-100/80 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-zinc-200">
               <button 
                 onClick={() => setPaintMode('all')}
