@@ -76,7 +76,6 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
     if (!map) return;
 
     try {
-      // Limpa dados antigos antes de adicionar novos para evitar duplicação em re-renders
       map.data.forEach((feature) => map.data.remove(feature));
       map.data.addGeoJson(MUNICIP_GEOJSON);
     } catch (e) {
@@ -88,7 +87,7 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
       setHoveredCity(cityName);
       map.data.overrideStyle(event.feature, { 
         strokeColor: '#ea580c', 
-        strokeWeight: 2,
+        strokeWeight: 2.5,
         fillOpacity: 1.0 
       });
     });
@@ -109,24 +108,35 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
     map.data.setStyle((feature) => {
       const cityName = String(feature.getProperty('NM_MUN')).toUpperCase();
       const count = cityCounts[cityName] || 0;
+      const hasData = count > 0;
       
       let visible = true;
-      let opacity = 0.3; // Aumentado de 0.05 para 0.3 (Opacidade base mais sólida)
-
-      if (paintMode === 'responses' && count === 0) {
+      if (paintMode === 'responses' && !hasData) {
         visible = false;
       }
 
-      if (count > 0) {
+      // Configuração de divisas evidentes
+      let strokeW = 1.0;
+      let strokeC = '#a1a1aa'; // zinc-400/500
+      
+      let opacity = 0.3; // Opacidade base para o estado todo
+
+      if (hasData) {
         // Escala de intensidade: Mínimo 0.5, Máximo 0.95
         opacity = 0.5 + (count / maxCount) * 0.45;
+        
+        // Em modo só coletas, o traçado fica mais forte para destacar os blocos
+        if (paintMode === 'responses') {
+          strokeW = 2.0;
+          strokeC = '#09090b'; // Quase preto para o "traçado" evidente
+        }
       }
 
       return {
         fillColor: '#ea580c',
         fillOpacity: opacity,
-        strokeColor: '#a1a1aa', // Cinza um pouco mais escuro para definição
-        strokeWeight: 0.5,
+        strokeColor: strokeC,
+        strokeWeight: strokeW,
         visible: visible
       };
     });
