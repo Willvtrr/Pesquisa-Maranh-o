@@ -12,7 +12,7 @@ import {
   Map as MapIcon,
   X
 } from 'lucide-react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { Map, useMap } from '@vis.gl/react-google-maps';
 import {
   Sheet,
   SheetContent,
@@ -65,12 +65,63 @@ const mapIBGENameToApp = (ibgeName: any): MesoRegion => {
   return 'Norte';
 };
 
-const getRegionNameFromFeature = (feature: google.maps.Data.Feature): string | null => {
+const getRegionNameFromFeature = (feature: any): string | null => {
   const keys = ['NM_MESO', 'nm_meso', 'nome', 'NM_MESOREG', 'NOME_MESO', 'name', 'id'];
   for (const key of keys) {
     const val = feature.getProperty(key);
     if (val) return String(val);
   }
+  return null;
+};
+
+// Sub-componente para lidar com a lógica do Google Maps Data Layer
+const MesoRegionMapContent = ({ activeRegion, onFilterChange }: any) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    try {
+      map.data.loadGeoJson(GEOJSON_URL);
+    } catch (e) {}
+
+    const clickListener = map.data.addListener('click', (event: any) => {
+      const rawName = getRegionNameFromFeature(event.feature);
+      const region = mapIBGENameToApp(rawName);
+      onFilterChange('region', region);
+    });
+
+    return () => google.maps.event.removeListener(clickListener);
+  }, [map, onFilterChange]);
+
+  useEffect(() => {
+    if (!map) return;
+    map.data.setStyle((feature) => {
+      const rawName = getRegionNameFromFeature(feature);
+      const regionKey = mapIBGENameToApp(rawName);
+      const isSelectionActive = activeRegion !== 'all';
+      const isThisRegionActive = activeRegion === regionKey;
+      
+      let fillColor = MESO_COLORS[regionKey] || '#f97316';
+      let fillOpacity = 0.75;
+      let strokeWeight = 1.5;
+      let strokeColor = '#ffffff';
+
+      if (isSelectionActive) {
+        if (isThisRegionActive) {
+          fillOpacity = 0.95;
+          strokeWeight = 3;
+          strokeColor = '#ffffff';
+        } else {
+          fillOpacity = 0.05;
+          strokeWeight = 0.5;
+          strokeColor = '#f1f5f9';
+        }
+      }
+      return { fillColor, fillOpacity, strokeColor, strokeWeight, visible: true };
+    });
+  }, [map, activeRegion]);
+
   return null;
 };
 
@@ -95,17 +146,12 @@ const Counter = ({ value, color, symbolColor, size = "text-[3.5rem]", symbolSize
 export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, distribution, className }: FilterBentoBoxProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [hoveredPolitic, setHoveredPolitic] = useState<string | null>(null);
   
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: apiKey || "",
-    language: 'pt-BR',
-    region: 'BR'
-  });
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isSelected = (key: string, value: string) => filters[key]?.includes(value);
   const activeRegion = filters.region?.[0] || 'all';
@@ -113,50 +159,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
   const femalePct = distribution?.gender?.['Feminino'] || 0;
   const malePct = distribution?.gender?.['Masculino'] || 0;
   const isGenderActive = (val: string) => filters.gender?.includes('all') || filters.gender?.includes(val);
-
-  const onLoad = useCallback((mapInstance: google.maps.Map) => {
-    setMap(mapInstance);
-    mapInstance.data.loadGeoJson(GEOJSON_URL);
-  }, []);
-
-  useEffect(() => {
-    if (!map) return;
-    const clickListener = map.data.addListener('click', (event: google.maps.Data.MouseEvent) => {
-      const rawName = getRegionNameFromFeature(event.feature);
-      const region = mapIBGENameToApp(rawName);
-      onFilterChange('region', region);
-    });
-    return () => google.maps.event.removeListener(clickListener);
-  }, [map, onFilterChange]);
-
-  useEffect(() => {
-    if (map) {
-      map.data.setStyle((feature) => {
-        const rawName = getRegionNameFromFeature(feature);
-        const regionKey = mapIBGENameToApp(rawName);
-        const isSelectionActive = activeRegion !== 'all';
-        const isThisRegionActive = activeRegion === regionKey;
-        
-        let fillColor = MESO_COLORS[regionKey] || '#f97316';
-        let fillOpacity = 0.75;
-        let strokeWeight = 1.5;
-        let strokeColor = '#ffffff';
-
-        if (isSelectionActive) {
-          if (isThisRegionActive) {
-            fillOpacity = 0.95;
-            strokeWeight = 3;
-            strokeColor = '#ffffff';
-          } else {
-            fillOpacity = 0.05;
-            strokeWeight = 0.5;
-            strokeColor = '#f1f5f9';
-          }
-        }
-        return { fillColor, fillOpacity, strokeColor, strokeWeight, visible: true };
-      });
-    }
-  }, [map, activeRegion]);
 
   const filteredCities = useMemo(() => {
     const cities = options.city || [];
@@ -210,7 +212,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
     <LuxuryCard title="SEGMENTAÇÃO" subtitle="Recorte de Dados" className={cn("h-fit", className)}>
       <div className="flex flex-col gap-6 pr-1 no-scrollbar pb-2">
         
-        {/* Município */}
         <div className="space-y-3">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse" />
@@ -300,7 +301,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </Sheet>
         </div>
 
-        {/* Mesorregião */}
         <div className="space-y-4 pt-2">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.15em] flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-orange-600 rounded-full" />
@@ -308,14 +308,16 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </label>
           <div className="bg-white rounded-[2rem] p-3 border border-zinc-100 shadow-xl overflow-hidden mb-4">
             <div className="aspect-[4/3] relative rounded-2xl overflow-hidden bg-zinc-50">
-              {isLoaded && (
-                <GoogleMap
-                  mapContainerStyle={{ width: '100%', height: '100%' }}
-                  center={{ lat: -5.3, lng: -45.0 }}
-                  zoom={5}
-                  onLoad={onLoad}
-                  options={{ styles: mapStyles, disableDefaultUI: true }}
-                />
+              {mounted && (
+                <Map
+                  defaultCenter={{ lat: -5.3, lng: -45.0 }}
+                  defaultZoom={5}
+                  disableDefaultUI={true}
+                  gestureHandling={'none'}
+                  styles={mapStyles}
+                >
+                  <MesoRegionMapContent activeRegion={activeRegion} onFilterChange={onFilterChange} />
+                </Map>
               )}
             </div>
           </div>
@@ -359,7 +361,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política - DESIGN FINAL REFINADO E CENTRALIZADO */}
         <div className="pt-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-6">
             <span className="w-1.5 h-6 bg-[#d97743] rounded-full" />
@@ -367,7 +368,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </label>
           
           <div className="flex items-center justify-center gap-10">
-            {/* Gráfico Donut Compacto com Animação Fluida */}
             <div className="relative w-36 h-36 flex-shrink-0">
               <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm overflow-visible">
                 <g transform="rotate(-90 50 50)">
@@ -395,8 +395,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         }}
                         transition={{ 
                           duration: 0.8, 
-                          ease: [0.23, 1, 0.32, 1], // EaseOut Quint para fluidez
-                          opacity: { duration: 0.2 }
+                          ease: [0.23, 1, 0.32, 1]
                         }}
                         onMouseEnter={() => setHoveredPolitic(slice.id)}
                         onMouseLeave={() => setHoveredPolitic(null)}
@@ -406,7 +405,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   })}
                 </g>
 
-                {/* Porcentagens internas minimalistas */}
                 {politicalSlices.map((slice) => {
                   const isHovered = hoveredPolitic === slice.id;
                   if (slice.pct < 12) return null; 
@@ -433,7 +431,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
               </svg>
             </div>
 
-            {/* Legenda Vertical - Tipografia Proporcional */}
             <div className="flex flex-col gap-3.5 py-2">
               {politicalSlices.map((item) => {
                 const active = isSelected('ideology', item.key);
@@ -484,7 +481,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Gênero */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -505,7 +501,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     initial={{ height: 0 }} 
                     animate={{ height: `${femalePct}%` }} 
                     transition={{ duration: 1.5, ease: "circOut" }} 
-                    className="absolute bottom-0 w-full bg-[#e83e8c]" 
+                    className="absolute bottom-0 left-0 w-full bg-[#e83e8c]" 
                   />
                 </div>
               </div>
@@ -521,7 +517,7 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                     initial={{ height: 0 }} 
                     animate={{ height: `${malePct}%` }} 
                     transition={{ duration: 1.5, ease: "circOut" }} 
-                    className="absolute bottom-0 w-full bg-[#1d70b8]" 
+                    className="absolute bottom-0 left-0 w-full bg-[#1d70b8]" 
                   />
                 </div>
               </div>
@@ -533,7 +529,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Faixa Etária */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -561,7 +556,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Renda Familiar */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />
@@ -596,7 +590,6 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Escolaridade */}
         <div className="pt-4">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-3">
             <span className="w-1.5 h-3 bg-orange-600 rounded-full" />

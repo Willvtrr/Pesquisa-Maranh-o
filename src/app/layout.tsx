@@ -1,9 +1,12 @@
+
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { SurveyProvider } from '@/contexts/survey-context';
 import { PWARegister } from '@/components/pwa-register';
+import { GoogleMapsProvider } from '@/components/providers/google-maps-provider';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -42,9 +45,12 @@ export default function RootLayout({
       <body className="font-sans min-h-screen">
         <PWARegister />
         <FirebaseClientProvider>
-          <SurveyProvider>
-            {children}
-          </SurveyProvider>
+          <GoogleMapsProvider>
+            <SurveyProvider>
+              {children}
+              <Toaster />
+            </SurveyProvider>
+          </GoogleMapsProvider>
         </FirebaseClientProvider>
       </body>
     </html>
