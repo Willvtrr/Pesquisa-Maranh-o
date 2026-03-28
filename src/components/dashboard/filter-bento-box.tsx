@@ -359,21 +359,22 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
           </div>
         </div>
 
-        {/* Visão Política - DESIGN FINAL COMPACTO */}
+        {/* Visão Política - DESIGN FINAL REFINADO E CENTRALIZADO */}
         <div className="pt-6">
           <label className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] flex items-center gap-2 mb-6">
             <span className="w-1.5 h-6 bg-[#d97743] rounded-full" />
             Visão Política
           </label>
           
-          <div className="flex items-center justify-between gap-4">
-            {/* Gráfico Donut Compacto */}
+          <div className="flex items-center justify-center gap-10">
+            {/* Gráfico Donut Compacto com Animação Fluida */}
             <div className="relative w-36 h-36 flex-shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-md">
+              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm overflow-visible">
                 <g transform="rotate(-90 50 50)">
                   {politicalSlices.map((slice, idx) => {
                     const offset = politicalSlices.slice(0, idx).reduce((acc, s) => acc + s.pct, 0);
-                    const isFaded = hoveredPolitic && hoveredPolitic !== slice.id;
+                    const isHovered = hoveredPolitic === slice.id;
+                    const isFaded = hoveredPolitic && !isHovered;
                     
                     return (
                       <motion.circle
@@ -381,17 +382,22 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                         cx="50" cy="50" r="30"
                         fill="none"
                         stroke={slice.color}
-                        strokeWidth={hoveredPolitic === slice.id ? 32 : 30}
+                        strokeWidth={isHovered ? 34 : 30}
                         pathLength="100"
                         strokeDasharray={`${slice.pct} 100`}
                         strokeDashoffset={-offset}
-                        className="cursor-pointer transition-all duration-300"
+                        className="cursor-pointer"
                         initial={{ strokeDasharray: "0 100" }}
                         animate={{ 
                           strokeDasharray: `${slice.pct} 100`,
-                          opacity: isFaded ? 0.3 : 1
+                          opacity: isFaded ? 0.2 : 1,
+                          filter: isHovered ? `drop-shadow(0 0 4px ${slice.color}40)` : 'none'
                         }}
-                        transition={{ duration: 1, ease: "circOut" }}
+                        transition={{ 
+                          duration: 0.8, 
+                          ease: [0.23, 1, 0.32, 1], // EaseOut Quint para fluidez
+                          opacity: { duration: 0.2 }
+                        }}
                         onMouseEnter={() => setHoveredPolitic(slice.id)}
                         onMouseLeave={() => setHoveredPolitic(null)}
                         onClick={() => onFilterChange('ideology', slice.key)}
@@ -400,10 +406,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   })}
                 </g>
 
-                {/* Porcentagens dentro das fatias - Otimizadas */}
+                {/* Porcentagens internas minimalistas */}
                 {politicalSlices.map((slice) => {
-                  const isFaded = hoveredPolitic && hoveredPolitic !== slice.id;
-                  if (slice.pct < 10) return null; 
+                  const isHovered = hoveredPolitic === slice.id;
+                  if (slice.pct < 12) return null; 
 
                   return (
                     <motion.text
@@ -411,41 +417,48 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       x={slice.textX}
                       y={slice.textY}
                       fill={slice.textColor}
-                      className="text-[4.5px] font-black pointer-events-none"
+                      className="text-[4px] font-black pointer-events-none"
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      animate={{ opacity: isFaded ? 0.2 : 1 }}
+                      animate={{ 
+                        opacity: hoveredPolitic && !isHovered ? 0.1 : 1,
+                        scale: isHovered ? 1.1 : 1
+                      }}
+                      transition={{ duration: 0.2 }}
                     >
-                      {slice.pct.toFixed(1).replace('.', ',')}%
+                      {slice.pct.toFixed(0)}%
                     </motion.text>
                   );
                 })}
               </svg>
             </div>
 
-            {/* Legenda Vertical de Impacto - Estilo Print */}
-            <div className="flex-1 space-y-3">
+            {/* Legenda Vertical - Tipografia Proporcional */}
+            <div className="flex flex-col gap-3.5 py-2">
               {politicalSlices.map((item) => {
                 const active = isSelected('ideology', item.key);
-                const isFaded = hoveredPolitic && hoveredPolitic !== item.id;
+                const isHovered = hoveredPolitic === item.id;
+                const isFaded = hoveredPolitic && !isHovered;
 
                 return (
                   <div 
                     key={item.id}
                     className={cn(
                       "flex items-center gap-4 group cursor-pointer transition-all duration-300",
-                      isFaded && "opacity-30"
+                      isFaded && "opacity-20 grayscale-[0.5]"
                     )}
                     onMouseEnter={() => setHoveredPolitic(item.id)}
                     onMouseLeave={() => setHoveredPolitic(null)}
                     onClick={() => onFilterChange('ideology', item.key)}
                   >
-                    <div className="flex items-center gap-2 w-20 shrink-0">
-                      <span 
+                    <div className="flex items-center gap-2.5 min-w-[85px]">
+                      <motion.span 
+                        animate={{ scale: isHovered ? 1.2 : 1 }}
                         className="w-2.5 h-2.5 rounded-full shrink-0" 
                         style={{ 
                           backgroundColor: item.color,
-                          border: item.id === 'nsnr' ? '1px solid #cbd5e1' : 'none'
+                          border: item.id === 'nsnr' ? '1px solid #cbd5e1' : 'none',
+                          boxShadow: isHovered ? `0 0 8px ${item.color}60` : 'none'
                         }} 
                       />
                       <span className={cn(
@@ -456,7 +469,10 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                       </span>
                     </div>
                     <span 
-                      className="text-[13px] font-black tabular-nums tracking-tighter"
+                      className={cn(
+                        "text-[11px] font-black tabular-nums tracking-tighter transition-all",
+                        isHovered && "scale-110"
+                      )}
                       style={{ color: item.id === 'nsnr' ? '#64748b' : item.color }}
                     >
                       {item.pct.toFixed(1).replace('.', ',')}%
