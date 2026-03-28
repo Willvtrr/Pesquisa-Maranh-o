@@ -433,14 +433,14 @@ export const FilterBentoBox = ({ filters, onFilterChange, onClear, options, dist
                   <div 
                     key={item.id}
                     className={cn(
-                      "flex items-center justify-between group cursor-pointer transition-all duration-300",
+                      "flex items-center gap-4 group cursor-pointer transition-all duration-300",
                       isFaded && "opacity-30"
                     )}
                     onMouseEnter={() => setHoveredPolitic(item.id)}
                     onMouseLeave={() => setHoveredPolitic(null)}
                     onClick={() => onFilterChange('ideology', item.key)}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-20 shrink-0">
                       <span 
                         className="w-2.5 h-2.5 rounded-full shrink-0" 
                         style={{ 

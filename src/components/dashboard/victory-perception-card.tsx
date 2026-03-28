@@ -18,6 +18,7 @@ interface VictoryPerceptionCardProps {
   className?: string;
   onFilterChange?: (name: string) => void;
   selected?: string[];
+  layout?: 'vertical' | 'horizontal';
 }
 
 export const VictoryPerceptionCard = ({ 
@@ -29,7 +30,8 @@ export const VictoryPerceptionCard = ({
   badge = "ESTIMULADA",
   className,
   onFilterChange,
-  selected = []
+  selected = [],
+  layout = 'vertical'
 }: VictoryPerceptionCardProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -38,11 +40,98 @@ export const VictoryPerceptionCard = ({
     setIsMounted(true);
   }, []);
 
-  // Lógica de Escala de Líder: O maior valor define o preenchimento de 100% da barra visual
   const maxValue = useMemo(() => {
     if (!data || data.length === 0) return 1;
     return Math.max(...data.map(d => d.value), 1);
   }, [data]);
+
+  const isHorizontal = layout === 'horizontal';
+
+  if (isHorizontal) {
+    return (
+      <div 
+        className={cn(
+          "bg-white rounded-[2rem] p-5 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full",
+          className
+        )}
+        onMouseLeave={() => setHoveredIndex(null)}
+      >
+        <div className="flex justify-between items-start mb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-3 rounded-full bg-emerald-500" />
+              <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+                {overline}
+              </span>
+            </div>
+            <h2 className="text-base font-black text-zinc-950 tracking-tight leading-none mt-1">
+              {title}
+            </h2>
+          </div>
+          <div className="px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shadow-sm">
+            <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">
+              {badge}
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-3 flex-grow overflow-y-auto no-scrollbar">
+          {data.map((item, idx) => {
+            const displayPct = total > 0 ? (item.value / total) * 100 : 0;
+            const visualWidth = (item.value / maxValue) * 100;
+            const isAbstention = item.isAbstention || 
+                                 item.name.toLowerCase().includes('nulo') || 
+                                 item.name.toLowerCase().includes('branco') || 
+                                 item.name.toLowerCase().includes('ns') ||
+                                 item.name.toLowerCase().includes('sabe');
+            
+            const isActive = selected.includes(item.name);
+            const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
+
+            return (
+              <div 
+                key={`${item.name}-${idx}`} 
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onClick={() => onFilterChange?.(item.name)}
+                className={cn(
+                  "flex items-center gap-3 cursor-pointer transition-all duration-300 p-1.5 rounded-2xl group",
+                  isActive && "bg-emerald-50 ring-1 ring-emerald-200",
+                  isFaded && !isActive && "opacity-40 grayscale-[0.5]"
+                )}
+              >
+                <Avatar className="w-8 h-8 border border-white shadow-sm shrink-0">
+                  <AvatarImage src={getCandidatePhoto(item.name)} />
+                  <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
+                    {item.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex justify-between items-end">
+                    <span className={cn("text-[9px] font-black uppercase truncate", isActive ? "text-emerald-600" : "text-zinc-950")}>
+                      {item.name}
+                    </span>
+                    <span className={cn("text-[9px] font-black tabular-nums", isActive ? "text-emerald-600" : "text-zinc-950")}>
+                      {displayPct.toFixed(1).replace('.', ',')}%
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: isMounted ? `${visualWidth}%` : 0 }}
+                      className={cn(
+                        "h-full rounded-full",
+                        isAbstention ? "bg-zinc-200" : "bg-emerald-500"
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
