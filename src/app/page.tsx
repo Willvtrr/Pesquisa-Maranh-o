@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
@@ -17,7 +18,7 @@ import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, Clipboard
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
@@ -170,7 +171,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -191,11 +192,13 @@ const DEFAULT_KEYS = {
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<string>("Agora mesmo");
   const [isMounted, setIsMounted] = useState(false);
   const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
+    setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
   }, []);
   
   const [filters, setFilters] = useState<Record<string, string[]>>({
@@ -464,6 +467,7 @@ export default function Home() {
     if (isSyncing) return;
     setIsSyncing(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
+    setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
     setIsSyncing(false);
     toast({ title: "Sincronização Ativa", description: "Os dados foram atualizados em tempo real com o Google Cloud." });
   };
@@ -512,30 +516,81 @@ export default function Home() {
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">App de inteligência política e monitoramento de dados eleitorais.</p>
           </div>
           <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[15rem]">
+            {/* CARD BANCO DE DADOS COM ANIMAÇÃO REAL */}
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
+              {/* Efeito Scanner durante Sincronização */}
+              <AnimatePresence>
+                {isSyncing && (
+                  <motion.div
+                    initial={{ top: "-10%" }}
+                    animate={{ top: "110%" }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                    className="absolute left-0 right-0 h-[2px] bg-orange-500/50 shadow-[0_0_15px_rgba(234,88,12,0.8)] z-20 pointer-events-none"
+                  />
+                )}
+              </AnimatePresence>
+
               <div className="flex items-center justify-between mb-4">
-                <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"><Database size={14} /></div>
+                <motion.div 
+                  animate={isSyncing ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : {}}
+                  transition={{ duration: 0.5, repeat: Infinity }}
+                  className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"
+                >
+                  <Database size={14} />
+                </motion.div>
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-100">
-                  <div className="w-1 h-1 rounded-full bg-orange-500 animate-pulse" />
-                  <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">Cloud Ativo</span>
+                  <div className={cn("w-1 h-1 rounded-full", isSyncing ? "bg-emerald-500 animate-bounce" : "bg-orange-500 animate-pulse")} />
+                  <span className="text-[6px] font-black tracking-[0.2em] text-zinc-300 uppercase">
+                    {isSyncing ? "Sincronizando" : "Cloud Ativo"}
+                  </span>
                 </div>
               </div>
               <div className="mb-4">
                 <p className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Base de Inteligência</p>
                 <h3 className="text-sm font-black text-white">Banco de Dados</h3>
-                <p className="text-[8px] font-medium text-zinc-400"><span className="text-orange-500 font-black">{totalDatabaseCount.toLocaleString('pt-BR')}</span> Registros na Nuvem</p>
+                <motion.p 
+                  key={totalDatabaseCount}
+                  initial={{ opacity: 0.5 }}
+                  animate={{ opacity: 1 }}
+                  className="text-[8px] font-medium text-zinc-400"
+                >
+                  <span className="text-orange-500 font-black">{totalDatabaseCount.toLocaleString('pt-BR')}</span> Registros na Nuvem
+                </motion.p>
               </div>
-              <div className="bg-zinc-900/40 rounded-xl p-2 h-[2.8125rem] overflow-y-auto mb-4 log-scroll border border-zinc-800/40">
+              <div className="bg-zinc-900/40 rounded-xl p-2 h-[2.8125rem] overflow-y-auto mb-4 log-scroll border border-zinc-800/40 relative">
                 <ul className="space-y-1 text-[6px] font-mono">
-                  <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>ID: {totalDatabaseCount} - Sincronizado</span></li>
-                  <li className="flex items-center gap-2 text-zinc-400"><Check size={8} className="text-orange-500" /><span>Monitoramento v3.5 Ativo</span></li>
+                  <motion.li 
+                    initial={{ x: -5, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center justify-between text-zinc-400"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Check size={8} className="text-orange-500" />
+                      <span>ID: {totalDatabaseCount} - Sincronizado</span>
+                    </div>
+                  </motion.li>
+                  <motion.li 
+                    key={lastUpdate}
+                    initial={{ x: -5, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    className="flex items-center gap-2 text-zinc-400"
+                  >
+                    <div className="w-1 h-1 rounded-full bg-orange-500 shadow-[0_0_5px_rgba(234,88,12,0.5)]" />
+                    <span>Último Update: {lastUpdate}</span>
+                  </motion.li>
                 </ul>
               </div>
-              <button onClick={handleManualSync} disabled={isSyncing} className="mt-auto w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest bg-white hover:bg-zinc-100 text-zinc-950 shadow-xl transition-all active:scale-95">
-                {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5" /> : <RefreshCw size={10} />}
-                <span>Sincronizar Agora</span>
+              <button 
+                onClick={handleManualSync} 
+                disabled={isSyncing} 
+                className="mt-auto w-full flex items-center justify-center gap-2 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest bg-white hover:bg-zinc-100 text-zinc-950 shadow-xl transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5 text-orange-600" /> : <RefreshCw size={10} />}
+                <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
               </button>
             </div>
+
             <div className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -750,7 +805,11 @@ export default function Home() {
                 </div>
               </LuxuryCard>
 
-              <VictoryPerceptionCard data={chartData.govVictoryData} total={totalDatabaseCount} />
+              <VictoryPerceptionCard 
+                data={chartData.govVictoryData} 
+                total={totalDatabaseCount} 
+                layout="horizontal"
+              />
 
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
