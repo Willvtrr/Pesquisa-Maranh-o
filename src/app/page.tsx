@@ -171,7 +171,7 @@ const DEFAULT_KEYS = {
   GOV_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?",
   PRESIDENT_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Presidente Lula?",
   MAYOR_APPROVAL: "De modo geral, você aprova ou desaprova o Governo do Prefeito da Cidade que você vota? ",
-  PROBLEMS: "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
+  PROBLEMS: "2. Na sua opinião, qual o problem mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)",
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
@@ -186,6 +186,7 @@ const DEFAULT_KEYS = {
   SENATOR_SECOND_VOTE_EST: "SEGUNDO VOTO: Para quem você daria o seu segundo voto para Senador? (Estimulada)",
   SENATOR_SECOND_VOTE_SPON: "E o segundo Senador, qual será eleito? (ESPONTÂNEA)",
   SENATOR_REJECTION: "REJEIÇÃO: Em qual deles você NÃO votaria de jeito nenhum? (Estimulada)",
+  SENATOR_VICTORY_PERCEPTION: "PERCEPÇÃO DE VITÓRIA: Na sua opinião, quais são os dois Senadores que serão eleitos? (ESPONTÂNEA)",
 };
 
 export default function Home() {
@@ -267,6 +268,7 @@ export default function Home() {
       SENATOR_SECOND_VOTE_EST: findKey(['segundo voto', 'senador'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_EST),
       SENATOR_SECOND_VOTE_SPON: findKey(['segundo senador', 'espontânea'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_SPON),
       SENATOR_REJECTION: findKey(['rejeição', 'senador', 'estimulada'], DEFAULT_KEYS.SENATOR_REJECTION, ['presidente']),
+      SENATOR_VICTORY_PERCEPTION: findKey(['percepção', 'vitória', 'senadores'], DEFAULT_KEYS.SENATOR_VICTORY_PERCEPTION),
     };
   }, [rawSurveyData]);
 
@@ -375,6 +377,7 @@ export default function Home() {
       senatorSecondVoteEstData: processRanking(activeKeys.SENATOR_SECOND_VOTE_EST, 'senator_second_vote_est'),
       senatorSecondVoteSponData: processRanking(activeKeys.SENATOR_SECOND_VOTE_SPON, 'senator_second_vote_spon'),
       senatorRejectionData: processRanking(activeKeys.SENATOR_REJECTION, 'senator_rejection'),
+      senatorVictoryData: processRanking(activeKeys.SENATOR_VICTORY_PERCEPTION, ''),
     };
   }, [getFilteredData, activeKeys]);
 
@@ -728,7 +731,7 @@ export default function Home() {
                               {pct.toFixed(1).replace('.', ',')}%
                             </span>
                           </div>
-                          <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden">
+                          <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden hide-scrollbar">
                             <motion.div 
                               initial={{ width: 0 }} 
                               animate={{ width: `${visualPct}%` }} 
@@ -748,10 +751,7 @@ export default function Home() {
                 </div>
               </LuxuryCard>
 
-              <VictoryPerceptionCard 
-                data={chartData.govVictoryData} 
-                total={totalDatabaseCount} 
-              />
+              <VictoryPerceptionCard data={chartData.govVictoryData} total={totalDatabaseCount} />
 
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
@@ -859,6 +859,18 @@ export default function Home() {
                 color="rose"
                 selected={filters.senator_rejection}
                 onFilterChange={(v) => handleFilterChange('senator_rejection', v)}
+              />
+            </div>
+
+            {/* Novo módulo de Percepção de Vitória Senado */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <VictoryPerceptionCard 
+                data={chartData.senatorVictoryData} 
+                total={totalDatabaseCount}
+                overline="CORRIDA SENADO"
+                title="Percepção de Vitória"
+                question='"Na sua opinião, quais são os dois Senadores que serão eleitos?"'
+                badge="ESPONTÂNEA"
               />
             </div>
 

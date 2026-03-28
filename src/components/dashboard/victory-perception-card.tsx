@@ -11,10 +11,22 @@ import { getCandidatePhoto, toTitleCase } from '@/app/page';
 interface VictoryPerceptionCardProps {
   data: { name: string; value: number; party?: string | null; isAbstention?: boolean }[];
   total: number;
+  overline?: string;
+  title?: string;
+  question?: string;
+  badge?: string;
   className?: string;
 }
 
-export const VictoryPerceptionCard = ({ data, total, className }: VictoryPerceptionCardProps) => {
+export const VictoryPerceptionCard = ({ 
+  data, 
+  total, 
+  overline = "CORRIDA GOVERNAMENTAL",
+  title = "Percepção de Vitória",
+  question = '"Quem você acha que ganhará a eleição...?"',
+  badge = "ESTIMULADA",
+  className 
+}: VictoryPerceptionCardProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -28,17 +40,17 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
         <div className="space-y-0.5">
           <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
             <span className="w-1 h-3 bg-[#10b981] rounded-full" />
-            CORRIDA GOVERNAMENTAL
+            {overline}
           </h4>
-          <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">Percepção de Vitória</p>
+          <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">{title}</p>
         </div>
         <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
           <div className="w-1 h-1 rounded-full bg-[#10b981] animate-pulse" />
-          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">ESTIMULADA</span>
+          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">{badge}</span>
         </div>
       </div>
       
-      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Quem você acha que ganhará a eleição...?"</p>
+      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">{question}</p>
 
       <div 
         className="space-y-4"
