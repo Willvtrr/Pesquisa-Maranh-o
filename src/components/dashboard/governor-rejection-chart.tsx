@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -31,10 +31,17 @@ export const GovernorRejectionChart = ({
   onFilterChange
 }: GovernorRejectionChartProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Lógica de Escala de Líder: O maior valor absoluto define o preenchimento de 100% da barra visual
+  const maxValue = useMemo(() => {
+    if (!data || data.length === 0) return 1;
+    return Math.max(...data.map(d => d.value), 1);
+  }, [data]);
 
   const barColorClass = color === 'red' 
     ? "from-[#ef4444] to-[#b91c1c]" 
@@ -43,7 +50,10 @@ export const GovernorRejectionChart = ({
   const overlineColorClass = color === 'red' ? "bg-[#dc2626]" : "bg-[#e11d48]";
 
   return (
-    <div className="bg-white rounded-[2rem] p-5 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[320px]">
+    <div 
+      className="bg-white rounded-[2rem] p-5 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[320px]"
+      onMouseLeave={() => setHoveredIndex(null)}
+    >
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -69,27 +79,35 @@ export const GovernorRejectionChart = ({
       <ScrollArea type="always" className="w-full flex-grow">
         <div className="flex justify-around items-end gap-2 pb-6 px-2 min-w-full">
           {data.map((item, idx) => {
-            const pct = total > 0 ? (item.value / total) * 100 : 0;
+            // Percentual real para o rótulo de texto
+            const displayPct = total > 0 ? (item.value / total) * 100 : 0;
+            // Altura visual baseada no líder (Escala Relativa)
+            const visualHeight = (item.value / maxValue) * 100;
+            
             const isAbstention = item.name.toLowerCase().includes('nulo') || 
                                  item.name.toLowerCase().includes('branco') || 
                                  item.name.toLowerCase().includes('ns') ||
                                  item.name.toLowerCase().includes('sabe') ||
                                  item.name.toLowerCase().includes('outros');
+            
             const isActive = selected.includes(item.name);
+            const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
 
             return (
               <div 
                 key={`${item.name}-${idx}`} 
+                onMouseEnter={() => setHoveredIndex(idx)}
                 onClick={() => onFilterChange?.(item.name)}
                 className={cn(
                   "flex flex-col items-center w-14 group cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
-                  isActive && "bg-orange-50 ring-1 ring-orange-100 shadow-sm"
+                  isActive && "bg-orange-50 ring-1 ring-orange-200 shadow-sm",
+                  isFaded && !isActive && "opacity-40 grayscale-[0.5]"
                 )}
               >
                 <div className="w-6 h-[100px] bg-zinc-50 border border-zinc-100 rounded-full flex flex-col justify-end p-0.5 mb-2 shadow-inner">
                   <motion.div
                     initial={{ height: 0 }}
-                    animate={{ height: isMounted ? `${pct}%` : 0 }}
+                    animate={{ height: isMounted ? `${visualHeight}%` : 0 }}
                     transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: idx * 0.05 }}
                     className={cn(
                       "w-full rounded-full bg-gradient-to-b shadow-sm",
@@ -102,7 +120,7 @@ export const GovernorRejectionChart = ({
                   "text-[10px] font-black mb-2 transition-colors tabular-nums",
                   isActive ? "text-orange-600" : "text-zinc-950"
                 )}>
-                  {pct.toFixed(1).replace('.', ',')}%
+                  {displayPct.toFixed(1).replace('.', ',')}%
                 </span>
 
                 <div className="flex flex-col items-center text-center gap-1.5 w-full">
