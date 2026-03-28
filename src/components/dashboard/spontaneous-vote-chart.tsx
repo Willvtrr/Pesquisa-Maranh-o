@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -60,6 +61,7 @@ export const SpontaneousVoteChart = ({
         const isActive = selected.includes(item.name);
         const displayName = toTitleCase(item.name);
 
+        // Barra de Escala Relativa: o líder preenche 100% do campo visual da barra
         const visualWidth = Math.min((item.value / maxCandidateVal) * 100, 100);
         const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
 

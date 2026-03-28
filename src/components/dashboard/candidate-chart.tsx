@@ -50,13 +50,13 @@ export const CandidateChart = ({ data, total, selected = [], onFilterChange }: C
         onMouseLeave={() => setHoveredIndex(null)}
       >
         {data.map((item, idx) => {
+          // Barra de Distribuição Proporcional: largura reflete o percentual real sobre os 100%
           const pct = (item.value / totalVotes) * 100;
           const isAbstention = item.isAbstention;
           const displayName = toTitleCase(item.name);
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
           const isActive = selected.includes(item.name);
           
-          // Degrade de opacidade para candidatos, cinza para abstenções
           const barOpacity = isAbstention ? 1 : Math.max(0.2, 1 - (idx * 0.12));
 
           return (
