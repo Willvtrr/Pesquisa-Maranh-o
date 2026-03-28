@@ -1,11 +1,11 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { LuxuryCard } from './luxury-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { getCandidatePhoto, toTitleCase } from '@/app/page';
 
 interface VictoryPerceptionCardProps {
@@ -16,6 +16,8 @@ interface VictoryPerceptionCardProps {
   question?: string;
   badge?: string;
   className?: string;
+  onFilterChange?: (name: string) => void;
+  selected?: string[];
 }
 
 export const VictoryPerceptionCard = ({ 
@@ -25,7 +27,9 @@ export const VictoryPerceptionCard = ({
   title = "Percepção de Vitória",
   question = '"Quem você acha que ganhará a eleição...?"',
   badge = "ESTIMULADA",
-  className 
+  className,
+  onFilterChange,
+  selected = []
 }: VictoryPerceptionCardProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -34,100 +38,122 @@ export const VictoryPerceptionCard = ({
     setIsMounted(true);
   }, []);
 
+  // Lógica de Escala de Líder: O maior valor define o preenchimento de 100% da barra visual
+  const maxValue = useMemo(() => {
+    if (!data || data.length === 0) return 1;
+    return Math.max(...data.map(d => d.value), 1);
+  }, [data]);
+
   return (
-    <LuxuryCard className={cn("flex-1", className)}>
-      <div className="flex items-start justify-between mb-1">
-        <div className="space-y-0.5">
-          <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
-            <span className="w-1 h-3 bg-[#10b981] rounded-full" />
-            {overline}
-          </h4>
-          <p className="text-base font-black text-zinc-950 tracking-tight leading-tight">{title}</p>
+    <div 
+      className={cn(
+        "bg-white rounded-[2rem] p-5 w-full relative overflow-hidden shadow-sm border border-zinc-100 flex flex-col h-full min-h-[320px]",
+        className
+      )}
+      onMouseLeave={() => setHoveredIndex(null)}
+    >
+      <div className="flex justify-between items-start mb-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-3 rounded-full bg-emerald-500" />
+            <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+              {overline}
+            </span>
+          </div>
+          <h2 className="text-base font-black text-zinc-950 tracking-tight leading-none mt-1">
+            {title}
+          </h2>
+          <p className="text-[8px] text-zinc-400 italic font-medium">
+            {question}
+          </p>
         </div>
-        <div className="flex items-center gap-1 py-0.5 px-2 rounded-full bg-zinc-50 border border-zinc-100 shrink-0 shadow-sm">
-          <div className="w-1 h-1 rounded-full bg-[#10b981] animate-pulse" />
-          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">{badge}</span>
+        <div className="px-2 py-0.5 rounded-full bg-zinc-50 border border-zinc-100 shadow-sm">
+          <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">
+            {badge}
+          </span>
         </div>
       </div>
-      
-      <p className="text-[9px] font-medium text-zinc-400 italic mb-6">{question}</p>
 
-      <div 
-        className="space-y-4"
-        onMouseLeave={() => setHoveredIndex(null)}
-      >
-        {data.map((item, idx) => {
-          const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const isAbstention = item.isAbstention || item.name.toLowerCase().includes('outros') || item.name.toLowerCase().includes('ns') || item.name.toLowerCase().includes('sabe');
-          const displayName = toTitleCase(item.name);
-          const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
+      <ScrollArea type="always" className="w-full flex-grow">
+        <div className="flex justify-around items-end gap-2 pb-6 px-2 min-w-full">
+          {data.map((item, idx) => {
+            const displayPct = total > 0 ? (item.value / total) * 100 : 0;
+            const visualHeight = (item.value / maxValue) * 100;
+            
+            const isAbstention = item.isAbstention || 
+                                 item.name.toLowerCase().includes('nulo') || 
+                                 item.name.toLowerCase().includes('branco') || 
+                                 item.name.toLowerCase().includes('ns') ||
+                                 item.name.toLowerCase().includes('sabe') ||
+                                 item.name.toLowerCase().includes('outros');
+            
+            const isActive = selected.includes(item.name);
+            const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
 
-          return (
-            <div 
-              key={`${item.name}-${idx}`} 
-              className={cn(
-                "flex items-center gap-3 group/row cursor-pointer transition-all duration-300",
-                hoveredIndex === idx && "translate-x-1"
-              )}
-              onMouseEnter={() => setHoveredIndex(idx)}
-            >
-              <Avatar className={cn(
-                "w-8 h-8 border-2 border-white shadow-sm shrink-0 transition-all",
-                isFaded && "opacity-40 grayscale"
-              )}>
-                <AvatarImage src={getCandidatePhoto(item.name)} />
-                <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                  {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : item.name.toLowerCase().includes('outros') ? 'O' : 'N/B') : item.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 space-y-1">
-                <div className="flex justify-between items-end">
-                  <div className="flex flex-col justify-center min-w-0">
-                    <span className={cn(
-                      "text-[10px] tracking-tight leading-tight transition-colors",
-                      !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
-                      isFaded && "text-zinc-300"
-                    )}>
-                      {displayName}
-                    </span>
-                    {item.party && (
-                      <span className={cn(
-                        "text-[6px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5",
-                        isFaded && "text-zinc-200"
-                      )}>
-                        ({item.party})
-                      </span>
-                    )}
-                  </div>
-                  <span className={cn(
-                    "text-[10px] font-black leading-none transition-colors tabular-nums",
-                    isFaded ? "text-zinc-300" : (!isAbstention ? "text-zinc-950" : "text-zinc-400"),
-                    hoveredIndex === idx && "text-emerald-600"
-                  )}>
-                    {pct.toFixed(1).replace('.', ',')}%
-                  </span>
-                </div>
-                
-                <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden group-hover/row:border-emerald-100 transition-colors">
+            return (
+              <div 
+                key={`${item.name}-${idx}`} 
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onClick={() => onFilterChange?.(item.name)}
+                className={cn(
+                  "flex flex-col items-center w-14 group cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
+                  isActive && "bg-emerald-50 ring-1 ring-emerald-200 shadow-sm",
+                  isFaded && !isActive && "opacity-40 grayscale-[0.5]"
+                )}
+              >
+                <div className="w-6 h-[100px] bg-zinc-50 border border-zinc-100 rounded-full flex flex-col justify-end p-0.5 mb-2 shadow-inner">
                   <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ 
-                      width: isMounted ? `${pct}%` : 0,
-                      filter: isFaded ? 'grayscale(80%) opacity(40%)' : 'none',
-                    }}
-                    transition={{ duration: 1.2, delay: idx * 0.05 }}
+                    initial={{ height: 0 }}
+                    animate={{ height: isMounted ? `${visualHeight}%` : 0 }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: idx * 0.05 }}
                     className={cn(
-                      "h-full rounded-full transition-all",
-                      isAbstention ? "bg-zinc-200" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
+                      "w-full rounded-full bg-gradient-to-b shadow-sm",
+                      isAbstention ? "from-zinc-200 to-zinc-400" : "from-emerald-400 to-emerald-600",
                     )}
                   />
                 </div>
+
+                <span className={cn(
+                  "text-[10px] font-black mb-2 transition-colors tabular-nums",
+                  isActive ? "text-emerald-600" : "text-zinc-950"
+                )}>
+                  {displayPct.toFixed(1).replace('.', ',')}%
+                </span>
+
+                <div className="flex flex-col items-center text-center gap-1.5 w-full">
+                  <Avatar className={cn(
+                    "w-8 h-8 border border-white shadow-md transition-all duration-500 group-hover:-translate-y-1 group-hover:scale-110",
+                    isActive && "ring-2 ring-emerald-500 ring-offset-2"
+                  )}>
+                    <AvatarImage src={getCandidatePhoto(item.name)} />
+                    <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
+                      {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : (item.name.toLowerCase().includes('outros') ? 'O' : 'N/B')) : item.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="min-h-[2.5em] flex flex-col items-center justify-start w-full px-0.5">
+                    <p className={cn(
+                      "text-[7px] font-black leading-tight uppercase tracking-tighter w-full line-clamp-2",
+                      isActive ? "text-emerald-600" : "text-zinc-900"
+                    )}>
+                      {item.name}
+                    </p>
+                    {item.party && (
+                      <p className={cn(
+                        "text-[6px] font-bold uppercase tracking-widest mt-0.5 text-zinc-400",
+                        isActive && "text-emerald-400"
+                      )}>
+                        ({item.party})
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </LuxuryCard>
+            );
+          })}
+        </div>
+        <ScrollBar orientation="horizontal" className="h-1.5" />
+      </ScrollArea>
+    </div>
   );
 };
