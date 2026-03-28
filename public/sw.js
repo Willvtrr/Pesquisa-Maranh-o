@@ -1,19 +1,23 @@
 const CACHE_NAME = 'focco-analytics-v1';
-const urlsToCache = [
+const ASSETS_TO_CACHE = [
   '/',
-  '/manifest.json'
+  '/manifest.json',
+  'https://picsum.photos/seed/focco-icon-192/192/192',
+  'https://picsum.photos/seed/focco-icon-512/512/512'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });

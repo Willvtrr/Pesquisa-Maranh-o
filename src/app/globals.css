@@ -29,9 +29,8 @@
 
 @layer base {
   html {
-    /* Ajuste de escala global: 14px em vez de 16px (Efeito zoom 87.5%) */
-    /* Para efeito de 80% puro, poderíamos usar 12.8px, mas 14px é o ideal para leitura */
-    font-size: 14px;
+    /* AJUSTE DE ESCALA NATIVO: 80% do padrão (12.8px em vez de 16px) */
+    font-size: 80%;
   }
 
   * {
