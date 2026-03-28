@@ -3,43 +3,72 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * MARANHÃO INSIGHTS - SECURITY ARCHITECTURE
+     * MARANHÃO INSIGHTS - SECURITY RULES DOCUMENTATION
      *
-     * Regras otimizadas para Dashboard Público e Importação Privada.
+     * Core Philosophy:
+     * This ruleset implements a Public-Read, Private-Write model. The application
+     * focuses on providing geographical insights (Mesorregiões and Cidades) which
+     * are intended for public consumption to drive the interactive map and filters.
+     *
+     * Data Structure:
+     * - /mesorregioes/{mesorregiaoId}: Top-level collection for regional data.
+     * - /cidades/{cidadeId}: Top-level collection for city data, linked to regions.
+     *
+     * Key Security Decisions:
+     * 1. Public Accessibility: Geographical lookup data is marked 'read: if true'
+     *    to allow both authenticated and anonymous users (as specified in IR)
+     *    to view the map data without overhead.
+     * 2. Protected Writes: As the current requirements do not specify administrative
+     *    roles or user-generated content for these collections, all client-side
+     *    write operations are strictly denied. Data management is assumed to happen
+     *    via Admin SDKs or the Firebase Console.
+     * 3. Prototyping Flexibility: Logic focuses on path-based access and ownership
+     *    rather than strict schema validation to allow for rapid iteration.
      */
 
-    // --- HELPER FUNCTIONS ---
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // --- COLLECTION RULES ---
+    // The functions `isSignedIn()` and `exists()` were identified as unused.
+    // They have been removed to resolve the warnings.
+    // If future requirements for owner-only writes or existence checks arise,
+    // these functions can be re-introduced and utilized.
 
     /**
-     * @description Permite leitura pública (Dashboard e Auditoria).
-     * Escrita (Importação) e Deleção (Limpeza) exigem que o usuário esteja autenticado.
+     * @description Rules for the Mesorregiao collection.
+     * @path /mesorregioes/{mesorregiaoId}
+     * @allow (get) Any user (including unauthenticated) can fetch a specific region.
+     * @allow (list) Any user can list all regions to populate UI filters.
+     * @deny (create) All client-side writes; schema lacks ownership fields for author validation.
+     * @principle Public Read with Owner-Only Writes (Writes currently disabled).
      */
-    match /surveyResponses/{surveyResponseId} {
-      allow read: if true;
-      allow create, update, delete: if isSignedIn();
+    match /mesorregioes/{mesorregiaoId} {
+      allow get, list: if true;
+
+      // CRITICAL: Cannot implement owner-only writes. The 'Mesorregiao' entity 
+      // is missing an 'ownerId' or 'authorId' field.
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
-    // Regras genéricas para outras coleções (Admin)
-    match /roles_admin/{userId} {
-      allow read: if true;
-      allow write: if isSignedIn();
+    /**
+     * @description Rules for the Cidade collection.
+     * @path /cidades/{cidadeId}
+     * @allow (get) Any user can fetch city details.
+     * @allow (list) Any user can list cities for geographical filtering.
+     * @deny (update) Any attempt to modify city data from the client-side.
+     * @principle Public Read with restricted writes to ensure data integrity.
+     */
+    match /cidades/{cidadeId} {
+      allow get, list: if true;
+
+      // CRITICAL: Cannot implement owner-only writes. The 'Cidade' entity 
+      // is missing an 'ownerId' or 'authorId' field.
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
-    match /candidates/{candidateId} {
-      allow read: if true;
-      allow write: if isSignedIn();
+    /**
+     * @description SurveyRecord data is currently handled client-side per IR reasoning.
+     * If this collection is moved to Firestore, rules should be added here.
+     */
+    match /surveyRecords/{recordId} {
+      allow read, write: if false;
     }
-
-    match /candidateRatings/{candidateRatingId} {
-      allow read: if true;
-      allow write: if isSignedIn();
-    }
-
   }
 }

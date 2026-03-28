@@ -1,28 +1,182 @@
-
 {
   "entities": {
-    "SurveyResponse": {
-      "title": "SurveyResponse",
-      "description": "Registro individual de resposta de pesquisa para análise de alto volume.",
+    "Mesorregiao": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Mesorregiao",
       "type": "object",
+      "description": "Represents a mesoregion within the state of Maranhão, used for geographical data filtering and analysis in the survey.",
       "properties": {
-        "Cidade:": { "type": "string" },
-        "Mesorregião": { "type": "string" },
-        "Gênero": { "type": "string" },
-        "Faixa Etária": { "type": "string" },
-        "De modo geral, você aprova ou desaprova o Governo do Governador Carlos Brandão?": { "type": "string" },
-        "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)": { "type": "string" },
-        "2. Na sua opinião, qual o problema mais grave que o Estado do Maranhão vem enfrentando atualmente? (Espontânea)": { "type": "string" }
-      }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Mesorregiao entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the mesoregion."
+        },
+        "stateName": {
+          "type": "string",
+          "description": "The name of the state to which this mesoregion belongs. For this application, it is implicitly 'Maranhão'."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "stateName"
+      ]
+    },
+    "Cidade": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Cidade",
+      "type": "object",
+      "description": "Represents a city within a mesoregion in Maranhão, used for geographical data filtering and analysis in the survey.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Cidade entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the city."
+        },
+        "mesorregiaoId": {
+          "type": "string",
+          "description": "Reference to the Mesorregiao entity this city belongs to. (Relationship: Mesorregiao 1:N Cidade)"
+        },
+        "stateName": {
+          "type": "string",
+          "description": "The name of the state to which this city belongs. For this application, it is implicitly 'Maranhão'."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "mesorregiaoId",
+        "stateName"
+      ]
+    },
+    "SurveyRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SurveyRecord",
+      "type": "object",
+      "description": "Represents an individual response record from the embedded survey data, including demographic information and specific responses related to approval ratings and satisfaction levels.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SurveyRecord entity."
+        },
+        "age": {
+          "type": "number",
+          "description": "The age of the survey respondent, or an identifier for their age group."
+        },
+        "gender": {
+          "type": "string",
+          "description": "The gender of the survey respondent (e.g., 'Masculino', 'Feminino', 'Outro')."
+        },
+        "educationLevel": {
+          "type": "string",
+          "description": "The highest education level attained by the survey respondent."
+        },
+        "employmentStatus": {
+          "type": "string",
+          "description": "The employment status of the survey respondent."
+        },
+        "householdIncome": {
+          "type": "string",
+          "description": "The household income bracket of the survey respondent."
+        },
+        "politicalAlignment": {
+          "type": "string",
+          "description": "The self-declared political alignment or preference of the survey respondent."
+        },
+        "satisfactionWithGovernment": {
+          "type": "string",
+          "description": "The respondent's satisfaction level with the current government (e.g., 'Aprova', 'Desaprova', 'Não Sabe')."
+        },
+        "satisfactionWithEconomy": {
+          "type": "string",
+          "description": "The respondent's satisfaction level with the current economic situation."
+        },
+        "satisfactionWithHealthcare": {
+          "type": "string",
+          "description": "The respondent's satisfaction level with healthcare services."
+        },
+        "candidatePreference": {
+          "type": "string",
+          "description": "The respondent's preferred candidate or political figure, if applicable. This field may be null or absent if not relevant for the survey record."
+        },
+        "mesorregiaoId": {
+          "type": "string",
+          "description": "Reference to the Mesorregiao entity where the respondent resides. (Relationship: Mesorregiao 1:N SurveyRecord)"
+        },
+        "cidadeId": {
+          "type": "string",
+          "description": "Reference to the Cidade entity where the respondent resides. (Relationship: Cidade 1:N SurveyRecord)"
+        },
+        "surveyDate": {
+          "type": "string",
+          "description": "The date when this specific survey record was collected or recorded.",
+          "format": "date"
+        }
+      },
+      "required": [
+        "id",
+        "age",
+        "gender",
+        "educationLevel",
+        "employmentStatus",
+        "householdIncome",
+        "politicalAlignment",
+        "satisfactionWithGovernment",
+        "satisfactionWithEconomy",
+        "satisfactionWithHealthcare",
+        "mesorregiaoId",
+        "cidadeId",
+        "surveyDate"
+      ]
     }
   },
   "auth": {
-    "providers": ["anonymous"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "surveyResponses/{responseId}": {
-      "schema": "#/backend/entities/SurveyResponse",
-      "description": "Coleção de todos os registros de pesquisa (mais de 100 mil linhas)."
-    }
+    "structure": [
+      {
+        "path": "/mesorregioes/{mesorregiaoId}",
+        "definition": {
+          "entityName": "Mesorregiao",
+          "schema": {
+            "$ref": "#/backend/entities/Mesorregiao"
+          },
+          "description": "Stores information about each mesoregion in Maranhão. These documents are publicly readable to support geographical data display and filtering options in the UI. No specific authorization fields are needed as all data is public.",
+          "params": [
+            {
+              "name": "mesorregiaoId",
+              "description": "The unique identifier for a specific Mesorregiao document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cidades/{cidadeId}",
+        "definition": {
+          "entityName": "Cidade",
+          "schema": {
+            "$ref": "#/backend/entities/Cidade"
+          },
+          "description": "Stores information about each city, including its association with a mesoregion. These documents are publicly readable to support geographical data display and filtering options in the UI. No specific authorization fields are needed as all data is public.",
+          "params": [
+            {
+              "name": "cidadeId",
+              "description": "The unique identifier for a specific Cidade document."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for 'Maranhão Insights' is designed around the core principle that the primary survey data (`SurveyRecord`) is processed client-side from embedded JavaScript arrays, explicitly stating 'sem chamadas a bancos de dados externos' for filtering and aggregation. Consequently, the Firestore database is primarily used for managing static, public geographical lookup data (`Mesorregiao` and `Cidade`) that supports the interactive map and multidimensional filter UI components.\n\n**Authorization Independence (CRITICAL):** For the `mesorregioes` and `cidades` collections, authorization rules are `allow read: if true;`. This completely eliminates the need for hierarchical authorization dependencies (`get()`) or denormalized authorization context within these documents. All documents are publicly accessible, making security rules extremely simple, atomic, and easy to debug.\n\n**Clarity of Intent (Debuggability):** The public, read-only nature of the geographical data collections clearly communicates their intended access pattern, simplifying rule writing and debugging. There are no complex access control lists or roles to manage for these data types.\n\n**DBAC (No Custom Claims):** Since the application's features, as described, do not involve user-specific data management or administrative roles requiring write access, no database-backed access control (DBAC) collections (like `/roles_admin/{uid}`) are necessary in this initial structure. If future features introduce administrative functions, such a DBAC model would be implemented.\n\n**QAPs (Rules are not Filters):** By designating `mesorregioes` and `cidades` as publicly readable, all `list` operations on these collections are inherently secure. The rules `allow read: if true;` mean that clients can retrieve any document or list all documents without needing security rules to filter sensitive data. This aligns with the QAP principle as the rules enforce access based on the nature of the data, not on filtering its content.\n\n**Structural Segregation:** The geographical entities are segregated into their own collections (`/mesorregioes` and `/cidades`). All documents within each collection share the same security posture (public, read-only), preventing mixed security requirements within a single collection and keeping rules simple.\n\n**Data Clarity and Predictability:** The schema for `Mesorregiao` and `Cidade` are straightforward, using `id`, `name`, `stateName`, and `mesorregiaoId` (for Cidade) as explicit and predictable fields. This ensures consistency and simplifies data querying and UI binding."
   }
 }
