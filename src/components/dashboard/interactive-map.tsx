@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Map, AdvancedMarker, useMap, InfoWindow } from '@vis.gl/react-google-maps';
-import { Loader2, Layers, Users, Box, MapPin, Globe, Target, ShieldCheck } from 'lucide-react';
+import { Loader2, Layers, Users, Box, MapPin, Globe, Target, ShieldCheck, Tag, User2 } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ const mapStyles = [
 ];
 
 /**
- * Função de Extração de Dados GPS
+ * Função de Extração de Dados GPS resiliente
  */
 const extractLatLng = (item: any) => {
   const latNum = item['_start-geopoint_latitude'];
@@ -69,7 +69,6 @@ const InteractiveMapContent = ({
     if (!map) return;
 
     try {
-      // Limpa camadas anteriores para evitar duplicidade
       map.data.forEach((feature) => map.data.remove(feature));
       map.data.addGeoJson(MUNICIP_GEOJSON);
     } catch (e) {
@@ -107,19 +106,16 @@ const InteractiveMapContent = ({
       const isResponsesOnly = paintMode === 'responses';
       let visible = true;
       
-      // No modo "Só Coletas", oculta municípios sem respostas
       if (isResponsesOnly && !hasData) {
         visible = false;
       }
 
-      // Estilo Padrão (Modo Estado Todo) - LINHAS MAIS FORTES
       let strokeW = 1.2;
-      let strokeC = '#27272a'; // zinc-800
+      let strokeC = '#27272a'; 
       let opacity = 0.45;
 
       if (hasData) {
         opacity = 0.65 + (count / maxCount) * 0.3;
-        
         if (isResponsesOnly) {
           strokeW = 1.8;
           strokeC = '#000000';
@@ -151,7 +147,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     setMounted(true);
   }, []);
 
-  // Cálculo de densidade por cidade
   const cityCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     data.forEach((item: any) => {
@@ -199,7 +194,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Seletor de Modo de Visualização */}
             <div className="bg-zinc-100/80 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-zinc-200">
               <button 
                 onClick={() => setViewMode('municipal')}
@@ -221,7 +215,6 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
               </button>
             </div>
 
-            {/* Seletor de Abrangência Territorial */}
             <div className="bg-zinc-100/80 backdrop-blur-md p-1 rounded-xl flex gap-1 border border-zinc-200">
               <button 
                 onClick={() => setPaintMode('all')}
@@ -283,7 +276,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
               </AdvancedMarker>
             ))}
 
-            {/* InfoWindow para Ponto Selecionado */}
+            {/* InfoWindow Nativa para Detalhes (Evita problemas de zoom externo) */}
             {selectedPoint && (
               <InfoWindow
                 position={extractLatLng(selectedPoint)}
@@ -328,7 +321,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             )}
           </Map>
 
-          {/* Tooltip Informativo no Hover */}
+          {/* Tooltip flutuante no Hover */}
           {hoveredCity && (
             <div className="absolute bottom-6 left-6 z-30 bg-zinc-950 text-white p-4 rounded-[1.5rem] shadow-2xl border border-white/10 backdrop-blur-md flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 min-w-[180px]">
               <div className="flex items-center justify-between mb-1">
