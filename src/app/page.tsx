@@ -267,7 +267,7 @@ export default function Home() {
       SENATOR_COALITION: findKey(['chapa', 'senador', 'parte'], DEFAULT_KEYS.SENATOR_COALITION),
       SENATOR_SECOND_VOTE_EST: findKey(['segundo voto', 'senador'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_EST),
       SENATOR_SECOND_VOTE_SPON: findKey(['segundo senador', 'espontânea'], DEFAULT_KEYS.SENATOR_SECOND_VOTE_SPON),
-      SENATOR_REJECTION: findKey(['19.', 'rejeição'], DEFAULT_KEYS.SENATOR_REJECTION, ['presidente', 'governador']),
+      SENATOR_REJECTION: findKey(['19. REJEIÇÃO'], DEFAULT_KEYS.SENATOR_REJECTION, ['presidente', 'governador']),
       SENATOR_VICTORY_PERCEPTION: findKey(['percepção', 'vitória', 'senadores'], DEFAULT_KEYS.SENATOR_VICTORY_PERCEPTION),
     };
   }, [rawSurveyData]);
@@ -848,10 +848,6 @@ export default function Home() {
               />
             </div>
 
-            <div className="w-full">
-              <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <RankingCard 
                 title="Problemas Mais Graves" 
@@ -869,6 +865,10 @@ export default function Home() {
                 total={filteredData.length} 
                 color="green" 
               />
+            </div>
+
+            <div className="w-full">
+              <InteractiveMap stats={filteredData.reduce((acc, curr) => { const r = String(curr[activeKeys.REGION] || '').trim() as MesoRegion; if (r) acc[r] = (acc[r] || 0) + 1; return acc; }, {} as Record<MesoRegion, number>)} activeRegion={filters.region[0] === 'all' ? 'all' : filters.region[0]} onRegionSelect={(r) => handleFilterChange('region', r || 'all')} />
             </div>
           </div>
           
