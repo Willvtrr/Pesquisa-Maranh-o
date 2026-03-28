@@ -115,21 +115,18 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
         visible = false;
       }
 
-      // Estilo Padrão (Modo Estado Todo)
-      let strokeW = 0.8;
-      let strokeC = '#71717a'; // zinc-500: Divisões evidentes
-      let opacity = 0.25; // Preenchimento sutil base
+      // Estilo Padrão (Modo Estado Todo) - LINHAS MAIS FORTES
+      let strokeW = 1.2;
+      let strokeC = '#27272a'; // zinc-800: Divisões muito evidentes
+      let opacity = 0.45; // Preenchimento inicial mais forte (não transparente demais)
 
       if (hasData) {
-        // Escala de intensidade laranja: Min 0.45, Max 0.95
-        opacity = 0.45 + (count / maxCount) * 0.5;
+        // Escala de intensidade laranja: Min 0.65, Max 0.95
+        opacity = 0.65 + (count / maxCount) * 0.3;
         
         if (isResponsesOnly) {
           strokeW = 1.8;
           strokeC = '#000000'; // Contorno preto sólido para o modo de recorte
-        } else {
-          strokeW = 1.2;
-          strokeC = '#27272a'; // zinc-800: Mais evidente em cidades com dados
         }
       }
 
