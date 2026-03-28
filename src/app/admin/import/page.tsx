@@ -6,7 +6,7 @@ import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer, getDocs } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle, ListOrdered, Tag } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle, ListOrdered, Tag, Eye } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -26,6 +26,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -42,6 +49,7 @@ export default function ImportPage() {
   const [totalToProcess, setTotalToProcess] = useState(0);
   const [status, setStatus] = useState<'idle' | 'parsing' | 'processing' | 'success' | 'error' | 'clearing'>('idle');
   const [exactDbCount, setExactDbCount] = useState<number | null>(null);
+  const [viewingColumn, setViewingColumn] = useState<string | null>(null);
 
   const [pageSize] = useState(50);
 
@@ -392,7 +400,11 @@ export default function ImportPage() {
                 <ScrollArea className="h-[280px] -mr-4 pr-4">
                   <div className="space-y-2 pb-4">
                     {dynamicColumns.length > 0 ? dynamicColumns.map((col, idx) => (
-                      <div key={col} className="flex items-center gap-4 p-3 rounded-2xl bg-zinc-50 border border-zinc-100 hover:bg-white hover:shadow-md hover:border-orange-500/20 transition-all group">
+                      <div 
+                        key={col} 
+                        onClick={() => setViewingColumn(col)}
+                        className="flex items-center gap-4 p-3 rounded-2xl bg-zinc-50 border border-zinc-100 hover:bg-white hover:shadow-md hover:border-orange-500/20 transition-all group cursor-pointer"
+                      >
                         <div className="w-7 h-7 rounded-xl bg-white border border-zinc-200 flex items-center justify-center text-[10px] font-black text-zinc-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-500 transition-all shrink-0 shadow-sm">
                           {idx + 1}
                         </div>
@@ -406,7 +418,7 @@ export default function ImportPage() {
                           </div>
                         </div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <CheckCircle2 size={14} className="text-emerald-500" />
+                          <Eye size={14} className="text-orange-500" />
                         </div>
                       </div>
                     )) : (
@@ -489,6 +501,33 @@ export default function ImportPage() {
           </div>
         </BentoCard>
       </div>
+
+      <Dialog open={!!viewingColumn} onOpenChange={(open) => !open && setViewingColumn(null)}>
+        <DialogContent className="rounded-[2.5rem] border-zinc-200 max-w-2xl bg-white/95 backdrop-blur-xl shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black tracking-tighter text-zinc-950 uppercase flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-orange-50 text-orange-600"><Tag size={24} /></div>
+              Título da Variável
+            </DialogTitle>
+            <DialogDescription className="text-zinc-500 font-medium">
+              Abaixo você confere o conteúdo integral do cabeçalho mapeado no arquivo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 p-8 rounded-[2rem] bg-zinc-50 border border-zinc-100 shadow-inner">
+            <p className="text-lg font-black text-zinc-900 leading-relaxed uppercase tracking-tight">
+              {viewingColumn}
+            </p>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button 
+              onClick={() => setViewingColumn(null)}
+              className="rounded-2xl bg-zinc-950 text-white font-black uppercase tracking-widest text-[10px] h-12 px-8"
+            >
+              Fechar Visualização
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
