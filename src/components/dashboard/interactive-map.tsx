@@ -3,7 +3,6 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, InfoWindow } from '@react-google-maps/api';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, AlertTriangle, MapPin } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
@@ -14,7 +13,6 @@ interface InteractiveMapProps {
   activeCity: string;
 }
 
-// Estilo do container do mapa - Altura fixa para garantir visibilidade
 const mapContainerStyle = { 
   width: '100%', 
   height: '37.5rem', // 600px na escala 80%
@@ -43,12 +41,12 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [hoverInfo, setHoverInfo] = useState<{ lat: number, lng: number, name: string, count: number } | null>(null);
 
-  // Agrupar estatísticas por Código de Município (CD_MUN)
+  // Mapeamento dinâmico de estatísticas por município
   const cityStats = useMemo(() => {
     const stats: Record<string, number> = {};
     const nameToCode: Record<string, string> = {};
 
-    // Mapeamento auxiliar do GeoJSON para vincular nomes do banco aos códigos
+    // Mapeamento auxiliar do GeoJSON para vincular nomes do banco aos códigos IBGE (CD_MUN)
     if (MUNICIP_GEOJSON && MUNICIP_GEOJSON.features) {
       MUNICIP_GEOJSON.features.forEach((f: any) => {
         if (f.properties && f.properties.NM_MUN) {
@@ -58,7 +56,8 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     }
 
     data.forEach(item => {
-      const cityRaw = String(item['Cidade:'] || item['cidade'] || '').toUpperCase();
+      const cityRaw = String(item['Cidade:'] || item['cidade'] || '').toUpperCase().trim();
+      // Prioriza CD_MUN se existir no banco, senão busca pelo nome mapeado
       const code = item.CD_MUN || item.cd_mun || nameToCode[cityRaw];
       if (code) {
         stats[code] = (stats[code] || 0) + 1;
@@ -81,7 +80,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     }
   }, []);
 
-  // Aplicar Estilização Dinâmica (Choropleth)
+  // Estilização Dinâmica da Data Layer (Choropleth)
   useEffect(() => {
     if (map) {
       map.data.setStyle((feature) => {
@@ -93,12 +92,13 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
         const hasData = count > 0;
         
         let fillColor = '#e2e8f0'; 
-        let fillOpacity = 0.3;
+        let fillOpacity = 0.2;
         let strokeWeight = 0.5;
         let strokeColor = '#cbd5e1';
 
         if (hasData) {
-          const intensity = Math.min(0.3 + (count / maxCount) * 0.7, 1);
+          // Efeito Power BI: intensidade da cor baseada no volume de dados
+          const intensity = 0.3 + (count / maxCount) * 0.7;
           fillColor = '#ea580c'; 
           fillOpacity = intensity;
           strokeWeight = 1;
@@ -124,7 +124,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
     }
   }, [map, cityStats, maxCount, activeCity]);
 
-  // Listeners de Eventos
+  // Listeners de Eventos (Clique e Hover)
   useEffect(() => {
     if (!map) return;
 
@@ -172,10 +172,11 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
 
   return (
     <LuxuryCard title="MAPA INTERATIVO REAL" subtitle="Contornos Geoespaciais" className="relative p-0 overflow-hidden h-[37.5rem]">
+      {/* Indicador de Status do Mapa */}
       <div className="absolute top-6 left-6 z-20 pointer-events-none">
         <div className="px-5 py-2.5 rounded-2xl bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl flex items-center gap-3">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-pulse" />
-          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE 2024 • Sincronizado</span>
+          <span className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.2em]">Malha IBGE 2024 • Sincronizada</span>
         </div>
       </div>
 
@@ -199,7 +200,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             {hoverInfo && (
               <InfoWindow 
                 position={{ lat: hoverInfo.lat, lng: hoverInfo.lng }} 
-                options={{ pixelOffset: new window.google.maps.Size(0, -10) }}
+                options={{ pixelOffset: isLoaded ? new window.google.maps.Size(0, -10) : undefined }}
               >
                 <div className="p-3 min-w-[10rem]">
                   <p className="text-[9px] font-black uppercase text-orange-600 mb-1 flex items-center gap-1">
@@ -207,7 +208,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
                   </p>
                   <p className="text-sm font-black text-zinc-900 leading-tight">{hoverInfo.name}</p>
                   <div className="mt-2.5 pt-2.5 border-t border-zinc-100 flex items-center justify-between">
-                    <span className="text-[9px] font-bold text-zinc-400">Entrevistas</span>
+                    <span className="text-[9px] font-bold text-zinc-400">Amostras</span>
                     <span className="text-[10px] font-black text-zinc-950">{hoverInfo.count.toLocaleString('pt-BR')}</span>
                   </div>
                 </div>
