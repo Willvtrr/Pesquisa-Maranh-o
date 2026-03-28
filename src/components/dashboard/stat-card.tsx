@@ -5,18 +5,20 @@ import React, { useEffect, useState } from 'react';
 import { motion, animate } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { Maximize2 } from 'lucide-react';
 
 interface StatCardProps {
   label?: string;
   title?: string;
   subtitle?: string;
-  value: number; // Agora numérico puro
+  value: number;
   subValue?: React.ReactNode;
   imageUrl?: string;
   className?: string;
   breakdown?: { name: string; value: number }[];
   party?: string;
   onFilterChange?: (name: string) => void;
+  onDetailClick?: () => void;
   selected?: string[];
 }
 
@@ -24,7 +26,6 @@ const NumberCounter = ({ value, className }: { value: number; className?: string
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
-    // Garante que o valor seja numérico antes da animação
     const targetValue = isNaN(value) ? 0 : value;
     const controls = animate(displayValue, targetValue, {
       duration: 1.5,
@@ -48,20 +49,18 @@ export const StatCard = ({
   breakdown,
   party,
   onFilterChange,
+  onDetailClick,
   selected = []
 }: StatCardProps) => {
   const colors = {
-    aprova: '#10b981', // emerald-500
-    desaprova: '#f43f5e', // rose-500
-    nsnr: '#d4d4d8', // zinc-300
+    aprova: '#10b981',
+    desaprova: '#f43f5e',
+    nsnr: '#d4d4d8',
   };
 
   const aprovaData = breakdown?.find(b => b.name === 'Aprova')?.value || 0;
   const desaprovaData = breakdown?.find(b => b.name === 'Desaprova')?.value || 0;
   const nsnrData = breakdown?.find(b => b.name === 'NS/NR')?.value || 0;
-
-  const displayTitle = title;
-  const displaySubtitle = subtitle || label;
 
   const isSelected = (name: string) => selected.includes(name);
 
@@ -72,19 +71,23 @@ export const StatCard = ({
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
       className={cn(
-        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-6 md:p-8 w-full relative overflow-hidden group shadow-[0_20px_50px_rgba(234,88,12,0.08)] transition-all hover:shadow-[0_30px_60px_rgba(234,88,12,0.12)] hover:-translate-y-1 flex flex-col",
+        "bg-white rounded-[2.5rem] border border-zinc-100/80 p-6 md:p-8 w-full relative overflow-hidden group shadow-[0_20px_50px_rgba(234,88,12,0.08)] transition-all hover:shadow-[0_30px_60px_rgba(234,88,12,0.12)] hover:-translate-y-1 flex flex-col cursor-pointer",
         className
       )}
+      onClick={onDetailClick}
     >
       <div className="flex flex-col items-start mb-6 relative z-10 w-full min-h-[3.5rem] space-y-1">
-        {displayTitle && (
-          <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
-            <span className="w-1 h-3 bg-orange-600 rounded-full" />
-            {displayTitle}
-          </h4>
-        )}
+        <div className="flex items-center justify-between w-full">
+          {title && (
+            <h4 className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
+              <span className="w-1 h-3 bg-orange-600 rounded-full" />
+              {title}
+            </h4>
+          )}
+          <Maximize2 size={12} className="text-zinc-300 group-hover:text-orange-500 transition-colors" />
+        </div>
         <h3 className="text-lg font-black text-zinc-950 leading-tight tracking-tight">
-          {displaySubtitle} {party && <span className="text-zinc-400 font-black text-[10px]">({party})</span>}
+          {subtitle || label} {party && <span className="text-zinc-400 font-black text-[10px]">({party})</span>}
         </h3>
       </div>
 
@@ -93,7 +96,7 @@ export const StatCard = ({
           {imageUrl ? (
             <Image 
               src={imageUrl} 
-              alt={displaySubtitle || "Foto"} 
+              alt={subtitle || label || "Foto"} 
               fill 
               className="object-cover object-top"
               sizes="(max-width: 768px) 160px, 176px"
@@ -130,7 +133,7 @@ export const StatCard = ({
 
       <div className="grid grid-cols-3 gap-1 text-center relative z-10 border-b border-zinc-100/80 pb-4 mb-4 w-full">
         <div 
-          onClick={() => onFilterChange?.('Aprova')}
+          onClick={(e) => { e.stopPropagation(); onFilterChange?.('Aprova'); }}
           className={cn(
             "flex flex-col items-center cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
             isSelected('Aprova') ? "bg-emerald-50 ring-1 ring-emerald-100" : "hover:bg-zinc-50"
@@ -147,7 +150,7 @@ export const StatCard = ({
         </div>
         
         <div 
-          onClick={() => onFilterChange?.('Desaprova')}
+          onClick={(e) => { e.stopPropagation(); onFilterChange?.('Desaprova'); }}
           className={cn(
             "flex flex-col items-center cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
             isSelected('Desaprova') ? "bg-rose-50 ring-1 ring-rose-100" : "hover:bg-zinc-50"
@@ -164,7 +167,7 @@ export const StatCard = ({
         </div>
         
         <div 
-          onClick={() => onFilterChange?.('NS/NR')}
+          onClick={(e) => { e.stopPropagation(); onFilterChange?.('NS/NR'); }}
           className={cn(
             "flex flex-col items-center cursor-pointer transition-all duration-300 p-1.5 rounded-2xl",
             isSelected('NS/NR') ? "bg-zinc-100 ring-1 ring-zinc-200" : "hover:bg-zinc-50"

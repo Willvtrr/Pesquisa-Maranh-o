@@ -14,15 +14,28 @@ import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { RankingCard } from '@/components/dashboard/ranking-card';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target, ChevronRight, BarChart3, Info, TrendingDown } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-// Mapeamento de Prefeitos
+// Lista das 61 cidades principais para o grid de botões
+const TOP_61_CITIES = [
+  'SÃO LUÍS', 'IMPERATRIZ', 'SÃO JOSÉ DE RIBAMAR', 'CAXIAS', 'TIMON', 'CODÓ', 'PAÇO DO LUMIAR', 'AÇAILÂNDIA', 'BACABAL', 'BALSAS', 
+  'SANTA INÊS', 'BARRA DO CORDA', 'PINHEIRO', 'CHAPADINHA', 'SANTA LUZIA', 'BURITICUPU', 'GRAJAÚ', 'ITAPECURU MIRIM', 'COROATÁ', 'BARREIRINHAS', 
+  'TUTÓIA', 'VARGEM GRANDE', 'VIANA', 'ZÉ DOCA', 'LAGO DA PEDRA', 'COELHO NETO', 'PRESIDENTE DUTRA', 'ARAIOSES', 'SÃO MATEUS DO MARANHÃO', 'PEDREIRAS', 
+  'AMARANTE DO MARANHÃO', 'COLINAS', 'SÃO BENTO', 'SANTA HELENA', 'ROSÁRIO', 'BREJO', 'TURIAÇU', 'PARNARAMA', 'MATÕES', 'ICATU', 
+  'PENALVA', 'MONÇÃO', 'SANTA RITA', 'URBANO SANTOS', 'VITORINO FREIRE', 'CURURUPU', 'ESTREITO', 'SÃO RAIMUNDO DAS MANGABEIRAS', 'ANAJATUBA', 'MIRANDA DO NORTE', 
+  'PORTO FRANCO', 'PASTOS BONS', 'ALTO PARNAÍBA', 'RIACHÃO', 'CAROLINA', 'GUIMARÃES', 'MIRINZAL', 'PERI MIRIM', 'GODOFREDO VIANA', 'ALCÂNTARA', 'RAPOSA'
+];
+
 const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
   'SÃO LUÍS': { name: 'Eduardo Braide', gender: 'M' },
   'SÃO JOSÉ DE RIBAMAR': { name: 'Dr. Julinho', gender: 'M' },
@@ -195,6 +208,12 @@ export default function Home() {
   const [lastUpdate, setLastUpdate] = useState<string>("Agora mesmo");
   const [isMounted, setIsMounted] = useState(false);
   const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
+  
+  // Estados para o Modal de Detalhes
+  const [detailModal, setDetailModal] = useState<{ open: boolean; type: 'president' | 'governor' | 'mayor' | null }>({
+    open: false,
+    type: null
+  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -224,7 +243,7 @@ export default function Home() {
     senator_second_vote_est: ['all'],
     senator_second_vote_spon: ['all'],
     senator_rejection: ['all'],
-    interview_ids: ['all'], // Novo filtro de segmentação cirúrgica
+    interview_ids: ['all'],
   });
 
   const activeKeys = useMemo(() => {
@@ -284,7 +303,6 @@ export default function Home() {
         const currentFilters = filters[filterKey];
         if (!currentFilters || currentFilters.includes('all')) return true;
         
-        // Lógica de segmentação cirúrgica por ID de entrevista
         if (filterKey === 'interview_ids') {
           return currentFilters.includes(item.id);
         }
@@ -487,7 +505,6 @@ export default function Home() {
   const handleManualSync = async () => {
     if (isSyncing) return;
     setIsSyncing(true);
-    // 2 ciclos de 1.5s = 3s
     await new Promise(resolve => setTimeout(resolve, 3000));
     setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
     setIsSyncing(false);
@@ -538,9 +555,7 @@ export default function Home() {
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">App de inteligência política e monitoramento de dados eleitorais.</p>
           </div>
           <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[15rem]">
-            {/* CARD BANCO DE DADOS COM ANIMAÇÃO REAL */}
             <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
-              {/* Efeito Scanner durante Sincronização */}
               <AnimatePresence>
                 {isSyncing && (
                   <motion.div
@@ -692,6 +707,7 @@ export default function Home() {
                 subValue="FEDERAL" 
                 breakdown={[{ name: 'Aprova', value: statsLula.aprova }, { name: 'Desaprova', value: statsLula.desaprova }, { name: 'NS/NR', value: statsLula.nsnr }]} 
                 onFilterChange={(v) => handleFilterChange('president_approval', v)}
+                onDetailClick={() => setDetailModal({ open: true, type: 'president' })}
                 selected={filters.president_approval}
               />
               <StatCard 
@@ -703,6 +719,7 @@ export default function Home() {
                 subValue="ESTADUAL" 
                 breakdown={[{ name: 'Aprova', value: statsBrandao.aprova }, { name: 'Desaprova', value: statsBrandao.desaprova }, { name: 'NS/NR', value: statsBrandao.nsnr }]} 
                 onFilterChange={(v) => handleFilterChange('gov_approval', v)}
+                onDetailClick={() => setDetailModal({ open: true, type: 'governor' })}
                 selected={filters.gov_approval}
               />
               <StatCard 
@@ -713,6 +730,7 @@ export default function Home() {
                 subValue="MUNICIPAL" 
                 breakdown={[{ name: 'Aprova', value: statsPrefeito.aprova }, { name: 'Desaprova', value: statsPrefeito.desaprova }, { name: 'NS/NR', value: statsPrefeito.nsnr }]} 
                 onFilterChange={(v) => handleFilterChange('mayor_approval', v)}
+                onDetailClick={() => setDetailModal({ open: true, type: 'mayor' })}
                 selected={filters.mayor_approval}
               />
             </div>
@@ -765,7 +783,6 @@ export default function Home() {
                     const isActive = filters.president_second_round.includes(item.name);
                     const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
                     
-                    // Barra de Distribuição Proporcional: Largura é o valor real sobre 100%
                     const visualPct = pct;
 
                     return (
@@ -902,7 +919,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Percepção de Vitória e Rejeição Senado lado a lado */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <VictoryPerceptionCard 
                 data={chartData.senatorVictoryData} 
@@ -983,7 +999,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mapa Interativo ocupando todo o espaço lateral */}
         <div className="w-full">
           <InteractiveMap 
             data={filteredData}
@@ -994,6 +1009,134 @@ export default function Home() {
           />
         </div>
       </div>
+
+      {/* MODAL DE DETALHES - SUPER APP DRILL DOWN */}
+      <Dialog open={detailModal.open} onOpenChange={(open) => setDetailModal(prev => ({ ...prev, open }))}>
+        <DialogContent className="max-w-6xl h-[90vh] flex flex-col p-0 overflow-hidden bg-white/95 backdrop-blur-3xl rounded-[3rem] border-none shadow-2xl">
+          <DialogHeader className="p-8 pb-4 border-b border-zinc-100 bg-white/50">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="p-3 rounded-2xl bg-orange-50 text-orange-600">
+                <BarChart3 size={24} />
+              </div>
+              <div>
+                <DialogTitle className="text-3xl font-black tracking-tighter text-zinc-950 uppercase">
+                  {detailModal.type === 'president' ? 'Dashboard Presidencial' : 
+                   detailModal.type === 'governor' ? 'Monitoramento Estadual' : 'Inteligência Municipal'}
+                </DialogTitle>
+                <DialogDescription className="text-zinc-500 font-medium">
+                  Análise granular por município e cruzamento de informações estratégicas.
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="flex-1 flex overflow-hidden">
+            {/* Sidebar de Cidades (Os 61 botões) */}
+            <div className="w-[320px] bg-zinc-50/50 border-r border-zinc-100 flex flex-col overflow-hidden">
+              <div className="p-6 border-b border-zinc-100">
+                <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4">Principais Municípios (61)</h4>
+                <div className="relative">
+                  <input placeholder="Buscar cidade..." className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500/20" />
+                </div>
+              </div>
+              <ScrollArea className="flex-1 p-4">
+                <div className="grid grid-cols-1 gap-2">
+                  {TOP_61_CITIES.map((city) => {
+                    const active = filters.city.includes(city);
+                    return (
+                      <button 
+                        key={city}
+                        onClick={() => handleFilterChange('city', city)}
+                        className={cn(
+                          "flex items-center justify-between p-3 rounded-xl transition-all font-black text-[9px] uppercase tracking-tight",
+                          active ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20" : "bg-white border border-zinc-100 text-zinc-600 hover:bg-zinc-100"
+                        )}
+                      >
+                        {city}
+                        {active && <Check size={12} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Conteúdo Central */}
+            <ScrollArea className="flex-1 bg-white">
+              <div className="p-10 space-y-10">
+                {/* Info Visual e Mapa */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <div className="p-8 rounded-[2.5rem] bg-zinc-950 text-white border border-zinc-800 shadow-2xl relative overflow-hidden">
+                      <div className="relative z-10">
+                        <h4 className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em] mb-4">Insight Técnico</h4>
+                        <p className="text-lg font-medium leading-relaxed tracking-tight text-zinc-300 italic">
+                          "A aprovação de {detailModal.type === 'president' ? 'Lula' : 'Brandão'} apresenta uma variação de <span className="text-emerald-400 font-black">+4.2%</span> nas regiões periféricas, indicando uma forte adesão aos programas de infraestrutura recentemente anunciados."
+                        </p>
+                        <div className="mt-8 flex items-center gap-4">
+                          <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-xl border border-emerald-500/20">
+                            <TrendingUp size={16} />
+                            <span className="text-[10px] font-black uppercase">Alta Fidelidade</span>
+                          </div>
+                          <div className="flex items-center gap-2 bg-rose-500/10 text-rose-400 px-4 py-2 rounded-xl border border-rose-500/20">
+                            <TrendingDown size={16} />
+                            <span className="text-[10px] font-black uppercase">Risco: Região Sul</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600/10 blur-[80px] rounded-full -mr-20 -mt-20"></div>
+                    </div>
+
+                    <LuxuryCard title="MÉTRICAS DE IMPACTO" subtitle="Desempenho por Segmento">
+                      <div className="space-y-4 pt-2">
+                        {['Jovens (16-24)', 'Mulheres', 'Baixa Renda', 'Interior'].map((segment, i) => (
+                          <div key={segment} className="space-y-1.5">
+                            <div className="flex justify-between items-end">
+                              <span className="text-[10px] font-black text-zinc-950 uppercase">{segment}</span>
+                              <span className="text-[10px] font-black text-orange-600">{72 - (i * 8)}%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-zinc-50 rounded-full overflow-hidden border border-zinc-100">
+                              <motion.div 
+                                initial={{ width: 0 }} 
+                                animate={{ width: `${72 - (i * 8)}%` }} 
+                                className="h-full bg-orange-600 rounded-full" 
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </LuxuryCard>
+                  </div>
+
+                  <div className="rounded-[2.5rem] overflow-hidden border border-zinc-100 shadow-xl h-[400px]">
+                    <InteractiveMap 
+                      data={getFilteredData()} 
+                      activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()} 
+                    />
+                  </div>
+                </div>
+
+                <div className="p-8 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-2xl bg-white border border-zinc-200 text-zinc-400">
+                      <Info size={24} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-zinc-950 uppercase">Análise Comparativa Completa</h4>
+                      <p className="text-xs text-zinc-500 font-medium">Veja todos os cruzamentos de dados em uma página dedicada.</p>
+                    </div>
+                  </div>
+                  <Link href={detailModal.type === 'president' ? '/analyses/presidential' : '/analyses/governor'} passHref>
+                    <Button className="h-14 px-8 rounded-2xl bg-zinc-950 text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-zinc-950/20 hover:scale-105 transition-all">
+                      Ver Análise Completa <ChevronRight size={16} className="ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

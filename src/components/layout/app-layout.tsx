@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -5,6 +6,8 @@ import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu } from 'lucide
 import { cn } from '@/lib/utils';
 import { BottomNav } from './bottom-nav';
 import Image from 'next/image';
+import Link from 'next/link';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,13 +16,11 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0">
-      {/* Background Grid Sutil */}
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
       
       <header className="h-16 lg:h-[6rem] bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
-          {/* Logo Oficial FOCCO ANALYTICS - Variante 3 */}
-          <div className="flex items-center cursor-pointer group">
+          <Link href="/" className="flex items-center cursor-pointer group">
             <div className="relative w-[8.75rem] h-[2.5rem] lg:w-[11.25rem] h-[3.25rem]">
               <Image 
                 src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
@@ -29,23 +30,41 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 className="object-contain"
               />
             </div>
-          </div>
+          </Link>
           
           <nav className="hidden lg:flex items-center gap-3">
-            <NavItem icon={LayoutDashboard} label="Painel" active />
-            <NavItem icon={BarChart3} label="Análises" />
+            <Link href="/">
+              <NavItem icon={LayoutDashboard} label="Painel" active />
+            </Link>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100">
+                  <BarChart3 size={16} />
+                  Análises
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="rounded-2xl p-2 min-w-[200px] bg-white shadow-2xl border-zinc-100">
+                <DropdownMenuItem className="rounded-xl font-bold text-[10px] uppercase p-3 cursor-pointer">
+                  <Link href="/analyses/presidential" className="flex w-full">Corrida Presidencial</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-xl font-bold text-[10px] uppercase p-3 cursor-pointer">
+                  <Link href="/analyses/governor" className="flex w-full">Corrida Governador</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <NavItem icon={Users} label="Demografia" />
             <NavItem icon={Settings} label="Sistema" />
           </nav>
         </div>
 
-        {/* Busca Ampliada e Centralizada */}
         <div className="flex items-center gap-4 flex-1 justify-end max-w-xl ml-auto">
           <div className="flex items-center inner-relief rounded-[1.5rem] px-8 py-4 gap-4 text-zinc-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-orange-500/5 transition-all w-full group border border-zinc-100/50 shadow-inner bg-zinc-50/50">
             <Search size={22} className="text-zinc-300 group-focus-within:text-orange-500 transition-colors" />
             <input 
               type="text" 
-              placeholder="Busca" 
+              placeholder="Busca Inteligente" 
               className="bg-transparent border-none outline-none text-base font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
             />
           </div>
@@ -79,7 +98,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
 const NavItem = ({ icon: Icon, label, active }: { icon: any, label: string, active?: boolean }) => (
   <button className={cn(
-    "flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+    "flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all w-full text-left",
     active ? "text-orange-600 bg-orange-50/60 border border-orange-100" : "text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100"
   )}>
     <Icon size={16} />
