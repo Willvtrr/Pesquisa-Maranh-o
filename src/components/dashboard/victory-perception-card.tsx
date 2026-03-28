@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -45,7 +46,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
       >
         {data.map((item, idx) => {
           const pct = total > 0 ? (item.value / total) * 100 : 0;
-          const isAbstention = item.isAbstention || item.name.toLowerCase().includes('outros');
+          const isAbstention = item.isAbstention || item.name.toLowerCase().includes('outros') || item.name.toLowerCase().includes('ns') || item.name.toLowerCase().includes('sabe');
           const displayName = toTitleCase(item.name);
           const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
 
@@ -73,7 +74,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                   <div className="flex flex-col justify-center min-w-0">
                     <span className={cn(
                       "text-[10px] tracking-tight leading-tight transition-colors",
-                      idx < 2 && !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
+                      !isAbstention ? "font-black text-zinc-950" : "font-bold text-zinc-500",
                       isFaded && "text-zinc-300"
                     )}>
                       {displayName}
@@ -88,11 +89,11 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                     )}
                   </div>
                   <span className={cn(
-                    "text-[10px] font-black leading-none transition-colors",
-                    isFaded ? "text-zinc-300" : (idx < 2 && !isAbstention ? "text-zinc-950" : "text-zinc-400"),
+                    "text-[10px] font-black leading-none transition-colors tabular-nums",
+                    isFaded ? "text-zinc-300" : (!isAbstention ? "text-zinc-950" : "text-zinc-400"),
                     hoveredIndex === idx && "text-emerald-600"
                   )}>
-                    {pct.toFixed(1)}%
+                    {pct.toFixed(1).replace('.', ',')}%
                   </span>
                 </div>
                 
@@ -106,7 +107,7 @@ export const VictoryPerceptionCard = ({ data, total, className }: VictoryPercept
                     transition={{ duration: 1.2, delay: idx * 0.05 }}
                     className={cn(
                       "h-full rounded-full transition-all",
-                      isAbstention || idx >= 2 ? "bg-zinc-200" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
+                      isAbstention ? "bg-zinc-200" : "bg-gradient-to-r from-[#10b981] to-[#059669]"
                     )}
                   />
                 </div>
