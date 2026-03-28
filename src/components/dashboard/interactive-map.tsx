@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Map, AdvancedMarker, useMap, InfoWindow } from '@vis.gl/react-google-maps';
-import { Loader2, Layers, Users, Box, MapPin, Globe, Target } from 'lucide-react';
+import { Loader2, Layers, Users, Box, MapPin, Globe, Target, ShieldCheck } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 import { cn } from '@/lib/utils';
@@ -52,27 +52,24 @@ const extractLatLng = (item: any) => {
 /**
  * Sub-componente Interno para lógica da Data Layer e Estilização
  */
-const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[], setHoveredCity: (n: string | null) => void, paintMode: 'all' | 'responses' }) => {
+const InteractiveMapContent = ({ 
+  cityCounts, 
+  maxCount, 
+  setHoveredCity, 
+  paintMode 
+}: { 
+  cityCounts: Record<string, number>, 
+  maxCount: number,
+  setHoveredCity: (n: string | null) => void, 
+  paintMode: 'all' | 'responses' 
+}) => {
   const map = useMap();
-
-  const cityCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    data.forEach((item: any) => {
-      const city = String(item["Cidade:"] || "").toUpperCase();
-      if (city) counts[city] = (counts[city] || 0) + 1;
-    });
-    return counts;
-  }, [data]);
-
-  const maxCount = useMemo(() => {
-    const values = Object.values(cityCounts);
-    return values.length > 0 ? Math.max(...values) : 1;
-  }, [cityCounts]);
 
   useEffect(() => {
     if (!map) return;
 
     try {
+      // Limpa camadas anteriores para evitar duplicidade
       map.data.forEach((feature) => map.data.remove(feature));
       map.data.addGeoJson(MUNICIP_GEOJSON);
     } catch (e) {
@@ -117,16 +114,15 @@ const InteractiveMapContent = ({ data, setHoveredCity, paintMode }: { data: any[
 
       // Estilo Padrão (Modo Estado Todo) - LINHAS MAIS FORTES
       let strokeW = 1.2;
-      let strokeC = '#27272a'; // zinc-800: Divisões muito evidentes
-      let opacity = 0.45; // Preenchimento inicial mais forte (não transparente demais)
+      let strokeC = '#27272a'; // zinc-800
+      let opacity = 0.45;
 
       if (hasData) {
-        // Escala de intensidade laranja: Min 0.65, Max 0.95
         opacity = 0.65 + (count / maxCount) * 0.3;
         
         if (isResponsesOnly) {
           strokeW = 1.8;
-          strokeC = '#000000'; // Contorno preto sólido para o modo de recorte
+          strokeC = '#000000';
         }
       }
 
@@ -154,6 +150,21 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Cálculo de densidade por cidade
+  const cityCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    data.forEach((item: any) => {
+      const city = String(item["Cidade:"] || "").toUpperCase();
+      if (city) counts[city] = (counts[city] || 0) + 1;
+    });
+    return counts;
+  }, [data]);
+
+  const maxCount = useMemo(() => {
+    const values = Object.values(cityCounts);
+    return values.length > 0 ? Math.max(...values) : 1;
+  }, [cityCounts]);
 
   const points = useMemo(() => {
     return data
@@ -254,9 +265,14 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             disableDefaultUI={false}
             gestureHandling={'greedy'}
           >
-            <InteractiveMapContent data={data} setHoveredCity={setHoveredCity} paintMode={paintMode} />
+            <InteractiveMapContent 
+              cityCounts={cityCounts} 
+              maxCount={maxCount} 
+              setHoveredCity={setHoveredCity} 
+              paintMode={paintMode} 
+            />
 
-            {/* Individual Markers Mode */}
+            {/* Marcadores Individuais */}
             {viewMode === 'interviews' && points.map((p: any) => (
               <AdvancedMarker
                 key={p.id}
@@ -267,7 +283,7 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
               </AdvancedMarker>
             ))}
 
-            {/* InfoWindow for Selected Point */}
+            {/* InfoWindow para Ponto Selecionado */}
             {selectedPoint && (
               <InfoWindow
                 position={extractLatLng(selectedPoint)}
@@ -312,11 +328,23 @@ export const InteractiveMap = ({ data, onCitySelect, activeCity }: InteractiveMa
             )}
           </Map>
 
-          {/* Hover Tooltip Overlay */}
+          {/* Tooltip Informativo no Hover */}
           {hoveredCity && (
-            <div className="absolute bottom-6 left-6 z-30 bg-zinc-950 text-white px-4 py-2 rounded-xl shadow-2xl border border-white/10 backdrop-blur-md flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest">{hoveredCity}</span>
+            <div className="absolute bottom-6 left-6 z-30 bg-zinc-950 text-white p-4 rounded-[1.5rem] shadow-2xl border border-white/10 backdrop-blur-md flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 min-w-[180px]">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Município</span>
+                </div>
+                <ShieldCheck size={14} className="text-emerald-500" />
+              </div>
+              <h4 className="text-sm font-black uppercase tracking-tight">{hoveredCity}</h4>
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
+                <span className="text-[9px] font-bold text-zinc-500 uppercase">Coletas</span>
+                <span className="text-xs font-black text-orange-500">
+                  {(cityCounts[hoveredCity.toUpperCase()] || 0).toLocaleString('pt-BR')}
+                </span>
+              </div>
             </div>
           )}
         </div>
