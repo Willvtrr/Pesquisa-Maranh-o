@@ -27,7 +27,7 @@ const mapStyles = [
 ];
 
 /**
- * Função de Extração de Dados GPS resiliente seguindo Guia Mestre
+ * Função de Extração de Dados GPS resiliente
  */
 const extractLatLng = (item: any) => {
   const latNum = item['_start-geopoint_latitude'];
@@ -52,20 +52,22 @@ const extractLatLng = (item: any) => {
 };
 
 /**
- * Sub-componente Interno para lógica da Data Layer e Estilização (Arquitetura SSR-Safe)
+ * Sub-componente Interno para lógica da Data Layer e Estilização
  */
 const InteractiveMapContent = ({ 
   cityCounts, 
   maxCount, 
   setHoveredCity, 
   paintMode,
-  viewMode
+  viewMode,
+  activeCity
 }: { 
   cityCounts: Record<string, number>, 
   maxCount: number,
   setHoveredCity: (n: string | null) => void, 
   paintMode: 'all' | 'responses',
-  viewMode: 'municipal' | 'interviews'
+  viewMode: 'municipal' | 'interviews',
+  activeCity?: string
 }) => {
   const map = useMap();
 
@@ -80,7 +82,7 @@ const InteractiveMapContent = ({
     }
 
     const mouseOverListener = map.data.addListener('mouseover', (event: any) => {
-      if (viewMode === 'interviews') return; // Desativa tooltips no modo de pins
+      if (viewMode === 'interviews') return; 
       const cityName = event.feature.getProperty('NM_MUN');
       setHoveredCity(cityName);
       map.data.overrideStyle(event.feature, { 
@@ -101,11 +103,30 @@ const InteractiveMapContent = ({
     };
   }, [map, setHoveredCity, viewMode]);
 
+  // Lógica de Zoom Automático para Município Ativo
+  useEffect(() => {
+    if (!map || !activeCity) {
+      if (map && !activeCity) map.setZoom(7);
+      return;
+    }
+
+    let found = false;
+    map.data.forEach((feature) => {
+      const cityName = String(feature.getProperty('NM_MUN')).toUpperCase();
+      if (cityName === activeCity.toUpperCase()) {
+        const bounds = new google.maps.LatLngBounds();
+        feature.getGeometry().forEachLatLng((latlng) => {
+          bounds.extend(latlng);
+        });
+        map.fitBounds(bounds);
+        found = true;
+      }
+    });
+  }, [map, activeCity]);
+
   useEffect(() => {
     if (!map) return;
     map.data.setStyle((feature) => {
-      // Se estivermos no modo de Entrevistas, não pintamos a malha municipal
-      // Isso remove o "degradê" e as linhas para deixar apenas os pins visíveis
       if (viewMode === 'interviews') {
         return { visible: false };
       }
@@ -113,22 +134,26 @@ const InteractiveMapContent = ({
       const cityName = String(feature.getProperty('NM_MUN')).toUpperCase();
       const count = cityCounts[cityName] || 0;
       const hasData = count > 0;
+      const isSelected = activeCity && cityName === activeCity.toUpperCase();
       
       const isResponsesOnly = paintMode === 'responses';
       
-      // Se for "Só Coletas", só mostramos se tiver dado
-      if (isResponsesOnly && !hasData) {
+      if (isResponsesOnly && !hasData && !isSelected) {
         return { visible: false };
       }
 
       let strokeW = 1.2;
-      let strokeC = '#27272a'; 
+      let strokeC = isSelected ? '#000000' : '#27272a'; 
       let opacity = 0.45; 
 
       if (hasData) {
         opacity = 0.7 + (count / maxCount) * 0.25;
-        strokeW = isResponsesOnly ? 2.0 : 1.5;
-        strokeC = isResponsesOnly ? '#000000' : '#18181b';
+        strokeW = isResponsesOnly || isSelected ? 2.5 : 1.5;
+      }
+
+      if (isSelected) {
+        opacity = 0.95;
+        strokeW = 3.0;
       }
 
       return {
@@ -139,7 +164,7 @@ const InteractiveMapContent = ({
         visible: true
       };
     });
-  }, [map, cityCounts, maxCount, paintMode, viewMode]);
+  }, [map, cityCounts, maxCount, paintMode, viewMode, activeCity]);
 
   return null;
 };
@@ -188,7 +213,7 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
   }
 
   return (
-    <LuxuryCard className="relative p-0 overflow-hidden h-[45rem]">
+    <LuxuryCard className="relative p-0 overflow-hidden h-full">
       <div className="flex flex-col h-full">
         {/* Header Controls */}
         <div className="p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-zinc-100 bg-white z-20">
@@ -273,9 +298,9 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
               setHoveredCity={setHoveredCity} 
               paintMode={paintMode} 
               viewMode={viewMode}
+              activeCity={activeCity}
             />
 
-            {/* Marcadores Individuais com lógica de segmentação cirúrgica */}
             {viewMode === 'interviews' && points.map((p: any) => {
               const isSelected = selectedInterviews.includes(p.id);
               return (
@@ -295,7 +320,6 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
               );
             })}
 
-            {/* InfoWindow Nativa para Detalhes */}
             {selectedPoint && (
               <InfoWindow
                 position={extractLatLng(selectedPoint)}
@@ -340,7 +364,6 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
             )}
           </Map>
 
-          {/* Tooltip flutuante no Hover */}
           {hoveredCity && viewMode === 'municipal' && (
             <div className="absolute bottom-6 left-6 z-30 bg-zinc-950 text-white p-4 rounded-[1.5rem] shadow-2xl border border-white/10 backdrop-blur-md flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-300 min-w-[180px]">
               <div className="flex items-center justify-between mb-1">

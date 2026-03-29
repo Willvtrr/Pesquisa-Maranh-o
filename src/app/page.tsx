@@ -1026,7 +1026,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SUPER APP DRILL DOWN MODAL - V3 MINIMALIST */}
+      {/* SUPER APP DRILL DOWN MODAL - V4 PREMIUM ORANGE */}
       <Dialog open={detailModal.open} onOpenChange={(open) => setDetailModal(prev => ({ ...prev, open }))}>
         <DialogContent className="max-w-[95vw] w-[1400px] h-[90vh] flex flex-col p-0 overflow-hidden bg-white/98 backdrop-blur-3xl rounded-[2.5rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)]">
           
@@ -1035,36 +1035,37 @@ export default function Home() {
             <div className="flex items-center gap-8">
               <div className="flex flex-col">
                 <DialogTitle className="text-3xl font-black tracking-tighter text-zinc-950 uppercase leading-none">
-                  {detailModal.type === 'president' ? 'Dashboard Presidencial' : 
-                   detailModal.type === 'governor' ? 'Análise Estadual' : 'Radar Municipal'}
+                  {detailModal.type === 'president' ? 'Monitoramento Presidencial' : 
+                   detailModal.type === 'governor' ? 'Painel Estadual' : 'Radar Municipal'}
                 </DialogTitle>
-                <DialogDescription className="text-zinc-400 font-bold mt-2 text-base tracking-tight">
-                  Exploração granular de dados cruzados e perfis de influência.
-                </DialogDescription>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />
+                  <DialogDescription className="text-zinc-400 font-bold text-base tracking-tight">
+                    Análise granular por microrregiões e municípios.
+                  </DialogDescription>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-6">
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.3em]">Status da Base</span>
-                <span className="text-xs font-black text-emerald-500 flex items-center gap-1.5 mt-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Sincronizado
-                </span>
+                <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.3em]">Integridade da Amostra</span>
+                <Badge variant="outline" className="border-orange-200 text-orange-600 font-black mt-1">Auditado em tempo real</Badge>
               </div>
             </div>
           </div>
 
           <div className="flex-1 flex overflow-hidden">
             
-            {/* Sidebar de Cidades Ultra-Minimalista */}
+            {/* Sidebar de Cidades Profissional */}
             <div className="w-[340px] bg-zinc-50/50 border-r border-zinc-100 flex flex-col overflow-hidden">
               <div className="p-8 space-y-6">
                 <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 size-4 group-focus-within:text-zinc-950 transition-colors" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 size-4 group-focus-within:text-orange-600 transition-colors" />
                   <input 
-                    placeholder="Pesquisar..." 
+                    placeholder="Filtrar município..." 
                     value={citySearch}
                     onChange={(e) => setCitySearch(e.target.value)}
-                    className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none shadow-sm focus:border-zinc-950 transition-all placeholder:text-zinc-300" 
+                    className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none shadow-sm focus:border-orange-600 transition-all placeholder:text-zinc-300" 
                   />
                 </div>
               </div>
@@ -1080,16 +1081,16 @@ export default function Home() {
                         key={city}
                         onClick={() => handleFilterChange('city', city)}
                         className={cn(
-                          "w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-200",
+                          "w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-300",
                           isActive 
-                            ? "bg-zinc-950 text-white shadow-lg translate-x-1" 
+                            ? "bg-zinc-950 text-white shadow-xl scale-[1.02] translate-x-1" 
                             : "text-zinc-500 hover:bg-white hover:text-zinc-950"
                         )}
                       >
                         <span className="font-black text-[10px] uppercase tracking-tight">{city}</span>
                         <span className={cn(
-                          "text-[8px] font-bold tabular-nums px-2 py-0.5 rounded-lg",
-                          isActive ? "text-zinc-500 bg-zinc-900" : "text-zinc-300"
+                          "text-[8px] font-black tabular-nums px-2 py-0.5 rounded-lg",
+                          isActive ? "text-orange-500 bg-zinc-900" : "text-zinc-300 bg-zinc-100"
                         )}>
                           {amCount}
                         </span>
@@ -1100,65 +1101,74 @@ export default function Home() {
               </ScrollArea>
             </div>
 
-            {/* Conteúdo Central Analytics Minimalista */}
+            {/* Conteúdo Central Master Analytics */}
             <ScrollArea className="flex-1 bg-white">
-              <div className="p-12 space-y-16 max-w-5xl mx-auto">
+              <div className="p-12 space-y-16 max-w-5xl mx-auto pb-24">
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
                   
-                  {/* Briefing de Inteligência Minimalista */}
+                  {/* Briefing Executivo Orange */}
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-8"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-1 h-5 bg-zinc-950 rounded-full" />
+                      <div className="w-1 h-5 bg-orange-600 rounded-full" />
                       <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Briefing de Inteligência</h4>
                     </div>
 
                     <p className="text-3xl font-black leading-tight tracking-tighter text-zinc-950">
-                      A aprovação demonstra uma <span className="text-orange-600">resiliência estratégica</span> nos grandes centros, impulsionada por percepção de entrega.
+                      O cenário atual indica uma <span className="text-orange-600">consolidação estratégica</span> nas bases eleitorais {filters.city[0] !== 'all' ? `de ${filters.city[0]}` : 'do Maranhão'}.
                     </p>
 
-                    <div className="grid grid-cols-1 gap-10 pt-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-emerald-600">
-                          <TrendingUp size={16} />
-                          <span className="text-[10px] font-black uppercase tracking-wider">Oportunidade</span>
+                    <div className="space-y-10 pt-4">
+                      <div className="flex gap-6">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-center gap-2 text-emerald-600">
+                            <TrendingUp size={16} />
+                            <span className="text-[10px] font-black uppercase tracking-wider">Oportunidade</span>
+                          </div>
+                          <p className="text-sm text-zinc-500 font-bold leading-relaxed">
+                            Crescimento orgânico detectado em áreas de baixa densidade, impulsionado pela percepção de obras estruturantes.
+                          </p>
                         </div>
-                        <p className="text-sm text-zinc-500 font-bold leading-relaxed">Expansão detectada de 4.2% em áreas de influência direta nos últimos 15 dias.</p>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-rose-600">
-                          <TrendingDown size={16} />
-                          <span className="text-[10px] font-black uppercase tracking-wider">Risco Crítico</span>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-center gap-2 text-rose-600">
+                            <ShieldAlert size={16} />
+                            <span className="text-[10px] font-black uppercase tracking-wider">Risco Crítico</span>
+                          </div>
+                          <p className="text-sm text-zinc-500 font-bold leading-relaxed">
+                            Resistência em nichos de alta renda devido à volatilidade da percepção econômica no curto prazo.
+                          </p>
                         </div>
-                        <p className="text-sm text-zinc-500 font-bold leading-relaxed">Sinal de alerta na Mesorregião Sul, onde a rejeição rompeu o teto histórico.</p>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Métricas de Desempenho Minimalistas */}
-                  <div className="space-y-8">
-                    <h4 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em]">Métricas de Desempenho</h4>
+                  {/* Métricas Orange Premium */}
+                  <div className="space-y-8 bg-zinc-50/50 p-8 rounded-[2rem] border border-zinc-100 shadow-inner">
+                    <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex justify-between">
+                      Métricas de Desempenho
+                      <span className="text-orange-600">Tempo Real</span>
+                    </h4>
                     <div className="space-y-8">
                       {[
-                        { label: 'Adesão Jovem', value: 72, color: 'bg-zinc-950' },
-                        { label: 'Conversão Feminina', value: 64, color: 'bg-orange-600' },
-                        { label: 'Impacto Baixa Renda', value: 58, color: 'bg-zinc-400' },
+                        { label: 'Adesão Jovem', value: 72 },
+                        { label: 'Conversão Feminina', value: 64 },
+                        { label: 'Impacto Baixa Renda', value: 58 },
                       ].map((metric, i) => (
                         <div key={metric.label} className="space-y-3">
                           <div className="flex justify-between items-end">
                             <span className="text-[10px] font-black text-zinc-950 uppercase tracking-wider">{metric.label}</span>
-                            <span className="text-lg font-black text-zinc-950">{metric.value}%</span>
+                            <span className="text-lg font-black text-orange-600">{metric.value}%</span>
                           </div>
-                          <div className="h-1 w-full bg-zinc-100 rounded-full overflow-hidden">
+                          <div className="h-1.5 w-full bg-zinc-200 rounded-full overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }} 
                               animate={{ width: `${metric.value}%` }} 
-                              transition={{ duration: 1.5, ease: "circOut" }}
-                              className={cn("h-full rounded-full", metric.color)} 
+                              transition={{ duration: 1.5, ease: "circOut", delay: i * 0.1 }}
+                              className="h-full rounded-full bg-orange-600 shadow-[0_0_10px_rgba(234,88,12,0.3)]" 
                             />
                           </div>
                         </div>
@@ -1167,13 +1177,18 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Mapa Minimalista */}
+                {/* Radar Geoespacial Integrado */}
                 <div className="space-y-8">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-5 bg-zinc-950 rounded-full" />
-                    <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Radar Geoestatístico</h4>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-5 bg-orange-600 rounded-full" />
+                      <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Radar Geoestatístico do Município</h4>
+                    </div>
+                    {filters.city[0] !== 'all' && (
+                      <Badge className="bg-orange-600 text-white font-black uppercase">{filters.city[0]}</Badge>
+                    )}
                   </div>
-                  <div className="h-[450px] rounded-[2rem] overflow-hidden border border-zinc-100 shadow-sm relative">
+                  <div className="h-[500px] rounded-[2.5rem] overflow-hidden border border-zinc-100 shadow-2xl relative">
                     <InteractiveMap 
                       data={getFilteredData()} 
                       activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()} 
@@ -1181,11 +1196,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Botão de Ação Minimalista */}
-                <div className="pt-8 flex justify-center">
+                {/* Call to Action Minimalista */}
+                <div className="pt-8 flex flex-col items-center gap-4">
+                  <p className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em]">Exploração Avançada</p>
                   <Link href={detailModal.type === 'president' ? '/analyses/presidential' : '/analyses/governor'} passHref>
-                    <Button variant="outline" className="h-14 px-12 rounded-full border-zinc-200 text-zinc-950 font-black uppercase tracking-widest text-[10px] hover:bg-zinc-950 hover:text-white transition-all">
-                      Acessar Análise Completa <ChevronRight size={16} className="ml-2" />
+                    <Button variant="outline" className="h-16 px-16 rounded-full border-zinc-200 text-zinc-950 font-black uppercase tracking-widest text-[11px] hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-xl hover:shadow-orange-600/20 active:scale-95 group">
+                      Acessar Hub de Inteligência Completo <ChevronRight size={18} className="ml-3 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </div>
