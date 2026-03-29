@@ -690,17 +690,6 @@ export default function Home() {
               />
             </div>
 
-            <div className="w-full">
-              <InteractiveMap 
-                instanceId="dashboard-main-map"
-                data={filteredData}
-                activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
-                selectedInterviews={filters.interview_ids}
-                onInterviewSelect={handleInterviewSelect}
-                onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
-              />
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <LuxuryCard className="h-full relative overflow-hidden group">
                 <div className="flex items-start justify-between mb-1">
@@ -846,7 +835,7 @@ export default function Home() {
                 badge="ESPONTÂNEA"
                 showPhotos={true}
                 selected={filters.senator_spontaneous}
-                onFilterChange={(v) => handleFilterChange('senator_spontaneous', v)}
+                onFilterChange={(v) => handleFilterChange('senador_spontaneous', v)}
               />
             </div>
 
@@ -894,6 +883,17 @@ export default function Home() {
                 data={chartData.worksData} 
                 total={filteredData.length} 
                 color="green" 
+              />
+            </div>
+
+            <div className="w-full">
+              <InteractiveMap 
+                instanceId="dashboard-main-map"
+                data={filteredData}
+                activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
+                selectedInterviews={filters.interview_ids}
+                onInterviewSelect={handleInterviewSelect}
+                onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
               />
             </div>
           </div>
