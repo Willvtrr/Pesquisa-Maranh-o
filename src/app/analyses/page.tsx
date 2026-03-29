@@ -13,33 +13,72 @@ import {
   ShieldCheck, 
   TrendingUp,
   BarChart3,
-  Database
+  Database,
+  Users,
+  Map,
+  ShieldAlert,
+  Vote
 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export default function AnalysesHub() {
-  const categories = [
+  const executiveAnalyses = [
     {
       id: 'presidential',
-      title: 'Corrida Presidencial',
+      title: 'Sucessão Presidencial',
       subtitle: 'PLANALTO CENTRAL',
       description: 'Inteligência completa sobre a sucessão presidencial em solo maranhense. Cruzamento de intenção de voto, rejeição e tendências por mesorregião.',
       icon: Flag,
       color: 'bg-orange-600',
       path: '/analyses/presidential',
-      metrics: ['Amostra Consolidada', 'Margem: 2.2%', 'Confiança: 95%']
+      metrics: ['Margem: 2.2%', 'Confiança: 95%']
     },
     {
       id: 'governor',
-      title: 'Corrida Governador',
+      title: 'Sucessão Estadual',
       subtitle: 'PALÁCIO DOS LEÕES',
       description: 'Monitoramento tático da disputa estadual. Análise de cenários estimulados, percepção de vitória e avaliação do impacto das obras governamentais.',
       icon: Landmark,
-      color: 'bg-zinc-950',
+      color: 'bg-zinc-900',
       path: '/analyses/governor',
-      metrics: ['Tracking Ativo', 'Prefixos Auditados', 'Foco Regional']
+      metrics: ['Tracking Ativo', 'Foco Regional']
+    }
+  ];
+
+  const legislativeAnalyses = [
+    {
+      id: 'senate',
+      title: 'Cenários do Senado',
+      subtitle: 'CONGRESSO NACIONAL',
+      description: 'Mapeamento de múltiplas vagas para o Senado. Alianças preferidas e cruzamento de "Segundo Voto" em tempo real.',
+      icon: Vote,
+      color: 'bg-emerald-600',
+      path: '#', // Em breve
+      metrics: ['5 Cenários', 'Live Data']
+    },
+    {
+      id: 'deputies',
+      title: 'Rankings Proporcionais',
+      subtitle: 'CÂMARA & ASSEMBLEIA',
+      description: 'Identificação de puxadores de voto e capilaridade de candidatos a Deputado Federal e Estadual por microrregião.',
+      icon: Users,
+      color: 'bg-blue-600',
+      path: '#', // Em breve
+      metrics: ['Auditado', 'Micro-Regional']
+    }
+  ];
+
+  const territorialAnalyses = [
+    {
+      id: 'municipalities',
+      title: 'Radar Municipal',
+      subtitle: '217 MUNICÍPIOS',
+      description: 'Comparativo de aprovação de prefeitos, principais problemas locais e demandas de obras prioritárias por cidade.',
+      icon: Map,
+      color: 'bg-rose-600',
+      path: '#', // Em breve
+      metrics: ['Cobertura 100%', 'Gargalos']
     }
   ];
 
@@ -58,82 +97,55 @@ export default function AnalysesHub() {
             Hub de <span className="text-orange-600">Análises</span>
           </h1>
           <p className="text-zinc-500 font-medium text-lg leading-relaxed">
-            Módulos especializados para decisões cirúrgicas. Explore dados consolidados e tendências estratégicas dos principais cenários políticos.
+            Módulos especializados para decisões cirúrgicas. Explore dados consolidados e tendências estratégicas dos principais cenários políticos do Maranhão.
           </p>
         </div>
 
-        {/* Grid de Categorias */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {categories.map((cat, idx) => (
-            <motion.div
-              key={cat.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <Link href={cat.path}>
-                <LuxuryCard className="h-full group cursor-pointer border-none shadow-[0_30px_60px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(234,88,12,0.12)] hover:-translate-y-2 transition-all duration-500 p-8 md:p-12">
-                  <div className="flex flex-col h-full gap-8">
-                    <div className="flex justify-between items-start">
-                      <div className={cn(
-                        "p-5 rounded-[2rem] text-white shadow-2xl transition-transform group-hover:scale-110 duration-500",
-                        cat.color
-                      )}>
-                        <cat.icon size={32} />
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Badge variant="outline" className="border-zinc-100 text-zinc-400 font-black text-[8px] tracking-widest uppercase px-3 py-1">
-                          Consolidado v3.5
-                        </Badge>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Live Data</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-[10px] font-black text-orange-600 uppercase tracking-[0.3em] mb-1">{cat.subtitle}</h4>
-                        <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-zinc-950 uppercase group-hover:text-orange-600 transition-colors">
-                          {cat.title}
-                        </h2>
-                      </div>
-                      <p className="text-zinc-500 font-medium leading-relaxed">
-                        {cat.description}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4 pt-4 border-t border-zinc-50">
-                      {cat.metrics.map((m, i) => (
-                        <div key={i} className="space-y-1">
-                          <p className="text-[8px] font-black text-zinc-300 uppercase tracking-widest leading-none">{i === 0 ? 'Status' : i === 1 ? 'Margem' : 'Nível'}</p>
-                          <p className="text-[10px] font-black text-zinc-950 uppercase truncate">{m}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-auto pt-4 flex items-center justify-between">
-                      <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500 flex items-center gap-2">
-                        Acessar Deep Dive <ChevronRight size={14} />
-                      </span>
-                      <div className="w-12 h-12 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-all duration-500 shadow-sm">
-                        <ChevronRight size={20} />
-                      </div>
-                    </div>
-                  </div>
-                </LuxuryCard>
-              </Link>
-            </motion.div>
-          ))}
+        {/* Grupo: Esfera Executiva */}
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] whitespace-nowrap">Esfera Executiva</span>
+            <div className="h-px bg-zinc-100 flex-1" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {executiveAnalyses.map((cat, idx) => (
+              <AnalysisCard key={cat.id} {...cat} delay={idx * 0.1} />
+            ))}
+          </div>
         </div>
 
-        {/* Banner de Metodologia */}
+        {/* Grupo: Força Legislativa */}
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] whitespace-nowrap">Força Legislativa</span>
+            <div className="h-px bg-zinc-100 flex-1" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {legislativeAnalyses.map((cat, idx) => (
+              <AnalysisCard key={cat.id} {...cat} delay={0.2 + idx * 0.1} />
+            ))}
+          </div>
+        </div>
+
+        {/* Grupo: Inteligência Territorial */}
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] whitespace-nowrap">Inteligência Territorial</span>
+            <div className="h-px bg-zinc-100 flex-1" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {territorialAnalyses.map((cat, idx) => (
+              <AnalysisCard key={cat.id} {...cat} delay={0.4 + idx * 0.1} />
+            ))}
+          </div>
+        </div>
+
+        {/* Metodologia Banner */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="bg-zinc-950 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl"
+          className="bg-zinc-950 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl mt-12"
         >
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-600/10 blur-[120px] -mr-40 -mt-40 rounded-full" />
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -170,4 +182,63 @@ export default function AnalysesHub() {
   );
 }
 
-const cn = (...inputs: any[]) => inputs.filter(Boolean).join(' ');
+function AnalysisCard({ title, subtitle, description, icon: Icon, color, path, metrics, delay }: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+    >
+      <Link href={path}>
+        <LuxuryCard className="h-full group cursor-pointer border-none shadow-[0_30px_60px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(234,88,12,0.12)] hover:-translate-y-2 transition-all duration-500 p-8 md:p-10">
+          <div className="flex flex-col h-full gap-6">
+            <div className="flex justify-between items-start">
+              <div className={cn(
+                "p-5 rounded-[2rem] text-white shadow-2xl transition-transform group-hover:scale-110 duration-500",
+                color
+              )}>
+                <Icon size={32} />
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Live Data</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-[9px] font-black text-orange-600 uppercase tracking-[0.3em] mb-1">{subtitle}</h4>
+                <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-zinc-950 uppercase group-hover:text-orange-600 transition-colors">
+                  {title}
+                </h2>
+              </div>
+              <p className="text-zinc-500 text-sm font-medium leading-relaxed">
+                {description}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-50">
+              {metrics.map((m: string, i: number) => (
+                <div key={i} className="space-y-1">
+                  <p className="text-[8px] font-black text-zinc-300 uppercase tracking-widest leading-none">{i === 0 ? 'Status' : 'Nível'}</p>
+                  <p className="text-[10px] font-black text-zinc-950 uppercase truncate">{m}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-auto pt-4 flex items-center justify-between">
+              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500 flex items-center gap-2">
+                Acessar Deep Dive <ChevronRight size={14} />
+              </span>
+              <div className="w-10 h-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-all duration-500 shadow-sm">
+                <ChevronRight size={18} />
+              </div>
+            </div>
+          </div>
+        </LuxuryCard>
+      </Link>
+    </motion.div>
+  );
+}

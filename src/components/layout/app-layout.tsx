@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu, MapPin, User2, X, FileJson, Navigation } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu, MapPin, User2, X, FileJson, Navigation, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from './bottom-nav';
 import Image from 'next/image';
@@ -29,19 +29,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const searchResults = useMemo(() => {
     if (searchValue.length < 2) return [];
     
     const term = searchValue.toLowerCase();
     
-    // 1. Cidades
     const cities: SearchResult[] = TOP_61_CITIES
       .filter(city => city.toLowerCase().includes(term))
       .map(city => ({ type: 'city', name: city, category: 'Município' }));
     
-    // 2. Candidatos e Lideranças
     const candidatesList = [
       'LULA', 'CARLOS BRANDÃO', 'JAIR BOLSONARO', 'FELIPE CAMARÃO', 
       'WEVERTON ROCHA', 'ROSEANA SARNEY', 'FLÁVIO DINO', 'EDUARDO BRAIDE'
@@ -50,9 +47,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       .filter(c => c.toLowerCase().includes(term))
       .map(c => ({ type: 'candidate', name: c, category: 'Liderança' }));
 
-    // 3. Páginas e Módulos
     const pagesList: SearchResult[] = [
       { type: 'page', name: 'PAINEL PRINCIPAL', path: '/', category: 'Módulo' },
+      { type: 'page', name: 'HUB DE ANÁLISES', path: '/analyses', category: 'Inteligência' },
       { type: 'page', name: 'CORRIDA PRESIDENCIAL', path: '/analyses/presidential', category: 'Análise' },
       { type: 'page', name: 'CORRIDA GOVERNADOR', path: '/analyses/governor', category: 'Análise' },
       { type: 'page', name: 'IMPORTAR DADOS', path: '/admin/import', category: 'Admin' },
@@ -66,7 +63,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     setSearchValue("");
     setShowResults(false);
     
-    if (result.type === 'page' && result.path) {
+    if (result.path) {
       router.push(result.path);
       return;
     }
@@ -114,24 +111,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <NavItem icon={LayoutDashboard} label="Painel" active={pathname === '/'} />
             </Link>
             
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100">
-                  <BarChart3 size={16} />
-                  Análises
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="rounded-2xl p-2 min-w-[200px] bg-white shadow-2xl border-zinc-100">
-                <DropdownMenuItem className="rounded-xl font-bold text-[10px] uppercase p-3 cursor-pointer">
-                  <Link href="/analyses/presidential" className="flex w-full">Corrida Presidencial</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl font-bold text-[10px] uppercase p-3 cursor-pointer">
-                  <Link href="/analyses/governor" className="flex w-full">Corrida Governador</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link href="/analyses">
+              <NavItem icon={BarChart3} label="Análises" active={pathname.startsWith('/analyses')} />
+            </Link>
 
             <NavItem icon={Users} label="Demografia" />
+            
             <Link href="/admin/import">
               <NavItem icon={Settings} label="Sistema" active={pathname === '/admin/import'} />
             </Link>
@@ -230,11 +215,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 };
 
 const NavItem = ({ icon: Icon, label, active }: { icon: any, label: string, active?: boolean }) => (
-  <button className={cn(
-    "flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all w-full text-left",
-    active ? "text-orange-600 bg-orange-50/60 border border-orange-100" : "text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100"
+  <div className={cn(
+    "flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all cursor-pointer",
+    active ? "text-orange-600 bg-orange-50/60 border border-orange-100 shadow-sm" : "text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100"
   )}>
     <Icon size={16} />
     {label}
-  </button>
+  </div>
 );
