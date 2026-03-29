@@ -7,6 +7,7 @@ import { SurveyProvider } from '@/contexts/survey-context';
 import { PWARegister } from '@/components/pwa-register';
 import { GoogleMapsProvider } from '@/components/providers/google-maps-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthGate } from '@/components/auth/auth-gate';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
@@ -53,7 +54,9 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <GoogleMapsProvider>
             <SurveyProvider>
-              {children}
+              <AuthGate>
+                {children}
+              </AuthGate>
               <Toaster />
             </SurveyProvider>
           </GoogleMapsProvider>
