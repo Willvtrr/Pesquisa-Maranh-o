@@ -112,15 +112,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="h-16 lg:h-[6rem] bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
           <Link href="/" className="flex items-center gap-3 cursor-pointer group">
-            <div className="relative w-8 h-8 lg:w-10 lg:h-10">
-              <Image 
-                src="/ICON - VARIAÇÃO 3.svg" 
-                alt="Focco Analytics" 
-                fill
-                priority
-                className="object-contain transition-transform group-hover:scale-110"
-              />
-            </div>
             <div className="relative w-[8.75rem] h-[2.5rem] lg:w-[11.25rem] lg:h-[3.25rem]">
               <Image 
                 src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
