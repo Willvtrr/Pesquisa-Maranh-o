@@ -3,16 +3,50 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Loader2, 
-  Check, 
-  ChevronRight 
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+
+// Ícones Inline para evitar bug de HMR do Turbopack com lucide-react
+const IconLock = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+const IconEye = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const IconEyeOff = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+    <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+    <line x1="2" x2="22" y1="2" y2="22" />
+  </svg>
+);
+
+const IconLoader = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("animate-spin", className)}>
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+);
+
+const IconCheck = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+);
+
+const IconChevronRight = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m9 18 6-6-6-6" />
+  </svg>
+);
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -94,7 +128,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="w-full max-w-[520px] z-10 flex flex-col items-center text-center"
       >
-        {/* Logo Monumental */}
+        {/* Logo Monumental - Cor Tradicional */}
         <div className="mb-10">
           <div className="relative w-48 h-16 md:w-64 md:h-20 transition-all duration-500">
             <Image 
@@ -137,7 +171,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
         <form onSubmit={handleAccess} className="w-full space-y-4">
           <div className="relative group">
             <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-orange-500 transition-colors">
-              <Lock size={20} />
+              <IconLock className="w-5 h-5" />
             </div>
             <input 
               type={showPassword ? "text" : "password"}
@@ -151,7 +185,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-500 transition-colors"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
             </button>
           </div>
 
@@ -174,11 +208,11 @@ export const AuthGate = ({ children }: AuthGateProps) => {
             className="w-full h-16 bg-zinc-950 text-white rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:bg-zinc-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-zinc-950/10 group overflow-hidden relative"
           >
             {isLoading ? (
-              <Loader2 size={24} className="animate-spin text-orange-500" />
+              <IconLoader className="w-6 h-6 text-orange-500" />
             ) : (
               <span className="flex items-center gap-2">
                 ACESSAR DADOS 
-                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                <IconChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
             )}
             
@@ -193,7 +227,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
           </div>
           <div className="flex items-center gap-2">
             <div className="bg-emerald-500/10 p-1 rounded-full">
-              <Check size={10} className="text-emerald-500" />
+              <IconCheck className="w-3 h-3 text-emerald-500" />
             </div>
             <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Criptografia Ativa</span>
           </div>
