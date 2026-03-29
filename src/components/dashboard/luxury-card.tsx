@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -18,11 +19,16 @@ export const LuxuryCard = ({ children, className, title, subtitle }: LuxuryCardP
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+      whileHover={{ 
+        y: -5, 
+        shadow: "0 25px 50px rgba(0,0,0,0.08)",
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
       className={cn(
-        "bg-white rounded-[2rem] p-5 lg:p-6 flex flex-col gap-3 overflow-hidden relative",
+        "bg-white rounded-[2.5rem] p-5 lg:p-6 flex flex-col gap-3 overflow-hidden relative",
         "border border-zinc-200/60 ring-1 ring-white/60",
         "shadow-[0_15px_40px_rgba(234,88,12,0.04),0_1px_3px_rgba(0,0,0,0.01)]",
-        "transition-all duration-300 hover:shadow-[0_25px_50px_rgba(234,88,12,0.08)]",
+        "transition-shadow duration-300",
         className
       )}
     >

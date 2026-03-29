@@ -462,7 +462,11 @@ export default function Home() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start"
+        >
           <div className="xl:col-span-5 space-y-4 lg:pt-2">
             <div className="flex items-center gap-3 mb-1">
               <div className="flex gap-1.5 items-center">
@@ -489,7 +493,10 @@ export default function Home() {
             <p className="text-zinc-500 font-medium text-sm md:text-base leading-relaxed">App de inteligência política e monitoramento de dados eleitorais.</p>
           </div>
           <div className="xl:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3 items-stretch h-[15rem]">
-            <div className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden">
+            <motion.div 
+              whileHover={{ y: -5 }}
+              className="relative bg-[#09090b] rounded-[2rem] p-4 flex flex-col group shadow-2xl border border-zinc-800 overflow-hidden"
+            >
               <AnimatePresence>
                 {isSyncing && (
                   <motion.div
@@ -557,9 +564,9 @@ export default function Home() {
                 {isSyncing ? <Loader2 className="animate-spin w-2.5 h-2.5 text-orange-600" /> : <RefreshCw size={10} />}
                 <span>{isSyncing ? "Processando..." : "Sincronizar Agora"}</span>
               </button>
-            </div>
+            </motion.div>
 
-            <div className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 relative">
+            <motion.div whileHover={{ y: -5 }} className="bg-white rounded-[2rem] p-4 flex flex-col shadow-xl border border-zinc-100 relative">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-lg bg-zinc-50 text-zinc-400"><FileText size={14} /></div>
@@ -574,8 +581,8 @@ export default function Home() {
                   <span className="text-lg font-black text-zinc-400">/ 20.000</span>
                 </div>
                 <div className="flex gap-0.5 mt-8">
-                  <div className="h-4 flex-1 rounded-full bg-orange-500" />
-                  <div className="h-4 flex-1 rounded-full bg-orange-500" />
+                  <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} className="h-4 flex-1 rounded-full bg-orange-500 origin-left" />
+                  <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.1 }} className="h-4 flex-1 rounded-full bg-orange-500 origin-left" />
                   <div className="h-4 flex-1 rounded-full bg-zinc-100" />
                   <div className="h-4 flex-1 rounded-full bg-zinc-100" />
                   <div className="h-4 flex-1 rounded-full bg-zinc-100" />
@@ -585,8 +592,8 @@ export default function Home() {
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">Sincronizado</span>
               </div>
-            </div>
-            <div className="bg-orange-600 rounded-[2rem] p-4 flex flex-col text-white shadow-xl border border-orange-500 relative overflow-hidden">
+            </motion.div>
+            <motion.div whileHover={{ y: -5 }} className="bg-orange-600 rounded-[2rem] p-4 flex flex-col text-white shadow-xl border border-orange-500 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[40px] rounded-full pointer-events-none -mr-8 -mt-8"></div>
               <div className="relative z-10 flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -604,8 +611,8 @@ export default function Home() {
               <div className="mt-auto flex items-center justify-between relative z-10">
                 <span className="text-[6px] font-black text-white uppercase tracking-widest">Sincronizado</span>
               </div>
-            </div>
-            <div className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
+            </motion.div>
+            <motion.div whileHover={{ y: -5 }} className="bg-[#09090b] rounded-[2rem] p-4 flex flex-col text-white shadow-2xl border border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-orange-500"><ClipboardCheck size={14} /></div>
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-zinc-900 border border-zinc-100">
@@ -625,13 +632,16 @@ export default function Home() {
               <div className="mt-auto bg-[#121214] border border-zinc-800/60 rounded-2xl p-3">
                 <p className="text-[7px] font-black uppercase tracking-widest text-zinc-400">Status: Operacional</p>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div 
+              layout
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO" 
                 subtitle="Pres. Lula" 
@@ -673,9 +683,9 @@ export default function Home() {
                 onDetailClick={() => setDetailModal({ open: true, type: 'mayor' })}
                 selected={filters.mayor_approval}
               />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CandidateChart 
                 data={chartData.candidateData} 
                 total={getFilteredData(['president_vote']).length} 
@@ -694,9 +704,9 @@ export default function Home() {
                 showPhotos={true}
                 onFilterChange={(v) => handleFilterChange('gov_spontaneous', v)}
               />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <motion.div layout className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <LuxuryCard className="h-full relative overflow-hidden group">
                 <div className="flex items-start justify-between mb-1">
                   <div className="space-y-0.5">
@@ -781,9 +791,9 @@ export default function Home() {
 
               <GovernorScenarioCard scenario={SCENARIOS[0]} />
               <GovernorScenarioCard scenario={SCENARIOS[1]} />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <GovernorRejectionChart 
                 data={chartData.rejectionData} 
                 total={getFilteredData(['president_rejection']).length}
@@ -806,9 +816,9 @@ export default function Home() {
                 selected={filters.gov_rejection}
                 onFilterChange={(v) => handleFilterChange('gov_rejection', v)}
               />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
+            <motion.div layout className="grid grid-cols-1 xl:grid-cols-10 gap-6">
               <SpontaneousVoteChart 
                 className="xl:col-span-3"
                 data={chartData.deputyFederalData} 
@@ -843,7 +853,7 @@ export default function Home() {
                 selected={filters.senator_spontaneous}
                 onFilterChange={(v) => handleFilterChange('senator_spontaneous', v)}
               />
-            </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {SENATE_SCENARIOS.map((scenario) => (
@@ -851,7 +861,7 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <VictoryPerceptionCard 
                 data={chartData.senatorVictoryData} 
                 total={totalDatabaseCount}
@@ -871,9 +881,9 @@ export default function Home() {
                 selected={filters.senator_rejection}
                 onFilterChange={(v) => handleFilterChange('senator_rejection', v)}
               />
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <motion.div layout className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <RankingCard 
                 title="Problemas Mais Graves" 
                 overline="CORRIDA GOVERNAMENTAL" 
@@ -890,7 +900,7 @@ export default function Home() {
                 total={filteredData.length} 
                 color="green" 
               />
-            </div>
+            </motion.div>
           </div>
           
           <div className="xl:col-span-1 h-fit space-y-6">
