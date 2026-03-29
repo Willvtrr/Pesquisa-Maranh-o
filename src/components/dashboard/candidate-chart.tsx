@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
@@ -24,6 +24,12 @@ export const CandidateChart = ({ data, total, selected = [], onFilterChange }: C
   }, []);
 
   const totalVotes = total || 1;
+
+  // Lógica de Escala de Líder: O maior valor da série define o preenchimento de 100% da barra visual
+  const maxValue = useMemo(() => {
+    if (!data || data.length === 0) return 1;
+    return Math.max(...data.map(d => d.value), 1);
+  }, [data]);
 
   return (
     <LuxuryCard className="h-full relative">
@@ -51,7 +57,11 @@ export const CandidateChart = ({ data, total, selected = [], onFilterChange }: C
       >
         <AnimatePresence mode="popLayout">
           {data.map((item, idx) => {
-            const pct = (item.value / totalVotes) * 100;
+            // Percentual real para o rótulo de texto
+            const displayPct = (item.value / totalVotes) * 100;
+            // Largura visual baseada no líder (Escala de Líder)
+            const visualWidth = (item.value / maxValue) * 100;
+            
             const isAbstention = item.isAbstention;
             const displayName = toTitleCase(item.name);
             const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
@@ -110,7 +120,7 @@ export const CandidateChart = ({ data, total, selected = [], onFilterChange }: C
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ 
-                      width: isMounted ? `${pct}%` : 0,
+                      width: isMounted ? `${visualWidth}%` : 0,
                       filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
                     }}
                     transition={{ type: "spring", stiffness: 50, damping: 20 }}
@@ -130,7 +140,7 @@ export const CandidateChart = ({ data, total, selected = [], onFilterChange }: C
                     isFaded && !isActive ? "text-zinc-300" : (!isAbstention ? "text-zinc-950" : "text-zinc-500"),
                     (hoveredIndex === idx || isActive) && "text-orange-600"
                   )}>
-                    {pct.toFixed(1).replace('.', ',')}%
+                    {displayPct.toFixed(1).replace('.', ',')}%
                   </span>
                 </div>
               </motion.div>

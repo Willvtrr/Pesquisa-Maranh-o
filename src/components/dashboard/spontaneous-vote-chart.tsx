@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { LuxuryCard } from './luxury-card';
@@ -45,14 +45,23 @@ export const SpontaneousVoteChart = ({
 
   const totalVotes = Math.max(total, 1);
 
+  // Lógica de Escala de Líder: O maior valor da série define o preenchimento de 100% da barra visual
+  const maxValue = useMemo(() => {
+    if (!data || data.length === 0) return 1;
+    return Math.max(...data.map(d => d.value), 1);
+  }, [data]);
+
   const content = (
     <div 
       className="flex flex-col gap-1 relative z-10"
       onMouseLeave={() => setHoveredIndex(null)}
     >
       {data.map((item, idx) => {
-        // Barra de Distribuição Proporcional: reflete o percentual real sobre o total de 100%
-        const pct = (item.value / totalVotes) * 100;
+        // Percentual real para o rótulo de texto
+        const displayPct = (item.value / totalVotes) * 100;
+        // Largura visual baseada no líder (Escala de Líder)
+        const visualWidth = (item.value / maxValue) * 100;
+        
         const isFaded = hoveredIndex !== null && hoveredIndex !== idx;
         const isAbstention = item.isAbstention;
         const isActive = selected.includes(item.name);
@@ -109,7 +118,7 @@ export const SpontaneousVoteChart = ({
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ 
-                  width: isMounted ? `${pct}%` : 0,
+                  width: isMounted ? `${visualWidth}%` : 0,
                   filter: isFaded && !isActive ? 'grayscale(80%) opacity(40%)' : 'none',
                 }}
                 transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
@@ -129,7 +138,7 @@ export const SpontaneousVoteChart = ({
                 isFaded && !isActive ? "text-zinc-300" : (!isAbstention ? "text-zinc-950" : "text-zinc-500"),
                 (hoveredIndex === idx || isActive) && "text-orange-600"
               )}>
-                {pct.toFixed(1).replace('.', ',')}%
+                {displayPct.toFixed(1).replace('.', ',')}%
               </span>
             </div>
           </div>

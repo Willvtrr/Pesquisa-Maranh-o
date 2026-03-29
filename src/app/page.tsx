@@ -337,6 +337,12 @@ export default function Home() {
     };
   }, [getFilteredData, activeKeys]);
 
+  // Líder da Escala para o 2º Turno (Presidente)
+  const secondRoundMax = useMemo(() => {
+    if (!chartData.secondRoundData.length) return 1;
+    return Math.max(...chartData.secondRoundData.map(d => d.value), 1);
+  }, [chartData.secondRoundData]);
+
   const dynamicOptions = useMemo(() => {
     const options: Record<string, string[]> = {
       region: [], city: [], age: [], gender: [], education: [], income: [], religion: [], ideology: []
@@ -732,7 +738,10 @@ export default function Home() {
                 <div className="space-y-4 relative z-10">
                   {chartData.secondRoundData.map((item, idx) => {
                     const totalDataLength = getFilteredData(['president_second_round']).length || 1;
-                    const pct = (item.value / totalDataLength) * 100;
+                    const displayPct = (item.value / totalDataLength) * 100;
+                    // Lógica de Líder para o gráfico de 2º turno
+                    const visualWidth = (item.value / secondRoundMax) * 100;
+                    
                     const isAbstention = item.isAbstention;
                     const isActive = filters.president_second_round.includes(item.name);
                     
@@ -767,13 +776,13 @@ export default function Home() {
                               "text-[10px] font-black tabular-nums",
                               isActive ? "text-orange-600" : "text-zinc-950"
                             )}>
-                              {pct.toFixed(1).replace('.', ',')}%
+                              {displayPct.toFixed(1).replace('.', ',')}%
                             </span>
                           </div>
                           <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden hide-scrollbar">
                             <motion.div 
                               initial={{ width: 0 }} 
-                              animate={{ width: `${pct}%` }} 
+                              animate={{ width: `${visualWidth}%` }} 
                               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }} 
                               className={cn(
                                 "h-full rounded-full transition-all", 
@@ -1113,7 +1122,7 @@ export default function Home() {
                   
                   <motion.div 
                     initial={{ opacity: 0, y: 15 }}
-                    animate={{ 1: 0, y: 0 }}
+                    animate={{ opacity: 1, y: 0 }}
                     className="space-y-8"
                   >
                     <div className="flex items-center gap-3">
