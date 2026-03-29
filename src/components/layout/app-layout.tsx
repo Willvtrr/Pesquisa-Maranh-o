@@ -7,10 +7,9 @@ import { cn } from '@/lib/utils';
 import { BottomNav } from './bottom-nav';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import { TOP_61_CITIES } from '@/lib/constants';
+import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
+import { TOP_61_CITIES } from '@/lib/constants';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -26,9 +25,17 @@ type SearchResult = {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  // Simulação de progresso de navegação para feeling nativo
+  useEffect(() => {
+    setIsNavigating(true);
+    const timer = setTimeout(() => setIsNavigating(false), 600);
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   const searchResults = useMemo(() => {
     if (searchValue.length < 2) return [];
@@ -89,9 +96,21 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0">
+    <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0 overflow-x-hidden">
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
       
+      {/* Loading bar sutil ao navegar */}
+      <AnimatePresence>
+        {isNavigating && (
+          <motion.div 
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-orange-400 via-orange-600 to-orange-400 origin-left z-[100] shadow-[0_0_10px_rgba(234,88,12,0.5)]"
+          />
+        )}
+      </AnimatePresence>
+
       <header className="h-16 lg:h-[6rem] bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
           <Link href="/" className="flex items-center cursor-pointer group">
@@ -106,7 +125,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </div>
           </Link>
           
-          <nav className="hidden lg:flex items-center gap-3">
+          <nav className="hidden lg:flex items-center gap-1">
             <Link href="/">
               <NavItem icon={LayoutDashboard} label="Painel" active={pathname === '/'} />
             </Link>
@@ -147,9 +166,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <AnimatePresence>
             {showResults && searchResults.length > 0 && (
               <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border border-zinc-100 p-4 z-[100] max-h-[500px] overflow-y-auto no-scrollbar"
               >
                 <div className="space-y-1">
@@ -190,7 +209,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       </header>
 
       <main className="max-w-[118.75rem] mx-auto p-4 sm:p-6 md:p-10 lg:p-12 relative z-10">
-        {children}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 15, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -15, filter: "blur(4px)" }}
+            transition={{ 
+              duration: 0.45, 
+              ease: [0.23, 1, 0.32, 1] 
+            }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
 
         <footer className="mt-12 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 border-t border-zinc-200 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 pb-10">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -215,11 +247,19 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 };
 
 const NavItem = ({ icon: Icon, label, active }: { icon: any, label: string, active?: boolean }) => (
-  <div className={cn(
-    "flex items-center gap-3 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all cursor-pointer",
-    active ? "text-orange-600 bg-orange-50/60 border border-orange-100 shadow-sm" : "text-zinc-400 hover:text-zinc-950 hover:bg-zinc-100"
-  )}>
-    <Icon size={16} />
-    {label}
+  <div className="relative px-5 py-2.5 group cursor-pointer">
+    <div className="relative z-10 flex items-center gap-3">
+      <Icon size={16} className={cn("transition-colors duration-300", active ? "text-orange-600" : "text-zinc-400 group-hover:text-zinc-950")} />
+      <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-300", active ? "text-orange-600" : "text-zinc-400 group-hover:text-zinc-950")}>
+        {label}
+      </span>
+    </div>
+    {active && (
+      <motion.div 
+        layoutId="nav-active-pill"
+        className="absolute inset-0 bg-orange-50/60 border border-orange-100 shadow-sm rounded-xl"
+        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+      />
+    )}
   </div>
 );
