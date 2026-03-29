@@ -191,6 +191,7 @@ const DEFAULT_KEYS = {
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
+  PRESIDENT_VOTE_SPON: "7. PRESIDENTE: Se as eleições para Presidente fossem hoje, em quem você votaria? (Espontânea)",
   PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
   GOV_VOTE_SPONTANEOUS: "7. GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
   GOV_REJECTION: "10. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum? (Estimulada)",
@@ -1030,52 +1031,49 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SUPER APP DRILL DOWN MODAL - V7 COMPACT PRO */}
+      {/* SUPER APP DRILL DOWN MODAL - V8 MINIMAL PRO */}
       <Dialog open={detailModal.open} onOpenChange={(open) => setDetailModal(prev => ({ ...prev, open }))}>
-        <DialogContent className="max-w-[98vw] w-[1600px] h-[95vh] flex flex-col p-0 overflow-hidden bg-white rounded-[2.5rem] border-none shadow-[0_100px_200px_-20px_rgba(0,0,0,0.2)]">
+        <DialogContent className="max-w-[95vw] w-[1300px] h-[90vh] flex flex-col p-0 overflow-hidden bg-white rounded-[2rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)]">
           
-          {/* Header Executivo Compacto */}
-          <div className="p-6 pb-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/30">
-            <div className="flex items-center gap-6">
+          {/* Header Compacto */}
+          <div className="px-6 py-4 border-b border-zinc-50 flex items-center justify-between bg-white">
+            <div className="flex items-center gap-4">
               <div className="flex flex-col">
-                <DialogTitle className="text-3xl font-black tracking-tighter text-zinc-950 uppercase leading-none">
-                  {detailModal.type === 'president' ? 'Monitoramento Presidencial' : 
+                <DialogTitle className="text-xl font-black tracking-tighter text-zinc-950 uppercase leading-none">
+                  {detailModal.type === 'president' ? 'Dashboard Presidencial' : 
                    detailModal.type === 'governor' ? 'Painel Estadual' : 'Radar Municipal'}
                 </DialogTitle>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />
-                  <DialogDescription className="text-zinc-400 font-bold text-sm tracking-tight">
-                    Análise granular por microrregiões e municípios • Dados Auditados
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-1 h-1 rounded-full bg-orange-600 animate-pulse" />
+                  <DialogDescription className="text-zinc-400 font-bold text-[10px] uppercase tracking-wider">
+                    Inteligência Regional • Amostragem Auditada
                   </DialogDescription>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-6 pr-12">
-              <div className="flex flex-col items-end">
-                <span className="text-[8px] font-black text-zinc-300 uppercase tracking-[0.4em]">Sincronização Cloud</span>
-                <Badge variant="outline" className="border-emerald-200 text-emerald-600 font-black mt-1 px-3 py-0.5 text-[9px]">Live Instance</Badge>
-              </div>
+            <div className="pr-10">
+              <Badge variant="outline" className="border-zinc-100 text-zinc-400 font-black px-2 py-0.5 text-[8px] uppercase tracking-widest">Sincronização em tempo real</Badge>
             </div>
           </div>
 
           <div className="flex-1 flex overflow-hidden">
             
             {/* Sidebar de Cidades Compacta */}
-            <div className="w-[320px] bg-zinc-50 border-r border-zinc-100 flex flex-col overflow-hidden">
-              <div className="p-6 space-y-6">
+            <div className="w-[280px] bg-zinc-50/50 border-r border-zinc-50 flex flex-col overflow-hidden">
+              <div className="p-4 space-y-4">
                 <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 size-4 group-focus-within:text-orange-600 transition-colors" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300 size-3.5 group-focus-within:text-orange-600 transition-colors" />
                   <input 
-                    placeholder="Filtrar município..." 
+                    placeholder="Buscar município..." 
                     value={citySearch}
                     onChange={(e) => setCitySearch(e.target.value)}
-                    className="w-full bg-white border border-zinc-200 rounded-xl pl-11 pr-4 py-3 text-sm font-bold outline-none shadow-sm focus:border-orange-600 transition-all placeholder:text-zinc-300" 
+                    className="w-full bg-white border border-zinc-100 rounded-xl pl-9 pr-3 py-2.5 text-xs font-bold outline-none shadow-sm focus:border-orange-600 transition-all placeholder:text-zinc-300" 
                   />
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 px-4 pb-6">
-                <div className="space-y-1.5 pr-2">
+              <ScrollArea className="flex-1 px-3 pb-4">
+                <div className="space-y-1 pr-2">
                   {filteredCitiesList.map((city) => {
                     const isActive = filters.city.includes(city);
                     const amCount = cityAms[city] || 0;
@@ -1085,34 +1083,28 @@ export default function Home() {
                         key={city}
                         onClick={() => handleFilterChange('city', city)}
                         className={cn(
-                          "w-full flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 group text-left",
+                          "w-full flex items-center gap-2.5 p-2 rounded-xl transition-all duration-300 group text-left",
                           isActive 
-                            ? "bg-zinc-950 text-white shadow-xl scale-[1.02]" 
-                            : "text-zinc-500 hover:bg-white hover:text-zinc-950 border border-transparent hover:border-zinc-100"
+                            ? "bg-zinc-950 text-white shadow-lg" 
+                            : "text-zinc-500 hover:bg-white hover:text-zinc-950"
                         )}
                       >
                         <Avatar className={cn(
-                          "w-8 h-8 border border-white shadow-sm shrink-0 transition-transform group-hover:scale-105",
+                          "w-7 h-7 border border-white shadow-sm shrink-0 transition-transform group-hover:scale-105",
                           isActive && "ring-1 ring-orange-500 ring-offset-1 ring-offset-zinc-950"
                         )}>
                           <AvatarImage src={`https://picsum.photos/seed/${city}/100/100`} />
-                          <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
+                          <AvatarFallback className="bg-zinc-100 text-[7px] font-bold text-zinc-400">
                             {city.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         
                         <div className="flex-1 min-w-0">
-                          <span className="font-black text-[10px] uppercase tracking-tight block truncate">{city}</span>
-                          <p className={cn(
-                            "text-[7px] font-bold uppercase tracking-widest",
-                            isActive ? "text-orange-500" : "text-zinc-400"
-                          )}>
-                            Município
-                          </p>
+                          <span className="font-black text-[9px] uppercase tracking-tight block truncate">{city}</span>
                         </div>
 
                         <span className={cn(
-                          "text-[9px] font-black tabular-nums px-2 py-0.5 rounded-lg min-w-[24px] text-center",
+                          "text-[8px] font-black tabular-nums px-1.5 py-0.5 rounded-lg min-w-[20px] text-center",
                           isActive ? "text-orange-500 bg-zinc-900" : "text-zinc-300 bg-zinc-100 group-hover:text-zinc-500"
                         )}>
                           {amCount}
@@ -1124,14 +1116,14 @@ export default function Home() {
               </ScrollArea>
             </div>
 
-            {/* Conteúdo Central Analytics Densidade Pro */}
+            {/* Conteúdo Central Analytics Minimalista */}
             <ScrollArea className="flex-1 bg-white">
-              <div className="p-10 space-y-12 max-w-5xl mx-auto pb-24">
+              <div className="p-8 space-y-10 max-w-4xl mx-auto pb-20">
                 
-                {/* HERO SECTION COMPACTA: FOTO E METODOLOGIA */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                  <div className="lg:col-span-3">
-                    <div className="relative aspect-square w-full max-w-[240px] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-zinc-50 mx-auto">
+                {/* HERO SECTION COMPACTA */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start border-b border-zinc-50 pb-8">
+                  <div className="lg:col-span-3 flex justify-center lg:justify-start">
+                    <div className="relative aspect-square w-full max-w-[180px] rounded-[1.5rem] overflow-hidden shadow-xl border-4 border-zinc-50">
                       <Image 
                         src={detailModal.type === 'president' ? '/lula.jpg' : 
                              detailModal.type === 'governor' ? '/Retrato_Oficial_de_Carlos_Brandão_como_governador_do_Maranhão.jpg' : '/bandeiracerta.jpg'}
@@ -1142,38 +1134,32 @@ export default function Home() {
                     </div>
                   </div>
                   
-                  <div className="lg:col-span-9 space-y-6">
+                  <div className="lg:col-span-9 space-y-4">
                     <div>
-                      <h4 className="text-[9px] font-black text-orange-600 uppercase tracking-[0.4em] mb-2">Veredito da População</h4>
-                      <h2 className="text-3xl font-black tracking-tighter text-zinc-950 leading-tight">
+                      <h4 className="text-[8px] font-black text-orange-600 uppercase tracking-[0.3em] mb-1">Veredito Geral</h4>
+                      <h2 className="text-2xl font-black tracking-tighter text-zinc-950 leading-tight">
                         {detailModal.type === 'president' ? 'Aprovação do Governo Lula' : 
-                         detailModal.type === 'governor' ? 'Aprovação do Governo Brandão' : 'Aprovação da Gestão Municipal'}
+                         detailModal.type === 'governor' ? 'Aprovação do Governo Brandão' : 'Gestão Municipal'}
                       </h2>
-                      <div className="mt-2 p-3 rounded-xl bg-zinc-50 border border-zinc-100">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 flex items-center gap-2">
-                          <MessageSquare size={10} className="text-orange-500" /> 
-                          Enunciado Metodológico Completo:
-                        </p>
-                        <p className="text-xs text-zinc-600 font-bold italic leading-relaxed">
-                          "{activeKeys[detailModal.type === 'president' ? 'PRESIDENT_APPROVAL' : detailModal.type === 'governor' ? 'GOV_APPROVAL' : 'MAYOR_APPROVAL']}"
-                        </p>
+                      <div className="mt-2 text-[10px] text-zinc-400 font-bold leading-relaxed max-w-xl">
+                        "{activeKeys[detailModal.type === 'president' ? 'PRESIDENT_APPROVAL' : detailModal.type === 'governor' ? 'GOV_APPROVAL' : 'MAYOR_APPROVAL']}"
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-3 gap-4 pt-2">
                       {[
                         { label: 'Aprova', value: activeDetailStats.aprova, color: 'bg-emerald-500', text: 'text-emerald-600' },
                         { label: 'Desaprova', value: activeDetailStats.desaprova, color: 'bg-rose-500', text: 'text-rose-600' },
                         { label: 'NS/NR', value: activeDetailStats.nsnr, color: 'bg-zinc-200', text: 'text-zinc-400' }
                       ].map((stat) => (
-                        <div key={stat.label} className="space-y-2">
+                        <div key={stat.label} className="space-y-1.5">
                           <div className="flex justify-between items-end">
-                            <span className="text-[9px] font-black text-zinc-950 uppercase tracking-widest">{stat.label}</span>
-                            <span className={cn("text-2xl font-black tracking-tighter tabular-nums", stat.text)}>
+                            <span className="text-[8px] font-black text-zinc-950 uppercase tracking-widest">{stat.label}</span>
+                            <span className={cn("text-lg font-black tracking-tighter tabular-nums", stat.text)}>
                               {stat.value.toFixed(1).replace('.', ',')}%
                             </span>
                           </div>
-                          <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden shadow-inner">
+                          <div className="h-1.5 w-full bg-zinc-50 rounded-full overflow-hidden shadow-inner border border-zinc-100/50">
                             <motion.div 
                               initial={{ width: 0 }} 
                               animate={{ width: `${stat.value}%` }} 
@@ -1187,69 +1173,69 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* INFO SECTION COMPACTA */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start border-t border-zinc-100 pt-12">
+                {/* INFO SECTION MINIMALISTA */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
                   
-                  {/* Briefing Compacto */}
+                  {/* Briefing Minimalista */}
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-8"
+                    className="space-y-6"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-6 bg-orange-600 rounded-full" />
-                      <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.4em]">Briefing de Inteligência</h4>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 bg-orange-600 rounded-full" />
+                      <h4 className="text-[9px] font-black text-zinc-950 uppercase tracking-[0.3em]">Briefing de Inteligência</h4>
                     </div>
 
-                    <p className="text-2xl font-black leading-tight tracking-tighter text-zinc-950">
-                      A aprovação demonstra uma <span className="text-orange-600 underline decoration-[4px] decoration-orange-600/20 underline-offset-[6px]">resiliência estratégica</span> nos grandes centros urbanos.
+                    <p className="text-lg font-black leading-tight tracking-tight text-zinc-950">
+                      A aprovação demonstra uma <span className="text-orange-600 border-b-2 border-orange-100">resiliência estratégica</span> nos principais polos regionais.
                     </p>
 
-                    <div className="grid grid-cols-1 gap-6 pt-2">
-                      <div className="space-y-2">
+                    <div className="space-y-4 pt-2">
+                      <div className="space-y-1">
                         <div className="flex items-center gap-2 text-emerald-600">
-                          <TrendingUp size={16} />
-                          <span className="text-[9px] font-black uppercase tracking-[0.2em]">Oportunidade</span>
+                          <TrendingUp size={14} />
+                          <span className="text-[8px] font-black uppercase tracking-[0.2em]">Oportunidade</span>
                         </div>
-                        <p className="text-sm text-zinc-500 font-bold leading-relaxed">
-                          Expansão detectada de 4.2% em áreas de influência direta nos últimos 15 dias, sugerindo eficácia na comunicação.
+                        <p className="text-xs text-zinc-500 font-bold leading-relaxed">
+                          Expansão de 4.2% detectada em áreas de influência direta, sugerindo eficiência nos canais de comunicação.
                         </p>
                       </div>
-                      <div className="space-y-2 border-t border-zinc-50 pt-6">
+                      <div className="space-y-1 border-t border-zinc-50 pt-4">
                         <div className="flex items-center gap-2 text-rose-600">
-                          <ShieldAlert size={16} />
-                          <span className="text-[9px] font-black uppercase tracking-[0.2em]">Risco Crítico</span>
+                          <ShieldAlert size={14} />
+                          <span className="text-[8px] font-black uppercase tracking-[0.2em]">Risco Crítico</span>
                         </div>
-                        <p className="text-sm text-zinc-500 font-bold leading-relaxed">
-                          Sinal de alerta na Mesorregião Sul, onde a rejeição rompeu o teto histórico por gargalos em obras rurais.
+                        <p className="text-xs text-zinc-500 font-bold leading-relaxed">
+                          Sinal de alerta na Mesorregião Sul, onde a rejeição rompeu o teto histórico por gargalos em infraestrutura rural.
                         </p>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Indicadores de Desempenho Compactos */}
-                  <div className="bg-zinc-950 p-8 rounded-[2.5rem] shadow-2xl border border-zinc-800 space-y-8">
-                    <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em] flex justify-between border-b border-zinc-800 pb-4">
-                      Métricas de Impacto
-                      <span className="text-orange-500">Indicadores</span>
+                  {/* Indicadores Compactos */}
+                  <div className="bg-zinc-950 p-6 rounded-[1.5rem] shadow-xl border border-zinc-800 space-y-6">
+                    <h4 className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.3em] flex justify-between border-b border-zinc-800 pb-3">
+                      Indicadores de Impacto
+                      <span className="text-orange-500">Métricas</span>
                     </h4>
-                    <div className="space-y-8">
+                    <div className="space-y-6">
                       {[
                         { label: 'Adesão Jovem', value: 72 },
                         { label: 'Conversão Feminina', value: 64 },
                         { label: 'Impacto Baixa Renda', value: 58 },
                       ].map((metric, i) => (
-                        <div key={metric.label} className="space-y-3">
+                        <div key={metric.label} className="space-y-2">
                           <div className="flex justify-between items-end">
-                            <span className="text-[10px] font-black text-white uppercase tracking-widest">{metric.label}</span>
-                            <span className="text-xl font-black text-orange-500 tabular-nums">{metric.value}%</span>
+                            <span className="text-[9px] font-black text-white uppercase tracking-widest">{metric.label}</span>
+                            <span className="text-lg font-black text-orange-500 tabular-nums">{metric.value}%</span>
                           </div>
-                          <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }} 
                               animate={{ width: `${metric.value}%` }} 
                               transition={{ duration: 1.5, ease: "circOut", delay: i * 0.1 }}
-                              className="h-full rounded-full bg-gradient-to-r from-orange-600 to-orange-400 shadow-[0_0_15px_rgba(234,88,12,0.3)]" 
+                              className="h-full rounded-full bg-gradient-to-r from-orange-600 to-orange-400 shadow-[0_0_10px_rgba(234,88,12,0.3)]" 
                             />
                           </div>
                         </div>
@@ -1258,18 +1244,18 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Radar Geoespacial Integrado */}
-                <div className="space-y-8 border-t border-zinc-100 pt-12">
+                {/* Radar Geoespacial Compacto */}
+                <div className="space-y-6 pt-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1 h-6 bg-orange-600 rounded-full" />
-                      <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.4em]">Radar Geoestatístico</h4>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 bg-orange-600 rounded-full" />
+                      <h4 className="text-[9px] font-black text-zinc-950 uppercase tracking-[0.3em]">Radar Geoestatístico</h4>
                     </div>
                     {filters.city[0] !== 'all' && (
-                      <Badge className="bg-zinc-950 text-white font-black uppercase text-[9px] px-4 py-1 rounded-lg border-none">{filters.city[0]}</Badge>
+                      <Badge className="bg-zinc-950 text-white font-black uppercase text-[8px] px-3 py-0.5 rounded-lg border-none">{filters.city[0]}</Badge>
                     )}
                   </div>
-                  <div className="h-[450px] rounded-[2.5rem] overflow-hidden border-4 border-zinc-50 shadow-2xl relative">
+                  <div className="h-[380px] rounded-[1.5rem] overflow-hidden border border-zinc-100 shadow-lg relative">
                     <InteractiveMap 
                       key={`modal-map-${detailModal.type}-${filters.city[0]}`}
                       data={getFilteredData()} 
@@ -1278,15 +1264,12 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Call to Action Final */}
-                <div className="flex flex-col items-center gap-6 py-8 border-t border-zinc-100">
-                  <div className="flex flex-col items-center text-center space-y-1">
-                    <p className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.5em]">Relatório de Profundidade</p>
-                    <p className="text-zinc-400 font-bold text-xs max-w-sm">Para acessar índices de rejeição e cenários estimulados completos desta categoria.</p>
-                  </div>
+                {/* CTA Final Compacto */}
+                <div className="flex flex-col items-center gap-4 py-6 border-t border-zinc-50">
+                  <p className="text-zinc-400 font-bold text-[10px] uppercase tracking-widest">Para aprofundamento estratégico</p>
                   <Link href={detailModal.type === 'president' ? '/analyses/presidential' : '/analyses/governor'} passHref>
-                    <Button variant="outline" className="h-14 px-12 rounded-full border border-zinc-200 text-zinc-950 font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-xl active:scale-95 group">
-                      Acessar Hub de Inteligência <ChevronRight size={16} className="ml-3 group-hover:translate-x-1 transition-transform" />
+                    <Button variant="outline" className="h-12 px-10 rounded-full border border-zinc-100 text-zinc-950 font-black uppercase tracking-widest text-[9px] hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-md active:scale-95 group">
+                      Acessar Hub de Inteligência <ChevronRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
                 </div>
