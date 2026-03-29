@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-// Ícones Inline para evitar erro de runtime do Turbopack
+// Ícones Inline para evitar erro de runtime do Turbopack e garantir estabilidade absoluta
 const IconLock = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
@@ -57,7 +57,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncMessage, setSyncSyncMessage] = useState('Estabelecendo conexão segura...');
+  const [syncMessage, setSyncMessage] = useState('Estabelecendo conexão segura...');
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -83,12 +83,13 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     if (password === CORRECT_KEY) {
       setIsSyncing(true);
       
-      // Sequência de mensagens de sincronização
-      setTimeout(() => setSyncSyncMessage('Sincronizando registros geoespaciais...'), 1200);
-      setTimeout(() => setSyncSyncMessage('Finalizando auditoria de integridade...'), 2400);
+      // Sequência de mensagens de sincronização profissional
+      setTimeout(() => setSyncMessage('Sincronizando registros geoespaciais...'), 1200);
+      setTimeout(() => setSyncMessage('Auditoria de integridade em tempo real...'), 2400);
+      setTimeout(() => setSyncMessage('Finalizando carregamento da base...'), 3600);
       
       // Tempo total da animação de "boot" do sistema
-      await new Promise(resolve => setTimeout(resolve, 3800));
+      await new Promise(resolve => setTimeout(resolve, 4500));
       
       sessionStorage.setItem('focco_auth_status', 'true');
       setIsAuthenticated(true);
@@ -105,9 +106,9 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center relative overflow-hidden font-sans w-full">
       
-      {/* Mesh Gradients Dinâmicos */}
+      {/* Mesh Gradients Dinâmicos para fundo premium */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.div 
           animate={{ 
@@ -139,10 +140,11 @@ export const AuthGate = ({ children }: AuthGateProps) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-[800px] z-10 flex flex-col items-center text-center px-4"
+            className="w-full z-10 flex flex-col items-center text-center px-4"
           >
-            <div className="mb-10">
-              <div className="relative w-48 h-16 md:w-64 md:h-20 transition-all duration-500">
+            {/* Branding Original */}
+            <div className="mb-12">
+              <div className="relative w-56 h-20 md:w-72 md:h-24 transition-all duration-500">
                 <Image 
                   src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
                   alt="Focco Instituto de Pesquisa" 
@@ -155,30 +157,35 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
             <motion.div 
               whileHover={{ scale: 1.05 }}
-              className="mb-8 relative group"
+              className="mb-10 relative group"
             >
-              <div className="absolute inset-0 bg-black/10 blur-xl rounded-lg scale-90 group-hover:scale-100 transition-transform duration-500" />
-              <div className="relative border-[6px] border-white shadow-2xl rounded-lg overflow-hidden w-24 h-16 md:w-32 md:h-20 bg-zinc-100">
+              <div className="absolute inset-0 bg-black/5 blur-2xl rounded-lg scale-90 group-hover:scale-100 transition-transform duration-500" />
+              <div className="relative border-[6px] border-white shadow-2xl rounded-2xl overflow-hidden w-28 h-20 md:w-36 md:h-24 bg-zinc-100 flex items-center justify-center p-1">
                 <MaranhaoFlag />
               </div>
             </motion.div>
 
-            <span className="text-[10px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em] mb-4">
-              Seu App de Monitoramento Eleitoral de Precisão
+            <span className="text-[10px] md:text-[11px] font-black text-zinc-400 uppercase tracking-[0.5em] mb-6">
+              Sistema de Monitoramento Eleitoral de Precisão
             </span>
 
-            <h1 className="text-4xl md:text-7xl font-black tracking-tighter leading-[0.9] text-zinc-950 mb-12 uppercase flex flex-col items-center">
-              <span className="text-orange-600 whitespace-nowrap">MAPEAMENTO DE VOTOS</span>
-              <span className="block mt-2">MARANHÃO</span>
-            </h1>
+            {/* Headline Monumental */}
+            <div className="mb-16 space-y-3">
+              <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] text-orange-600 uppercase">
+                MAPEAMENTO DE VOTOS
+              </h1>
+              <h2 className="text-4xl md:text-7xl font-black tracking-tighter text-zinc-950 uppercase opacity-90">
+                MARANHÃO
+              </h2>
+            </div>
 
             <p className="text-sm md:text-base text-zinc-500 font-medium leading-relaxed max-w-md mb-12">
-              Mapeamento de votos com precisão cirúrgica no Maranhão. Domine o cenário político com dados em tempo real.
+              Acesse a inteligência estratégica e dados auditados em tempo real para decisões de alto impacto.
             </p>
 
-            <form onSubmit={handleAccess} className="w-full max-w-[420px] space-y-3.5">
+            <form onSubmit={handleAccess} className="w-full max-w-[420px] space-y-4">
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-orange-500 transition-colors">
+                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-orange-500 transition-colors">
                   <IconLock />
                 </div>
                 <input 
@@ -186,12 +193,12 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Insira sua Chave de Acesso"
-                  className="w-full h-14 bg-white border border-zinc-100 rounded-2xl pl-12 pr-12 text-base font-bold text-zinc-950 placeholder:text-zinc-300 shadow-sm focus:outline-none focus:ring-4 focus:ring-orange-500/5 focus:border-orange-500 transition-all"
+                  className="w-full h-16 bg-white border border-zinc-100 rounded-3xl pl-14 pr-14 text-lg font-bold text-zinc-950 placeholder:text-zinc-300 shadow-sm focus:outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500 transition-all"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-500 transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-500 transition-colors"
                 >
                   {showPassword ? <IconEyeOff /> : <IconEye />}
                 </button>
@@ -203,7 +210,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-sm font-bold text-rose-500"
+                    className="text-sm font-black text-rose-500 uppercase tracking-widest"
                   >
                     {error}
                   </motion.p>
@@ -213,12 +220,12 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               <button 
                 type="submit"
                 disabled={isLoading || !password}
-                className="w-full h-14 bg-zinc-950 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-zinc-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-zinc-950/10 group overflow-hidden relative"
+                className="w-full h-16 bg-zinc-950 text-white rounded-3xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-4 hover:bg-zinc-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-zinc-950/20 group overflow-hidden relative"
               >
                 {isLoading ? (
                   <IconLoader />
                 ) : (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-3">
                     ACESSAR DADOS 
                     <IconChevronRight />
                   </span>
@@ -227,54 +234,56 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               </button>
             </form>
 
-            <div className="mt-6 flex items-center gap-6 justify-center">
+            <div className="mt-10 flex items-center gap-8 justify-center">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">Protocolo LXN-2026</span>
+                <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.2em]">Protocolo LXN-2026</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="bg-emerald-500/10 p-1 rounded-full">
+                <div className="bg-emerald-500/10 p-1.5 rounded-full">
                   <IconCheck />
                 </div>
-                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Criptografia Ativa</span>
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Criptografia Ativa</span>
               </div>
             </div>
           </motion.div>
         ) : (
+          /* ANIMAÇÃO DE SINCRONIZAÇÃO PROFISSIONAL E MINIMALISTA */
           <motion.div 
             key="syncing-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/80 backdrop-blur-xl"
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-3xl w-full"
           >
-            <div className="relative">
-              {/* Círculos de Difusão/Scanner */}
+            <div className="relative flex items-center justify-center">
+              {/* Anéis de Difusão/Scanner (Expandindo do centro) */}
               {[1, 2, 3].map((i) => (
                 <motion.div
                   key={i}
                   initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 2.5, opacity: 0 }}
+                  animate={{ scale: 3, opacity: 0 }}
                   transition={{ 
                     duration: 3, 
                     repeat: Infinity, 
                     delay: i * 0.8,
                     ease: "easeOut" 
                   }}
-                  className="absolute inset-0 rounded-full border border-orange-200"
+                  className="absolute rounded-full border border-orange-200/60 w-32 h-32 md:w-48 md:h-48"
                 />
               ))}
               
+              {/* Ícone com Animação de "Respiração" (Não rotaciona) */}
               <motion.div
                 animate={{ 
                   scale: [1, 1.08, 1],
                   filter: [
                     'drop-shadow(0 0 0px rgba(234, 88, 12, 0))',
-                    'drop-shadow(0 0 20px rgba(234, 88, 12, 0.3))',
+                    'drop-shadow(0 0 25px rgba(234, 88, 12, 0.4))',
                     'drop-shadow(0 0 0px rgba(234, 88, 12, 0))'
                   ]
                 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-10 w-32 h-32 md:w-40 md:h-40"
+                className="relative z-10 w-36 h-36 md:w-56 md:h-56 p-4"
               >
                 <Image 
                   src="/ICON - VARIAÇÃO 3.svg" 
@@ -285,24 +294,24 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               </motion.div>
             </div>
 
-            <div className="mt-12 text-center space-y-4">
+            <div className="mt-16 text-center space-y-6">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex items-center justify-center gap-3"
+                className="flex items-center justify-center gap-4"
               >
-                <div className="flex gap-1">
+                <div className="flex gap-1.5">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
-                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                      className="w-1.5 h-1.5 rounded-full bg-orange-600"
+                      animate={{ scale: [1, 1.6, 1], opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                      className="w-2 h-2 rounded-full bg-orange-600 shadow-lg shadow-orange-600/20"
                     />
                   ))}
                 </div>
-                <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.5em] text-zinc-950">
-                  Sistema Focco
+                <h2 className="text-[11px] md:text-xs font-black uppercase tracking-[0.6em] text-zinc-950 ml-2">
+                  Protocolo Focco
                 </h2>
               </motion.div>
 
@@ -313,32 +322,33 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.5 }}
-                  className="text-sm md:text-base font-bold text-zinc-400 tracking-tight"
+                  className="text-base md:text-lg font-bold text-zinc-400 tracking-tight"
                 >
                   {syncMessage}
                 </motion.p>
               </AnimatePresence>
             </div>
 
+            {/* Barra de Progresso Shimmer Minimalista */}
             <motion.div 
               initial={{ width: 0 }}
-              animate={{ width: "200px" }}
-              transition={{ duration: 3.5, ease: "easeInOut" }}
-              className="absolute bottom-20 h-0.5 bg-zinc-100 overflow-hidden"
+              animate={{ width: "280px" }}
+              transition={{ duration: 4.5, ease: "easeInOut" }}
+              className="absolute bottom-24 h-0.5 bg-zinc-100 overflow-hidden rounded-full"
             >
               <motion.div 
                 animate={{ x: ["-100%", "100%"] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="w-full h-full bg-gradient-to-r from-transparent via-orange-500 to-transparent"
+                className="w-full h-full bg-gradient-to-r from-transparent via-orange-500 to-transparent opacity-60"
               />
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="mt-20 opacity-30">
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-400">
-          Focco Analytics • Sistema de Inteligência
+      <div className="mt-24 opacity-20 z-10">
+        <p className="text-[9px] font-black uppercase tracking-[0.6em] text-zinc-400">
+          Focco Analytics • Inteligência Geoespacial
         </p>
       </div>
     </div>
@@ -346,7 +356,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 };
 
 const MaranhaoFlag = () => (
-  <svg viewBox="0 0 27 18" className="w-full h-full shadow-inner">
+  <svg viewBox="0 0 27 18" className="w-full h-full shadow-inner rounded-sm">
     <rect width="27" height="2" y="0" fill="#E20613" />
     <rect width="27" height="2" y="2" fill="#FFFFFF" />
     <rect width="27" height="2" y="4" fill="#000000" />
