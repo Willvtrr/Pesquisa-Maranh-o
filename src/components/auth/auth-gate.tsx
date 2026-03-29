@@ -9,7 +9,6 @@ import {
   EyeOff, 
   Loader2, 
   Check, 
-  ShieldCheck, 
   ChevronRight 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -97,7 +96,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
       >
         {/* Logo Monumental */}
         <div className="mb-10">
-          <div className="relative w-48 h-16 md:w-64 md:h-20 grayscale opacity-90 hover:grayscale-0 transition-all duration-500">
+          <div className="relative w-48 h-16 md:w-64 md:h-20 transition-all duration-500">
             <Image 
               src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
               alt="Focco Instituto de Pesquisa" 
@@ -125,7 +124,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
         </span>
 
         {/* Título Principal */}
-        <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-zinc-950 mb-6 uppercase">
+        <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-zinc-950 mb-12 uppercase">
           <span className="text-orange-600 block">Mapeamento de Votos</span>
         </h1>
 
@@ -178,12 +177,11 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               <Loader2 size={24} className="animate-spin text-orange-500" />
             ) : (
               <span className="flex items-center gap-2">
-                Acessar Dados 
+                ACESSAR DADOS 
                 <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </span>
             )}
             
-            {/* Efeito de brilho sutil no hover */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
           </button>
         </form>
