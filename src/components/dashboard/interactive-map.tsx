@@ -14,7 +14,7 @@ interface InteractiveMapProps {
   onInterviewSelect?: (id: string) => void;
   selectedInterviews?: string[];
   activeCity?: string;
-  instanceId?: string; // ID único para evitar conflitos entre múltiplos mapas
+  instanceId?: string; 
 }
 
 const center = { lat: -5.1, lng: -45.1 };
@@ -73,7 +73,9 @@ const InteractiveMapContent = ({
 
     try {
       map.data.forEach((feature) => map.data.remove(feature));
-      map.data.addGeoJson(MUNICIP_GEOJSON);
+      if (MUNICIP_GEOJSON) {
+        map.data.addGeoJson(MUNICIP_GEOJSON);
+      }
     } catch (e) {
       console.error("Erro ao carregar GeoJSON:", e);
     }
@@ -84,7 +86,7 @@ const InteractiveMapContent = ({
       setHoveredCity(cityName);
       map.data.overrideStyle(event.feature, { 
         strokeColor: '#000000', 
-        strokeWeight: 3.0,
+        strokeWeight: 2.0,
         fillOpacity: 0.85 
       });
     });
@@ -136,18 +138,19 @@ const InteractiveMapContent = ({
         return { visible: false };
       }
 
-      let strokeW = 1.2;
-      let strokeC = isSelected ? '#000000' : '#27272a'; 
-      let opacity = 0.45; 
+      let strokeW = 1.0;
+      let strokeC = isSelected ? '#ea580c' : '#cbd5e1'; 
+      let opacity = 0.2; 
 
       if (hasData) {
-        opacity = 0.7 + (count / maxCount) * 0.25;
-        strokeW = isResponsesOnly || isSelected ? 2.5 : 1.5;
+        opacity = 0.5 + (count / maxCount) * 0.4;
+        strokeW = 1.5;
       }
 
       if (isSelected) {
-        opacity = 0.95;
+        opacity = 0.9;
         strokeW = 3.0;
+        strokeC = '#ea580c';
       }
 
       return {
@@ -207,14 +210,14 @@ export const InteractiveMap = ({
 
   if (!mounted) {
     return (
-      <LuxuryCard className="h-[40rem] flex items-center justify-center">
+      <LuxuryCard className="h-[500px] flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-orange-600 animate-spin" />
       </LuxuryCard>
     );
   }
 
   return (
-    <LuxuryCard className="relative p-0 overflow-hidden h-full min-h-[500px]">
+    <LuxuryCard className="relative p-0 overflow-hidden h-[600px] w-full">
       <div className="flex flex-col h-full">
         <div className="p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-zinc-100 bg-white z-20">
           <div className="space-y-0.5">
@@ -282,13 +285,13 @@ export const InteractiveMap = ({
           </div>
         </div>
 
-        <div className="flex-1 relative bg-zinc-50 min-h-[400px]">
+        <div className="flex-1 relative bg-zinc-50">
           <Map
             id={instanceId}
             defaultCenter={center}
             defaultZoom={7}
             mapId={is3D ? "496b3e09ad10e939" : "focco_analytics_dashboard"}
-            styles={mapStyles}
+            style={{ width: '100%', height: '100%' }}
             disableDefaultUI={false}
             gestureHandling={'greedy'}
           >
@@ -314,7 +317,7 @@ export const InteractiveMap = ({
                   }}
                 >
                   <div className={cn(
-                    "w-3.5 h-3.5 rounded-full border-2 border-white shadow-[0_0_10px_rgba(234,88,12,0.4)] hover:scale-150 transition-transform cursor-pointer",
+                    "w-3 h-3 rounded-full border-2 border-white shadow-[0_0_8px_rgba(234,88,12,0.4)] hover:scale-150 transition-transform cursor-pointer",
                     isSelected ? "bg-zinc-950 scale-125 border-zinc-400 ring-2 ring-zinc-950 ring-offset-1" : "bg-orange-600"
                   )} />
                 </AdvancedMarker>
