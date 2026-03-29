@@ -1052,7 +1052,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-8 pr-8">
+            <div className="flex items-center gap-8 pr-16">
               <div className="flex flex-col items-end">
                 <span className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em]">Sincronização</span>
                 <Badge variant="outline" className="border-emerald-200 text-emerald-600 font-black mt-1 px-4 py-1">Tempo Real</Badge>
@@ -1062,7 +1062,7 @@ export default function Home() {
 
           <div className="flex-1 flex overflow-hidden">
             
-            {/* Sidebar de Cidades Profissional */}
+            {/* Sidebar de Cidades Profissional com Avatars */}
             <div className="w-[380px] bg-zinc-50 border-r border-zinc-100 flex flex-col overflow-hidden">
               <div className="p-10 space-y-8">
                 <div className="relative group">
@@ -1077,7 +1077,7 @@ export default function Home() {
               </div>
 
               <ScrollArea className="flex-1 px-8 pb-10">
-                <div className="space-y-2 pr-4">
+                <div className="space-y-3 pr-4">
                   {filteredCitiesList.map((city) => {
                     const isActive = filters.city.includes(city);
                     const amCount = cityAms[city] || 0;
@@ -1087,16 +1087,35 @@ export default function Home() {
                         key={city}
                         onClick={() => handleFilterChange('city', city)}
                         className={cn(
-                          "w-full flex items-center justify-between p-5 rounded-2xl transition-all duration-500 group",
+                          "w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 group text-left",
                           isActive 
                             ? "bg-zinc-950 text-white shadow-2xl scale-[1.03] translate-x-2" 
-                            : "text-zinc-500 hover:bg-white hover:text-zinc-950"
+                            : "text-zinc-500 hover:bg-white hover:text-zinc-950 border border-transparent hover:border-zinc-100"
                         )}
                       >
-                        <span className="font-black text-xs uppercase tracking-tight">{city}</span>
+                        <Avatar className={cn(
+                          "w-10 h-10 border-2 border-white shadow-sm shrink-0 transition-transform group-hover:scale-110",
+                          isActive && "ring-2 ring-orange-500 ring-offset-2 ring-offset-zinc-950"
+                        )}>
+                          <AvatarImage src={`https://picsum.photos/seed/${city}/100/100`} />
+                          <AvatarFallback className="bg-zinc-100 text-[10px] font-bold text-zinc-400">
+                            {city.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0">
+                          <span className="font-black text-xs uppercase tracking-tight block truncate">{city}</span>
+                          <p className={cn(
+                            "text-[8px] font-bold uppercase tracking-widest",
+                            isActive ? "text-orange-500" : "text-zinc-400"
+                          )}>
+                            Município
+                          </p>
+                        </div>
+
                         <div className="flex items-center gap-3">
                           <span className={cn(
-                            "text-[10px] font-black tabular-nums px-3 py-1 rounded-xl",
+                            "text-[10px] font-black tabular-nums px-3 py-1 rounded-xl min-w-[32px] text-center",
                             isActive ? "text-orange-500 bg-zinc-900" : "text-zinc-300 bg-zinc-100 group-hover:text-zinc-500 group-hover:bg-zinc-200"
                           )}>
                             {amCount}
@@ -1172,7 +1191,7 @@ export default function Home() {
                   {/* Briefing de Inteligência */}
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ 1: 1, y: 0 }}
                     className="space-y-10"
                   >
                     <div className="flex items-center gap-3">
