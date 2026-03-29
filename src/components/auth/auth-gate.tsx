@@ -127,7 +127,6 @@ export const AuthGate = ({ children }: AuthGateProps) => {
         {/* Título Principal */}
         <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-zinc-950 mb-6 uppercase">
           <span className="text-orange-600 block">Mapeamento de Votos</span>
-          <span className="block">do Maranhão</span>
         </h1>
 
         {/* Copy Comercial */}
