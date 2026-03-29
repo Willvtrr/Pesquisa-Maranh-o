@@ -2,12 +2,12 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu, MapPin, User2, X } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Users, Settings, Search, Cpu, MapPin, User2, X, FileJson, Navigation } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BottomNav } from './bottom-nav';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { TOP_61_CITIES } from '@/lib/constants';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -16,41 +16,69 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+type SearchResult = {
+  type: 'city' | 'candidate' | 'page';
+  name: string;
+  path?: string;
+  category?: string;
+};
+
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const searchResults = useMemo(() => {
     if (searchValue.length < 2) return [];
     
     const term = searchValue.toLowerCase();
-    const cities = TOP_61_CITIES
-      .filter(city => city.toLowerCase().includes(term))
-      .map(city => ({ type: 'city', name: city }));
     
-    // Podemos adicionar candidatos aqui no futuro
-    const candidates = ['LULA', 'BOLSONARO', 'BRANDÃO']
+    // 1. Cidades
+    const cities: SearchResult[] = TOP_61_CITIES
+      .filter(city => city.toLowerCase().includes(term))
+      .map(city => ({ type: 'city', name: city, category: 'Município' }));
+    
+    // 2. Candidatos e Lideranças
+    const candidatesList = [
+      'LULA', 'CARLOS BRANDÃO', 'JAIR BOLSONARO', 'FELIPE CAMARÃO', 
+      'WEVERTON ROCHA', 'ROSEANA SARNEY', 'FLÁVIO DINO', 'EDUARDO BRAIDE'
+    ];
+    const candidates: SearchResult[] = candidatesList
       .filter(c => c.toLowerCase().includes(term))
-      .map(c => ({ type: 'candidate', name: c }));
+      .map(c => ({ type: 'candidate', name: c, category: 'Liderança' }));
 
-    return [...cities, ...candidates].slice(0, 8);
+    // 3. Páginas e Módulos
+    const pagesList: SearchResult[] = [
+      { type: 'page', name: 'PAINEL PRINCIPAL', path: '/', category: 'Módulo' },
+      { type: 'page', name: 'CORRIDA PRESIDENCIAL', path: '/analyses/presidential', category: 'Análise' },
+      { type: 'page', name: 'CORRIDA GOVERNADOR', path: '/analyses/governor', category: 'Análise' },
+      { type: 'page', name: 'IMPORTAR DADOS', path: '/admin/import', category: 'Admin' },
+    ];
+    const pages = pagesList.filter(p => p.name.toLowerCase().includes(term));
+
+    return [...pages, ...cities, ...candidates].slice(0, 10);
   }, [searchValue]);
 
-  const handleSelect = (result: { type: string, name: string }) => {
+  const handleSelect = (result: SearchResult) => {
     setSearchValue("");
     setShowResults(false);
     
-    const params = new URLSearchParams();
+    if (result.type === 'page' && result.path) {
+      router.push(result.path);
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
     if (result.type === 'city') {
       params.set('city', result.name);
+      router.push(`/?${params.toString()}`);
     } else if (result.type === 'candidate') {
       params.set('candidate', result.name);
+      router.push(`/?${params.toString()}`);
     }
-    
-    router.push(`${pathname}?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -70,7 +98,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <header className="h-16 lg:h-[6rem] bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
           <Link href="/" className="flex items-center cursor-pointer group">
-            <div className="relative w-[8.75rem] h-[2.5rem] lg:w-[11.25rem] h-[3.25rem]">
+            <div className="relative w-[8.75rem] h-[2.5rem] lg:w-[11.25rem] lg:h-[3.25rem]">
               <Image 
                 src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
                 alt="Focco Analytics" 
@@ -104,7 +132,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </DropdownMenu>
 
             <NavItem icon={Users} label="Demografia" />
-            <NavItem icon={Settings} label="Sistema" />
+            <Link href="/admin/import">
+              <NavItem icon={Settings} label="Sistema" active={pathname === '/admin/import'} />
+            </Link>
           </nav>
         </div>
 
@@ -119,7 +149,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 setShowResults(true);
               }}
               onFocus={() => setShowResults(true)}
-              placeholder="Busca Inteligente" 
+              placeholder="Buscar" 
               className="bg-transparent border-none outline-none text-base font-bold text-zinc-950 placeholder:text-zinc-400 w-full"
             />
             {searchValue && (
@@ -135,26 +165,30 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border border-zinc-100 p-4 z-[100] max-h-[400px] overflow-y-auto no-scrollbar"
+                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-[2rem] shadow-2xl border border-zinc-100 p-4 z-[100] max-h-[500px] overflow-y-auto no-scrollbar"
               >
                 <div className="space-y-1">
                   {searchResults.map((result, idx) => (
                     <button
-                      key={`${result.type}-${result.name}`}
+                      key={`${result.type}-${result.name}-${idx}`}
                       onClick={() => handleSelect(result)}
                       className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-zinc-50 transition-colors group text-left"
                     >
                       <div className="flex items-center gap-4">
                         <div className={cn(
                           "p-2.5 rounded-xl transition-colors",
-                          result.type === 'city' ? "bg-orange-50 text-orange-600" : "bg-emerald-50 text-emerald-600"
+                          result.type === 'city' ? "bg-orange-50 text-orange-600" : 
+                          result.type === 'candidate' ? "bg-emerald-50 text-emerald-600" :
+                          "bg-zinc-100 text-zinc-600"
                         )}>
-                          {result.type === 'city' ? <MapPin size={18} /> : <User2 size={18} />}
+                          {result.type === 'city' ? <MapPin size={18} /> : 
+                           result.type === 'candidate' ? <User2 size={18} /> : 
+                           result.category === 'Admin' ? <FileJson size={18} /> : <Navigation size={18} />}
                         </div>
                         <div>
                           <p className="text-xs font-black text-zinc-950 uppercase tracking-tight">{result.name}</p>
                           <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
-                            {result.type === 'city' ? 'Município • Maranhão' : 'Personalidade Política'}
+                            {result.category} • Maranhão
                           </p>
                         </div>
                       </div>
