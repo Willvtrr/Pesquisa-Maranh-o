@@ -14,7 +14,11 @@ import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { RankingCard } from '@/components/dashboard/ranking-card';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, ShieldAlert, ChevronRight, Search, User2, Tag } from 'lucide-react';
+import { 
+  Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, 
+  ClipboardCheck, Loader2, Check, TrendingUp, ShieldAlert, 
+  ChevronRight, Search, User2, Tag, Zap, Heart, Wallet, ShieldCheck 
+} from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
@@ -150,17 +154,11 @@ export default function Home() {
     interview_ids: ['all'],
   });
 
-  // Efeito para sincronizar Query Params com Filtros (Busca Inteligente)
   useEffect(() => {
     const cityParam = searchParams.get('city');
     if (cityParam && TOP_61_CITIES.includes(cityParam.toUpperCase())) {
       setFilters(prev => ({ ...prev, city: [cityParam.toUpperCase()] }));
       toast({ title: "Localização Sincronizada", description: `Exibindo inteligência tática para ${cityParam}.` });
-    }
-    
-    const candidateParam = searchParams.get('candidate');
-    if (candidateParam) {
-      // Logica para filtrar por candidato se necessário
     }
   }, [searchParams]);
 
@@ -255,8 +253,7 @@ export default function Home() {
         checkMatch('mayor_approval', activeKeys.MAYOR_APPROVAL) &&
         checkMatch('senator_second_vote_est', activeKeys.SENATOR_SECOND_VOTE_EST) &&
         checkMatch('senator_second_vote_spon', activeKeys.SENATOR_SECOND_VOTE_SPON) &&
-        checkMatch('senator_rejection', activeKeys.SENATOR_REJECTION) &&
-        checkMatch('interview_ids', '')
+        checkMatch('senator_rejection', activeKeys.SENATOR_REJECTION)
       );
     });
   }, [filters, rawSurveyData, activeKeys]);
@@ -722,8 +719,6 @@ export default function Home() {
                     const isActive = filters.president_second_round.includes(item.name);
                     const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
                     
-                    const visualPct = pct;
-
                     return (
                       <div 
                         key={`${item.name}-${idx}`} 
@@ -741,7 +736,7 @@ export default function Home() {
                         )}>
                           <AvatarImage src={getCandidatePhoto(item.name)} />
                           <AvatarFallback className="bg-zinc-100 text-[8px] font-bold text-zinc-400">
-                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : (item.name.toLowerCase().includes('outros') ? 'O' : 'N/B')) : item.name.charAt(0)}
+                            {isAbstention ? (item.name.toLowerCase().includes('ns') ? 'NS' : 'N/B') : item.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
@@ -763,7 +758,7 @@ export default function Home() {
                           <div className="w-full h-2 bg-zinc-50 rounded-full border border-zinc-100 overflow-hidden hide-scrollbar">
                             <motion.div 
                               initial={{ width: 0 }} 
-                              animate={{ width: `${visualPct}%` }} 
+                              animate={{ width: `${pct}%` }} 
                               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }} 
                               className={cn(
                                 "h-full rounded-full transition-all", 
@@ -1133,28 +1128,42 @@ export default function Home() {
                     </div>
                   </motion.div>
 
-                  <div className="bg-zinc-950 p-8 rounded-[2.5rem] shadow-2xl border border-zinc-800 space-y-8">
-                    <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
-                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">Métricas de Impacto</h4>
-                      <Badge className="bg-orange-600 text-white font-black text-[8px] px-3 py-1 rounded-lg">LIVE</Badge>
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center px-2">
+                      <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">Métricas de Impacto</h4>
+                      <Badge className="bg-orange-600 text-white font-black text-[8px] px-3 py-1 rounded-lg shadow-lg shadow-orange-600/20">LIVE</Badge>
                     </div>
-                    <div className="space-y-8">
+                    
+                    <div className="grid grid-cols-2 gap-4">
                       {[
-                        { label: 'Adesão Jovem (16-24)', value: 72, delay: 0 },
-                        { label: 'Conversão Feminina', value: 64, delay: 0.1 },
-                        { label: 'Impacto Baixa Renda', value: 58, delay: 0.2 },
-                      ].map((metric) => (
-                        <div key={metric.label} className="space-y-3">
-                          <div className="flex justify-between items-end">
-                            <span className="text-[10px] font-black text-white uppercase tracking-[0.2em]">{metric.label}</span>
-                            <span className="text-xl font-black text-orange-500 tabular-nums">{metric.value}%</span>
+                        { label: 'Adesão Jovem', value: 72, trend: 'Alta', icon: Users },
+                        { label: 'Base Feminina', value: 64, trend: 'Estável', icon: Heart },
+                        { label: 'Impacto Social', value: 58, trend: '+2.1%', icon: Wallet },
+                        { label: 'Fidelidade', value: 89, trend: 'Forte', icon: ShieldCheck },
+                        { label: 'Engajamento', value: 42, trend: 'Médio', icon: Zap },
+                        { label: 'Capilaridade', value: 31, trend: 'Expansão', icon: MapPin },
+                      ].map((metric, idx) => (
+                        <div key={idx} className="bg-zinc-950 p-4 rounded-[2rem] border border-zinc-800 flex flex-col gap-3 group hover:border-orange-500/30 transition-all shadow-xl">
+                          <div className="flex justify-between items-center">
+                            <div className="p-2 rounded-xl bg-zinc-900 text-orange-500 group-hover:scale-110 transition-transform">
+                              <metric.icon size={14} />
+                            </div>
+                            <Badge variant="outline" className="text-[7px] border-zinc-800 text-zinc-500 font-black px-1.5 py-0">
+                              {metric.trend}
+                            </Badge>
                           </div>
-                          <div className="h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/50">
+                          <div className="space-y-0.5">
+                            <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest truncate">{metric.label}</p>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-xl font-black text-white tabular-nums">{metric.value}%</span>
+                            </div>
+                          </div>
+                          <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }} 
                               animate={{ width: `${metric.value}%` }} 
-                              transition={{ duration: 1.5, ease: "circOut", delay: metric.delay }}
-                              className="h-full rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-orange-400 shadow-[0_0_15px_rgba(234,88,12,0.4)]" 
+                              transition={{ duration: 1.5, ease: "circOut", delay: idx * 0.1 }}
+                              className="h-full bg-gradient-to-r from-orange-600 to-orange-400 shadow-[0_0_10px_rgba(234,88,12,0.3)]" 
                             />
                           </div>
                         </div>
