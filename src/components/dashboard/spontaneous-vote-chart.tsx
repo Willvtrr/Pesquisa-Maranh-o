@@ -165,7 +165,7 @@ export const SpontaneousVoteChart = ({
       {noScroll ? (
         content
       ) : (
-        <ScrollArea type="always" className="h-[300px] pr-4 -mr-4">
+        <ScrollArea type="always" className="h-[340px] pr-4 -mr-4">
           {content}
         </ScrollArea>
       )}
