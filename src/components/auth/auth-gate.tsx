@@ -83,13 +83,13 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     if (password === CORRECT_KEY) {
       setIsSyncing(true);
       
-      // Sequência de mensagens de sincronização profissional
-      setTimeout(() => setSyncMessage('Sincronizando registros geoespaciais...'), 1200);
-      setTimeout(() => setSyncMessage('Auditoria de integridade em tempo real...'), 2400);
-      setTimeout(() => setSyncMessage('Finalizando carregamento da base...'), 3600);
+      // Sequência de mensagens de sincronização profissional com tempo extendido
+      setTimeout(() => setSyncMessage('Sincronizando registros geoespaciais...'), 1800);
+      setTimeout(() => setSyncMessage('Auditoria de integridade em tempo real...'), 3600);
+      setTimeout(() => setSyncMessage('Finalizando carregamento da base...'), 5400);
       
-      // Tempo total da animação de "boot" do sistema
-      await new Promise(resolve => setTimeout(resolve, 4500));
+      // Tempo total da animação de "boot" do sistema (7 segundos)
+      await new Promise(resolve => setTimeout(resolve, 7000));
       
       sessionStorage.setItem('focco_auth_status', 'true');
       setIsAuthenticated(true);
@@ -193,7 +193,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Insira sua Chave de Acesso"
-                  className="w-full h-16 bg-white border border-zinc-100 rounded-3xl pl-14 pr-14 text-lg font-bold text-zinc-950 placeholder:text-zinc-300 shadow-sm focus:outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500 transition-all"
+                  className="w-full h-14 bg-white border border-zinc-100 rounded-3xl pl-14 pr-14 text-lg font-bold text-zinc-950 placeholder:text-zinc-300 shadow-sm focus:outline-none focus:ring-8 focus:ring-orange-500/5 focus:border-orange-500 transition-all"
                 />
                 <button 
                   type="button"
@@ -220,7 +220,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               <button 
                 type="submit"
                 disabled={isLoading || !password}
-                className="w-full h-16 bg-zinc-950 text-white rounded-3xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-4 hover:bg-zinc-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-zinc-950/20 group overflow-hidden relative"
+                className="w-full h-14 bg-zinc-950 text-white rounded-3xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-4 hover:bg-zinc-800 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-zinc-950/20 group overflow-hidden relative"
               >
                 {isLoading ? (
                   <IconLoader />
@@ -234,7 +234,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               </button>
             </form>
 
-            <div className="mt-10 flex items-center gap-8 justify-center">
+            <div className="mt-8 flex items-center gap-8 justify-center">
               <div className="flex items-center gap-2">
                 <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.2em]">Protocolo LXN-2026</span>
               </div>
@@ -329,11 +329,11 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               </AnimatePresence>
             </div>
 
-            {/* Barra de Progresso Shimmer Minimalista */}
+            {/* Barra de Progresso Shimmer Minimalista com duração de 7s */}
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: "280px" }}
-              transition={{ duration: 4.5, ease: "easeInOut" }}
+              transition={{ duration: 7.0, ease: "easeInOut" }}
               className="absolute bottom-24 h-0.5 bg-zinc-100 overflow-hidden rounded-full"
             >
               <motion.div 
