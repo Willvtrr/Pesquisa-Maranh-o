@@ -3,7 +3,6 @@
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/app-layout';
-import { MesoRegion } from '@/data/survey-data';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { InteractiveMap } from '@/components/dashboard/interactive-map';
 import { FilterBentoBox } from '@/components/dashboard/filter-bento-box';
@@ -120,7 +119,6 @@ export default function Home() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>("Agora mesmo");
   const [isMounted, setIsMounted] = useState(false);
-  const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
   
   const [detailModal, setDetailModal] = useState<{ open: boolean; type: 'president' | 'governor' | 'mayor' | null }>({
     open: false,
@@ -719,26 +717,20 @@ export default function Home() {
                   </div>
                 </div>
                 <p className="text-[9px] font-medium text-zinc-400 italic mb-6">"Num eventual segundo turno..."</p>
-                <div 
-                  className="space-y-4 relative z-10"
-                  onMouseLeave={() => setHoveredSecondRound(null)}
-                >
+                <div className="space-y-4 relative z-10">
                   {chartData.secondRoundData.map((item, idx) => {
                     const totalDataLength = getFilteredData(['president_second_round']).length || 1;
                     const pct = (item.value / totalDataLength) * 100;
                     const isAbstention = item.isAbstention;
                     const isActive = filters.president_second_round.includes(item.name);
-                    const isFaded = hoveredSecondRound !== null && hoveredSecondRound !== idx;
                     
                     return (
                       <div 
                         key={`${item.name}-${idx}`} 
                         className={cn(
                           "flex items-center gap-3 cursor-pointer transition-all duration-300 p-1.5 rounded-2xl group/row",
-                          isActive && "bg-orange-50 ring-1 ring-orange-200 shadow-sm",
-                          isFaded && !isActive && "opacity-40 grayscale-[0.5]"
+                          isActive && "bg-orange-50 ring-1 ring-orange-200 shadow-sm"
                         )}
-                        onMouseEnter={() => hoveredSecondRound !== null && setHoveredSecondRound(idx)}
                         onClick={() => handleFilterChange('president_second_round', item.name)}
                       >
                         <Avatar className={cn(
@@ -945,7 +937,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SUPER APP DRILL DOWN MODAL - MASTER EXPANDED */}
       <Dialog open={detailModal.open} onOpenChange={(open) => setDetailModal(prev => ({ ...prev, open }))}>
         <DialogContent className="max-w-[98vw] w-[1300px] h-[92vh] flex flex-col p-0 overflow-hidden bg-white rounded-[2rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)]">
           
@@ -1185,6 +1176,7 @@ export default function Home() {
                   </div>
                   <div className="h-[450px] rounded-[2.5rem] overflow-hidden border border-zinc-100 shadow-2xl relative">
                     <InteractiveMap 
+                      key={`${detailModal.type}-${filters.city[0]}`}
                       instanceId={`modal-map-${detailModal.type}`}
                       data={getFilteredData()} 
                       activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()} 
@@ -1192,14 +1184,17 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-6 py-10 border-t border-zinc-50">
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <p className="text-zinc-400 font-bold text-[11px] uppercase tracking-[0.3em]">Consolidado Estratégico</p>
-                    <p className="text-xs text-zinc-500 max-w-lg">Explore a base de dados completa, cruzando rejeição, voto espontâneo e tendências geográficas para uma tomada de decisão cirúrgica.</p>
+                <div className="flex flex-col items-center gap-10 py-16 border-t border-zinc-50">
+                  <div className="flex flex-col items-center text-center space-y-3">
+                    <p className="text-zinc-400 font-bold text-[11px] uppercase tracking-[0.4em] leading-none">Consolidado Estratégico</p>
+                    <p className="text-xs text-zinc-500 max-w-xl font-medium leading-relaxed">Explore a base de dados completa, cruzando rejeição, voto espontâneo e tendências geográficas para uma tomada de decisão cirúrgica.</p>
                   </div>
                   <Link href={detailModal.type === 'president' ? '/analyses/presidential' : '/analyses/governor'} passHref>
-                    <Button variant="outline" className="h-14 px-12 rounded-full border-2 border-zinc-950 text-zinc-950 font-black uppercase tracking-widest text-[10px] hover:bg-zinc-950 hover:text-white transition-all shadow-xl active:scale-95 group">
-                      Acessar Hub de Inteligência Completo <ChevronRight size={16} className="ml-3 group-hover:translate-x-1 transition-transform" />
+                    <Button className="h-16 px-16 rounded-full bg-zinc-950 text-white font-black uppercase tracking-[0.2em] text-[11px] hover:bg-zinc-800 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.15)] active:scale-95 group relative overflow-hidden">
+                      <span className="relative z-10 flex items-center gap-4">
+                        Acessar Hub de Inteligência Completo 
+                        <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </span>
                     </Button>
                   </Link>
                 </div>
