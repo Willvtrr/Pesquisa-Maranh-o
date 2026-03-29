@@ -14,7 +14,7 @@ import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { RankingCard } from '@/components/dashboard/ranking-card';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target, ChevronRight, BarChart3, Info, TrendingDown, Search, ShieldCheck, User2, Map as MapIconLucide, Tag } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, ShieldAlert, ChevronRight, Search, User2, Tag } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
@@ -22,108 +22,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { TOP_61_CITIES, CITY_MAYORS } from '@/lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
-
-// Lista das 61 cidades principais para o grid de botões
-const TOP_61_CITIES = [
-  'SÃO LUÍS', 'IMPERATRIZ', 'SÃO JOSÉ DE RIBAMAR', 'CAXIAS', 'TIMON', 'CODÓ', 'PAÇO DO LUMIAR', 'AÇAILÂNDIA', 'BACABAL', 'BALSAS', 
-  'SANTA INÊS', 'BARRA DO CORDA', 'PINHEIRO', 'CHAPADINHA', 'SANTA LUZIA', 'BURITICUPU', 'GRAJAÚ', 'ITAPECURU MIRIM', 'COROATÁ', 'BARREIRINHAS', 
-  'TUTÓIA', 'VARGEM GRANDE', 'VIANA', 'ZÉ DOCA', 'LAGO DA PEDRA', 'COELHO NETO', 'PRESIDENTE DUTRA', 'ARAIOSES', 'SÃO MATEUS DO MARANHÃO', 'PEDREIRAS', 
-  'AMARANTE DO MARANHÃO', 'COLINAS', 'SÃO BENTO', 'SANTA HELENA', 'ROSÁRIO', 'BREJO', 'TURIAÇU', 'PARNARAMA', 'MATÕES', 'ICATU', 
-  'PENALVA', 'MONÇÃO', 'SANTA RITA', 'URBANO SANTOS', 'VITORINO FREIRE', 'CURURUPU', 'ESTREITO', 'SÃO RAIMUNDO DAS MANGABEIRAS', 'ANAJATUBA', 'MIRANDA DO NORTE', 
-  'PORTO FRANCO', 'PASTOS BONS', 'ALTO PARNAÍBA', 'RIACHÃO', 'CAROLINA', 'GUIMARÃES', 'MIRINZAL', 'PERI MIRIM', 'GODOFREDO VIANA', 'ALCÂNTARA', 'RAPOSA'
-];
-
-const CITY_MAYORS: Record<string, { name: string; gender: 'M' | 'F' }> = {
-  'SÃO LUÍS': { name: 'Eduardo Braide', gender: 'M' },
-  'SÃO JOSÉ DE RIBAMAR': { name: 'Dr. Julinho', gender: 'M' },
-  'PAÇO DO LUMIAR': { name: 'Fred Campos', gender: 'M' },
-  'RAPOSA': { name: 'Eudes Barros', gender: 'M' },
-  'ALCÂNTARA': { name: 'Nivaldo Araújo', gender: 'M' },
-  'BACABEIRA': { name: 'Naíra Gonçalo', gender: 'F' },
-  'SANTA RITA': { name: 'Dr. Milton Gonçalo', gender: 'M' },
-  'ROSÁRIO': { name: 'Jonas Magno', gender: 'M' },
-  'PINHEIRO': { name: 'André da Ralpnet', gender: 'M' },
-  'CURURUPU': { name: 'Aldo Lopes', gender: 'M' },
-  'VIANA': { name: 'Carrinho Cidreira', gender: 'M' },
-  'ITAPECURU MIRIM': { name: 'Filipe Marreca', gender: 'M' },
-  'CHAPADINHA': { name: 'Belezinha', gender: 'F' },
-  'BARREIRINHAS': { name: 'Vinicius Vale', gender: 'M' },
-  'TUTÓIA': { name: 'Viriato Cardoso', gender: 'M' },
-  'HUMBERTO DE CAMPOS': { name: 'Luis Fernando', gender: 'M' },
-  'GUIMARÃES': { name: 'Magno', gender: 'M' },
-  'MIRINZAL': { name: 'Deyvison do Posto', gender: 'M' },
-  'PERI MIRIM': { name: 'Heliezer do Povo', gender: 'M' },
-  'SANTA HELENA': { name: 'Joãozinho Pavão', gender: 'M' },
-  'SÃO BENTO': { name: 'Dino Penha', gender: 'M' },
-  'TURIAÇU': { name: 'Edésio Cavalcante', gender: 'M' },
-  'ANAJATUBA': { name: 'Helder Aragão', gender: 'M' },
-  'IMPERATRIZ': { name: 'Rildo Amaral', gender: 'M' },
-  'AÇAILÂNDIA': { name: 'Dr. Benjamim', gender: 'M' },
-  'GRAJAÚ': { name: 'Dr. Gilson Guerreiro', gender: 'M' },
-  'BARRA DO CORDA': { name: 'Rigo Teles', gender: 'M' },
-  'BURITICUPU': { name: 'João Carlos', gender: 'M' },
-  'ESTREITO': { name: 'Léo Cunha', gender: 'M' },
-  'PORTO FRANCO': { name: 'Deoclídes', gender: 'M' },
-  'AMARANTE DO MARANHÃO': { name: 'Vanderly', gender: 'F' },
-  'MONTES ALTOS': { name: 'Domingos França', gender: 'M' },
-  'JOÃO LISBOA': { name: 'Dr. Fábio Holanda', gender: 'M' },
-  'SENADOR LA ROCQUE': { name: 'Professor Bartolomeu', gender: 'M' },
-  'DAVINÓPOLIS': { name: 'Zé Pequeno', gender: 'M' },
-  'GOVERNADOR EDISON LOBÃO': { name: 'Fábio Soares', gender: 'M' },
-  'PEDREIRAS': { name: 'Vanessa Maia', gender: 'F' },
-  'PRESIDENTE DUTRA': { name: 'Raimundinho da Audiolar', gender: 'M' },
-  'COLINAS': { name: 'Renato Santos', gender: 'M' },
-  'SÃO MATEUS DO MARANHÃO': { name: 'Miltinho Aragão', gender: 'M' },
-  'DOM PEDRO': { name: 'Galego Mota', gender: 'M' },
-  'TUNTUM': { name: 'Fernando Pessoa', gender: 'M' },
-  'GONÇALVES DIAS': { name: 'Suane Dias', gender: 'F' },
-  'GOVERNADOR ARCHER': { name: 'Professora Leide', gender: 'F' },
-  'CAXIAS': { name: 'Gentil Neto', gender: 'M' },
-  'TIMON': { name: 'Rafael', gender: 'M' },
-  'CODÓ': { name: 'Chiquinho FC', gender: 'M' },
-  'COELHO NETO': { name: 'Bruno Silva', gender: 'M' },
-  'ALDEIAS ALTAS': { name: 'Kedson', gender: 'M' },
-  'PARNARAMA': { name: 'Juvenal Silva', gender: 'M' },
-  'MATÕES': { name: 'Nonatinho', gender: 'M' },
-  'SÃO FRANCISCO DO MARANHÃO': { name: 'Francisco do Posto', gender: 'M' },
-  'BACABAL': { name: 'Roberto Costa', gender: 'M' },
-  'COROATÁ': { name: 'Edimar Vaqueiro', gender: 'M' },
-  'BALSAS': { name: 'Allan da Marissol', gender: 'M' },
-  'CAROLINA': { name: 'Jayme Fonseca', gender: 'M' },
-  'RIACHÃO': { name: 'Paula Coelho', gender: 'F' },
-  'SÃO RAIMUNDO DAS MANGABEIRAS': { name: 'Accioly', gender: 'M' },
-  'LORETO': { name: 'Germano Coelho', gender: 'M' },
-  'SAMBAÍBA': { name: 'Fátima Dantas', gender: 'F' },
-  'ALTO PARNAÍBA': { name: 'Rubens Japonês', gender: 'M' },
-  'ALTO ALEGRE DO MARANHÃO': { name: 'Nilsilene do Liorne', gender: 'F' },
-  'ARAIOSES': { name: 'Neto Carvalho', gender: 'M' },
-  'ARAME': { name: 'Pedro Fernandes', gender: 'M' },
-  'ARARI': { name: 'Simplesmente Maria', gender: 'F' },
-  'BOM JARDIM': { name: 'Cristiane Varão', gender: 'F' },
-  'BREJO': { name: 'Thâmara Castro', gender: 'F' },
-  'BURITI': { name: 'André Gaúcho', gender: 'M' },
-  'ICATU': { name: 'Wallace', gender: 'M' },
-  'LAGO DA PEDRA': { name: 'Maura Jorge', gender: 'F' },
-  'MIRANDA DO NORTE': { name: 'Ivaldo Ribeiro', gender: 'M' },
-  'PENALVA': { name: 'Guerra', gender: 'M' },
-  'PINDARÉ-MIRIM': { name: 'Dr. Alexandre', gender: 'M' },
-  'SANTA INÊS': { name: 'Felipe dos Pneus', gender: 'M' },
-  'SANTA LUZIA': { name: 'Jucelino Marreca', gender: 'M' },
-  'SANTA QUITÉRIA DO MARANHÃO': { name: 'Sâmia Moreira', gender: 'F' },
-  'SÃO BERNARDO': { name: 'Chico Carvalho', gender: 'M' },
-  'SÃO DOMINGOS DO MARANHÃO': { name: 'Kleber Tratorzão', gender: 'M' },
-  'TIMBIRAS': { name: 'Paulo Vinicius', gender: 'M' },
-  'URBANO SANTOS': { name: 'Professor Clemilton Barros', gender: 'M' },
-  'VARGEM GRANDE': { name: 'Preto', gender: 'M' },
-  'VITÓRIA DO MEARIM': { name: 'Nato da Nordestina', gender: 'M' },
-  'ZÉ DOCA': { name: 'Flavinha Cunha', gender: 'F' },
-};
+import { useSearchParams } from 'next/navigation';
 
 const PARTY_MAP: Record<string, string> = {
   'Lula': 'PT',
@@ -191,7 +96,6 @@ const DEFAULT_KEYS = {
   WORKS: "3. Na sua opinião, qual obra ou serviço você gostaria que fosse feito aqui na cidade? (Espontânea)",
   PRESIDENT_VOTE: "4. PRESIDENTE: Se as eleições para Presidente da República fossem hoje, em quem você votaria? (Estimulada)",
   PRESIDENT_SECOND_ROUND: "5. Num eventual segundo turno, para Presidente, entre estes, em quem você votaria? (Estimulada)",
-  PRESIDENT_VOTE_SPON: "7. PRESIDENTE: Se as eleições para Presidente fossem hoje, em quem você votaria? (Espontânea)",
   PRESIDENT_REJECTION: "6. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum para Presidente? (Estimulada)",
   GOV_VOTE_SPONTANEOUS: "7. GOVERNADOR: Se as eleições para Governador fossem hoje, em quem você votaria? (Espontânea)",
   GOV_REJECTION: "10. REJEIÇÃO: Em quem você NÃO votaria de jeito nenhum? (Estimulada)",
@@ -208,23 +112,18 @@ const DEFAULT_KEYS = {
 
 export default function Home() {
   const { data: rawSurveyData, isLoading } = useSurvey();
+  const searchParams = useSearchParams();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>("Agora mesmo");
   const [isMounted, setIsMounted] = useState(false);
   const [hoveredSecondRound, setHoveredSecondRound] = useState<number | null>(null);
   
-  // Estados para o Modal de Detalhes
   const [detailModal, setDetailModal] = useState<{ open: boolean; type: 'president' | 'governor' | 'mayor' | null }>({
     open: false,
     type: null
   });
   const [citySearch, setCitySearch] = useState("");
 
-  useEffect(() => {
-    setIsMounted(true);
-    setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
-  }, []);
-  
   const [filters, setFilters] = useState<Record<string, string[]>>({
     region: ['all'],
     city: ['all'],
@@ -251,6 +150,25 @@ export default function Home() {
     interview_ids: ['all'],
   });
 
+  // Efeito para sincronizar Query Params com Filtros (Busca Inteligente)
+  useEffect(() => {
+    const cityParam = searchParams.get('city');
+    if (cityParam && TOP_61_CITIES.includes(cityParam.toUpperCase())) {
+      setFilters(prev => ({ ...prev, city: [cityParam.toUpperCase()] }));
+      toast({ title: "Localização Sincronizada", description: `Exibindo inteligência tática para ${cityParam}.` });
+    }
+    
+    const candidateParam = searchParams.get('candidate');
+    if (candidateParam) {
+      // Logica para filtrar por candidato se necessário
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setLastUpdate(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
+  }, []);
+  
   const activeKeys = useMemo(() => {
     if (!rawSurveyData || rawSurveyData.length === 0) return DEFAULT_KEYS;
     const sample = rawSurveyData.find(d => !d.INFO) || {};
@@ -1121,7 +1039,6 @@ export default function Home() {
             <ScrollArea className="flex-1 bg-white">
               <div className="p-8 space-y-12 w-full pb-24">
                 
-                {/* HERO SECTION EDGE-TO-EDGE */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start border-b border-zinc-50 pb-10">
                   <div className="lg:col-span-3 flex justify-center lg:justify-start">
                     <div className="relative aspect-square w-full max-w-[220px] rounded-[2.5rem] overflow-hidden shadow-2xl border-[8px] border-zinc-50/50">
