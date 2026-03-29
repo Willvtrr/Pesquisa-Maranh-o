@@ -18,6 +18,36 @@
       "description": "Prefeito Municipal",
       "imageUrl": "https://picsum.photos/seed/prefeito-ma/200/200",
       "imageHint": "Mayor Photo"
+    },
+    {
+      "id": "presidential-analysis",
+      "description": "Cenário Presidencial",
+      "imageUrl": "https://picsum.photos/seed/pres-analysis/800/600",
+      "imageHint": "Government Building"
+    },
+    {
+      "id": "governor-analysis",
+      "description": "Cenário Estadual",
+      "imageUrl": "https://picsum.photos/seed/gov-analysis/800/600",
+      "imageHint": "Palace Interior"
+    },
+    {
+      "id": "senate-analysis",
+      "description": "Cenário Senado",
+      "imageUrl": "https://picsum.photos/seed/senate-analysis/800/600",
+      "imageHint": "Senate Chamber"
+    },
+    {
+      "id": "deputies-analysis",
+      "description": "Cenário Deputados",
+      "imageUrl": "https://picsum.photos/seed/dep-analysis/800/600",
+      "imageHint": "Auditorium Assembly"
+    },
+    {
+      "id": "municipal-analysis",
+      "description": "Cenário Municipal",
+      "imageUrl": "https://picsum.photos/seed/mun-analysis/800/600",
+      "imageHint": "City Aerial"
     }
   ]
 }

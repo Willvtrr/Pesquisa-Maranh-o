@@ -6,21 +6,15 @@ import { AppLayout } from '@/components/layout/app-layout';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { motion } from 'framer-motion';
 import { 
-  Landmark, 
-  Flag, 
   ChevronRight, 
   Target, 
   ShieldCheck, 
   TrendingUp,
   BarChart3,
-  Database,
-  Users,
-  Map,
-  ShieldAlert,
-  Vote
+  Database
 } from 'lucide-react';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export default function AnalysesHub() {
@@ -30,8 +24,7 @@ export default function AnalysesHub() {
       title: 'Sucessão Presidencial',
       subtitle: 'PLANALTO CENTRAL',
       description: 'Inteligência completa sobre a sucessão presidencial em solo maranhense. Cruzamento de intenção de voto, rejeição e tendências por mesorregião.',
-      icon: Flag,
-      color: 'bg-orange-600',
+      image: 'https://picsum.photos/seed/pres-analysis/800/600',
       path: '/analyses/presidential',
       metrics: ['Margem: 2.2%', 'Confiança: 95%']
     },
@@ -40,8 +33,7 @@ export default function AnalysesHub() {
       title: 'Sucessão Estadual',
       subtitle: 'PALÁCIO DOS LEÕES',
       description: 'Monitoramento tático da disputa estadual. Análise de cenários estimulados, percepção de vitória e avaliação do impacto das obras governamentais.',
-      icon: Landmark,
-      color: 'bg-zinc-900',
+      image: 'https://picsum.photos/seed/gov-analysis/800/600',
       path: '/analyses/governor',
       metrics: ['Tracking Ativo', 'Foco Regional']
     }
@@ -53,9 +45,8 @@ export default function AnalysesHub() {
       title: 'Cenários do Senado',
       subtitle: 'CONGRESSO NACIONAL',
       description: 'Mapeamento de múltiplas vagas para o Senado. Alianças preferidas e cruzamento de "Segundo Voto" em tempo real.',
-      icon: Vote,
-      color: 'bg-emerald-600',
-      path: '#', // Em breve
+      image: 'https://picsum.photos/seed/senate-analysis/800/600',
+      path: '#',
       metrics: ['5 Cenários', 'Live Data']
     },
     {
@@ -63,9 +54,8 @@ export default function AnalysesHub() {
       title: 'Rankings Proporcionais',
       subtitle: 'CÂMARA & ASSEMBLEIA',
       description: 'Identificação de puxadores de voto e capilaridade de candidatos a Deputado Federal e Estadual por microrregião.',
-      icon: Users,
-      color: 'bg-blue-600',
-      path: '#', // Em breve
+      image: 'https://picsum.photos/seed/dep-analysis/800/600',
+      path: '#',
       metrics: ['Auditado', 'Micro-Regional']
     }
   ];
@@ -76,18 +66,17 @@ export default function AnalysesHub() {
       title: 'Radar Municipal',
       subtitle: '217 MUNICÍPIOS',
       description: 'Comparativo de aprovação de prefeitos, principais problemas locais e demandas de obras prioritárias por cidade.',
-      icon: Map,
-      color: 'bg-rose-600',
-      path: '#', // Em breve
+      image: 'https://picsum.photos/seed/mun-analysis/800/600',
+      path: '#',
       metrics: ['Cobertura 100%', 'Gargalos']
     }
   ];
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto space-y-16 py-8">
+      <div className="w-full space-y-16 py-8">
         {/* Header da Seção */}
-        <div className="space-y-4 max-w-3xl">
+        <div className="space-y-4 max-w-3xl px-4 lg:px-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-orange-50 text-orange-600">
               <BarChart3 size={20} />
@@ -183,7 +172,7 @@ export default function AnalysesHub() {
   );
 }
 
-function AnalysisCard({ title, subtitle, description, icon: Icon, color, path, metrics, delay }: any) {
+function AnalysisCard({ title, subtitle, description, image, path, metrics, delay }: any) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -191,50 +180,55 @@ function AnalysisCard({ title, subtitle, description, icon: Icon, color, path, m
       transition={{ delay }}
     >
       <Link href={path}>
-        <LuxuryCard className="h-full group cursor-pointer border-none shadow-[0_30px_60px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(234,88,12,0.12)] hover:-translate-y-2 transition-all duration-500 p-8 md:p-10">
-          <div className="flex flex-col h-full gap-6">
-            <div className="flex justify-between items-start">
-              <div className={cn(
-                "p-5 rounded-[2rem] text-white shadow-2xl transition-transform group-hover:scale-110 duration-500",
-                color
-              )}>
-                <Icon size={32} />
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Live Data</span>
+        <LuxuryCard className="h-full group cursor-pointer border-none shadow-[0_30px_60px_rgba(0,0,0,0.04)] hover:shadow-[0_40px_80px_rgba(234,88,12,0.12)] hover:-translate-y-2 transition-all duration-500 p-0 overflow-hidden">
+          <div className="flex flex-col lg:flex-row h-full">
+            <div className="relative w-full lg:w-2/5 min-h-[200px] lg:min-h-full overflow-hidden">
+              <Image 
+                src={image} 
+                alt={title} 
+                fill 
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                data-ai-hint="Government building"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 lg:to-transparent" />
+            </div>
+            
+            <div className="flex flex-col flex-1 p-8 md:p-10 gap-6">
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col items-start gap-1">
+                  <h4 className="text-[9px] font-black text-orange-600 uppercase tracking-[0.3em]">{subtitle}</h4>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Live Data</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              <div>
-                <h4 className="text-[9px] font-black text-orange-600 uppercase tracking-[0.3em] mb-1">{subtitle}</h4>
+              <div className="space-y-3">
                 <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-zinc-950 uppercase group-hover:text-orange-600 transition-colors">
                   {title}
                 </h2>
+                <p className="text-zinc-500 text-sm font-medium leading-relaxed line-clamp-3">
+                  {description}
+                </p>
               </div>
-              <p className="text-zinc-500 text-sm font-medium leading-relaxed">
-                {description}
-              </p>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-50">
-              {metrics.map((m: string, i: number) => (
-                <div key={i} className="space-y-1">
-                  <p className="text-[8px] font-black text-zinc-300 uppercase tracking-widest leading-none">{i === 0 ? 'Status' : 'Nível'}</p>
-                  <p className="text-[10px] font-black text-zinc-950 uppercase truncate">{m}</p>
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-50">
+                {metrics.map((m: string, i: number) => (
+                  <div key={i} className="space-y-1">
+                    <p className="text-[8px] font-black text-zinc-300 uppercase tracking-widest leading-none">{i === 0 ? 'Status' : 'Nível'}</p>
+                    <p className="text-[10px] font-black text-zinc-950 uppercase truncate">{m}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-auto pt-4 flex items-center justify-between">
+                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500 flex items-center gap-2">
+                  Acessar Deep Dive <ChevronRight size={14} />
+                </span>
+                <div className="w-10 h-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-all duration-500 shadow-sm">
+                  <ChevronRight size={18} />
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-auto pt-4 flex items-center justify-between">
-              <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500 flex items-center gap-2">
-                Acessar Deep Dive <ChevronRight size={14} />
-              </span>
-              <div className="w-10 h-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-300 group-hover:bg-zinc-950 group-hover:text-white group-hover:border-zinc-950 transition-all duration-500 shadow-sm">
-                <ChevronRight size={18} />
               </div>
             </div>
           </div>
