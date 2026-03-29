@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Map, AdvancedMarker, useMap, InfoWindow } from '@vis.gl/react-google-maps';
-import { Loader2, Layers, Users, Box, MapPin, Globe, Target, ShieldCheck, Tag, User2 } from 'lucide-react';
+import { Loader2, Layers, Users, Box, MapPin, Globe, Target, ShieldCheck } from 'lucide-react';
 import { LuxuryCard } from './luxury-card';
 import MUNICIP_GEOJSON from '@/data/MA_Municipios_2024 (1).json';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ interface InteractiveMapProps {
   onInterviewSelect?: (id: string) => void;
   selectedInterviews?: string[];
   activeCity?: string;
+  instanceId?: string; // ID único para evitar conflitos entre múltiplos mapas
 }
 
 const center = { lat: -5.1, lng: -45.1 };
@@ -26,9 +27,6 @@ const mapStyles = [
   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] }
 ];
 
-/**
- * Função de Extração de Dados GPS resiliente
- */
 const extractLatLng = (item: any) => {
   const latNum = item['_start-geopoint_latitude'];
   const lngNum = item['_start-geopoint_longitude'];
@@ -51,25 +49,24 @@ const extractLatLng = (item: any) => {
   return null;
 };
 
-/**
- * Sub-componente Interno para lógica da Data Layer e Estilização
- */
 const InteractiveMapContent = ({ 
   cityCounts, 
   maxCount, 
   setHoveredCity, 
   paintMode,
   viewMode,
-  activeCity
+  activeCity,
+  instanceId
 }: { 
   cityCounts: Record<string, number>, 
   maxCount: number,
   setHoveredCity: (n: string | null) => void, 
   paintMode: 'all' | 'responses',
   viewMode: 'municipal' | 'interviews',
-  activeCity?: string
+  activeCity?: string,
+  instanceId?: string
 }) => {
-  const map = useMap();
+  const map = useMap(instanceId);
 
   useEffect(() => {
     if (!map) return;
@@ -103,14 +100,12 @@ const InteractiveMapContent = ({
     };
   }, [map, setHoveredCity, viewMode]);
 
-  // Lógica de Zoom Automático para Município Ativo
   useEffect(() => {
     if (!map || !activeCity) {
       if (map && !activeCity) map.setZoom(7);
       return;
     }
 
-    let found = false;
     map.data.forEach((feature) => {
       const cityName = String(feature.getProperty('NM_MUN')).toUpperCase();
       if (cityName === activeCity.toUpperCase()) {
@@ -119,7 +114,6 @@ const InteractiveMapContent = ({
           bounds.extend(latlng);
         });
         map.fitBounds(bounds);
-        found = true;
       }
     });
   }, [map, activeCity]);
@@ -169,7 +163,14 @@ const InteractiveMapContent = ({
   return null;
 };
 
-export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selectedInterviews = [], activeCity }: InteractiveMapProps) => {
+export const InteractiveMap = ({ 
+  data, 
+  onCitySelect, 
+  onInterviewSelect, 
+  selectedInterviews = [], 
+  activeCity,
+  instanceId = "default-map"
+}: InteractiveMapProps) => {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'municipal' | 'interviews'>('municipal');
   const [paintMode, setPaintMode] = useState<'all' | 'responses'>('all');
@@ -213,9 +214,8 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
   }
 
   return (
-    <LuxuryCard className="relative p-0 overflow-hidden h-full">
+    <LuxuryCard className="relative p-0 overflow-hidden h-full min-h-[500px]">
       <div className="flex flex-col h-full">
-        {/* Header Controls */}
         <div className="p-6 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 border-b border-zinc-100 bg-white z-20">
           <div className="space-y-0.5">
             <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em] flex items-center gap-2">
@@ -282,9 +282,9 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
           </div>
         </div>
 
-        {/* Map Area */}
-        <div className="flex-1 relative bg-zinc-50">
+        <div className="flex-1 relative bg-zinc-50 min-h-[400px]">
           <Map
+            id={instanceId}
             defaultCenter={center}
             defaultZoom={7}
             mapId={is3D ? "496b3e09ad10e939" : "focco_analytics_dashboard"}
@@ -299,6 +299,7 @@ export const InteractiveMap = ({ data, onCitySelect, onInterviewSelect, selected
               paintMode={paintMode} 
               viewMode={viewMode}
               activeCity={activeCity}
+              instanceId={instanceId}
             />
 
             {viewMode === 'interviews' && points.map((p: any) => {

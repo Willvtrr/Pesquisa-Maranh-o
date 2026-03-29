@@ -692,6 +692,17 @@ export default function Home() {
               />
             </div>
 
+            <div className="w-full">
+              <InteractiveMap 
+                instanceId="dashboard-main-map"
+                data={filteredData}
+                activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
+                selectedInterviews={filters.interview_ids}
+                onInterviewSelect={handleInterviewSelect}
+                onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
+              />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <LuxuryCard className="h-full relative overflow-hidden group">
                 <div className="flex items-start justify-between mb-1">
@@ -931,16 +942,6 @@ export default function Home() {
               onFilterChange={(v) => handleFilterChange('senator_second_vote_spon', v)}
             />
           </div>
-        </div>
-
-        <div className="w-full">
-          <InteractiveMap 
-            data={filteredData}
-            activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
-            selectedInterviews={filters.interview_ids}
-            onInterviewSelect={handleInterviewSelect}
-            onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
-          />
         </div>
       </div>
 
@@ -1184,7 +1185,7 @@ export default function Home() {
                   </div>
                   <div className="h-[450px] rounded-[2.5rem] overflow-hidden border border-zinc-100 shadow-2xl relative">
                     <InteractiveMap 
-                      key={`modal-map-${detailModal.type}-${filters.city[0]}`}
+                      instanceId={`modal-map-${detailModal.type}`}
                       data={getFilteredData()} 
                       activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()} 
                     />
