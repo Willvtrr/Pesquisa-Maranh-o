@@ -30,7 +30,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Simulação de progresso de navegação para feeling nativo
   useEffect(() => {
     setIsNavigating(true);
     const timer = setTimeout(() => setIsNavigating(false), 600);
@@ -99,7 +98,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <div className="min-h-screen text-zinc-900 font-sans selection:bg-orange-100 selection:text-orange-900 relative pb-24 lg:pb-0 overflow-x-hidden">
       <div className="fixed inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:48px_48px] opacity-[0.4] pointer-events-none z-0" />
       
-      {/* Loading bar sutil ao navegar */}
       <AnimatePresence>
         {isNavigating && (
           <motion.div 
@@ -113,11 +111,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
       <header className="h-16 lg:h-[6rem] bg-white/90 backdrop-blur-xl border-b border-zinc-200/80 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-4 lg:gap-10">
-          <Link href="/" className="flex items-center cursor-pointer group">
+          <Link href="/" className="flex items-center gap-3 cursor-pointer group">
+            <div className="relative w-8 h-8 lg:w-10 lg:h-10">
+              <Image 
+                src="/ICON - VARIAÇÃO 3.svg" 
+                alt="Focco Analytics" 
+                fill
+                priority
+                className="object-contain transition-transform group-hover:scale-110"
+              />
+            </div>
             <div className="relative w-[8.75rem] h-[2.5rem] lg:w-[11.25rem] lg:h-[3.25rem]">
               <Image 
                 src="/LOGOTIPO 1 - VARIAÇÃO 3.svg" 
-                alt="Focco Analytics" 
+                alt="Focco Analytics Logo" 
                 fill
                 priority
                 className="object-contain"
@@ -227,7 +234,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <footer className="mt-12 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 border-t border-zinc-200 flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 pb-10">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-7 h-7 sm:size-8 rounded-lg inner-relief flex items-center justify-center text-zinc-400">
-              <Cpu size={12} className="sm:size-[14px]" />
+              <Image src="/ICON - VARIAÇÃO 3.svg" alt="Focco Icon" width={14} height={14} className="opacity-40 grayscale" />
             </div>
             <div className="text-[8px] sm:text-[10px] font-black text-zinc-400 uppercase tracking-widest text-center lg:text-left">
               © 2026 FOCCO ANALYTICS • V3.5-LXS

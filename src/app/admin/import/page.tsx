@@ -7,7 +7,7 @@ import { BentoCard } from '@/components/dashboard/bento-card';
 import { useFirestore, useAuth, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc, serverTimestamp, query, limit, orderBy, getCountFromServer, getDocs } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
-import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, ChevronLeft, ChevronRight, Trash2, AlertTriangle, ListOrdered, Tag, Eye, Maximize2 } from 'lucide-react';
+import { FileJson, CheckCircle2, Loader2, Info, Activity, Database, Search, Trash2, Tag, Eye, ListOrdered } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { FoccoLoader } from '@/components/ui/focco-loader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -316,7 +317,7 @@ export default function ImportPage() {
                 />
                 
                 <div className={`p-6 rounded-full ${status === 'success' ? 'bg-emerald-500' : 'premium-gradient'} text-white shadow-2xl`}>
-                  {status === 'parsing' ? <Loader2 className="animate-spin size-8" /> : 
+                  {status === 'parsing' ? <FoccoLoader size="sm" /> : 
                    status === 'clearing' ? <Trash2 className="animate-pulse size-8" /> : 
                    <FileJson size={32} />}
                 </div>
@@ -455,10 +456,7 @@ export default function ImportPage() {
                     {isTableLoading ? (
                       <TableRow>
                         <TableCell colSpan={dynamicColumns.length || 5} className="h-64 text-center">
-                          <div className="flex flex-col items-center gap-4">
-                            <Loader2 className="animate-spin text-orange-600 size-8" />
-                            <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Sincronizando Auditoria...</span>
-                          </div>
+                          <FoccoLoader label="Sincronizando Auditoria..." />
                         </TableCell>
                       </TableRow>
                     ) : recentResponses?.length === 0 ? (

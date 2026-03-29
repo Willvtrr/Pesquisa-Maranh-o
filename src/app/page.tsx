@@ -14,9 +14,9 @@ import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-ch
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { RankingCard } from '@/components/dashboard/ranking-card';
 import { 
-  Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, 
+  Database, RefreshCw, MapPin, FileText, Map as MapIcon, 
   ClipboardCheck, Loader2, Check, TrendingUp, ShieldAlert, 
-  ChevronRight, Search, User2, Tag, Zap, Heart, Wallet, ShieldCheck 
+  ChevronRight, Search, Tag, Zap, Heart, Wallet, ShieldCheck 
 } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
@@ -32,6 +32,7 @@ import { TOP_61_CITIES, CITY_MAYORS } from '@/lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { FoccoLoader } from '@/components/ui/focco-loader';
 
 const PARTY_MAP: Record<string, string> = {
   'Lula': 'PT',
@@ -323,8 +324,8 @@ export default function Home() {
       rejectionData: processRanking(activeKeys.PRESIDENT_REJECTION, 'president_rejection'),
       govRejectionData: processRanking(activeKeys.GOV_REJECTION, 'gov_rejection'),
       secondRoundData: processRanking(activeKeys.PRESIDENT_SECOND_ROUND, 'president_second_round'),
-      deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'deputy_federal'),
-      deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'deputy_estadual'),
+      deputyFederalData: processRanking(activeKeys.DEPUTY_FEDERAL_VOTE, 'president_vote'),
+      deputyEstadualData: processRanking(activeKeys.DEPUTY_ESTADUAL_VOTE, 'president_vote'),
       senatorSpontaneousData: processRanking(activeKeys.SENATOR_VOTE_SPONTANEOUS, 'senator_spontaneous'),
       problemsData: processRanking(activeKeys.PROBLEMS, ''),
       worksData: processRanking(activeKeys.WORKS, ''),
@@ -442,8 +443,7 @@ export default function Home() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[25rem] gap-4">
-          <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Sincronizando Banco de Dados...</p>
+          <FoccoLoader size="lg" label="Iniciando Inteligência Focco..." />
         </div>
       </AppLayout>
     );
@@ -521,17 +521,24 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              <div className="mb-4">
-                <p className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Base de Inteligência</p>
-                <h3 className="text-sm font-black text-white">Banco de Dados</h3>
-                <motion.p 
-                  key={totalDatabaseCount}
-                  initial={{ opacity: 0.5 }}
-                  animate={{ opacity: 1 }}
-                  className="text-[8px] font-medium text-zinc-400"
-                >
-                  <span className="text-orange-500 font-black">{totalDatabaseCount.toLocaleString('pt-BR')}</span> Registros na Nuvem
-                </motion.p>
+              <div className="mb-4 flex gap-3 items-start">
+                <div className="flex-1">
+                  <p className="text-[7px] font-black tracking-[0.2em] text-zinc-500 uppercase mb-0.5">Base de Inteligência</p>
+                  <h3 className="text-sm font-black text-white">Banco de Dados</h3>
+                  <motion.p 
+                    key={totalDatabaseCount}
+                    initial={{ opacity: 0.5 }}
+                    animate={{ opacity: 1 }}
+                    className="text-[8px] font-medium text-zinc-400"
+                  >
+                    <span className="text-orange-500 font-black">{totalDatabaseCount.toLocaleString('pt-BR')}</span> Registros na Nuvem
+                  </motion.p>
+                </div>
+                {isSyncing && (
+                  <div className="w-6 h-6 relative">
+                    <Image src="/ICON - VARIAÇÃO 3.svg" alt="Focco Icon" fill className="animate-spin duration-[3s]" />
+                  </div>
+                )}
               </div>
               <div className="bg-zinc-900/40 rounded-xl p-2 h-[2.8125rem] overflow-y-auto mb-4 log-scroll border border-zinc-800/40 relative">
                 <ul className="space-y-1 text-[6px] font-mono">
@@ -1106,7 +1113,7 @@ export default function Home() {
                   
                   <motion.div 
                     initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={{ 1: 0, y: 0 }}
                     className="space-y-8"
                   >
                     <div className="flex items-center gap-3">
@@ -1150,7 +1157,7 @@ export default function Home() {
                     
                     <div className="grid grid-cols-2 gap-4">
                       {[
-                        { label: 'Adesão Jovem', value: 72, trend: 'Alta', icon: Users },
+                        { label: 'Adesão Jovem', value: 72, trend: 'Alta', icon: Image },
                         { label: 'Base Feminina', value: 64, trend: 'Estável', icon: Heart },
                         { label: 'Impacto Social', value: 58, trend: '+2.1%', icon: Wallet },
                         { label: 'Fidelidade', value: 89, trend: 'Forte', icon: ShieldCheck },
@@ -1160,7 +1167,11 @@ export default function Home() {
                         <div key={idx} className="bg-zinc-950 p-4 rounded-[2rem] border border-zinc-800 flex flex-col gap-3 group hover:border-orange-500/30 transition-all shadow-xl">
                           <div className="flex justify-between items-center">
                             <div className="p-2 rounded-xl bg-zinc-900 text-orange-500 group-hover:scale-110 transition-transform">
-                              <metric.icon size={14} />
+                              {metric.icon === Image ? (
+                                <Image src="/ICON - VARIAÇÃO 3.svg" alt="Focco Icon" width={14} height={14} />
+                              ) : (
+                                <metric.icon size={14} />
+                              )}
                             </div>
                             <Badge variant="outline" className="text-[7px] border-zinc-800 text-zinc-500 font-black px-1.5 py-0">
                               {metric.trend}

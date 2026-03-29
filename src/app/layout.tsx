@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   title: 'Focco Analytics | Inteligência de Dados',
   description: 'Painel executivo de alta performance para análise de dados estratégicos e pesquisas de opinião.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/ICON - VARIAÇÃO 3.svg',
+    shortcut: '/ICON - VARIAÇÃO 3.svg',
+    apple: '/ICON - VARIAÇÃO 3.svg',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -40,7 +45,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} ${jetbrains.variable}`}>
       <head>
-        <link rel="apple-touch-icon" href="https://picsum.photos/seed/focco-pwa-192/192/192" />
+        <link rel="icon" href="/ICON - VARIAÇÃO 3.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/ICON - VARIAÇÃO 3.svg" />
       </head>
       <body className="font-sans min-h-screen">
         <PWARegister />
