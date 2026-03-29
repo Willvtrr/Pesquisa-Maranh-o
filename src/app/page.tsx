@@ -1026,31 +1026,28 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SUPER APP DRILL DOWN MODAL - V2 ULTIMATE */}
+      {/* SUPER APP DRILL DOWN MODAL - V3 MINIMALIST */}
       <Dialog open={detailModal.open} onOpenChange={(open) => setDetailModal(prev => ({ ...prev, open }))}>
-        <DialogContent className="max-w-[95vw] w-[1400px] h-[90vh] flex flex-col p-0 overflow-hidden bg-white/98 backdrop-blur-3xl rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)]">
+        <DialogContent className="max-w-[95vw] w-[1400px] h-[90vh] flex flex-col p-0 overflow-hidden bg-white/98 backdrop-blur-3xl rounded-[2.5rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)]">
           
-          {/* Header Executivo */}
-          <div className="p-8 pb-6 border-b border-zinc-100 flex items-center justify-between bg-gradient-to-r from-zinc-50 to-white">
-            <div className="flex items-center gap-6">
-              <div className="p-4 rounded-[1.5rem] bg-orange-600 text-white shadow-xl shadow-orange-600/20">
-                <BarChart3 size={32} strokeWidth={2.5} />
-              </div>
-              <div>
-                <DialogTitle className="text-4xl font-black tracking-tighter text-zinc-950 uppercase leading-none">
-                  {detailModal.type === 'president' ? 'Hub de Inteligência Presidencial' : 
-                   detailModal.type === 'governor' ? 'Monitoramento Estratégico Estadual' : 'Radar de Performance Municipal'}
+          {/* Header Executivo Minimalista */}
+          <div className="p-10 pb-6 border-b border-zinc-100 flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <div className="flex flex-col">
+                <DialogTitle className="text-3xl font-black tracking-tighter text-zinc-950 uppercase leading-none">
+                  {detailModal.type === 'president' ? 'Dashboard Presidencial' : 
+                   detailModal.type === 'governor' ? 'Análise Estadual' : 'Radar Municipal'}
                 </DialogTitle>
-                <DialogDescription className="text-zinc-500 font-bold mt-2 text-lg tracking-tight">
-                  Exploração granular de dados cruzados por malha municipal e perfis de influência.
+                <DialogDescription className="text-zinc-400 font-bold mt-2 text-base tracking-tight">
+                  Exploração granular de dados cruzados e perfis de influência.
                 </DialogDescription>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Base Sincronizada</span>
-                <span className="text-sm font-black text-emerald-600 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 100% OPERACIONAL
+                <span className="text-[9px] font-black text-zinc-300 uppercase tracking-[0.3em]">Status da Base</span>
+                <span className="text-xs font-black text-emerald-500 flex items-center gap-1.5 mt-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Sincronizado
                 </span>
               </div>
             </div>
@@ -1058,194 +1055,139 @@ export default function Home() {
 
           <div className="flex-1 flex overflow-hidden">
             
-            {/* Sidebar de Cidades Premium */}
-            <div className="w-[380px] bg-zinc-50/80 border-r border-zinc-100 flex flex-col overflow-hidden">
+            {/* Sidebar de Cidades Ultra-Minimalista */}
+            <div className="w-[340px] bg-zinc-50/50 border-r border-zinc-100 flex flex-col overflow-hidden">
               <div className="p-8 space-y-6">
-                <div>
-                  <h4 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-4">Base Territorial (61)</h4>
-                  <div className="relative group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 size-5 group-focus-within:text-orange-500 transition-colors" />
-                    <input 
-                      placeholder="Pesquisar município..." 
-                      value={citySearch}
-                      onChange={(e) => setCitySearch(e.target.value)}
-                      className="w-full bg-white border border-zinc-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-black outline-none shadow-sm focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all placeholder:text-zinc-300" 
-                    />
-                  </div>
+                <div className="relative group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300 size-4 group-focus-within:text-zinc-950 transition-colors" />
+                  <input 
+                    placeholder="Pesquisar..." 
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 rounded-xl pl-10 pr-4 py-3 text-xs font-bold outline-none shadow-sm focus:border-zinc-950 transition-all placeholder:text-zinc-300" 
+                  />
                 </div>
               </div>
 
               <ScrollArea className="flex-1 px-6 pb-8">
-                <div className="space-y-2 pr-2">
+                <div className="space-y-1 pr-2">
                   {filteredCitiesList.map((city) => {
                     const isActive = filters.city.includes(city);
                     const amCount = cityAms[city] || 0;
                     
                     return (
-                      <motion.button 
+                      <button 
                         key={city}
-                        whileHover={{ x: 4 }}
                         onClick={() => handleFilterChange('city', city)}
                         className={cn(
-                          "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group",
+                          "w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-200",
                           isActive 
-                            ? "bg-zinc-950 text-white shadow-2xl shadow-zinc-950/20 translate-x-2" 
-                            : "bg-white border border-zinc-100 text-zinc-600 hover:bg-zinc-100 hover:border-zinc-200"
+                            ? "bg-zinc-950 text-white shadow-lg translate-x-1" 
+                            : "text-zinc-500 hover:bg-white hover:text-zinc-950"
                         )}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "w-2 h-2 rounded-full transition-all",
-                            isActive ? "bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]" : "bg-zinc-200"
-                          )} />
-                          <span className="font-black text-[11px] uppercase tracking-tight">{city}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={cn(
-                            "text-[9px] font-black tabular-nums px-2 py-1 rounded-lg",
-                            isActive ? "bg-zinc-800 text-zinc-400" : "bg-zinc-50 text-zinc-400 group-hover:bg-zinc-200"
-                          )}>
-                            {amCount} AM
-                          </span>
-                          {isActive && <ChevronRight size={14} className="text-orange-500" />}
-                        </div>
-                      </motion.button>
+                        <span className="font-black text-[10px] uppercase tracking-tight">{city}</span>
+                        <span className={cn(
+                          "text-[8px] font-bold tabular-nums px-2 py-0.5 rounded-lg",
+                          isActive ? "text-zinc-500 bg-zinc-900" : "text-zinc-300"
+                        )}>
+                          {amCount}
+                        </span>
+                      </button>
                     );
                   })}
                 </div>
               </ScrollArea>
             </div>
 
-            {/* Conteúdo Central Analytics */}
+            {/* Conteúdo Central Analytics Minimalista */}
             <ScrollArea className="flex-1 bg-white">
-              <div className="p-12 space-y-12 max-w-5xl mx-auto">
+              <div className="p-12 space-y-16 max-w-5xl mx-auto">
                 
-                {/* Top Insights Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                   
-                  {/* Briefing Executivo Card */}
+                  {/* Briefing de Inteligência Minimalista */}
                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-10 rounded-[3rem] bg-zinc-950 text-white border border-zinc-800 shadow-2xl relative overflow-hidden group"
+                    className="space-y-8"
                   >
-                    <div className="relative z-10 space-y-8">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-xl bg-orange-500/20 text-orange-500 border border-orange-500/20">
-                            <ShieldAlert size={20} />
-                          </div>
-                          <h4 className="text-[11px] font-black text-orange-500 uppercase tracking-[0.4em]">Briefing de Inteligência</h4>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-5 bg-zinc-950 rounded-full" />
+                      <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Briefing de Inteligência</h4>
+                    </div>
+
+                    <p className="text-3xl font-black leading-tight tracking-tighter text-zinc-950">
+                      A aprovação demonstra uma <span className="text-orange-600">resiliência estratégica</span> nos grandes centros, impulsionada por percepção de entrega.
+                    </p>
+
+                    <div className="grid grid-cols-1 gap-10 pt-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-emerald-600">
+                          <TrendingUp size={16} />
+                          <span className="text-[10px] font-black uppercase tracking-wider">Oportunidade</span>
                         </div>
-                        <Badge variant="outline" className="border-orange-500/30 text-orange-400 bg-orange-500/5 font-black text-[9px] uppercase tracking-widest">Altíssima Fidelidade</Badge>
+                        <p className="text-sm text-zinc-500 font-bold leading-relaxed">Expansão detectada de 4.2% em áreas de influência direta nos últimos 15 dias.</p>
                       </div>
-
-                      <p className="text-2xl font-medium leading-relaxed tracking-tight text-zinc-200 italic font-serif">
-                        "A aprovação de {detailModal.type === 'president' ? 'Lula' : 'Brandão'} demonstra uma <span className="text-orange-500 font-black underline underline-offset-8 decoration-orange-500/30">resiliência atípica</span> nos grandes centros urbanos, impulsionada por uma percepção de entrega em infraestrutura e segurança pública."
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-5 rounded-[1.5rem] bg-zinc-900 border border-zinc-800 flex flex-col gap-2">
-                          <div className="flex items-center gap-2 text-emerald-400">
-                            <TrendingUp size={18} />
-                            <span className="text-[10px] font-black uppercase">Oportunidade</span>
-                          </div>
-                          <p className="text-xs text-zinc-400 font-bold leading-snug">Expansão de 4.2% em áreas de influência direta.</p>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-rose-600">
+                          <TrendingDown size={16} />
+                          <span className="text-[10px] font-black uppercase tracking-wider">Risco Crítico</span>
                         </div>
-                        <div className="p-5 rounded-[1.5rem] bg-zinc-900 border border-zinc-800 flex flex-col gap-2">
-                          <div className="flex items-center gap-2 text-rose-400">
-                            <TrendingDown size={18} />
-                            <span className="text-[10px] font-black uppercase">Risco Crítico</span>
-                          </div>
-                          <p className="text-xs text-zinc-400 font-bold leading-snug">Sinal de alerta na Mesorregião Sul (Balsas).</p>
-                        </div>
+                        <p className="text-sm text-zinc-500 font-bold leading-relaxed">Sinal de alerta na Mesorregião Sul, onde a rejeição rompeu o teto histórico.</p>
                       </div>
                     </div>
-                    {/* Elemento Visual de Fundo */}
-                    <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-orange-600/10 blur-[100px] rounded-full pointer-events-none group-hover:bg-orange-600/20 transition-colors duration-700" />
                   </motion.div>
 
-                  {/* Métricas de Impacto Visual */}
-                  <div className="space-y-6">
-                    <h4 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-3">
-                      <span className="w-8 h-px bg-zinc-200" /> Métricas de Desempenho
-                    </h4>
-                    <div className="grid grid-cols-1 gap-4">
+                  {/* Métricas de Desempenho Minimalistas */}
+                  <div className="space-y-8">
+                    <h4 className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.3em]">Métricas de Desempenho</h4>
+                    <div className="space-y-8">
                       {[
-                        { label: 'Adesão Jovem (16-24)', value: 72, icon: <Users size={16} />, color: 'bg-orange-600' },
-                        { label: 'Conversão Feminina', value: 64, icon: <ShieldCheck size={16} />, color: 'bg-emerald-600' },
-                        { label: 'Impacto Baixa Renda', value: 58, icon: <Target size={16} />, color: 'bg-zinc-950' },
-                        { label: 'Fidelidade Interior', value: 49, icon: <MapPin size={16} />, color: 'bg-zinc-400' },
+                        { label: 'Adesão Jovem', value: 72, color: 'bg-zinc-950' },
+                        { label: 'Conversão Feminina', value: 64, color: 'bg-orange-600' },
+                        { label: 'Impacto Baixa Renda', value: 58, color: 'bg-zinc-400' },
                       ].map((metric, i) => (
-                        <motion.div 
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                          key={metric.label} 
-                          className="p-6 rounded-[2rem] bg-zinc-50 border border-zinc-100 flex items-center gap-6 group hover:bg-white hover:shadow-xl hover:border-zinc-200 transition-all duration-500"
-                        >
-                          <div className="p-4 rounded-2xl bg-white shadow-sm text-zinc-400 group-hover:text-orange-600 group-hover:scale-110 transition-all">
-                            {metric.icon}
+                        <div key={metric.label} className="space-y-3">
+                          <div className="flex justify-between items-end">
+                            <span className="text-[10px] font-black text-zinc-950 uppercase tracking-wider">{metric.label}</span>
+                            <span className="text-lg font-black text-zinc-950">{metric.value}%</span>
                           </div>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex justify-between items-end">
-                              <span className="text-[11px] font-black text-zinc-950 uppercase tracking-tight">{metric.label}</span>
-                              <span className="text-lg font-black text-zinc-950">{metric.value}%</span>
-                            </div>
-                            <div className="h-2 w-full bg-zinc-200/50 rounded-full overflow-hidden">
-                              <motion.div 
-                                initial={{ width: 0 }} 
-                                animate={{ width: `${metric.value}%` }} 
-                                transition={{ duration: 1.5, ease: "circOut" }}
-                                className={cn("h-full rounded-full shadow-sm", metric.color)} 
-                              />
-                            </div>
+                          <div className="h-1 w-full bg-zinc-100 rounded-full overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }} 
+                              animate={{ width: `${metric.value}%` }} 
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className={cn("h-full rounded-full", metric.color)} 
+                            />
                           </div>
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Mapa de Calor Local */}
-                <div className="space-y-6">
-                  <h4 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em] flex items-center gap-3">
-                    <span className="w-8 h-px bg-zinc-200" /> Radar Geoestatístico Municipal
-                  </h4>
-                  <div className="h-[500px] rounded-[3rem] overflow-hidden border border-zinc-100 shadow-2xl relative group">
+                {/* Mapa Minimalista */}
+                <div className="space-y-8">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-zinc-950 rounded-full" />
+                    <h4 className="text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Radar Geoestatístico</h4>
+                  </div>
+                  <div className="h-[450px] rounded-[2rem] overflow-hidden border border-zinc-100 shadow-sm relative">
                     <InteractiveMap 
                       data={getFilteredData()} 
                       activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()} 
                     />
-                    <div className="absolute top-6 left-6 z-10 p-4 bg-white/80 backdrop-blur-xl border border-white rounded-2xl shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-[10px] font-black text-zinc-950 uppercase">Legenda de Calor</p>
-                      <div className="mt-2 h-1.5 w-32 bg-gradient-to-r from-orange-100 to-orange-600 rounded-full" />
-                      <div className="flex justify-between mt-1 text-[8px] font-black text-zinc-400">
-                        <span>BAIXO</span>
-                        <span>MÁXIMO</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
-                {/* Footer contextual - Call to Action */}
-                <div className="p-10 rounded-[3rem] bg-gradient-to-br from-zinc-900 to-zinc-950 text-white flex flex-col md:flex-row items-center justify-between gap-8 border border-zinc-800 shadow-2xl shadow-zinc-950/40 overflow-hidden relative group">
-                  <div className="relative z-10 flex items-center gap-6">
-                    <div className="p-5 rounded-[1.5rem] bg-white/10 backdrop-blur-xl border border-white/10 text-orange-500 scale-110">
-                      <Target size={32} />
-                    </div>
-                    <div>
-                      <h4 className="text-2xl font-black tracking-tighter uppercase leading-none">Visão Analítica Completa</h4>
-                      <p className="text-zinc-400 font-bold mt-2 text-sm">Explore cruzamentos demográficos, rejeição e cenários estimulados.</p>
-                    </div>
-                  </div>
-                  <Link href={detailModal.type === 'president' ? '/analyses/presidential' : '/analyses/governor'} passHref className="relative z-10">
-                    <Button className="h-16 px-12 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-black uppercase tracking-widest text-xs shadow-2xl shadow-orange-600/20 hover:scale-105 transition-all group/btn border-none">
-                      Acessar Painel Master <ChevronRight size={20} className="ml-3 group-hover/btn:translate-x-1 transition-transform" />
+                {/* Botão de Ação Minimalista */}
+                <div className="pt-8 flex justify-center">
+                  <Link href={detailModal.type === 'president' ? '/analyses/presidential' : '/analyses/governor'} passHref>
+                    <Button variant="outline" className="h-14 px-12 rounded-full border-zinc-200 text-zinc-950 font-black uppercase tracking-widest text-[10px] hover:bg-zinc-950 hover:text-white transition-all">
+                      Acessar Análise Completa <ChevronRight size={16} className="ml-2" />
                     </Button>
                   </Link>
-                  {/* Background decoration */}
-                  <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_50%,rgba(249,115,22,0.1),transparent)] pointer-events-none" />
                 </div>
               </div>
             </ScrollArea>
