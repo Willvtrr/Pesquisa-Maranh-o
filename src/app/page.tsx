@@ -14,7 +14,7 @@ import { VictoryPerceptionCard } from '@/components/dashboard/victory-perception
 import { SpontaneousVoteChart } from '@/components/dashboard/spontaneous-vote-chart';
 import { GovernorRejectionChart } from '@/components/dashboard/governor-rejection-chart';
 import { RankingCard } from '@/components/dashboard/ranking-card';
-import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target, ChevronRight, BarChart3, Info, TrendingDown, Search, ShieldCheck, User2 } from 'lucide-react';
+import { Database, RefreshCw, MapPin, Users, FileText, Map as MapIcon, ClipboardCheck, Loader2, Check, TrendingUp, MessageSquare, ArrowDownRight, AlertTriangle, X, ShieldAlert, Vote, Target, ChevronRight, BarChart3, Info, TrendingDown, Search, ShieldCheck, User2, Map as MapIconLucide } from 'lucide-react';
 import { LuxuryCard } from '@/components/dashboard/luxury-card';
 import { useSurvey } from '@/hooks/use-survey';
 import { toast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -1032,7 +1032,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SUPER APP DRILL DOWN MODAL - V5 ULTIMATE ORANGE */}
+      {/* SUPER APP DRILL DOWN MODAL - V6 INDEPENDENT MAPS */}
       <Dialog open={detailModal.open} onOpenChange={(open) => setDetailModal(prev => ({ ...prev, open }))}>
         <DialogContent className="max-w-[98vw] w-[1600px] h-[95vh] flex flex-col p-0 overflow-hidden bg-white rounded-[3rem] border-none shadow-[0_100px_200px_-20px_rgba(0,0,0,0.2)]">
           
@@ -1268,7 +1268,9 @@ export default function Home() {
                     )}
                   </div>
                   <div className="h-[600px] rounded-[3.5rem] overflow-hidden border-8 border-zinc-50 shadow-2xl relative">
+                    {/* KEY INDEPENDENTE PARA CADA MODAL - FORÇA NOVA INSTÂNCIA DO MAPA */}
                     <InteractiveMap 
+                      key={`modal-map-${detailModal.type}-${filters.city[0]}`}
                       data={getFilteredData()} 
                       activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()} 
                     />
