@@ -658,7 +658,13 @@ export default function Home() {
               />
               <StatCard 
                 title="APROVAÇÃO DE GESTÃO" 
-                subtitle={CITY_MAYORS[filters.city?.[0]?.toUpperCase()]?.name || "Prefeito(a)"} 
+                subtitle={(() => {
+                  const cityKey = filters.city?.[0]?.toUpperCase();
+                  const mayor = cityKey ? CITY_MAYORS[cityKey] : null;
+                  if (!mayor) return "Prefeito(a)";
+                  const prefix = mayor.gender === 'F' ? 'Prefeita ' : 'Prefeito ';
+                  return `${prefix}${mayor.name}`;
+                })()} 
                 value={statsPrefeito.aprova} 
                 imageUrl="/bandeiracerta.jpg" 
                 subValue="MUNICIPAL" 
@@ -835,7 +841,7 @@ export default function Home() {
                 badge="ESPONTÂNEA"
                 showPhotos={true}
                 selected={filters.senator_spontaneous}
-                onFilterChange={(v) => handleFilterChange('senador_spontaneous', v)}
+                onFilterChange={(v) => handleFilterChange('senator_spontaneous', v)}
               />
             </div>
 
@@ -1046,7 +1052,13 @@ export default function Home() {
                       </h4>
                       <h2 className="text-4xl font-black tracking-tighter text-zinc-950 leading-tight">
                         {detailModal.type === 'president' ? 'Aprovação do Governo Lula' : 
-                         detailModal.type === 'governor' ? 'Aprovação do Governo Brandão' : 'Gestão Municipal'}
+                         detailModal.type === 'governor' ? 'Aprovação do Governo Brandão' : 
+                         (() => {
+                           const cityKey = filters.city?.[0]?.toUpperCase();
+                           const mayor = cityKey ? CITY_MAYORS[cityKey] : null;
+                           if (!mayor) return 'Gestão Municipal';
+                           return `Aprovação: ${mayor.gender === 'F' ? 'Prefeita' : 'Prefeito'} ${mayor.name}`;
+                         })()}
                       </h2>
                       <div className="mt-3 text-[11px] text-zinc-400 font-bold leading-relaxed italic border-l-2 border-orange-500 pl-4">
                         "{activeKeys[detailModal.type === 'president' ? 'PRESIDENT_APPROVAL' : detailModal.type === 'governor' ? 'GOV_APPROVAL' : 'MAYOR_APPROVAL']}"
