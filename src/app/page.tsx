@@ -1052,14 +1052,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-8 pr-8">
               <div className="flex flex-col items-end">
                 <span className="text-[10px] font-black text-zinc-300 uppercase tracking-[0.4em]">Sincronização</span>
                 <Badge variant="outline" className="border-emerald-200 text-emerald-600 font-black mt-1 px-4 py-1">Tempo Real</Badge>
               </div>
-              <button onClick={() => setDetailModal(prev => ({ ...prev, open: false }))} className="p-3 rounded-full hover:bg-zinc-100 transition-colors">
-                <X size={24} className="text-zinc-400" />
-              </button>
             </div>
           </div>
 
