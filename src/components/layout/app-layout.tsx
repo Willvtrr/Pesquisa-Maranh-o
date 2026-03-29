@@ -71,7 +71,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
     if (result.type === 'city') {
       params.set('city', result.name);
       router.push(`/?${params.toString()}`);
