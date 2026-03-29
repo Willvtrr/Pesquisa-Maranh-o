@@ -25,6 +25,7 @@ export default function AnalysesHub() {
       subtitle: 'PLANALTO CENTRAL',
       description: 'Inteligência completa sobre a sucessão presidencial em solo maranhense. Cruzamento de intenção de voto, rejeição e tendências por mesorregião.',
       image: 'https://picsum.photos/seed/pres-analysis/800/600',
+      hint: 'President Lula',
       path: '/analyses/presidential',
       metrics: ['Margem: 2.2%', 'Confiança: 95%']
     },
@@ -34,6 +35,7 @@ export default function AnalysesHub() {
       subtitle: 'PALÁCIO DOS LEÕES',
       description: 'Monitoramento tático da disputa estadual. Análise de cenários estimulados, percepção de vitória e avaliação do impacto das obras governamentais.',
       image: 'https://picsum.photos/seed/gov-analysis/800/600',
+      hint: 'Governor Brandao',
       path: '/analyses/governor',
       metrics: ['Tracking Ativo', 'Foco Regional']
     }
@@ -46,6 +48,7 @@ export default function AnalysesHub() {
       subtitle: 'CONGRESSO NACIONAL',
       description: 'Mapeamento de múltiplas vagas para o Senado. Alianças preferidas e cruzamento de "Segundo Voto" em tempo real.',
       image: 'https://picsum.photos/seed/senate-analysis/800/600',
+      hint: 'Senate Chamber',
       path: '#',
       metrics: ['5 Cenários', 'Live Data']
     },
@@ -55,6 +58,7 @@ export default function AnalysesHub() {
       subtitle: 'CÂMARA & ASSEMBLEIA',
       description: 'Identificação de puxadores de voto e capilaridade de candidatos a Deputado Federal e Estadual por microrregião.',
       image: 'https://picsum.photos/seed/dep-analysis/800/600',
+      hint: 'Auditorium Assembly',
       path: '#',
       metrics: ['Auditado', 'Micro-Regional']
     }
@@ -67,6 +71,7 @@ export default function AnalysesHub() {
       subtitle: '217 MUNICÍPIOS',
       description: 'Comparativo de aprovação de prefeitos, principais problemas locais e demandas de obras prioritárias por cidade.',
       image: 'https://picsum.photos/seed/mun-analysis/800/600',
+      hint: 'City Aerial',
       path: '#',
       metrics: ['Cobertura 100%', 'Gargalos']
     }
@@ -172,7 +177,7 @@ export default function AnalysesHub() {
   );
 }
 
-function AnalysisCard({ title, subtitle, description, image, path, metrics, delay }: any) {
+function AnalysisCard({ title, subtitle, description, image, hint, path, metrics, delay }: any) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -188,7 +193,7 @@ function AnalysisCard({ title, subtitle, description, image, path, metrics, dela
                 alt={title} 
                 fill 
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
-                data-ai-hint="Government building"
+                data-ai-hint={hint}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 lg:to-transparent" />
             </div>

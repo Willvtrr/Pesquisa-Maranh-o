@@ -23,13 +23,13 @@
       "id": "presidential-analysis",
       "description": "Cenário Presidencial",
       "imageUrl": "https://picsum.photos/seed/pres-analysis/800/600",
-      "imageHint": "Government Building"
+      "imageHint": "President Lula"
     },
     {
       "id": "governor-analysis",
       "description": "Cenário Estadual",
       "imageUrl": "https://picsum.photos/seed/gov-analysis/800/600",
-      "imageHint": "Palace Interior"
+      "imageHint": "Governor Brandao"
     },
     {
       "id": "senate-analysis",
