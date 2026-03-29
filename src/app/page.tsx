@@ -885,17 +885,6 @@ export default function Home() {
                 color="green" 
               />
             </div>
-
-            <div className="w-full">
-              <InteractiveMap 
-                instanceId="dashboard-main-map"
-                data={filteredData}
-                activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
-                selectedInterviews={filters.interview_ids}
-                onInterviewSelect={handleInterviewSelect}
-                onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
-              />
-            </div>
           </div>
           
           <div className="xl:col-span-1 h-fit space-y-6">
@@ -932,6 +921,17 @@ export default function Home() {
               showPhotos={true}
               selected={filters.senator_second_vote_spon}
               onFilterChange={(v) => handleFilterChange('senator_second_vote_spon', v)}
+            />
+          </div>
+
+          <div className="xl:col-span-4 w-full">
+            <InteractiveMap 
+              instanceId="dashboard-main-map"
+              data={filteredData}
+              activeCity={filters.city[0] === 'all' ? '' : filters.city[0].toUpperCase()}
+              selectedInterviews={filters.interview_ids}
+              onInterviewSelect={handleInterviewSelect}
+              onCitySelect={(cityName) => handleFilterChange('city', cityName || 'all')} 
             />
           </div>
         </div>
