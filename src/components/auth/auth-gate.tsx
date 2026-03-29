@@ -126,9 +126,9 @@ export const AuthGate = ({ children }: AuthGateProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-[520px] z-10 flex flex-col items-center text-center"
+        className="w-full max-w-[800px] z-10 flex flex-col items-center text-center px-4"
       >
-        {/* Logo Monumental - Cor Tradicional */}
+        {/* Logo Monumental - Cor Tradicional Restaurada */}
         <div className="mb-10">
           <div className="relative w-48 h-16 md:w-64 md:h-20 transition-all duration-500">
             <Image 
@@ -157,9 +157,10 @@ export const AuthGate = ({ children }: AuthGateProps) => {
           Seu App de Monitoramento Eleitoral de Precisão
         </span>
 
-        {/* Título Principal */}
-        <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-[0.9] text-zinc-950 mb-12 uppercase">
-          <span className="text-orange-600 block">Mapeamento de Votos</span>
+        {/* Título Principal - Ajustado para Linha Única */}
+        <h1 className="text-4xl md:text-7xl font-black tracking-tighter leading-[0.9] text-zinc-950 mb-12 uppercase">
+          <span className="text-orange-600 block whitespace-nowrap">MAPEAMENTO DE VOTOS</span>
+          <span className="block mt-2">MARANHÃO</span>
         </h1>
 
         {/* Copy Comercial */}
@@ -168,7 +169,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
         </p>
 
         {/* Formulário de Acesso */}
-        <form onSubmit={handleAccess} className="w-full space-y-4">
+        <form onSubmit={handleAccess} className="w-full max-w-[480px] space-y-4">
           <div className="relative group">
             <div className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-orange-500 transition-colors">
               <IconLock className="w-5 h-5" />
