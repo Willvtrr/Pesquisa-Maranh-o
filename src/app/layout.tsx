@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/ICON - VARIAÇÃO 3.svg',
     shortcut: '/ICON - VARIAÇÃO 3.svg',
-    apple: '/ICON - VARIAÇÃO 3.svg',
+    apple: '/apple-touch-icon.png',
   },
   appleWebApp: {
     capable: true,
@@ -47,7 +47,7 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.variable} ${jetbrains.variable}`}>
       <head>
         <link rel="icon" href="/ICON - VARIAÇÃO 3.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/ICON - VARIAÇÃO 3.svg" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className="font-sans min-h-screen">
         <PWARegister />
