@@ -15,11 +15,11 @@ const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' }
 export const metadata: Metadata = {
   title: 'Focco Analytics | Inteligência de Dados',
   description: 'Painel executivo de alta performance para análise de dados estratégicos e pesquisas de opinião.',
-  manifest: '/manifest.json',
+  manifest: '/manifest.json?v=2',
   icons: {
-    icon: '/ICON - VARIAÇÃO 3.svg',
-    shortcut: '/ICON - VARIAÇÃO 3.svg',
-    apple: '/apple-touch-icon.png',
+    icon: '/ICON - VARIAÇÃO 3.svg?v=2',
+    shortcut: '/ICON - VARIAÇÃO 3.svg?v=2',
+    apple: '/apple-touch-icon.png?v=2',
   },
   appleWebApp: {
     capable: true,
@@ -46,8 +46,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} ${jetbrains.variable}`}>
       <head>
-        <link rel="icon" href="/ICON - VARIAÇÃO 3.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/ICON - VARIAÇÃO 3.svg?v=2" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
       </head>
       <body className="font-sans min-h-screen">
         <PWARegister />
