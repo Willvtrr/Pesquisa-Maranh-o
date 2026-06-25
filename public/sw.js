@@ -1,9 +1,11 @@
-const CACHE_NAME = 'focco-analytics-v1';
+const CACHE_NAME = 'focco-analytics-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
-  'https://picsum.photos/seed/focco-icon-192/192/192',
-  'https://picsum.photos/seed/focco-icon-512/512/512'
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+  '/ICON - VARIAÇÃO 3.svg'
 ];
 
 self.addEventListener('install', (event) => {
